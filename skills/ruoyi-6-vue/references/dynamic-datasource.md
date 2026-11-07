@@ -5,7 +5,7 @@
 ## 6.1.0 源码事实
 
 - 动态数据源使用 dynamic-datasource，配置在 `spring.datasource.dynamic.*`，包含 `primary`、`strict` 和 `datasource`；当前开发配置默认 `master`，其他库以注释示例存在。
-- `DataBaseHelper` 通过 `DynamicDataSourceContextHolder` 读取当前数据源键；生成器模块用 `@DS("#dataName")` 和 `@DSTransactional` 处理多库。
+- `DataBaseHelper` 通过 `DynamicDataSourceContextHolder` 读取当前数据源键；需要切库时按现有 `@DS`、`@DSTransactional` 用法处理，跨库操作先核对目标模块的实际配置。
 - `@DS("")` 可强制使用默认数据源；Mapper/Service 上的数据源切换和事务边界要按现有实现确认。
 
 ## 先判断方案

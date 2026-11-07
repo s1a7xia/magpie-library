@@ -234,7 +234,9 @@ RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 |---|---|
 | 任何 RuoYi 业务改动 | `references/common.md` |
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | `references/backend.md` |
+| 模块边界、跨模块契约、请求链路、启动配置 | `references/architecture.md` |
 | Vue 3 / TypeScript / Element Plus | `references/frontend.md` |
+| 请求封装、动态路由、Pinia、layout、hooks、标准 CRUD 骨架 | `references/frontend-shell.md` |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
 | 可见页面、布局、样式、仪表盘 | `references/ui-design.md` |
 | Warm-Flow 流程定义、发起流程、待办/已办、审批与业务集成 | `references/workflow.md` |
@@ -256,7 +258,7 @@ RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 动态数据源、主从库、多库访问、跨库事务 | `references/dynamic-datasource.md` |
 | 需要查官方规范或功能说明 | `references/docs-map.md` |
 
-普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。目标栈始终是 **RuoYi-Vue-Plus 6.1.0 + plus-ui 6.1.0 + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 不是能力入口。目标栈始终是 **RuoYi-Vue-Plus 6.1.0 + plus-ui 6.1.0 + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 

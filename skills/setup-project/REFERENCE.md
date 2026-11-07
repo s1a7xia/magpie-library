@@ -280,7 +280,7 @@ Write the result into `## Project engineering principles` and `## Verification q
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. A project `AGENTS.md`/`CLAUDE.md` pointer is optional and only used when the file already exists or the user explicitly asks for one. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-6-vue` applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
+**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-6-vue` (RuoYi-Vue-Plus 6.1.0 + Vue) applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
 
 For the default or a user-named profile, read the checkout only to establish registration facts — the exact version, governed module paths and real verification commands. Do not use those facts to re-decide whether the default applies. For RuoYi-Vue-Plus, take the exact version from the parent POM, never from a guess.
 
@@ -300,7 +300,7 @@ Scope: Java business modules, plus-ui API/views, and SQL scripts
 Stack and version: RuoYi-Vue-Plus 6.X — verify exact version in the parent POM
 Technical profile: ruoyi-6-vue
 Additional standards: project-relative team standard paths, or none
-Source of API truth: current module and the verified generator/demo paths
+Source of API truth: current module source, neighboring implementations, and verified demo/framework paths
 Verification: actual Maven and frontend commands, with working directories
 ```
 

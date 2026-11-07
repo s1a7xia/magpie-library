@@ -14,7 +14,7 @@
 
 ## 2. 四步工作流
 
-1. **探查底座与参考实现**：确认目标工程版本、模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 前先读生成器模板和 demo。
+1. **探查底座与参考实现**：确认目标工程版本、模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 时读同模块的 Controller/Service/Mapper/Vue 页面和 demo，按现有分层直接编写，不依赖代码生成器。
 2. **对齐数据与契约**：DDL、Entity、BO、VO、API、TypeScript 类型、字典值和页面标签逐项对齐。先判断能否复用组织、账号、角色、字典、参数、文件等框架能力。
 3. **按最小范围实现**：只实现当前任务需要的接口和交互，不机械生成全套 CRUD，不为假想需求新增抽象、中间件或跨模块依赖。
 4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行目标工程的 Maven 编译，让 MapStruct 生成实现；前端按实际脚本构建或类型检查。可见页面是否可用、是否好看，必须另走渲染验收。
@@ -29,7 +29,7 @@
 
 ## 4. 目标工程目录
 
-以下为本地 6.1.0 的常见结构；以 `codex/p0-integration` 实际模块为准，不为每个业务功能新建 Maven 子模块。
+以下为本地 6.1.0 的常见结构；以 `codex/p0-integration` 实际模块为准，不为每个业务功能新建 Maven 子模块。模块职责与跨模块调用边界见 [architecture.md](architecture.md)。
 
 ```text
 ruoyi-admin/                    # 启动、应用依赖、环境配置
@@ -89,22 +89,20 @@ plus-ui/src/
 | 请求、下载、错误提示 | `utils/request`、`plugins/modal` 及现有 API |
 | 表格选择、加载态、查询重置/折叠 | `hooks/table`、`hooks/async`、`hooks/form` |
 | 表单弹窗生命周期 | `hooks/dialog/useFormDialog` |
-| 字典、权限、分页、树面板 | `components/DictTag`、`useDict`、`v-hasPermi`/`checkPermi`、`pagination`、`TreePanel` |
+| 字典、权限、分页、树面板 | `components/DictTag`、`utils/dict` 的 `useDict`、`v-hasPermi`/`checkPermi`、`pagination`、`TreePanel` |
 | 页面壳、搜索卡片、表格工具栏、主题 token | 先看 `assets/styles/tokens`、`components/_page-shell.scss`、`_search-panel.scss`、`_table-toolbar.scss` 和两三个兄弟页面 |
 
-## 6. 模板与示例入口
+## 6. 邻近实现入口
 
-生成器实际加载 classpath 下的 `fm/`；`plus-ui/gen/` 是前端参考模板。可以直接参考模板写代码，无需先运行生成器。
+本项目由 AI 直接编写前后端代码，不以运行代码生成器为前提。`ruoyi-gen` 的 `fm/` 和 `plus-ui/gen/` 只是框架风格的只读证据，不是必须步骤；优先读可运行的 demo 和同模块业务实现。
 
 | 用途 | 目标工程入口 |
 |---|---|
-| Java 分层 | `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` |
-| Vue API、类型、列表与树表 | `ruoyi-modules/ruoyi-gen/src/main/resources/fm/vue/`、`plus-ui/gen/` |
-| Mapper XML | `ruoyi-modules/ruoyi-gen/src/main/resources/fm/xml/` |
-| 配套 SQL | `ruoyi-modules/ruoyi-gen/src/main/resources/fm/sql/` |
-| 模板选择与输出路径 | `ruoyi-modules/ruoyi-gen/src/main/java/org/dromara/gen/util/TemplateEngineUtils.java` |
-| 标准后端示例 | `ruoyi-modules/ruoyi-demo/src/main/` |
-| 标准 Vue 页面与 API | `plus-ui/src/views/demo/`、`plus-ui/src/api/demo/` |
+| 标准后端分层 | `ruoyi-modules/ruoyi-demo/src/main/java/org/dromara/demo/`、`ruoyi-modules/ruoyi-system/` |
+| 标准 Vue 页面与 API | `plus-ui/src/views/demo/`、`plus-ui/src/api/demo/`、`plus-ui/src/views/system/` |
+| 框架公共能力 | `ruoyi-common/`、`plus-ui/src/{utils,hooks,components}/` |
+| 跨模块契约 | `ruoyi-api/src/main/java/org/dromara/` |
+| 前端请求、路由、状态与布局 | 见 [frontend-shell.md](frontend-shell.md) |
 
 ## 7. 交付检查
 

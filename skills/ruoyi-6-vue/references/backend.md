@@ -1,6 +1,6 @@
 # Backend Reference
 
-用于 Java / Spring Boot / MyBatis-Plus / Sa-Token 业务代码。先读 [common.md](common.md) 的流程、复用检查和交付门禁。
+用于 Java / Spring Boot / MyBatis-Plus / Sa-Token 业务代码。先读 [common.md](common.md) 的流程、复用检查和交付门禁。涉及模块归属或跨模块调用时再读 [architecture.md](architecture.md)，不要仅按包名决定依赖。
 
 ## 对象职责与映射
 

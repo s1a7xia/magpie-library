@@ -55,7 +55,6 @@
 | 消息推送 | [features/message-push.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/message-push.md) | SSE、WebSocket 和站内通知 |
 | 安全合规 | [features/security-compliance.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/security-compliance.md) | 合规、数据最小化和审计要求 |
 | 系统架构 | [architecture/system.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/system.md) | 模块、依赖和系统边界 |
-| 代码生成器 | [engineering/code-generator.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/engineering/code-generator.md) | 模板、字段类型和生成后检查 |
 
 外部借鉴资料：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是本项目目标栈；只可借鉴其信息组织和交互思路，不加载其组件、请求层或工程配置。需要看这份外部参考时读 [soybean-ui.md](soybean-ui.md)，但不能据此改变 6.1.0 + plus-ui + Element Plus 的技术判断。
 
@@ -64,7 +63,7 @@
 ## 使用规则
 
 1. 先读本技能对应领域文件，再按上表只打开与当前任务直接相关的一两页。
-2. 文档中的示例若与 `codex/p0-integration` 源码冲突，以源码、生成器模板和框架邻近实现为准。
+2. 文档中的示例若与 `codex/p0-integration` 源码冲突，以源码和框架邻近实现为准。
 3. 不把文档站的 3.5.x 版本号、类名或配置直接复制到 6.1.0 项目。
 4. 本项目未启用多租户；外部多租户章节只能帮助理解概念，不能作为新增 `tenant_id`、租户拦截器或租户管理页的依据。
 5. 需要长期复用的结论写入项目 `docs/research/`，不要只留在聊天里。
