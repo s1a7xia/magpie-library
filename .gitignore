@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 .venv/
+$null
 
 # 编辑/同步产生的备份，不入库
 *.bak

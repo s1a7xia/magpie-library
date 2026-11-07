@@ -1,4 +1,4 @@
-# Magpie 工程组合拳（私有）
+# Magpie 工程组合拳
 
 这是一套跨项目的 AI 工程协作基线：把**通用规则、工程技能、工具连接**统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。
 
@@ -15,7 +15,7 @@
   -> 收尾
 ```
 
-仓库私有，主要用于溯源和阅读。**日常生效的源头不是本仓库**，而是本机 Magpie 资源库 `~/.config/magpie/library/`；本仓库是它的可读、可 diff、可回滚副本。
+本仓库公开用于阅读、参考和溯源。**日常生效的源头不是本仓库**，而是本机 Magpie 资源库 `~/.config/magpie/library/`；本仓库是它的可读、可 diff、可回滚副本。
 
 > 换电脑时，先用 Magpie 的同步备份恢复资源库、凭据和运行配置，再考虑克隆本仓库。完整依赖与恢复步骤见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
