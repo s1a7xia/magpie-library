@@ -2,10 +2,10 @@
 
 只在任务明确涉及定时执行、后台批处理、分布式调度、失败重试、分片/MapReduce 或任务日志时加载。普通业务 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 6.1.0 源码事实
 
 - 业务示例模块是 `ruoyi-modules/ruoyi-job`，客户端自动配置在 `ruoyi-common/ruoyi-common-job`，调度服务端在 `ruoyi-extend/ruoyi-snailjob-server`。
-- 6.0.0 根 POM 使用 SnailJob `2.0.2`；客户端配置前缀是 `snail-job`，默认开发配置可能为 `enabled: false`，以目标工程配置为准。
+- 6.1.0 根 POM 使用 SnailJob `2.0.2`；客户端配置前缀是 `snail-job`，默认开发配置可能为 `enabled: false`，以目标工程配置为准。
 - `SnailJobConfig` 由 `snail-job.enabled=true` 条件启用，并同时启用 Spring Scheduling 和 SnailJob 客户端。
 - 普通任务示例使用 `@Component` + `@JobExecutor(name = "...")`，执行方法接收 `JobArgs` 并返回 `ExecuteResult`；MapReduce 另有 `@MapExecutor`、`@ReduceExecutor`。
 - 示例覆盖普通、广播、静态分片和 MapReduce 任务；这些是示例，不要把生产业务逻辑堆进 `ruoyi-job` 的 demo 类。
@@ -24,7 +24,7 @@
 ## 任务实现边界
 
 1. **放在所属业务模块**：任务逻辑优先靠近它操作的业务数据；若需要客户端依赖，先核对模块 POM 和打包方式，不把真实业务长期放在示例模块。
-2. **不依赖登录态**：任务线程没有当前用户。显式确定任务身份、租户、部门或数据范围；不要直接调用只在前台有效的 `LoginHelper` 逻辑。
+2. **不依赖登录态**：任务线程没有当前用户。显式确定任务身份、部门或数据范围；不要直接调用只在前台有效的 `LoginHelper` 逻辑。
 3. **幂等优先**：重试、广播和多实例都可能重复执行。使用业务唯一键、状态条件更新、幂等表或现有分布式锁，不能只靠“应该只跑一次”。
 4. **结果可观察**：成功和失败都返回明确的 `ExecuteResult`，日志使用 `SnailJobLog.LOCAL`/`REMOTE` 并带任务标识；不记录令牌、密码、完整请求头或个人敏感数据。
 5. **参数有边界**：只接收任务需要的参数并校验，不把任意 JSON 直接反序列化成可执行对象或 SQL。

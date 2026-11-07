@@ -2,7 +2,7 @@
 
 只在任务涉及操作日志、登录日志、审计、监控端点、错误追踪、日志脱敏或运行状态页面时加载。普通 CRUD 只在需要新增 `@Log` 时参考本文件的相关小节。
 
-## 6.0.0 源码事实
+## 6.1.0 源码事实
 
 - 操作日志公共能力在 `ruoyi-common/ruoyi-common-log`：`@Log(title, businessType, operatorType, isSaveRequestData, isSaveResponseData, excludeParamNames)` 由 `LogAspect` 拦截，发布 `OperLogEvent`，再由系统模块落库。
 - `BusinessType` 包含 OTHER、INSERT、UPDATE、DELETE、GRANT、EXPORT、IMPORT、FORCE、GENCODE、CLEAN；操作类型要表达真实动作，不把所有写操作都标成 UPDATE。

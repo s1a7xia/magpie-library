@@ -2,7 +2,7 @@
 
 只在任务涉及请求/响应加解密、字段落库加密、RSA/AES/SM2/SM4、密钥配置、脱敏或密文迁移时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 6.1.0 源码事实
 
 - 加解密公共能力在 `ruoyi-common/ruoyi-common-encrypt`，包含 `@ApiEncrypt`、`@EncryptField`、`CryptoFilter`、`DecryptRequestBodyWrapper`、`EncryptResponseBodyWrapper`、`MybatisEncryptInterceptor`、`MybatisDecryptInterceptor` 和 `EncryptUtils`。
 - API 解密配置前缀是 `api-decrypt`：`enabled`、`headerFlag`、响应公钥、请求私钥；`CryptoFilter` 对带加密头的 PUT/POST 请求解密，对有 `@ApiEncrypt(response = true)` 的响应加密。

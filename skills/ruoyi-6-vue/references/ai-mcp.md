@@ -2,7 +2,7 @@
 
 只在任务涉及 Snail AI、智能体、AI 对话、OpenAPI 用户注册、MCP Server/Client 或把内部能力暴露给 AI 时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 6.1.0 源码事实
 
 - AI 公共自动配置在 `ruoyi-common/ruoyi-common-ai`，入口是 `SnailAiConfig`；只有 `snail-ai.enabled=true` 时才启用 `@EnableSnailAiAgent` 和 `@EnableSnailAiOpenApi`。
 - AI 业务模块是 `ruoyi-modules/ruoyi-ai`。当前可见 Controller 为 `SnailAiController`，路径 `/snail-ai`，`/user/register` 把当前登录用户注册为 Snail AI OpenAPI 用户；该类还受 `snail-ai.open-api.enabled=true` 控制。
@@ -38,4 +38,4 @@
 - 用两个角色或数据范围验证工具不会越权读取；检查日志和响应中无凭证、令牌或敏感明文。
 - 涉及前端 AI 页面时，按 `page-acceptance` 在真实页面验证流式/非流式响应、取消、重试、空状态和错误提示。
 
-官方参考：[MCP 服务端](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html)、[MCP 客户端](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html)、[Snail AI](https://snail-ai.com/)。具体 Starter、注解和配置键以 6.0.0 目标源码为准。
+官方参考：[MCP 服务端](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-server-boot-starter-docs.html)、[MCP 客户端](https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html)、[Snail AI](https://snail-ai.com/)。具体 Starter、注解和配置键以 6.1.0 目标源码为准。

@@ -2,7 +2,7 @@
 
 只在任务涉及第三方登录、OAuth 回调、JustAuth、社交账号绑定或统一身份提供商时加载。普通账号密码登录不加载。
 
-## 6.0.0 源码事实
+## 6.1.0 源码事实
 
 - 社交登录公共能力在 `ruoyi-common/ruoyi-common-social`，依赖 JustAuth 和 `ruoyi-common-redis`。
 - `SocialAutoConfiguration` 注册 `AuthRedisStateCache` 作为 OAuth state 缓存；`SocialUtils` 根据 `justauth.type.<source>` 构造对应平台的授权请求。

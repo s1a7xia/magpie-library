@@ -1,4 +1,4 @@
-# RuoYi 6.0 Vue Page Design
+# RuoYi 6.1 Vue Page Design
 
 本文件是 plus-ui 6.X-Vue 页面的视觉与验收边界。`frontend-design` 负责设计方法；本文件负责让业务页保持既有产品的一致性。视觉改动不改变权限、字典、分页、校验、请求和既有交互。
 

@@ -1,14 +1,14 @@
-# RuoYi-Vue-Plus 6.0.0 + Vue Common Baseline
+# RuoYi-Vue-Plus 6.1.0 + Vue Common Baseline
 
-适用于 **RuoYi-Vue-Plus 6.0.0 后端 + plus-ui 6.X-Vue 前端**。技术事实以目标工程源码为准；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
+适用于本地 `codex/p0-integration` 的 **RuoYi-Vue-Plus 6.1.0 后端 + plus-ui 6.1.0 前端**。技术事实以该分支源码为准；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
 
 ## 1. 版本基线
 
 | 层 | 本次核对到的事实 | 使用规则 |
 |---|---|---|
-| 后端 | `revision=6.0.0`，Java 21，Spring Boot 4.1.1，MyBatis-Plus 3.5.17，Sa-Token 1.46.0 | 以目标仓库 `pom.xml` 和实际依赖为准 |
-| 前端 | 官方 `6.X-Vue` 分支：Vue 3.5、Element Plus 2.14、Vite 8、pnpm 10；`package.json` 版本字段可能是 6.1.0 | 前端是独立仓库时，分别读取它的锁文件和实际页面；不要把后端 revision 当成前端版本 |
-| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只用于规范概念和检索入口；6.0.0 的 API、类名和配置以源码为准 |
+| 后端 | `revision=6.1.0`，Java 21，Spring Boot 4.1.2，MyBatis-Plus 3.5.18 | 以 `codex/p0-integration` 的 `pom.xml` 和实际依赖为准 |
+| 前端 | `plus-ui/package.json` 版本 6.1.0：Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5、pnpm 10.34.5 | 读取同分支 `plus-ui` 的锁文件和实际页面；不要把后端 revision 当成前端版本 |
+| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只借鉴章节组织和规范概念；6.1.0 的 API、类名和配置以本地源码为准 |
 
 官方文档地图见 [docs-map.md](docs-map.md)。
 
@@ -29,13 +29,13 @@
 
 ## 4. 目标工程目录
 
-以下为 6.0.0 常见结构；以目标仓库实际模块为准，不为每个业务功能新建 Maven 子模块。
+以下为本地 6.1.0 的常见结构；以 `codex/p0-integration` 实际模块为准，不为每个业务功能新建 Maven 子模块。
 
 ```text
 ruoyi-admin/                    # 启动、应用依赖、环境配置
 ruoyi-api/                      # 跨模块接口与 DTO
 ruoyi-common/                   # core、mybatis、satoken、redis、web 等通用能力
-ruoyi-modules/ruoyi-<module>/
+ruoyi-modules/ruoyi-<module>/       # ruoyi-secops 是项目业务模块，不进入通用 skill
 ├─ controller/XxxController.java
 ├─ domain/Xxx.java
 ├─ domain/bo/XxxBo.java
@@ -43,10 +43,10 @@ ruoyi-modules/ruoyi-<module>/
 ├─ mapper/XxxMapper.java
 └─ service/{IXxxService.java,impl/XxxServiceImpl.java}
 ruoyi-extend/                   # 独立扩展服务
-script/sql/                     # MySQL 及按方言分目录的脚本
+script/sql/                     # MySQL、升级脚本及按方言分目录的脚本
 ```
 
-前端通常是独立的 `plus-ui` 工程：
+`codex/p0-integration` 中前端位于同仓 `plus-ui/`：
 
 ```text
 plus-ui/src/

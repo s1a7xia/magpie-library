@@ -1,11 +1,11 @@
-# Frontend Reference — plus-ui 6.X-Vue
+# Frontend Reference — plus-ui 6.1.0
 
-用于 RuoYi-Vue-Plus 6.0.0 配套的 **Vue 3 / TypeScript / Element Plus** 页面、API 与样式。先读 [common.md](common.md) 的流程、复用检查和交付门禁；出现可见页面改动时再读 [ui-design.md](ui-design.md)。
+用于 `codex/p0-integration` 中 `plus-ui` 6.1.0 的 **Vue 3 / TypeScript / Element Plus** 页面、API 与样式。先读 [common.md](common.md) 的流程、复用检查和交付门禁；出现可见页面改动时再读 [ui-design.md](ui-design.md)。
 
 ## 版本与目录
 
-- 官方前端分支为 `6.X-Vue`；本次核对到的依赖是 Vue 3.5、Element Plus 2.14、Vite 8、pnpm 10。`package.json` 的 version 字段可能是 6.1.0，不要据此反推后端版本。
-- 先读目标工程的 `package.json`、锁文件、`vite.config` 和现有页面，再决定命令。不要假设前端一定在后端仓库的 `plus-ui/` 下。
+- 本地基线的 `plus-ui/package.json` 是 6.1.0，依赖为 Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5、pnpm 10.34.5；不要据此反推后端版本。
+- 先读目标工程的 `package.json`、锁文件、`vite.config` 和现有页面，再决定命令。`codex/p0-integration` 的前端在同仓 `plus-ui/`。
 - API、类型和页面分开：`src/api/<module>/<business>/{index.ts,types.ts}` 与 `src/views/<module>/<business>/index.vue`。
 - 页面使用 `<script setup name="Xxx" lang="ts">`；组件 `name` 与菜单路由 `name` 保持一致，否则 keep-alive 缓存会失效。
 - 修改前读同模块的两三个兄弟页面、现有 API 和 hooks，沿用页面壳、表格、表单、弹窗和主题 token；不要为单页另造一套组件体系。
