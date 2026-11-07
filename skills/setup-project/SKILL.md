@@ -34,6 +34,8 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 这些文件是消费者技能的读取入口，具体读取顺序见 [Skill Entry Protocol](../rules/entry-protocol.md)。
 
+遇到结构性迁移、旧项目配置审计或需要完整重跑清单时，再读 [REFERENCE.md](REFERENCE.md)；普通首次初始化和只更新少量字段不需要预读。
+
 ## Process
 
 **Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。

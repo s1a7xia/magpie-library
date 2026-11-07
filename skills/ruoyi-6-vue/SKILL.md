@@ -27,6 +27,10 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | 可见页面、布局、样式、仪表盘 | common + frontend（改 Vue 时） | [ui-design.md](references/ui-design.md) |
 | Warm-Flow 流程定义、发起流程、待办/已办、审批与业务集成 | common + backend | [workflow.md](references/workflow.md) |
 | SnailJob、定时任务、分布式调度、失败重试、任务日志 | common + backend | [snail-job.md](references/snail-job.md) |
+| Excel 导入/导出、模板、字典转换、大批量导出 | common + backend | [excel.md](references/excel.md) |
+| 文件上传/下载、OSS、附件字段、预览和存储配置 | common | [file-oss.md](references/file-oss.md) |
+| WebSocket/SSE、站内消息、实时通知、消息推送 | common | [messaging.md](references/messaging.md) |
+| 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | common | [access-control.md](references/access-control.md) |
 | 目标前端实际采用 Soybean Admin + Naive UI | common + frontend | [soybean-ui.md](references/soybean-ui.md)；仅在项目确实使用该前端时 |
 | 需要查官方规范或功能说明 | common | [docs-map.md](references/docs-map.md) |
 | 前后端或全栈切片 | common | 对应领域文件全部加载 |

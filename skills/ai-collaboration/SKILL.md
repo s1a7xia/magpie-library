@@ -7,6 +7,8 @@ description: 对齐 Magpie、Codex 和 dsh 的协作边界。仅在项目存在�
 
 **Load condition.** Read this skill when the project has more than one agent working in it, or when the WeChat entry is enabled for status checks. A single-agent development session does not need it; skip it to keep context small.
 
+需要核对跨 Agent 的交付、证据和写入边界时，再读 [REFERENCE.md](REFERENCE.md)；日常路由和微信入口以本文件及 `~/.dsh/im/` 的事实源为准。
+
 Magpie 管共享指令、技能与工具配置；Codex 负责用户交给它的开发与交付任务；普通 dsh 项目遵循用户当前需求和项目规则，可正常开发、测试和执行已授权 Git 操作。
 
 ## 微信入口

@@ -239,10 +239,20 @@ RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 可见页面、布局、样式、仪表盘 | `references/ui-design.md` |
 | Warm-Flow 流程定义、发起流程、待办/已办、审批与业务集成 | `references/workflow.md` |
 | SnailJob、定时任务、分布式调度、失败重试、任务日志 | `references/snail-job.md` |
+| Excel 导入/导出、模板、字典转换、大批量导出 | `references/excel.md` |
+| 文件上传/下载、OSS、附件字段、预览和存储配置 | `references/file-oss.md` |
+| WebSocket/SSE、站内消息、实时通知、消息推送 | `references/messaging.md` |
+| 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | `references/access-control.md` |
 | 目标前端实际采用 Soybean Admin + Naive UI | `references/soybean-ui.md`（仅该前端） |
 | 需要查官方规范或功能说明 | `references/docs-map.md` |
 
 普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和 Soybean 都是条件参考，不因模块存在而预读。Soybean 是可选前端变体，不替代默认的 `plus-ui + Element Plus`。
+
+业务功能参考的边界：
+
+- **已覆盖**：Excel、文件/OSS、实时消息、权限/数据范围/多租户判断、Warm-Flow、SnailJob。
+- **暂不单独展开**：AI/MCP、MQTT、Elasticsearch、社交登录、短信/邮件等。遇到真实任务时先读目标源码和现有模块，不预建一套通用知识。
+- **多租户**：`ruoyi-p0` 当前没有完整租户链路，`access-control.md` 只要求先判断项目是否真的启用，不把文档站的完整多租户方案当成 6.0.0 源码事实。
 
 事实优先级：目标工程源码 > 6.0.0 源码核对过的约束 > 官方文档地图（正文默认 3.5.x）> 通用框架习惯。不要用文档站的 3.5.x 类名或配置直接覆盖 6.0.0 项目。
 
