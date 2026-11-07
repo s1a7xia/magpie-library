@@ -151,7 +151,7 @@ Add created issues to PRD's `## Traceability → Sliced into` section:
 
 **Status markers**:
 - `— Done` — Issue closed and code merged
-- `— In Progress` — Issue being implemented (tdd in progress)
+- `— In Progress` — Issue being implemented
 - No marker — Issue not started
 
 Fill the `Sliced by` field in the PRD's `## Traceability` section:

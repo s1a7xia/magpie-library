@@ -56,10 +56,10 @@ For example, collection-to-map work starts by inspecting `StreamUtils.toMap` / `
 
 - **think / grill:** Use the standard to investigate reuse, data fields, JSON, ownership, permissions, background identity, nullable updates and uniqueness. Preserve their interview discipline and planning-only output. Development/compilation steps apply when implementation starts, not before code exists.
 - **story:** Carry the agreed DDL, Entity/BO/VO fields/types, API and permission contracts, frontend behavior, nullable-field semantics and verification into the existing issue scope and acceptance criteria. The workflow and task formats remain the existing ones.
-- **implement / tdd / debug:** Load the original standard before affected code work. Follow its reuse/model alignment, implementation and delivery requirements within the active workflow. Debugging still needs root-cause evidence. TDD designs tests and reaches RED before production implementation; the original compilation and delivery checks apply after GREEN, not as a reason to bypass RED.
+- **implement / debug:** Load the original standard before affected code work. Follow its reuse/model alignment, implementation and delivery requirements within the active workflow. Debugging still needs root-cause evidence. The original compilation and delivery checks apply once the real change exists.
 - **review:** Each perspective reads the original standard for its scope. Test Review checks behavior and boundaries; Code Review checks framework/mapping/frontend conventions; Impact Review checks data scope, background identity, schema scripts and cross-module effects. The original six checks supplement these perspectives.
 
-Apply the shared [Standards Gate](../rules/entry-protocol.md#standards-gate) for missing rules, verification evidence and completion decisions. Its stage boundaries govern planning, TDD intermediate phases and reviews; do not maintain a separate exception policy here.
+Apply the shared [Standards Gate](../rules/entry-protocol.md#standards-gate) for missing rules, verification evidence and completion decisions. Its stage boundaries govern planning, intermediate phases and reviews; do not maintain a separate exception policy here.
 
 ## Clarifications Applied Alongside the Original
 

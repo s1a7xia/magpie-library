@@ -66,47 +66,20 @@ Also set `Last updated` to today's date.
 
 ## Step 3: Implement Each Seam
 
-### 3a. TDD Suitability Assessment
+### 3a. Direct Implementation
 
-For each work item, evaluate all criteria. If **all** are true, the item is TDD-suitable:
-
-- [ ] Acceptance criteria are clearly defined (testable, unambiguous)
-- [ ] Behavior can be tested through public interfaces (API, component props, function signature)
-- [ ] No external integration is required that makes fast test feedback impossible
-- [ ] The expected behavior is deterministic (same input → same output)
-- [ ] The implementation does not primarily consist of configuration, data migration, or UI layout
-
-If TDD-suitable → proceed to 3b. If not → proceed to 3c.
-
-### 3b. Use TDD on This Item
-
-Follow the TDD process for this issue/seam when available:
-
-1. Read the `tdd` skill's SKILL.md and REFERENCE.md (sibling directory `../tdd/` in the installed skills tree) when it is installed. If it is unavailable, use direct implementation and record the capability gap.
-2. Execute the available `tdd` steps: Plan → Acceptance Criterion Cycles → Refactor → Output, subject to the project's test authorization
-3. Let `tdd` handle its authorized test writing, implementation, and refactoring when present
-4. **Do not** auto-run the TDD workflow's review step — the implement workflow handles review at Step 5
-5. When TDD outputs its completion summary, resume the implement workflow
-
-**If TDD is cancelled mid-cycle** (user interrupts):
-- Check which criteria completed (GREEN) vs not
-- For completed criteria, proceed to typechecking (3d)
-- For incomplete criteria, either resume TDD or implement directly per 3c
-
-### 3c. Direct Implementation (with Tests)
-
-When an item is not TDD-suitable:
+Implement each item directly. Read the seam's acceptance criteria first and confirm they are clear;
+the project is documentation-driven, so the PRD or issue body is the contract.
 
 1. **Understand the behavior** — read the issue body or PRD acceptance criteria
-2. **Write tests first if authorized and possible** — even outside formal TDD, test-first is preferred when the project profile or request permits test work
-3. **Implement** — write the minimal code to satisfy the tests
-4. **Run tests** — when authorized, ensure all applicable tests pass; otherwise record that verification was not run
+2. **Implement** — write the minimal code that satisfies the acceptance criteria
+3. **Apply engineering principles design-time** — there is no separate Refactor phase behind this path. Consult [../rules/engineering-principles.md](../rules/engineering-principles.md) while writing; its Consumer & Ownership Map lists this path against every principle, in design-time terms. Read each entry's *When NOT to apply* before restructuring anything — the counter-indications are what keep this from becoming speculative abstraction.
+4. **Run authorized checks** — when the current request, project profile or this stage authorizes checks, run them and make them pass; otherwise record that verification was not run
+5. **Tests** — write or run tests only when the current request explicitly asks for test work
 
-**Apply engineering principles design-time** — unlike a TDD path, direct implementation has no Refactor phase behind it to catch structural problems later. Consult [../rules/engineering-principles.md](../rules/engineering-principles.md) while writing; its Consumer & Ownership Map lists this path against every principle, in design-time terms. Read each entry's *When NOT to apply* before restructuring anything — the counter-indications are what keep this from becoming speculative abstraction.
+### 3b. Typechecking
 
-### 3d. Typechecking
-
-After each item is implemented (via TDD or direct):
+After each item is implemented:
 
 1. Detect the project's typechecker from existing config files:
    - `tsconfig.json` → `tsc --noEmit`
@@ -119,7 +92,7 @@ After each item is implemented (via TDD or direct):
 
 If no typechecker is detected, skip silently and note the absence in the output.
 
-### 3e. Testing
+### 3c. Testing
 
 After typechecking passes:
 
@@ -131,14 +104,14 @@ After typechecking passes:
 
 **Verify the artifact, not just the source** (anti-pattern #17) — ensure the test runner actually executed and reported results. Paste the output as evidence (anti-pattern #6 — claim without evidence).
 
-### 3f. Committing
+### 3d. Committing
 
 When local commit authorization applies, commit with a descriptive message:
 
 ```
 [PRD-NNNN] <seam title> — <summary>
 
-Implemented <what> via <tdd | direct>.
+Implemented <what>.
 <additional context if needed>
 ```
 
@@ -151,7 +124,7 @@ Implemented <what> via <tdd | direct>.
 ```
 [PRD-0003] User subscription data model — schema + CRUD API
 
-Implemented subscription schema, repository, and CRUD API through TDD.
+Implemented subscription schema, repository, and CRUD API.
 Closes #42
 ```
 
@@ -206,15 +179,6 @@ Produce the output template from SKILL.md, filling in:
 - Next step to `/review`
 
 ## Recovery Procedures
-
-### TDD Cancelled Mid-Cycle
-
-If the user interrupts TDD (e.g., "stop", "skip this one", "this is taking too long"):
-
-1. Check which acceptance criteria within TDD completed (GREEN)
-2. For GREEN criteria: record them, proceed to typechecking (3d)
-3. For incomplete criteria: assess whether to implement directly (3c) or skip
-4. Ask one question with a recommendation: "Item <X> was not completed by TDD. Resume TDD, or implement directly (3c)? (Recommended: implement directly — the cycle was already interrupted)" — skip only if the user says so
 
 ### Test Suite Regression
 

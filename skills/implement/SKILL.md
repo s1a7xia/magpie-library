@@ -5,12 +5,12 @@ description: "Use only when the user explicitly invokes implement for a PRD or s
 
 # Implement: Workflow Orchestration
 
-当前资源库检查规则优先：默认只检查本次改动涉及的前后端能否编译，不再选择交付档位或重复询问验证授权。前后端均有改动时分别编译；仅改一端时只编译该端，纯文档或不影响编译的配置改动只核对差异。复用项目已有编译/构建命令，跳过测试，不独立运行 lint、类型检查或自动化测试；UI 可见改动另按 `page-acceptance` 走页面验收（见 Step 3.6）；已有构建命令内置的编译类型检查可保留。用户明确要求额外检查或暂不编译时按当次要求执行。编译失败或环境缺失时如实报告，不把编译通过等同于功能验收。 TDD、测试编写、独立类型检查或全量测试步骤只有用户明确要求时才执行；不再要求选择项目交付档位。
+当前资源库检查规则优先：默认只检查本次改动涉及的前后端能否编译，不再选择交付档位或重复询问验证授权。前后端均有改动时分别编译；仅改一端时只编译该端，纯文档或不影响编译的配置改动只核对差异。复用项目已有编译/构建命令，跳过测试，不独立运行 lint、类型检查或自动化测试；UI 可见改动另按 `page-acceptance` 走页面验收（见 Step 3.5）；已有构建命令内置的编译类型检查可保留。用户明确要求额外检查或暂不编译时按当次要求执行。编译失败或环境缺失时如实报告，不把编译通过等同于功能验收。测试编写、独立类型检查或全量测试步骤只有用户明确要求时才执行；不再要求选择项目交付档位。
 
 
 🥷 Implement from PRD or issues — orchestrate authorized implementation, checks, review, and commits.
 
-Sequences the implementation pipeline for a set of pre-agreed vertical slices: use TDD where suitable and available, implement directly where not, compile affected sides by default; run extra checks only when explicitly requested, recommend review, and commit per completed item when local commit authorization applies.
+Sequences the implementation pipeline for a set of pre-agreed vertical slices: implement each seam directly, compile affected sides by default; run extra checks only when explicitly requested, recommend review, and commit per completed item when local commit authorization applies.
 
 ## Outcome Contract
 
@@ -33,13 +33,12 @@ Sequences the implementation pipeline for a set of pre-agreed vertical slices: u
 
 **Step 3 — Implement each seam.** For each work item in dependency order:
 
-1. **Assess TDD suitability** — does this item have clear acceptance criteria testable at a public interface boundary? (See [REFERENCE.md §TDD Suitability](REFERENCE.md))
-2. **If suitable** — call `tdd` for this item when it is installed. If it is unavailable, implement directly and record the missing TDD capability instead of stalling. Put the implement workflow aside, execute the available test-first cycle, then resume here.
-3. **If not suitable** — implement directly; write tests only when the current request explicitly asks for test work.
-4. **Typecheck** — compile the affected frontend/backend; run a separate typechecker only when explicitly requested. If it fails, fix before proceeding.
-5. **Test** — run the authorized checks for this item / changed files. All must pass; record checks not authorized as not run.
-6. **Page acceptance** — when this item changes something visible in the UI, run [page-acceptance](../page-acceptance/SKILL.md) for the main path and one boundary; report the runtime layer separately from compilation. Skip it for non-UI changes and say so.
-7. **Commit** — commit with a descriptive message referencing the issue (format: `[PRD-NNNN] <seam description> — <summary>`) only when local commit authorization applies; otherwise leave the changes and report why.
+1. **Read the seam's acceptance criteria** — from the PRD or the issue it came from; confirm they are clear before writing code.
+2. **Implement directly** — write the smallest change that satisfies them; apply [engineering principles](../rules/engineering-principles.md) design-time. Write tests only when the current request explicitly asks for test work.
+3. **Typecheck** — compile the affected frontend/backend; run a separate typechecker only when explicitly requested. If it fails, fix before proceeding.
+4. **Check** — run authorized checks for this item / changed files. Record checks not authorized as not run.
+5. **Page acceptance** — when this item changes something visible in the UI, run [page-acceptance](../page-acceptance/SKILL.md) for the main path and one boundary; report the runtime layer separately from compilation. Skip it for non-UI changes and say so.
+6. **Commit** — commit with a descriptive message referencing the issue (format: `[PRD-NNNN] <seam description> — <summary>`) only when local commit authorization applies; otherwise leave the changes and report why.
 
 Update the issue's status in the PRD's `Sliced into` list to `— Done`.
 
@@ -49,17 +48,16 @@ Update the issue's status in the PRD's `Sliced into` list to `— Done`.
 
 **Step 6 — Output.** Produce summary of implemented items, commits made or omitted, and the checks actually run.
 
-See [REFERENCE.md](REFERENCE.md) for detailed step instructions, TDD suitability checklist, direct implementation guidelines, and recovery procedures.
+See [REFERENCE.md](REFERENCE.md) for detailed step instructions, implementation guidelines, and recovery procedures.
 
 ## Gotchas
 
 | What happened | Rule |
 |---|---|
-| TDD was used on an item that had unclear requirements | REFERENCE §3a: assess TDD suitability first — it requires clear, testable acceptance criteria |
-| Tests failed after direct implementation | Step 3.5: run tests per item immediately — don't batch all changes before testing |
-| Typechecker not configured for the project | Step 3.4: detect typechecker from project config (tsconfig, pyproject.toml, etc.); if none, skip and note the gap |
+| A seam started before its acceptance criteria were clear | Step 3.1: read and confirm the acceptance criteria first |
+| Checks were batched until after every seam | Step 3.4: run the authorized checks per item, not once at the end |
+| Typechecker not configured for the project | Step 3.3: detect typechecker from project config (tsconfig, pyproject.toml, etc.); if none, skip and note the gap |
 | Work items had hidden dependency on incomplete items | Step 2: read blocked-by relationships from `/story` issues; implement in dependency order |
-| TDD was cancelled mid-cycle by the user | REFERENCE §3b: resume from the last completed phase; if no phases completed, move to direct implementation |
 | Commit conflicts with uncommitted work not from this session | Step 3.6: warn user about existing dirty state; ask how to handle before committing |
 | PRD Traceability shows ungrilled or unsliced state | Step 1: flag the gap in output but proceed — implement is not blocked by missing upstream steps |
 | UI change compiled but was never opened | Step 6: run `page-acceptance`; compilation is not evidence about a rendered page (anti-pattern #17) |
@@ -71,8 +69,8 @@ See [REFERENCE.md](REFERENCE.md) for detailed step instructions, TDD suitability
 Implement complete.
 
 **Work items:**
-* <issue-#N / PRD acceptance criterion> — TDD | direct — commit <hash or uncommitted reason>
-* <issue-#M / PRD acceptance criterion> — /tdd | direct — commit <hash>
+* <issue-#N / PRD acceptance criterion> — direct — commit <hash or uncommitted reason>
+* <issue-#M / PRD acceptance criterion> — direct — commit <hash>
 
 **PRD**: PRD-NNNN — Status: In Progress
 

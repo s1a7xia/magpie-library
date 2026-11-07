@@ -18,7 +18,7 @@ Performs three independent review perspectives — Test Review, Code Review, Imp
 
 ## Prerequisites
 
-- Code is complete (by `tdd`, `implement`, or manual)
+- Code is complete (by `implement` or directly)
 - Reviewable changes exist — uncommitted (staged or unstaged) **or** already committed on the current branch (e.g., per-seam commits from `/implement`)
 
 ## Process Summary

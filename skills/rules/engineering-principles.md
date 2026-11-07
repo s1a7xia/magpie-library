@@ -23,7 +23,7 @@ One owner per scope, so the two `/review` perspectives never report the same ite
 | `/review` Code Review perspective — local to the diff | SRP, LSP, ISP, DRY, KISS, YAGNI, LoD, Composition over Inheritance, Explicit over Implicit, Fail Fast, Immutability & Pure Functions |
 | `/review` Impact Review perspective — cross-module | DIP, OCP, newly introduced abstractions and seams, new coupling |
 | architecture-review skill | Numeric thresholds and the mechanically detectable signal for each of the 13, when installed |
-| TDD Refactor phase | Every entry whose Phase is `refactor-safe` — read the Phase field, not a copied list, when a TDD workflow is available |
+| refactor pass (any workflow) | Every entry whose Phase is `refactor-safe` — read the Phase field, not a copied list, during a dedicated refactor or cleanup pass |
 | direct implementation | Every principle, design-time terms (this path has no Refactor phase behind it) |
 
 **Overlap resolution:** when both review perspectives see the same principle issue, the diff-local instance belongs to Code Review and the cross-module boundary belongs to Impact Review. Chapter 5 treats different findings as complementary, not a contradiction.
@@ -31,7 +31,7 @@ One owner per scope, so the two `/review` perspectives never report the same ite
 ## Phase legend
 
 - **design-time** — applies while writing new code.
-- **refactor-safe** — applies in a TDD workflow's Refactor phase: structure changes, behavior and public surface do not.
+- **refactor-safe** — applies during a dedicated refactor or cleanup pass: structure changes, behavior and public surface do not.
 - **review** — a judgment to report, never a change to make inside a refactor.
 
 ---

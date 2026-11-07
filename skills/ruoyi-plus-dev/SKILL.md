@@ -26,7 +26,7 @@ description: "Use when writing or changing Java business code, plus-ui Vue/TypeS
 |---|---|
 | think / grill | Inventory framework reuse; resolve physical-column vs JSON needs, ownership vs audit fields, background execution identity, permissions, nullable updates, uniqueness and state transitions. Preserve the workflow's one-decision-at-a-time interview discipline. |
 | story | Put agreed SQL, Entity/BO/VO, API, permissions, frontend interactions and verification into the existing issue's build scope and acceptance criteria. Use the existing `ready-for-agent` / `ready-for-human` triage roles when relevant. |
-| implement / tdd | Check reuse before production edits, inspect templates, implement the agreed slice, and compile after mapping changes to generate MapStruct code. Test behavior at public interfaces and preserve the active workflow's gates. |
+| implement | Check reuse before production edits, inspect templates, implement the agreed slice, and compile after mapping changes to generate MapStruct code. Preserve the active workflow's gates. |
 | debug | Inspect the affected framework layer while reproducing the defect; use the debugging workflow's evidence before changing code. |
 | review | Test perspective checks observable contracts; Code checks reuse evidence and framework/mapping/frontend conventions; Impact checks permissions, background identity, schema migration, and cross-module effects. Preserve the three independent perspectives. |
 
