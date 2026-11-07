@@ -14,7 +14,7 @@ not leave placeholder values in a real project.
 
 - Backend: <actual compile command and directory, or not applicable>
 - Frontend: <actual build command and directory, or not applicable>
-- 不自动运行测试、lint、独立类型检查或页面快检；构建内置编译检查保留。
+- 不自动运行测试、lint 或独立类型检查；UI 可见改动仍按 `page-acceptance` 走页面验收；构建内置编译检查保留。
 
 ## Current objective
 

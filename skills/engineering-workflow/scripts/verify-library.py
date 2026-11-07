@@ -84,24 +84,34 @@ def main() -> int:
                 checks.append(f"instructions synced (hash {digest})")
 
     source_skills = LIBRARY / "skills"
-    target_skills = CODEX_HOME / "skills"
     if not source_skills.is_dir():
         errors.append("library/skills is missing")
-    elif not target_skills.is_dir():
-        errors.append("~/.codex/skills is missing")
     else:
-        missing = 0
-        changed = 0
-        for source in skill_files(source_skills):
-            target = target_skills / source.relative_to(source_skills)
-            if not target.is_file():
-                missing += 1
-            elif sha256(source) != sha256(target):
-                changed += 1
-        if missing or changed:
-            errors.append(f"skill copies differ: {missing} missing, {changed} changed")
+        # Skills land where the library is configured to put them: ~/.agents/skills
+        # when shared, otherwise each agent's own skills directory (Codex checked here).
+        if data.get("sharedSkills"):
+            target_skills = Path.home() / ".agents" / "skills"
+            target_label = "~/.agents/skills (shared)"
         else:
-            checks.append("all skill copies match the library")
+            target_skills = CODEX_HOME / "skills"
+            target_label = "~/.codex/skills"
+        if not target_skills.is_dir():
+            errors.append(f"{target_label} is missing")
+        else:
+            missing = 0
+            changed = 0
+            for source in skill_files(source_skills):
+                target = target_skills / source.relative_to(source_skills)
+                if not target.is_file():
+                    missing += 1
+                elif sha256(source) != sha256(target):
+                    changed += 1
+            if missing or changed:
+                errors.append(
+                    f"skill copies differ in {target_label}: {missing} missing, {changed} changed"
+                )
+            else:
+                checks.append(f"all skill copies match the library in {target_label}")
 
     print("Magpie library health check")
     print("=" * 32)
