@@ -2,7 +2,7 @@
 
 只在任务涉及 Redis 缓存、Caffeine/Spring Cache、分布式锁、防重复提交、接口限流、延迟/优先队列、序列号或跨实例协调时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - Redis 公共能力在 `ruoyi-common/ruoyi-common-redis`，底层使用 Redisson，另有 Spring Cache 管理器和 Caffeine 相关配置。
 - `CacheUtils` 操作 Spring Cache 的 cache name + key；`RedisUtils` 提供对象缓存、TTL、分布式限流、发布订阅、原子 set-if-absent 等；`QueueUtils` 提供普通/优先阻塞队列和元素订阅。
@@ -38,5 +38,3 @@
 - 验证首次成功、重复请求被拒、失败后可重试、TTL 到期和并发多实例行为。
 - 缓存验证命中/未命中、更新后失效、删除后重建和 Redis 重启；不要只测单实例。
 - 锁/限流验证超时提示、不同用户/IP 隔离和集群模式；页面验收关注重复点击、错误提示和按钮 loading。
-
-官方参考：[Redisson](https://redisson.org/)、[Lock4j](https://github.com/baomidou/lock4j)、[Spring Cache](https://docs.spring.io/spring-framework/reference/integration/cache.html)。具体工具方法和配置以目标工程为准。

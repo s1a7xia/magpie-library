@@ -1,6 +1,6 @@
 # RuoYi-Vue-Plus 6.0 API 契约
 
-本文件规定 RuoYi-Vue-Plus 6.0.0 后端接口与 plus-ui 6.0.0 前端请求层的契约。技术事实以固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 为准，不采用原版 RuoYi 的 `AjaxResult`、`TableDataInfo` 或独立 DAO 写法。
+本文件规定 RuoYi-Vue-Plus 6.0.0 后端接口与 plus-ui 6.0.0 前端请求层的契约。
 
 ## 1. URL 与方法
 
@@ -13,15 +13,16 @@
 | 新增 | `POST /{module}/{business}` | `@RequestBody Bo` | `R<Void>` |
 | 修改 | `PUT /{module}/{business}` | `@RequestBody Bo`，BO 带主键 | `R<Void>` |
 | 删除 | `DELETE /{module}/{business}/{ids}` | 路径主键数组/逗号串 | `R<Void>` |
-| 导出 | `POST /{module}/{business}/export` | 查询 BO | 文件流 |
+| 导出 | `POST /{module}/{business}/export`；树表使用 `GET` | 查询 BO | 文件流 |
 | 导入 | `POST /{module}/{business}/importData` | multipart 文件 | `R<Void>` |
 | 状态 | `PUT /{module}/{business}/changeStatus` | 含主键和状态的 BO | `R<Void>` |
 | 排序 | `PUT /{module}/{business}/updateSort` | 含主键和排序值的 BO | `R<Void>` |
 
-- 修改不使用 `PUT /{id}` 再单独拼接路径主键；以项目真实 Controller 为准，常见写法是 `PUT /{module}/{business}`，主键放在 BO。
+- 修改使用 `PUT /{module}/{business}`，主键放在 BO。
+- 普通表和树表的导出方法可能不同，按同模块既有接口实现，不机械统一。
 - 删除使用 `@DeleteMapping("/{ids}")` 和 `@PathVariable Long[] ids`；不要新增 `/delete` 之类的动作路径。
 - 查询参数走 query string，新增/修改走 JSON body；导入和上传使用 `multipart/form-data`。
-- 不照搬外部项目的 `PATCH /{id}/status`、`TableDataInfo`、HTTP 201/204 业务返回规范。
+- 状态使用 `PUT /{module}/{business}/changeStatus`，排序使用 `PUT /{module}/{business}/updateSort`。
 
 ## 2. 统一响应
 
@@ -49,7 +50,7 @@
 
 ## 5. 加密条件
 
-传输加密不是全站默认行为。固定前端请求层只有在以下条件同时满足时才加密请求体：
+传输加密不是全站默认行为。前端请求层只有在以下条件同时满足时才加密请求体：
 
 ```text
 VITE_APP_ENCRYPT === 'true'
@@ -77,3 +78,13 @@ VITE_APP_ENCRYPT === 'true'
 - [ ] 加密接口满足前端环境、请求头和方法条件。
 - [ ] 前端读取 `res.data.rows/total`，树表读取数组。
 - [ ] 接口契约改动已同步类型、页面调用和验收标准。
+
+## 8. 工程内参考实现
+
+| 场景 | 后端入口 | 前端入口 |
+|---|---|---|
+| 普通分页 CRUD | `TestDemoController` + `ITestDemoService` + `TestDemoServiceImpl` | `api/demo/demo/` + `views/demo/demo/index.vue` |
+| 树表列表 CRUD | `TestTreeController` + `ITestTreeService` + `TestTreeServiceImpl` | `api/demo/tree/` + `views/demo/tree/index.vue` |
+| 系统管理 | `ruoyi-modules/ruoyi-system` | `views/system/` |
+
+新增接口沿用所属模块已有的结构、命名、权限字符和字段约定。

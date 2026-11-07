@@ -2,9 +2,9 @@
 
 只在任务涉及文件上传、下载、附件、图片/视频、OSS 存储或文件预览时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
-- 通用存储在 `ruoyi-common/ruoyi-common-oss`，核心入口是 `OssClient`、`OssFactory` 和 `OssClientConfig`；支持 S3 兼容对象存储，固定提交同时有本地文件存储分支（`LocalFileStorageService`），先读 `sys_oss.service` 和现有配置，不能假设所有环境同一种存储。
+- 通用存储在 `ruoyi-common/ruoyi-common-oss`，核心入口是 `OssClient`、`OssFactory` 和 `OssClientConfig`；支持 S3 兼容对象存储和本地文件存储（`LocalFileStorageService`）。先读 `sys_oss.service` 和现有配置，不能假设所有环境同一种存储。
 - 系统侧文件记录和上传接口在 `ruoyi-modules/ruoyi-system` 的 `SysOssController`、`ISysOssService`，实际路径包括 `/resource/oss/upload`、`/list`、`/download/{ossId}`、`/local` 和 `DELETE /resource/oss/{ossIds}`；删除不是 `/delete`。
 - 业务表通常保存 `ossId`、URL 或业务附件关联，而不是直接复制二进制；先查 `sys_oss` 和现有附件字段。
 - 现有上传响应同时返回 `url`、`fileName`、`ossId`；后续预览/下载/删除要优先使用稳定标识，不能只依赖可能变化的公开 URL。
@@ -23,5 +23,3 @@
 - 上传后能看到文件名/预览，刷新页面后附件仍能回显；下载内容与上传一致。
 - 验证大小/类型拒绝、无权限下载和删除后的行为；测试文件要清理。
 - 涉及图片裁剪、富文本或视频时，按真实渲染验证，不只看接口返回成功。
-
-外部工程参考：[文件处理最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/file-processing.md)。文件 API 和前端组件以固定提交及目标源码为准。

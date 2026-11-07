@@ -2,7 +2,7 @@
 
 只在任务涉及 LiteFlow、业务规则链、流程节点编排、复杂审批链路或把多步业务拆成可配置组件时加载。普通 CRUD 和工作流基础审批不自动加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - LiteFlow 公共能力在 `ruoyi-common/ruoyi-common-liteflow`；`LiteFlowAutoConfiguration` 注册通用节点，`LiteFlowUtils.execute(chainId, context)` 调用 `FlowExecutor.execute2Resp` 并透传失败原因。
 - 当前工作流模块用 LiteFlow 编排 `startProcessChain`、`completeTaskChain`、`taskOperationChain`、`deleteInstanceChain` 等链路，规则文件在 `ruoyi-modules/ruoyi-workflow/src/main/resources/liteflow/*.el.xml`。
@@ -34,5 +34,3 @@
 - 验证顺序、条件分支、失败节点、空上下文和异常透传；确认失败不会误报成功。
 - 对重复执行、并发执行和事务回滚做针对性验证；只重测受影响链路。
 - 涉及工作流页面时，最终仍按 `page-acceptance` 验证发起、审批、驳回和状态展示。
-
-官方参考：[LiteFlow 文档](https://liteflow.cc/)。规则语法、组件接口和版本行为以目标工程为准。

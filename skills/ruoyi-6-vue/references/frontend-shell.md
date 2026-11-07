@@ -19,7 +19,7 @@ permission.ts
 - 路由来自后端 `/system/menu/getRouters`，`Layout`、`ParentView`、`InnerLink` 是特殊组件标识；业务页面按 `views/**/*.vue` 的路径被解析。
 - 后端菜单路由名由 `routeName + menuId` 生成，`loadView` 会用该路由名包装页面组件。不要手工假设页面组件的 `name` 必须等于完整路由名；组件名保持稳定，修改后检查 `keep-alive` 和标签页缓存。
 - 无 token 时跳登录；登录态失效由 `request.ts` 的 401 分支统一处理。不要在页面里重复写跳登录或清 token。
-- 固定提交 `permission.ts` 只有 token、白名单、`getInfo()` 和动态路由逻辑；未发现 `PASSWORD_CHANGE_REQUIRED` / `mustChangePassword` 强制改密分支。项目若二次实现，以目标源码为准，不把该能力写成固定基线已有。
+- `permission.ts` 负责 token、白名单、`getInfo()` 和动态路由逻辑；不要在页面里重复实现登录或改密守卫。
 
 ## 2. 请求与返回类型
 
@@ -59,7 +59,7 @@ src/views/<module>/<business>/index.vue  页面
 | 权限 | `v-hasPermi` 指令、`checkPermi` |
 | 分页、页面壳、工具栏 | `pagination`、`right-toolbar`、现有 page-shell / search-panel / table-toolbar 样式 |
 
-- `useFormDialog.openDialog` 会重置表单，编辑回填后用 `showDialog`。固定提交导出的是 `{ dialog, resetForm, openDialog, showDialog, closeDialog, setTitle }`，页面直接解构使用；具体签名以当前版本源码为准。
+- `useFormDialog.openDialog` 会重置表单，编辑回填后用 `showDialog`。hook 导出 `{ dialog, resetForm, openDialog, showDialog, closeDialog, setTitle }`，页面直接解构使用。
 - 字典缓存由 Pinia `dict` store 管理，`useDict` 负责并发请求合并；不要在页面重复实现字典请求。
 - `v-hasPermi` 对 `el-dropdown-item` 等延迟渲染节点可能失效，改用 `checkPermi` + `v-if` 的现有做法。
 - 选择行的 `single`/`multiple` 语义来自 `useTableSelection`，不要手写一套不一致的禁用逻辑。
@@ -68,7 +68,7 @@ src/views/<module>/<business>/index.vue  页面
 
 页面（包括标准 CRUD）由 AI 直接编写；本项目没有代码生成器或模板脚手架环节。页面结构按现有 demo 与业务页组合：
 
-新增标准 CRUD 时，可先按 [common.md 的 CRUD Fast Path](common.md#新增-crud-的最快路径) 读 `ruoyi-gen/.../fm/vue/` 的 `api.ts.ftl`、`types.ts.ftl`、`index.vue.ftl` 或 `index-tree.vue.ftl`，作为完整交互分支的清单；按字段契约裁剪后直接写目标页面。模板与真实业务页冲突时，以真实业务页为准。
+新增标准 CRUD 时，可先按 [common.md 的 CRUD Fast Path](common.md#新增-crud-的最快路径) 读 `ruoyi-gen/.../fm/vue/` 的 `api.ts.ftl`、`types.ts.ftl`、`index.vue.ftl` 或 `index-tree.vue.ftl`，作为完整交互分支的清单；按字段契约裁剪后直接写页面。模板与现有业务页冲突时，以现有业务页为准。
 
 ```text
 搜索卡片（el-form + queryParams）
@@ -92,11 +92,11 @@ el-dialog / el-drawer（form + rules + submit loading）
 - 布局由 `src/layout/index.vue` 组织侧栏、Navbar、TagsView、AppMain、设置面板；业务页只渲染在 AppMain 的 router-view 内。
 - `AppMain` 使用 `keep-alive :include="tagsViewStore.cachedViews"`，页面缓存依赖组件名；不随意改路由名或组件 name。
 - Pinia 已有 `user`、`permission`、`dict`、`tagsView`、`app`、`settings`、`branding`、`notice` 等 store。新增全局状态前先确认现有 store 不能承载；单页临时状态留在页面。
-- 路由守卫、401、登录、强制改密、标签页和菜单加载是框架链路；页面级改动不要复制或绕过这些机制。
+- 路由守卫、401、登录、标签页和菜单加载是框架链路；页面级改动不要复制或绕过这些机制。
 
 ## 7. 构建与检查
 
-- 先读目标 `package.json`。固定提交 6.0.0 脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`；至少执行实际构建，独立类型检查不替代构建。
+- 先读 `package.json`。常用脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`；至少执行实际构建，独立类型检查不替代构建。
 - 修改路由、组件 `name`、请求封装、全局 store、布局时，检查影响的所有页面，不只检查当前页。
 - 构建通过不等于页面可用；可见页面必须在真实浏览器按 `page-acceptance` 验收。
 

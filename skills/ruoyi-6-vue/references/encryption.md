@@ -2,13 +2,13 @@
 
 只在任务涉及请求/响应加解密、字段落库加密、RSA/AES/SM2/SM4、密钥配置、脱敏或密文迁移时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 加解密公共能力在 `ruoyi-common/ruoyi-common-encrypt`，包含 `@ApiEncrypt`、`@EncryptField`、`CryptoFilter`、`DecryptRequestBodyWrapper`、`EncryptResponseBodyWrapper`、`MybatisEncryptInterceptor`、`MybatisDecryptInterceptor` 和 `EncryptUtils`。
 - API 解密配置前缀是 `api-decrypt`：`enabled`、`headerFlag`、响应公钥、请求私钥；`CryptoFilter` 对带加密头的 PUT/POST 请求解密，对有 `@ApiEncrypt(response = true)` 的响应加密。
 - 字段加密配置前缀是 `mybatis-encryptor`：`enable`、默认算法、密码、公私钥、编码方式；只有开启后 MyBatis 拦截器才对 `@EncryptField` 字段加解密。
-- 支持算法包括 BASE64、AES、SM4、RSA、SM2，具体可用性和密钥格式以目标版本 `AlgorithmType`/加密器实现为准。
-- 固定提交中 `@ApiEncrypt` 实际命中登录、修改密码、个人资料等入口（如 `AuthController`、`SysProfileController`）；用户导入接口没有该注解。`TestDemoEncrypt` 只是示例，不要在生产业务复制示例密钥。
+- 支持算法包括 BASE64、AES、SM4、RSA、SM2，可用算法和密钥格式由 `AlgorithmType` 与现有加密器决定。
+- `@ApiEncrypt` 只用在确实需要加密请求或响应的接口；新增接口先查同模块现有用法，不复制示例密钥。
 - 必须区分三种开关：前端 `VITE_APP_ENCRYPT`、请求头 `isEncrypt` 和方法（只对 POST/PUT 加密），以及后端 `api-decrypt.enabled`。它们同时成立才开始相应解密链路；不是所有接口默认加密。
 
 ## 安全边界
@@ -24,8 +24,8 @@
 
 ## 验证
 
-- 通过真实前端页面验证登录、修改密码或敏感字段提交，确认请求解密、响应加密和错误提示正常。
+- 通过前端页面验证登录、修改密码或敏感字段提交，确认请求解密、响应加密和错误提示正常。
 - 验证无加密头、错误密钥、错误算法、超长字段、空值和历史密文；确认旧数据仍可读或已按计划迁移。
 - 检查数据库、日志、浏览器网络和导出文件，确认没有泄露明文或密钥；不要记录完整认证头和密钥。
 
-外部参考：[Hutool Crypto](https://hutool.cn/docs/#/crypto/%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86-Crypto)、[Spring Security](https://docs.spring.io/spring-security/reference/)。算法和配置以固定提交及目标源码为准。
+框架官方文档只用于补充算法和配置说明；当前工程的注解、过滤器和密钥配置是最终依据。

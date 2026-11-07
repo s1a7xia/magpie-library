@@ -2,7 +2,7 @@
 
 只在任务涉及 MQTT 客户端、设备接入、主题订阅/发布、物联网消息或第三方 MQTT Broker 时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - MQTT 公共能力在 `ruoyi-common/ruoyi-common-mqtt`，使用 `mica-mqtt-client-spring-boot-starter`。
 - `MqttAutoConfiguration` 由 `mqtt.client.enabled=true` 条件启用，注册连接监听器、全局消息监听器和虚拟线程执行器。
@@ -25,5 +25,3 @@
 - 在测试 Broker 上验证连接、订阅、发布、断开重连和关闭开关后的行为；不要在生产 Broker 做破坏性测试。
 - 用重复消息、非法 payload、超大消息和断线场景验证幂等、拒绝与恢复。
 - 涉及设备页面时，在真实 UI 验证设备状态、消息展示和刷新后的持久化；UI 验收不能只看 MQTT 日志。
-
-官方参考：[mica-mqtt Spring Client](https://mica-mqtt.dreamlu.net/guide/spring/client.html)、[MQTT 5 规范](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html)。配置键和 Starter 版本以目标工程为准。

@@ -2,12 +2,12 @@
 
 只在任务涉及 Excel 导入、导出、模板下载、字典/枚举转换或大批量文件处理时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - Excel 统一能力在 `ruoyi-common/ruoyi-common-excel`，基于 Fesod；业务 Controller 通常通过 `org.dromara.common.excel.utils.ExcelBuilder` 调用，不直接依赖底层写表 API。
 - 典型入口：`ExcelBuilder.of(list, ExportVo.class).sheetName(...).toResponse(response)`、`ExcelBuilder.read(inputStream, ImportVo.class)`、`ExcelBuilder.of(new ArrayList<>(), ImportVo.class)` 生成模板。
 - 现有系统模块可参照 `SysUserController` 的 `/export`、`/importData`、`/importTemplate`，以及 `SysUserImportListener` 的导入结果处理。
-- 字典、枚举、大数值、合并、下拉和分页导出的实现都在 common-excel 及业务相邻实现中；先读目标版本真实代码，不按文档站 3.5.x 示例直接复制。
+- 字典、枚举、大数值、合并、下拉和分页导出的实现都在 common-excel 及业务相邻实现中；按工程内 common-excel 和邻近实现编写。
 
 ## 实现边界
 
@@ -24,5 +24,3 @@
 - 先看导出按钮是否按权限显示，再实际下载并用表格软件打开；核对表头、字典值、日期、数字精度和行数。
 - 导入至少覆盖成功行、校验失败行和模板下载；确认失败提示可理解，测试数据能清理。
 - 大批量/异步导出若本次改动涉及，至少验证任务状态、完成通知和下载文件；不在无人值守阶段打开浏览器。
-
-外部工程参考：[Excel 操作最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/excel-operations.md)。文档版本可能落后于 6.0.0，API 以固定提交源码为准。

@@ -2,10 +2,10 @@
 
 只在任务明确涉及多数据源、主从库、按业务切换数据库、`@DS`、`@DSTransactional` 或跨库事务时加载。普通单库 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 动态数据源使用 dynamic-datasource，配置在 `spring.datasource.dynamic.*`，包含 `primary`、`strict` 和 `datasource`；当前开发配置默认 `master`，其他库以注释示例存在。
-- `DataBaseHelper` 通过 `DynamicDataSourceContextHolder` 读取当前数据源键；需要切库时按现有 `@DS`、`@DSTransactional` 用法处理，跨库操作先核对目标模块的实际配置。
+- `DataBaseHelper` 通过 `DynamicDataSourceContextHolder` 读取当前数据源键；需要切库时按现有 `@DS`、`@DSTransactional` 用法处理，跨库操作先核对业务模块的实际配置。
 - `@DS("")` 可强制使用默认数据源；Mapper/Service 上的数据源切换和事务边界要按现有实现确认。
 
 ## 先判断方案
@@ -33,5 +33,3 @@
 - 验证目标数据源命中、默认库回退、错误键、连接失败和事务回滚。
 - 多线程/异步场景验证上下文不会串库；跨库写入验证失败补偿。
 - 数据库操作前只读核对目标、库名和影响范围；写入和批量变更需要明确授权。
-
-官方参考：[dynamic-datasource](https://www.kancloud.cn/tracy5546/dynamic-datasource/content)。配置键和事务行为以目标工程为准。

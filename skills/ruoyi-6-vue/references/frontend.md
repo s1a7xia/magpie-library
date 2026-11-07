@@ -1,6 +1,6 @@
 # plus-ui 6.0 前端开发规范
 
-用于 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 中 `plus-ui` 6.0.0 的 Vue 3 + TypeScript + Element Plus 页面、API 与样式。请求、路由、Pinia 和布局链路读 [frontend-shell.md](frontend-shell.md)；接口契约读 [api-contract.md](api-contract.md)；视觉边界读 [ui-design.md](ui-design.md)。
+用于 plus-ui 6.0.0 的 Vue 3 + TypeScript + Element Plus 页面、API 与样式。请求、路由、Pinia 和布局链路读 [frontend-shell.md](frontend-shell.md)；现有组件和 hooks 读 [frontend-components.md](frontend-components.md)；接口契约读 [api-contract.md](api-contract.md)；视觉边界读 [ui-design.md](ui-design.md)。
 
 ## 1. 目录与文件
 
@@ -20,6 +20,7 @@ plus-ui/src/
 - 单页临时状态留在页面；跨页面共享状态才进 Pinia store。
 - 修改前读同模块两三个兄弟页面和现有 hooks，沿用页面壳、表格、弹窗、工具栏和主题 token。
 - 不为单页新建第二套请求层、表格组件、弹窗组件或主题系统。
+- 新增页面前先查 [frontend-components.md](frontend-components.md) 和同模块两三个兄弟页面，确认可复用项。
 
 ## 2. 组件写法
 
@@ -28,6 +29,22 @@ plus-ui/src/
 - Props 用 TypeScript 接口 + `withDefaults(defineProps<Props>())`；事件用 `defineEmits<{...}>()`。
 - 模板保持语义结构，避免无意义深层嵌套；列表渲染使用稳定业务主键作为 `key`。
 - 组件职责单一；复杂查询、弹窗生命周期、选择逻辑优先抽到现有 hooks 或本页 composable，不复制到多个页面。
+
+### 页面构造顺序
+
+1. 先定 `types.ts` 的 `VO` / `Form` / `Query`。
+2. 再写 `api/index.ts` 的 URL、method、params/data 和返回类型。
+3. 再搭页面壳：`p-2 app-container`、`search-panel`、`table-panel`、`toolbar-shell`。
+4. 再接表格、分页、字典、权限和行操作。
+5. 最后接弹窗/抽屉、表单校验、提交 loading、编辑回显和删除刷新。
+
+### 表单与表格细节
+
+- 编辑必须先拉详情，再 `Object.assign` 回填，最后 `showDialog`；不要直接用列表行当详情。
+- 新增用 `openDialog`，它会重置表单；取消时重置并关闭。
+- 提交成功后关闭弹窗并刷新列表；失败时保留输入、恢复 loading。
+- 删除先二次确认，再清选中项并刷新；按钮禁用用 `useTableSelection`。
+- 表格列宽、对齐、空状态和长文本省略按兄弟页面；不要用视觉样式掩盖数据缺失。
 
 ## 3. TypeScript 与类型
 
@@ -45,6 +62,7 @@ plus-ui/src/
 - 请求失败由拦截器统一提示；页面只在需要补充业务上下文时处理错误，不重复弹同一错误。
 - 表单提交保留校验、按钮 loading 和失败恢复；编辑必须先拉详情，再回填表单。
 - 状态切换失败要回滚界面状态；删除后刷新列表并清理选中项。
+- 导出、下载和上传沿用现有请求/下载/OSS 组件；不手写裸 `fetch` 下载链。
 
 ## 5. 页面交互与 hooks
 
@@ -66,6 +84,8 @@ plus-ui/src/
 - `v-hasPermi` 对延迟渲染节点可能失效，此类场景用 `checkPermi` + `v-if`。
 - 字典缓存由 `useDict` 和 Pinia dict store 管理；页面不重复请求同一字典。
 
+完整入口、props、返回值和注意事项见 [frontend-components.md](frontend-components.md)。
+
 ## 6. 状态与全局链路
 
 - `user`、`permission`、`dict`、`tagsView`、`app`、`settings`、`branding`、`notice` 等 store 已有明确职责；新增全局状态前先确认现有 store 不能承载。
@@ -81,10 +101,11 @@ plus-ui/src/
 - 单页样式加 `scoped`；主题色改 token，不在组件里散落硬编码色值。
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片和装饰性 KPI。
 - 不为了视觉效果替换 `el-table`、`el-form`、`el-dialog`、`el-pagination`、`dict-tag`、`right-toolbar` 等核心组件。
+- 新增样式优先复用 `assets/styles/tokens/` 和 `assets/styles/components/` 的现有变量/混入；单页不复制全局主题。
 
 ## 8. 构建与验收
 
-- 从实际 `package.json` 和锁文件确认包管理器与脚本。固定基线 6.0.0 使用 pnpm，脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`。
+- 从 `package.json` 和锁文件确认包管理器与脚本。项目使用 pnpm，常用脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`。
 - 修改前端后至少执行项目已有的实际构建；独立类型检查不替代构建。只在用户要求时运行额外 lint/test。
 - 修改路由、组件 name、请求封装、全局 store 或布局时，检查所有受影响页面。
 - 构建通过不等于页面可用或好看；开发阶段只做静态核对，不启动浏览器。可见页面由用户主动发起 `page-acceptance`，在真实浏览器验收并保留截图证据。
@@ -98,3 +119,4 @@ plus-ui/src/
 - [ ] 业务页保留 Element Plus 和若依核心组件，权限未被视觉改动绕过。
 - [ ] 无横向溢出、按钮折行、层级遮挡和深色模式对比度问题。
 - [ ] 已执行实际前端构建；页面验收状态单独记录。
+- [ ] 现有组件和 hooks 已查过，没有重复实现分页、工具栏、字典、选择器或上传。

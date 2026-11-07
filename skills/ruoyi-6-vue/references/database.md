@@ -1,6 +1,6 @@
 # RuoYi-Vue-Plus 6.0 数据库与数据访问规范
 
-用于表结构、DDL、Entity/Mapper 映射、SQL、分页、事务、并发、字典、参数、菜单和数据库变更。事实基线是 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`；编码总则读 [coding-standards.md](coding-standards.md)。
+用于表结构、DDL、Entity/Mapper 映射、SQL、分页、事务、并发、字典、参数、菜单和数据库变更。编码总则读 [coding-standards.md](coding-standards.md)。
 
 ## 1. 建模原则
 
@@ -8,13 +8,12 @@
 - 先回答业务身份、归属、状态、生命周期、唯一性、查询方式、权限范围、保留期限，再画表；不按页面字段机械建表。
 - 用户、部门、角色、岗位、字典、参数、文件、客户端优先复用 `sys_user`、`sys_dept`、`sys_role`、`sys_post`、`sys_dict_type`、`sys_dict_data`、`sys_config`、`sys_oss`、`sys_client`。
 - 可变阈值、开关和周期优先 `sys_config`；固定状态/类型优先 `sys_dict_*`；业务记录才建业务表。
-- 本项目未启用多租户，业务表不新增 `tenant_id`。Warm-Flow 自带表中的 `tenant_id` 是框架结构，不扩散到业务表、实体或前端类型。
 - 身份、状态、权限、唯一键、常用筛选列和排序列落成真实列；需要 SQL 查询的值不要只藏在 JSON 中。
 
 ## 2. 命名与字段
 
 - 表和列使用小写下划线；字段名、Entity 属性、前端字段按统一业务术语映射。
-- 主键默认 `id` 或项目现有命名，类型与 Entity 一致。固定基线使用雪花 ID 时用 `bigint` / `Long`，前端用 `string | number` 并检查 JSON 精度。
+- 主键默认 `id` 或项目现有命名，类型与 Entity 一致。雪花 ID 使用 `bigint` / `Long`，前端用 `string | number` 并检查 JSON 精度。
 - 继承 `BaseEntity` 时审计字段为：
 
 ```text
@@ -33,7 +32,7 @@ update_time   timestamp     更新时间
 ## 3. 索引
 
 - 主键、唯一业务键和常用查询列建立索引；索引名沿用项目风格：普通索引 `idx_<table>_<column>`，唯一索引可用 `uk_<table>_<column>` 或项目现有 `sys_*_index1` 风格。
-- 固定 PostgreSQL 脚本中常见 `create index idx_...`、`create unique index ...`；以目标方言和现有脚本为准，不硬套 MySQL 的 `key` 语法。
+- PostgreSQL 脚本中常见 `create index idx_...`、`create unique index ...`；按数据库方言使用对应语法，不硬套 MySQL 的 `key` 语法。
 - 复合索引按实际查询顺序设计；范围查询列放在等值列之后。
 - 不为低选择性字段单独建索引；不为每个外键机械建索引，要结合实际查询。
 - 逻辑删除表的唯一索引要评估删除后同值重建；必要时把删除标志纳入唯一键或采用归档策略。
@@ -49,9 +48,9 @@ update_time   timestamp     更新时间
 
 ## 5. SQL 脚本与方言
 
-- 固定提交初始化入口是 `script/sql/`：`ry_vue.sql`、`ry_job.sql`、`ry_workflow.sql`、`ry_ai.sql`；方言版本在 `postgres/`、`oracle/`、`sqlserver/`。业务增量在 `docs/sql/`（如 `20261031_platform_base_increment.sql`），没有 `script/sql/update/` 目录。
-- 固定提交 `application-dev.yml` 默认数据源是 PostgreSQL；MySQL、Oracle、SQL Server 只是注释示例。先读目标项目实际 profile 和脚本目录，不把默认环境当 MySQL。
-- 新增业务脚本沿用目标项目现有目录和命名；至少覆盖目标实际使用的方言，不机械复制其他项目的三方言结构。
+- 初始化入口是 `script/sql/` 的根脚本和 `postgres/`、`oracle/`、`sqlserver/` 方言目录。各方言文件覆盖不完全一致，例如 AI 初始化只在 PostgreSQL 目录中提供；新增脚本前先看目标方言已有文件。业务增量放在 `docs/sql/`。
+- 数据库方言按项目实际配置和现有脚本确定，不默认 MySQL，也不混用不同数据库的语法。
+- 新增业务脚本沿用现有目录和命名；至少覆盖项目实际使用的方言。
 - 初始化脚本可重复执行或有明确版本/幂等策略；避免重复主键、重复字典、重复菜单。生产变更优先增量脚本，不重跑全量初始化。
 - DDL 明确主键、非空、默认值、注释、索引名和约束名；方言差异分别提供，不混用语法。
 - 菜单/字典/参数 SQL 包含明确 ID、父级、排序、权限字符、状态和删除标志；不复制示例 ID 或权限。
@@ -80,7 +79,6 @@ update_time   timestamp     更新时间
 - 功能权限和数据权限分开；列表、详情、导出、批量操作和关联选择都检查数据范围。
 - 使用现有 `@DataPermission`、`DataPermissionHelper`、`DataScopeType`；SQL 数据范围列必须与别名一致。
 - `DataPermissionHelper.ignore` 只在有明确理由的最小范围使用，并记录原因；后台任务显式确定身份和范围。
-- 固定基线没有租户拦截器，`ry_vue.sql`、`ry_ai.sql`、`ry_job.sql` 没有业务 `tenant_id`；隔离按部门、用户和角色数据权限解决。
 - SQL 使用参数绑定或 Wrapper；排序字段做白名单校验，不拼接用户输入。
 
 ## 9. 数据库变更流程
@@ -99,5 +97,5 @@ update_time   timestamp     更新时间
 - [ ] 唯一约束、索引、分页、空集合和模糊查询有明确处理。
 - [ ] DDL、Entity、BO/VO、Mapper、前端类型和字典值逐项对齐。
 - [ ] 菜单/字典/参数脚本可执行且可重复，权限字符三处一致。
-- [ ] 数据权限覆盖列表、详情、导出和写操作，业务表没有多租户字段。
+- [ ] 数据权限覆盖列表、详情、导出和写操作，隔离按部门、用户和角色模型实现。
 - [ ] 数据库变更已按授权执行并记录证据，或明确标注未执行。

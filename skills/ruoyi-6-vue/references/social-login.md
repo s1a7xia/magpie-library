@@ -2,13 +2,13 @@
 
 只在任务涉及第三方登录、OAuth 回调、JustAuth、社交账号绑定或统一身份提供商时加载。普通账号密码登录不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 社交登录公共能力在 `ruoyi-common/ruoyi-common-social`，依赖 JustAuth 和 `ruoyi-common-redis`。
 - `SocialAutoConfiguration` 注册 `AuthRedisStateCache` 作为 OAuth state 缓存；`SocialUtils` 根据 `justauth.type.<source>` 构造对应平台的授权请求。
 - 目前已支持的平台分支以 `SocialUtils` 的 `switch` 为准，包括 GitHub、Gitee、QQ、微信、钉钉、企业微信、支付宝、Microsoft、MaxKey、TopIAM 等；不要根据文档列表假设某个平台已启用。
 - 配置前缀是 `justauth`，包含前端回调地址 `address` 和各平台 `type`；账号密钥、client secret 必须通过部署配置或密钥管理注入。
-- 系统侧社交账号关系在 `SysSocial`、`SysSocialController`、`ISysSocialService` 及 `sys_social` 表；登录入口和回调链路在 `ruoyi-admin` 的认证代码中，具体以目标源码为准。
+- 系统侧社交账号关系在 `SysSocial`、`SysSocialController`、`ISysSocialService` 及 `sys_social` 表；登录入口和回调链路在 `ruoyi-admin` 的认证代码中，沿用现有认证代码。
 
 ## 实现边界
 
@@ -25,5 +25,3 @@
 - 在测试应用上验证发起、授权、回调、登录、重复回调和 state 过期；不要用生产账号做自动化测试。
 - 验证新用户注册、已有用户绑定、重复绑定、解绑和无权限状态。
 - 涉及绑定页面时按 `page-acceptance` 验证入口、回调后的提示、账号列表和解绑确认。
-
-官方参考：[JustAuth](https://www.justauth.cn/)、[OAuth 2.0 安全最佳实践](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics)。平台配置和回调路径以目标工程为准。

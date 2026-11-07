@@ -2,7 +2,7 @@
 
 只在任务涉及操作日志、登录日志、审计、监控端点、错误追踪、日志脱敏或运行状态页面时加载。普通 CRUD 只在需要新增 `@Log` 时参考本文件的相关小节。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 操作日志公共能力在 `ruoyi-common/ruoyi-common-log`：`@Log(title, businessType, operatorType, isSaveRequestData, isSaveResponseData, excludeParamNames)` 由 `LogAspect` 拦截，发布 `OperLogEvent`，再由系统模块落库。
 - `BusinessType` 包含 OTHER、INSERT、UPDATE、DELETE、GRANT、EXPORT、IMPORT、FORCE、GENCODE、CLEAN；操作类型要表达真实动作，不把所有写操作都标成 UPDATE。
@@ -26,5 +26,3 @@
 - 新增/修改/删除各触发一次日志，核对操作人、模块、类型、参数、结果和耗时；敏感字段确认已脱敏。
 - 验证日志查询、导出、删除/清理权限；无权限用户不能通过接口或页面读取。
 - 涉及监控页面时按 `page-acceptance` 验证数据加载、空状态、时间范围和错误提示。
-
-官方参考：[Spring Boot Actuator](https://docs.spring.io/spring-boot/reference/actuator/index.html)、[SpringDoc](https://springdoc.org/)。端点和日志字段以目标工程为准。

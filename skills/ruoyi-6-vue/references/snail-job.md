@@ -2,10 +2,10 @@
 
 只在任务明确涉及定时执行、后台批处理、分布式调度、失败重试、分片/MapReduce 或任务日志时加载。普通业务 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 业务示例模块是 `ruoyi-modules/ruoyi-job`，客户端自动配置在 `ruoyi-common/ruoyi-common-job`，调度服务端在 `ruoyi-extend/ruoyi-snailjob-server`。
-- 固定提交 `61b9ee20` 的根 POM 使用 SnailJob `2.0.2`；客户端配置前缀是 `snail-job`，默认开发配置可能为 `enabled: false`，以目标工程配置为准。
+- 客户端配置前缀是 `snail-job`，是否启用由 `enabled` 控制。
 - `SnailJobConfig` 由 `snail-job.enabled=true` 条件启用，并同时启用 Spring Scheduling 和 SnailJob 客户端。
 - 普通任务示例使用 `@Component` + `@JobExecutor(name = "...")`，执行方法接收 `JobArgs` 并返回 `ExecuteResult`；MapReduce 另有 `@MapExecutor`、`@ReduceExecutor`。
 - 示例覆盖普通、广播、静态分片和 MapReduce 任务；这些是示例，不要把生产业务逻辑堆进 `ruoyi-job` 的 demo 类。
@@ -19,7 +19,7 @@
 | 业务事件延迟处理、超时提醒 | 先查项目现有延迟队列/消息能力，不把所有延迟逻辑都做成 Cron |
 | 普通同步业务校验或一次性脚本 | 不建定时任务 |
 
-不要仅因依赖已存在就启用调度；新增任务前先确认部署方式、执行频率、数据范围、幂等和失败处理。官方三种方案可参见 [定时任务最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/scheduled-jobs.md)，但版本和 API 以目标源码为准。
+不要仅因依赖已存在就启用调度；新增任务前先确认部署方式、执行频率、数据范围、幂等和失败处理。先读 `ruoyi-modules/ruoyi-job` 的现有执行器和业务模块 POM，再决定采用普通任务、广播、静态分片或 MapReduce。
 
 ## 任务实现边界
 

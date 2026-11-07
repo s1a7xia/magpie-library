@@ -1,6 +1,6 @@
 # RuoYi-Vue-Plus 6.0 后端开发规范
 
-用于 Java 21、Spring Boot、MyBatis-Plus、Sa-Token 业务代码。固定事实基线是 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`；接口契约另读 [api-contract.md](api-contract.md)，编码总则读 [coding-standards.md](coding-standards.md)，模块边界读 [architecture.md](architecture.md)。
+用于 Java 21、Spring Boot、MyBatis-Plus、Sa-Token 业务代码。接口契约另读 [api-contract.md](api-contract.md)，编码总则读 [coding-standards.md](coding-standards.md)，模块边界读 [architecture.md](architecture.md)。
 
 ## 1. 分层和文件
 
@@ -13,7 +13,7 @@ controller/XxxController
 
 - Controller 只负责请求接收、校验、权限、日志、响应转换；不写业务编排，不直接调用 Mapper。
 - Service 接口放业务能力；实现类负责业务校验、查询编排、事务、缓存和并发控制。
-- 不新增独立 DAO/Repository 层。固定基线由 `ServiceImpl` 直接依赖 Mapper。
+- 不新增独立 DAO/Repository 层。数据访问由 `ServiceImpl` 直接依赖 Mapper。
 - Entity 只承载持久化字段；BO 承载请求；VO 承载展示、翻译、脱敏和导出；不把 Entity 直接暴露给 Controller。
 - 跨模块能力优先使用 `ruoyi-api` 的接口和 DTO，不直接注入其他模块的 ServiceImpl 或 Mapper。
 
@@ -22,7 +22,7 @@ controller/XxxController
 ### Entity
 
 - 继承 `org.dromara.common.mybatis.core.domain.BaseEntity`；该基类提供 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。
-- 主键不由基类提供；按真实表加 `@TableId(value = "...")`。固定基线默认雪花 ID 时，Java 类型用 `Long`。
+- 主键不由基类提供；按表结构加 `@TableId(value = "...")`。雪花 ID 使用 `Long`。
 - 按需使用 `@TableName`、`@TableLogic`、`@Version`、`@TableField`、`@OrderBy`。不要假设所有业务表都有逻辑删除或乐观锁。
 - JSON 对象/集合：`@TableName(autoResultMap = true)` + `@TableField(typeHandler = JacksonTypeHandler.class)`；Entity、BO、VO 类型同构。
 - 映射为 `String` 的 JSON 字段就始终按字符串处理，不要一边是对象、一边是字符串。
@@ -48,7 +48,7 @@ controller/XxxController
 - 简单条件用 `LambdaQueryWrapper`、`QueryBuilder` 或项目现有 Wrapper；复杂联表再沿用 MPJ/XML。
 - 查询条件集中在 `buildQueryWrapper`；每个可选条件先判空，模糊查询只用在该字段确实允许时。
 - 空 ID 集合先返回空结果，禁止生成无条件全表查询。
-- 分页使用 `PageQuery.build()` 和 `PageResult.build(records, total)`；分页必须在数据库完成。
+- 分页使用 `PageQuery.build()` 和 `PageResult.build(records, total)`；分页必须在数据库完成。`PageQuery` 未传 `pageSize` 时默认接近全量，业务列表要补有限默认值和上限校验。
 - 列表关联展示优先批量查询或 `@Translation`，避免 N+1。
 
 ## 4. Service
@@ -66,7 +66,7 @@ controller/XxxController
 
 - 延续 `BaseController`、构造注入、`@Validated`、`@RestController`、`@RequestMapping`。
 - 权限统一 `@SaCheckPermission("{module}:{business}:{action}")`；写操作加 `@Log`；重复提交敏感的 POST/PUT 按需 `@RepeatSubmit`。
-- 普通列表：`R<PageResult<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery)`。
+- 普通列表：`R<PageResult<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery)`。这是 demo 的现有写法；模板中的 `list(XxxBo, PageQuery)` 只作结构参考，不直接混用签名。
 - 树表列表：`R<List<XxxVo>> list(XxxBo bo)`。
 - 详情：`R<XxxVo> getInfo(@NotNull @PathVariable Long id)`。
 - 新增/修改：`R<Void>` + `toAjax(...)`；新增用 `AddGroup`，修改用 `EditGroup`。
@@ -103,5 +103,5 @@ controller/XxxController
 - [ ] 查询条件有空值保护，空集合不变成全表查询，分页在数据库完成。
 - [ ] 写操作有权限、校验、必要事务和并发处理。
 - [ ] 权限字符与菜单、前端按钮、数据范围一致。
-- [ ] 无原版 RuoYi API、无重复工具、无敏感信息入日志。
+- [ ] 鉴权、响应和对象转换使用本项目既有封装，无重复工具、无敏感信息入日志。
 - [ ] 只编译受影响的后端模块；页面行为另行验收。

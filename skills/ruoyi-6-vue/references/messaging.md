@@ -2,7 +2,7 @@
 
 只在任务涉及 WebSocket、SSE、站内消息、实时通知、审批提醒或前后端消息订阅时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 统一推送能力在 `ruoyi-common/ruoyi-common-push`，配置前缀是 `message`；当前实现支持 `sse` 和 `websocket` 两种传输，默认传输以 `MessageProperties` 为准。
 - 关键入口包括 `PushHelper`、`PushDTO`、`PushSessionManager`、`SseEmitterSessionManager`、`WebSocketSessionManager`、`MessageTopicListener` 和 `SseController`。
@@ -11,7 +11,7 @@
 
 ## 实现边界
 
-1. **先确认传输方式**：读目标工程 `message.transport` 和现有前端连接代码；不要同时引入新的 SSE、WebSocket 和轮询三套方案。
+1. **先确认传输方式**：读当前工程 `message.transport` 和现有前端连接代码；不要同时引入新的 SSE、WebSocket 和轮询三套方案。
 2. **使用统一入口**：业务事件构造 `PushDTO`，通过 `PushHelper`/会话管理器发送；不要在业务代码里自建连接表或静态 Map。
 3. **身份和数据范围**：单发按用户标识，广播只用于真正全局的消息；广播还要核对目标用户的数据范围，避免越权泄露。
 4. **可靠性和幂等**：实时推送不是持久消息队列。重要通知要落业务记录或复用现有消息表，断线重连后能补读；重复事件不要重复弹通知。
@@ -23,5 +23,3 @@
 - 验证连接建立、收到一条单发消息和一条广播消息；断线重连后不重复、不丢失关键状态。
 - 检查无权限用户、跨部门用户和未登录连接的行为。
 - 涉及通知中心时，同时检查未读计数、已读状态和刷新后的持久化结果。
-
-外部工程参考：[消息推送最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/message-push.md)。传输默认值和前端连接方式以目标源码为准。

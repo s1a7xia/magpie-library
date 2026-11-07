@@ -1,37 +1,35 @@
-# RuoYi-Vue-Plus 6.0.0 + Vue Common Baseline
+# RuoYi-Vue-Plus 6.0.0 + Vue 通用开发规范
 
-适用于本地 `codex/p0-integration` 固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 的 **RuoYi-Vue-Plus 6.0.0 后端 + plus-ui 6.0.0 前端**。技术事实以该提交源码为准，不以分支后续 HEAD 覆盖；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
+适用于 **RuoYi-Vue-Plus 6.0.0 后端 + plus-ui 6.0.0 前端**。项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件规定跨后端、前端、数据库共用的技术栈、目录、复用入口、实现流程和交付门禁。
 
-## 1. 版本基线
+## 1. 技术栈与规范入口
 
-| 层 | 本次核对到的事实 | 使用规则 |
+| 层 | 技术栈 | 使用规则 |
 |---|---|---|
-| 后端 | `revision=6.0.0`，Java 21，Spring Boot 4.1.1，MyBatis-Plus 3.5.17 | 以提交 `61b9ee20` 的 `pom.xml` 和实际依赖为准 |
-| 前端 | `plus-ui/package.json` 版本 6.0.0：Vue 3.5.42、Element Plus 2.14.5、Vite 8.2.2、pnpm 10.34.5 | 读取该提交 `plus-ui` 的锁文件和实际页面；不要把后端 revision 当成前端版本 |
-| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只借鉴章节组织和规范概念；6.0.0 的 API、类名和配置以固定提交源码为准 |
+| 后端 | Java 21、Spring Boot、MyBatis-Plus、Sa-Token | 按模块、Service、Mapper 和公共能力规范实现 |
+| 前端 | Vue 3、TypeScript、Element Plus、Vite、pnpm | 按页面、API、组件、hooks 和现有页面壳实现 |
+| 工程入口 | 模块、源码、CRUD 模板、数据库脚本 | 按 [source-map.md](source-map.md) 定位 |
 
-固定提交不等于分支长期冻结。目标项目如果基于后续业务修改继续开发，先读该提交核对框架基线，再读目标项目当前源码确认实际契约；两者冲突时，当前项目自己的约定优先，但不得把分支 HEAD 的框架变化误写成能力已存在。
-
-官方文档地图见 [docs-map.md](docs-map.md)。
+所有路径相对于工程根目录。先按能力地图定位，再读实际文件和邻近实现。
 
 ## 2. 四步工作流
 
-1. **探查底座与参考实现**：确认目标工程版本、模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 时读同模块的 Controller/Service/Mapper/Vue 页面和 demo，按现有分层直接手写完整代码。
+1. **定位工程与邻近实现**：确认模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 时读同模块的 Controller/Service/Mapper/Vue 页面和 demo，按现有分层直接手写完整代码。
 2. **对齐数据与契约**：DDL、Entity、BO、VO、API、TypeScript 类型、字典值和页面标签逐项对齐。先判断能否复用组织、账号、角色、字典、参数、文件等框架能力。
 3. **按最小范围实现**：只实现当前任务需要的接口和交互，不机械生成全套 CRUD，不为假想需求新增抽象、中间件或跨模块依赖。
-4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行目标工程的 Maven 编译，让 MapStruct 生成实现；前端执行项目已有的实际构建，独立类型检查不替代构建。可见页面是否可用、是否好看，必须另走渲染验收。
+4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行 Maven 编译，让 MapStruct 生成实现；前端执行项目已有的实际构建，独立类型检查不替代构建。可见页面是否可用、是否好看，必须另走渲染验收。
 
-## 3. 防幻觉红线
+## 3. 实现边界
 
-- 严禁混入原版 RuoYi 语法：`SecurityUtils`、`@PreAuthorize`、`AjaxResult`、`TableDataInfo`、`BeanUtils.copyProperties`。
+- 鉴权用 `LoginHelper`，接口权限用 `@SaCheckPermission`，响应用 `R<T>` / `PageResult<T>`，对象转换用 `MapstructUtils`。
 - 调用前读取接口、实现和必要调用点；不臆造类、方法、字段、权限字符、字典值或配置项。
 - 修改已有功能时保留其 API、权限、校验、事务、缓存和交互契约；范围外的重构不做。
-- 不把目录存在当成依赖已接入，不把示例路径当成目标工程事实，不把编译通过当成功能或页面验收通过。
+- 不把目录存在当成依赖已接入，不把示例路径当成业务模块事实，不把编译通过当成功能或页面验收通过。
 - 项目规则、执行权限、提交与外部写入遵循当前 `AGENTS.md`；数据库执行、部署和远端写入不因连接已配置而自动获得授权。
 
-## 4. 目标工程目录
+## 4. 工程目录
 
-以下为固定提交 `61b9ee20` 的常见结构；以该提交实际模块为准，不为每个业务功能新建 Maven 子模块。模块职责与跨模块调用边界见 [architecture.md](architecture.md)。
+工程常见结构如下；以实际模块为准，不为每个业务功能新建 Maven 子模块。模块职责与跨模块调用边界见 [architecture.md](architecture.md)。
 
 ```text
 ruoyi-admin/                    # 启动、应用依赖、环境配置
@@ -45,10 +43,10 @@ ruoyi-modules/ruoyi-<module>/       # 标准模块：ai、demo、gen、job、sys
 ├─ mapper/XxxMapper.java
 └─ service/{IXxxService.java,impl/XxxServiceImpl.java}
 ruoyi-extend/                   # 独立扩展服务
-script/sql/                     # 数据库初始化脚本及方言；固定提交默认开发库为 PostgreSQL
+script/sql/                     # 数据库初始化脚本及方言版本
 ```
 
-提交 `61b9ee20` 中前端位于同仓 `plus-ui/`：
+前端位于同仓 `plus-ui/`：
 
 ```text
 plus-ui/src/
@@ -62,7 +60,7 @@ plus-ui/src/
 
 ## 5. Repository Reuse Check
 
-在写任何公共操作、工具、Service 包装或前端 hook 之前，先证明目标工程没有可复用实现。实现和审查都执行这一步。
+在写任何公共操作、工具、Service 包装或前端 hook 之前，先证明工程里没有可复用实现。实现和审查都执行这一步。
 
 1. **先搜候选**：后端查 `ruoyi-common/ruoyi-common-core/src/main/java/org/dromara/common/core/` 下的 `utils/`（含子包）、`service/`、`constant/`、相关 common 模块和所属业务模块；前端查 `plus-ui/src/utils/`、`hooks/`、`components/`、现有 API 模块；数据库查现有表、字典、参数和菜单，不要先造同义结构。
 2. **读实现与调用方**：核对方法签名、父类/委托方法、空值与重复键策略、排序、集合可变性、异常、时区、副作用、权限和事务语义。同名第三方类不能证明项目包装行为相同。
@@ -78,27 +76,30 @@ plus-ui/src/
 | 树构建、多根、叶子、树路径 | `utils/TreeBuildUtils.java` 及调用方 |
 | 字符串拆分/拼接/空值/命名转换 | `utils/StringUtils.java` 及其继承 API |
 | 日期格式化、区间与校验 | `utils/DateUtils.java` |
-| 对象转换、校验、脱敏 | `utils/MapstructUtils.java`、`ValidatorUtils.java`、`DesensitizedUtils.java` |
+| 对象转换、校验、脱敏 | `utils/MapstructUtils.java`、`utils/ValidatorUtils.java`、`utils/DesensitizedUtils.java` |
 | 文件、IP、正则、反射、请求上下文 | 对应嵌套 `utils/` 包和实际实现 |
 | 已有业务能力或跨模块契约 | 所属模块 `service/`、`ruoyi-api/`、core `service/` 与 `constant/` |
 
-这些是搜索起点，不是可直接假设的 API 清单。比如集合转 Map 先看 `StreamUtils.toMap`/`toIdentityMap` 的重复键策略；多根树先看 `TreeBuildUtils.buildMultiRoot`/`buildTreeNodeMap` 及调用方。
+这些是搜索起点，不是可直接假设的 API 清单。比如集合转 Map 先看 `StreamUtils` 中对应方法和重复键策略；多根树先看 `TreeBuildUtils` 的实际方法与调用方。
 
-固定提交同时包含 `fm/react/`、`ruoyi-demo` 的 MQTT/MCP/Easy-ES 示例和 `ruoyi-extend/{ruoyi-monitor-admin,ruoyi-snailjob-server,ruoyi-snailai-server}`。它们证明“底座或示例存在”，不证明目标项目已经启用；使用前仍要读目标模块 POM、配置、Bean 和调用链。
+`ruoyi-demo` 的 MQTT/MCP/Easy-ES 示例只说明底座能力可用，不表示业务模块已经启用；使用前读对应模块 POM、配置、Bean 和调用链。
 
 ### 前端常用候选
 
 | 需要的能力 | 先查 |
 |---|---|
-| 请求、下载、错误提示 | `utils/request`、`plugins/modal` 及现有 API |
+| 请求、下载、错误提示 | `utils/request`、`plugins/modal`、`plugins/download` 及现有 API |
 | 表格选择、加载态、查询重置/折叠 | `hooks/table`、`hooks/async`、`hooks/form` |
-| 表单弹窗生命周期 | `hooks/dialog/useFormDialog` |
-| 字典、权限、分页、树面板 | `components/DictTag`、`utils/dict` 的 `useDict`、`v-hasPermi`/`checkPermi`、`pagination`、`TreePanel` |
-| 页面壳、搜索卡片、表格工具栏、主题 token | 先看 `assets/styles/tokens`、`components/_page-shell.scss`、`_search-panel.scss`、`_table-toolbar.scss` 和两三个兄弟页面 |
+| 表单弹窗生命周期 | `hooks/dialog/useDialogState`、`hooks/dialog/useFormDialog` |
+| 字典、权限、分页、树面板 | `components/DictTag`、`utils/dict` 的 `useDict`、`directive/permission`、`utils/permission`、`Pagination`、`TreePanel` |
+| 用户/角色选择、文件/图片上传、富文本 | `UserSelect`、`RoleSelect`、`FileUpload`、`ImageUpload`、`Editor` |
+| 页面壳、搜索卡片、表格工具栏、主题 token | 先看 `assets/styles/tokens`、`assets/styles/components/_page-shell.scss`、`_search-panel.scss`、`_table-toolbar.scss` 和两三个兄弟页面 |
+
+组件 props、hooks 返回值和组合方式见 [frontend-components.md](frontend-components.md)。
 
 ## 6. 邻近实现与 CRUD Fast Path
 
-本项目没有代码生成器环节，也不执行「页面生成 → 下载 zip → 解压导入」。但 `ruoyi-gen` 的 FreeMarker 模板是 AI 可直接读取的完整 CRUD 结构清单，适合作为新增标准 CRUD 的起点；它不替代目标项目的真实实现，也不是交付步骤。
+本项目没有代码生成器环节，也不执行「页面生成 → 下载 zip → 解压导入」。但 `ruoyi-gen` 的 FreeMarker 模板是 AI 可直接读取的完整 CRUD 结构清单，适合作为新增标准 CRUD 的起点；它不替代业务模块的实现，也不是交付步骤。
 
 ### 新增 CRUD 的最快路径
 
@@ -106,11 +107,11 @@ plus-ui/src/
 
 1. **先定字段契约**：列出表名、业务名、模块名、主键、每个字段的 Java/TS 类型、`query`/`insert`/`edit`/`list`、查询方式、字典、必填、状态、排序、树父级和权限前缀。契约不清时不要直接套模板。
 2. **一次读齐骨架**：按需读 [后端模板入口](#后端模板)、[前端模板入口](#前端模板)，确认普通表还是树表，以及需要哪些条件分支。
-3. **读一份最接近的真实实现**：同模块优先；没有同模块实现时读 `ruoyi-demo` 的 `TestDemo` / `TestTree` 和 `plus-ui` 的 `demo` / `system` 页面，校准当前分支的实际命名、hooks 和请求封装。
-4. **AI 直接写目标文件**：按字段契约裁剪模板，不运行生成器、不生成中间 zip、不导入生成包。模板只提供结构和分支覆盖，最终代码服从目标模块现状。
+3. **读一份最接近的实现**：同模块优先；没有同模块实现时读 `ruoyi-demo` 的 `TestDemo` / `TestTree` 和 `plus-ui` 的 `demo` / `system` 页面，对齐工程现有命名、hooks 和请求封装。
+4. **AI 直接写目标文件**：按字段契约裁剪模板，不运行生成器、不生成中间 zip、不导入生成包。模板只提供结构和分支覆盖，最终代码服从模块现有结构。
 5. **只做受影响一侧的编译/构建**；页面可见改动仍留到用户发起的页面验收。
 
-模板适合补齐容易漏的分支；真实实现适合确认当前分支到底怎么接。两者冲突时，以真实源码为准。
+模板适合补齐容易漏的分支；现有实现适合确认模块到底怎么接。两者冲突时，以现有源码为准。
 
 ### 字段契约检查表
 
@@ -158,7 +159,7 @@ plus-ui/src/
 
 `plus-ui/gen/` 是另一份模板副本，不能默认与后端模板同步。需要核对前端生成器实际输出时，只比较本次涉及的模板，不要同时读两套全文。
 
-| 用途 | 目标工程入口 |
+| 用途 | 工程入口 |
 |---|---|
 | 标准后端分层 | `ruoyi-modules/ruoyi-demo/src/main/java/org/dromara/demo/`、`ruoyi-modules/ruoyi-system/` |
 | 标准 Vue 页面与 API | `plus-ui/src/views/demo/demo/index.vue`、`plus-ui/src/views/demo/tree/index.vue`、`plus-ui/src/api/demo/`、`plus-ui/src/views/system/` |
@@ -168,7 +169,7 @@ plus-ui/src/
 
 ## 7. 交付检查
 
-- [ ] 代码中无原版 RuoYi API，模块边界和包布局与邻近实现一致。
+- [ ] 鉴权、响应、分页和对象转换使用本项目既有封装，模块边界和包布局与邻近实现一致。
 - [ ] 业务配置优先 `sys_config`，枚举优先 `sys_dict_*`，并附目标数据库配套 SQL。
 - [ ] Controller 分页签名为 `(XxxBo, PageQuery)`，Service 返回 `PageResult<Vo>` 而非 `R<T>`，Controller 返回 `R<PageResult<Vo>>`。
 - [ ] JSON 对象字段使用 `autoResultMap = true` + `JacksonTypeHandler`，Entity/BO/VO 类型同构；映射改动已编译。

@@ -1,6 +1,6 @@
 # RuoYi-Vue-Plus 6.0.0 Architecture
 
-用于判断改动应放在哪个模块、能否跨模块调用，以及新增接口需要接哪些框架机制。技术事实来自本地 `codex/p0-integration` 固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 的 6.0.0 源码；目录存在不等于本次依赖已接入。
+用于判断改动应放在哪个模块、能否跨模块调用，以及新增接口需要接哪些框架机制。目录存在不等于本次依赖已接入。
 
 ## 1. 模块边界
 
@@ -30,7 +30,7 @@ common 模块之间按 POM 的真实依赖调用，不凭包名猜方向。
 - `ruoyi-api` 是跨模块契约层，不承载 Controller、Mapper、业务实现或前端可直接调用的 REST 接口。
 - `ruoyi-common-*` 提供可复用技术能力；业务规则、状态流转和模块专属查询留在 `ruoyi-modules/<module>`。
 - `ruoyi-admin` 负责装配与启动。除登录、验证码、首页等应用级入口外，不把业务 CRUD 堆进 admin。
-- 固定提交的标准模块是 `ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`、`ruoyi-system`、`ruoyi-workflow`。分支后续新增的业务模块只能作为项目现状只读参考，不把其中的业务表、字段、权限或流程写成通用 skill 规则。
+- 标准模块是 `ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`、`ruoyi-system`、`ruoyi-workflow`。业务模块承载自身业务规则，通用技术能力回到 `ruoyi-common-*`。
 
 ## 2. 后端调用边界
 
@@ -72,7 +72,7 @@ common 模块之间按 POM 的真实依赖调用，不凭包名猜方向。
 ```text
 前端 request
   -> Axios 拦截器：token、clientid、语言、重复提交、RSA/AES
-  -> SaInterceptor：登录态、强制改密、clientid 一致性、客户端路径/IP 规则
+  -> SaInterceptor：登录态、clientid 一致性、客户端路径/IP 规则
   -> Controller：@SaCheckPermission、@Validated、@Log、@RepeatSubmit
   -> Service：业务校验、事务、数据权限
   -> Mapper：Wrapper/MPJ/XML，分页与逻辑删除
@@ -89,7 +89,7 @@ common 模块之间按 POM 的真实依赖调用，不凭包名猜方向。
 ## 5. 配置与启动
 
 - `ruoyi-admin/src/main/resources/application.yml` 是公共配置，`application-dev.yml` / `application-prod.yml` 管环境差异；业务模块还可以通过自己的 `application*.yml` 或 `@PropertySource` 提供默认配置。
-- `application.yml` 默认端口 8080，context-path `/`；本地 dev 默认 `profiles.active=dev`，该提交的开发数据源默认是 PostgreSQL，数据库与 Redis 配置需按当前环境读取，不能把示例凭据写进交付。
+- `application.yml` 默认端口 8080，context-path `/`；本地 dev 默认 `profiles.active=dev`。数据库、Redis 和外部服务配置按当前环境读取，不把示例凭据写进交付。
 - 运行入口是 `org.dromara.DromaraApplication`。只编译模块时用实际 Maven 命令；需要启动时先确认数据库、Redis 和已启用外部依赖，不要因为配置文件存在就假定服务可用。
 - 可调业务阈值、开关和周期优先 `sys_config`，通过 `ConfigService` 读取，并附初始化 SQL；不要为可变参数建业务表或把值散落硬编码。
 - `@SaCheckPermission` 只控制功能权限；数据范围由 `@DataPermission` 和 SQL 列映射控制，两者不能互相替代。

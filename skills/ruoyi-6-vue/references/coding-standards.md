@@ -1,12 +1,12 @@
 # RuoYi-Vue-Plus 6.0 编码规范总则
 
-适用于固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 的 RuoYi-Vue-Plus 6.0.0 后端与 plus-ui 6.0.0 前端。这里规定“代码应该怎么写”；具体接口、页面和数据库细节分别读 [api-contract.md](api-contract.md)、[backend.md](backend.md)、[frontend.md](frontend.md)、[database.md](database.md)。
+适用于 RuoYi-Vue-Plus 6.0.0 后端与 plus-ui 6.0.0 前端。这里规定“代码应该怎么写”；具体接口、页面和数据库细节分别读 [api-contract.md](api-contract.md)、[backend.md](backend.md)、[backend-capabilities.md](backend-capabilities.md)、[frontend.md](frontend.md)、[frontend-components.md](frontend-components.md)、[database.md](database.md)。
 
 ## 1. 分层与职责
 
 - 后端调用方向固定为 `Controller -> Service 接口 -> ServiceImpl -> Mapper`。Controller 不直接调用 Mapper；Service 不返回 `R<T>`。
 - Entity 只表达持久化结构；BO 承载新增、修改和查询请求；VO 承载页面展示、翻译、脱敏和导出；跨模块 DTO 放在 `ruoyi-api`。
-- 不新增独立 DAO 层。固定基线由 `ServiceImpl` 直接依赖 `BaseMapperPlus` 子接口完成数据访问。
+- 不新增独立 DAO 层。数据访问由 `ServiceImpl` 直接依赖 `BaseMapperPlus` 子接口完成。
 - 前端按 `views -> hooks/components -> api -> utils/request` 组织。页面不直接调用 Axios 或 `fetch`，业务请求统一放 `api/`。
 - 单模块业务规则留在所属模块；只有稳定、跨模块复用的技术能力才放到 `ruoyi-common-*`，跨模块契约放 `ruoyi-api`。
 
@@ -52,7 +52,7 @@
 - BO 校验用 `AddGroup`、`EditGroup` 分组；查询条件用 `QueryGroup` 时按项目现有写法处理。
 - 集合可能为空时返回空集合，不返回 `null`；ID 集合为空时直接返回空结果，禁止生成无条件全表查询。
 - 优先复用 `ObjectUtil`、`StringUtils`、`CollUtil`、`StreamUtils`、`MapstructUtils`，不要为同一行为再写工具类。
-- 禁止 `BeanUtils.copyProperties`、原版 RuoYi 的 `SecurityUtils`、`@PreAuthorize`、`AjaxResult`、`TableDataInfo`。
+- 对象转换用 `MapstructUtils`，鉴权用 `LoginHelper`，统一响应用 `R<T>`，分页返回 `PageResult<T>`。
 - 不在代码里散落字典值、权限字符、状态值和配置键；固定枚举放常量/字典，运行参数放 `sys_config`。
 
 ## 4. 校验、异常与日志
@@ -94,5 +94,13 @@
 - [ ] BO 分组校验、`ServiceException`、`@Log`、`@RepeatSubmit` 按需使用。
 - [ ] 多表写操作有正确事务边界；唯一性和并发有数据库或条件更新保障。
 - [ ] 空集合、空 ID、可空字段和逻辑删除行为明确。
-- [ ] 没有混入原版 RuoYi API、重复工具、硬编码配置或敏感信息。
+- [ ] 鉴权、响应、转换使用本项目既有封装，无重复工具、硬编码配置或敏感信息。
 - [ ] 后端映射改动已实际编译；前端已按项目脚本构建。页面可见改动仍按 `page-acceptance` 单独验收。
+
+## 9. 编码顺序
+
+1. 先读同模块现有实现，确认命名、包路径、请求封装和页面壳。
+2. 定字段契约：表名、Java/TS 类型、查询方式、新增/编辑、列表、字典、权限。
+3. 沿文件链一次写完，不留“稍后补”的接口、类型或权限。
+4. 改映射就编译；改前端就构建；改 SQL 就核对方言和可执行性。
+5. 输出复用证据和实际检查结果，不把计划、构建通过或页面未验收混成完成。

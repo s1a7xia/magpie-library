@@ -2,7 +2,7 @@
 
 只在任务涉及全文检索、搜索索引、Easy-ES Mapper、Elasticsearch 同步或复杂搜索页时加载。普通 CRUD 不加载。
 
-## 6.0.0 源码事实
+## 工程内实现入口
 
 - 搜索能力在 `ruoyi-common/ruoyi-common-elasticsearch`，基于 Easy-ES `3.0.2` 和 Elasticsearch Client `7.17.28`。
 - `EasyEsConfiguration` 由 `easy-es.enable=true` 条件启用，并扫描 `org.dromara.**.esmapper`；包名调整时必须同步修改扫描入口。
@@ -33,5 +33,3 @@
 - 验证索引创建、文档新增/更新/删除、重建和查询结果；用中文、英文、空值、特殊字符和长文本检查分词与排序。
 - 验证无权限用户、不同部门不会通过搜索越权。
 - 涉及搜索页面时按 `page-acceptance` 验证加载、空状态、错误状态、分页和筛选重置。
-
-官方参考：[Easy-ES 文档](https://www.easy-es.cn/)、[Elasticsearch 7.17 文档](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/index.html)。版本、配置键和 API 以目标工程为准。
