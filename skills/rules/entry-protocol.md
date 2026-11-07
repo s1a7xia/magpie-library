@@ -1,119 +1,94 @@
 # Skill Entry Protocol
 
-Shared bootstrap sequence for all skills. Each skill references this protocol instead of repeating the full instructions.
-
-## Purpose
-
-Every skill needs to locate domain docs, identify multi-repo scope, and check for upstream artifacts before starting work. This protocol standardizes that bootstrap — it operationalizes [anti-patterns.md #1](anti-patterns.md) (act before reading) as a shared sequence. It ensures skills can run **standalone** (graceful degradation when prerequisites are missing) and **composable** (correctly reads prior skill outputs when chained).
+Shared bootstrap for all skills. Read only what the current task needs; do not load every referenced file.
 
 ## Protocol
 
-When entering any skill, perform this read sequence **before** starting skill-specific work:
-
 ### Step 1: Read Project Config
 
-Read config files under `docs/agents/` (created by `setup-project`). If the directory doesn't exist, skip to defaults.
+Read `docs/agents/` when present. Missing files degrade to defaults; do not create them implicitly.
 
-When the task involves both Codex and dsh, read `docs/agents/ai-collaboration.md` if present and apply the shared [ai-collaboration skill](../ai-collaboration/SKILL.md). The project file supplies the canonical remote/tracker and any confirmed project-specific role refinements.
+| File | Use | If missing |
+|---|---|---|
+| `domain.md` | Paths for CONTEXT, PRDs, ADRs, research | Use defaults in Step 3 |
+| `repo-map.md` | Multi-repo structure and tracker owner | Treat as single-repo |
+| `issue-tracker.md` | Tracker type and adapter | Ask which tracker; do not guess |
+| `ai-collaboration.md` | Multi-agent roles, handoff, write boundaries | Use `ai-collaboration` defaults when multiple agents collaborate |
+| `triage-labels.md` | Label vocabulary | Use canonical defaults |
+| `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
+| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi-plus-dev` unless the user or project explicitly selects another profile or `none` |
+| `project-state.md` | Objective, stage dashboard, blockers, next step, compile commands | Use the current request only; do not create implicitly |
+| `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
+| `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
 
-| File | What it tells you | If missing |
-|------|-------------------|------------|
-| `docs/agents/domain.md` | Actual paths for CONTEXT.md, PRDs, ADRs (may differ from defaults in multi-repo/monorepo) | Use default paths (Step 3) |
-| `docs/agents/repo-map.md` | Multi-repo structure — which repos exist, which owns the issue tracker | Treat as single-repo |
-| `docs/agents/issue-tracker.md` | Issue tracker type and CLI conventions | Ask user which tracker they use |
-| `docs/agents/ai-collaboration.md` | Multi-agent role ownership, handoff channel, and write boundaries | Use the shared role defaults in `ai-collaboration` when multiple agents collaborate |
-| `docs/agents/triage-labels.md` | Label vocabulary mapping | Use canonical defaults |
-| `docs/agents/language.md` | Language consumer skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments) | Fall back to the user's input language; ask when unsure |
-| `docs/agents/coding-standards.md` | Applicable coding conventions, technical profile, source paths, and verification commands | Use the global `ruoyi-plus-dev` default unless project `AGENTS.md` or the current user instruction explicitly selects another profile or `none` |
-| `docs/agents/project-state.md` | Current objective, workflow-stage dashboard, active work, blockers, next step, and compile commands | Treat the current request as the only task context; do not create a state file implicitly |
-| `docs/agents/project-decisions.md` | Confirmed cross-task decisions, their scope, and superseded choices | Use current code and user instructions when no matching decision exists |
-| `docs/agents/verification.md` | Reusable verification evidence and known gaps | Do not treat old evidence as proof for changed code |
+### Step 1a: Apply Standards
 
-### Step 1a: Apply Project Standards and Tracker Conventions
+Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-plus-dev` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
 
-**Coding standards.** Resolve the profile in this order: current user instruction, explicit project `docs/agents/coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-plus-dev` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile. Read the maintained standards and the selected technical profile's `SKILL.md` from the installed skills directory, then its task-relevant original references. Apply only to its declared repository/module/file scope. A profile is supplementary context: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
+Read the selected profile's `SKILL.md` and its task-relevant original rules from the installed skills directory; apply only to its declared repository/module/file scope. A profile is supplementary: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
 
 #### Standards Gate
 
-**Required context before affected work.** Once a standard/profile applies, successfully read its configuration, entry point and relevant original rules before changing affected code or approving its compliance. Record their actual paths in the task evidence. A missing/unreadable file, an unresolved reference or a missing original is a blocked prerequisite: stop affected code changes and compliance approval, identify what could not be read, and restore it within the authorized scope when possible. Read-only diagnosis and unrelated work may continue; a prior session's summary does not satisfy this gate.
-
-**Verification authorization before completion.** Checks are required only when the current request, the project's explicitly adopted standards, or this stage's explicitly authorized verification calls for them. Derive the scope from the active stage, applicable standards and actual project build configuration. When checks are authorized, a code task is complete, verified, or eligible for a `Done` transition only after they pass against its final changes; preserve command, working directory, exit status and relevant output as evidence. When no check is authorized, complete the implementation with the diff reviewed, label it unverified, and do not claim test, acceptance, or runtime success. When an authorized check fails, repair and rerun it within scope; when it cannot run, report the affected task as blocked/unverified. Existing merge/release criteria still apply after authorized checks pass.
-
-**Stage boundaries.** Planning does not require compiling prospective code. A read-only review may use current, verifiable build/test evidence for the change under review instead of rerunning unchanged checks solely because a review was requested. An intermediate phase that is not the delivered result (planning notes, a spike, a probe) is not a completed implementation; apply the delivery checks once the real change exists. Mark a check not applicable only with an explicit stage/scope reason. A missing dependency, failed command or unread standard is not a not-applicable reason. A review may report findings with verification gaps, but must withhold an unqualified pass when required evidence is missing or stale.
-
-Apply design constraints during think/grill, carry agreed contracts into story acceptance criteria, use implementation conventions during implement/debug, and check violations during review. Explicit project decisions/exceptions take precedence over generic defaults; cite their source and scope rather than inventing a waiver. Where documented API usage conflicts with the checkout, expose the mismatch and inspect source before writing code.
+- **Before affected work:** read the applicable standards/profile entry point and relevant originals; record their actual paths. A missing/unreadable required rule blocks affected code and compliance approval; read-only diagnosis may continue. A prior session's summary is not evidence.
+- **Verification:** only checks authorized by the current request, project standards, or active stage. Authorized checks must pass on final changes with command, working directory, exit status and relevant output. If none are authorized, review the diff, label the work unverified, and never claim test, acceptance or runtime success. A failed authorized check is unresolved, not waived.
+- **Stage boundaries:** planning does not compile prospective code; a read-only review may use current verifiable evidence instead of rerunning unchanged checks; an intermediate phase (notes, spike, probe) is not a delivered implementation. A check is N/A only with an explicit stage/scope reason.
+- **Design and compliance:** apply constraints in think/grill, carry contracts into story acceptance criteria, use conventions in implement/debug, and check violations in review. Explicit project decisions/exceptions win with cited scope.
+- **Extended rules:** [standards-gate-details.md](references/standards-gate-details.md).
 
 #### Tracker Conventions
 
-All issue/PR/release examples in consumer skills are illustrative. Select operations from `docs/agents/issue-tracker.md` before executing them; never send a Gitee target to `gh` or `glab`.
+Use one collaboration workflow across GitHub, GitLab, Gitee and local trackers; only the transport adapter changes. Resolve the repository and `docs/agents/issue-tracker.md` first. From an Issue, read it and its comments/labels and use its acceptance criteria; a direct request does not force an Issue/PRD. Preserve returned identifiers/URLs; verify remote writes before updating local traceability; missing auth is an unpublished-work gap, not permission to switch trackers. Details: [scm-collaboration](../scm-collaboration/SKILL.md).
 
-**Use one collaboration workflow across GitHub, GitLab, Gitee, and local trackers.** Resolve the repository and configured tracker first. When a task starts from an Issue, read that Issue, its relevant comments and labels, and use its acceptance criteria as the work input. Keep the shared Story Format, planning/implementation/review stages, local Git workflow, and user-facing progress/reporting consistent across providers. Only the transport adapter changes: CLI, MCP, OpenAPI, or local files. For work that starts from a direct user request, do not force an Issue/PRD workflow unless the task calls for planning or tracking.
+### Project State
 
-Preserve the tracker's returned identifiers and URLs (Gitee Issue numbers are case-sensitive strings), and verify remote writes before updating local traceability. Missing authentication is an unpublished-work gap, not permission to switch trackers. With no `.git` directory (for example a downloaded ZIP), do not infer a remote from an upstream README; retain configured tracker facts and report unavailable Git operations.
+`project-state.md` is an operational handoff, not requirements. Read only relevant sections; PRD `Status` and `Sliced into` remain the requirement source. Precedence: current request > project instructions > state file. Do not turn transient notes or hypotheses into decisions. Verification needs version/commit, command/path, result, date, and agent/user source. Details: [project-context](../project-context/SKILL.md).
 
-### Project State and Delivery Profile
+### Step 2: Multi-Repo Scope
 
-Treat `project-state.md` as a concise operational handoff, not a replacement for requirements or source inspection. Read only the sections relevant to the current task. Its workflow-stage dashboard is a progress view; PRD `Status` and `Sliced into` remain the source of requirement state. The order of precedence is: current request, applicable project instructions, then the state file.
-
-`project-decisions.md` records durable, confirmed choices. Do not turn a transient implementation detail, an unverified hypothesis, or a chat preference into a decision. `verification.md` must identify the version or commit, command/path, result, date, and whether the evidence came from the agent or the user. A changed file, environment, dependency, or requirement can invalidate old evidence.
-
-### Step 2: Identify Multi-Repo Scope
-
-If `repo-map.md` exists, identify which repos are involved in the current task. Cross-repo tasks require reading domain docs from all relevant repos.
-
-If `repo-map.md` is missing, treat the current repo as the only repo. If the task mentions files or modules outside this repo, ask the user.
+If `repo-map.md` exists, identify which repos are involved and read each repo's domain docs. If missing, treat the current repo as single; ask only when the task names files or modules outside it.
 
 ### Step 3: Read Domain Context
 
-Read domain docs at the paths discovered in Step 1 (or defaults if config missing):
+Read domain docs at the configured paths (defaults):
 
-| Document | Default path | Purpose |
-|----------|-------------|---------|
-| CONTEXT.md | `CONTEXT.md` at repo root; if a root `CONTEXT-MAP.md` exists (multi-context repo), the per-context `CONTEXT.md` files it points to | Domain glossary — terminology, concepts, relationships |
-| PRDs | `docs/prd/PRD-NNNN-<title>.md` | Product requirements — what to build, acceptance criteria |
-| ADRs | `docs/adr/*.md` | Architecture Decision Records — past technical decisions |
-| Research INDEX | `docs/research/INDEX.md` | Searchable index of persisted technical research records (stack × topic × major). Query before re-searching; see `/research` skill |
-| Audit records | `docs/audits/*.md` | Dated architecture and anti-pattern audit records. Read the most recent before proposing structural changes — it records which judgments were already made and why |
+| Document | Default | Purpose |
+|---|---|---|
+| CONTEXT.md | Root `CONTEXT.md`; if `CONTEXT-MAP.md` exists, the per-context files it points to | Domain glossary, terms, relationships |
+| PRDs | `docs/prd/PRD-NNNN-<title>.md` | Requirements and acceptance criteria |
+| ADRs | `docs/adr/*.md` | Architecture decisions |
+| Research INDEX | `docs/research/INDEX.md` | Reusable research records; query before re-searching |
+| Audit records | `docs/audits/*.md` | Recent architecture/anti-pattern audits; read before structural changes |
 
-**If any document is missing, proceed without it.** Missing context reduces precision but does not block execution. State what's missing so the user knows the limitation.
+If a document is missing, proceed without it and state the limitation.
 
-**Filing-consistency check.** While scanning for these docs, also flag misplaced files so the drift surfaces early. Report (do not auto-fix — moving files is a destructive op needing explicit authorization):
+**Filing consistency:** flag misplaced PRD/ADR/research files and duplicate numbering/collisions; report them, do not auto-move. Full checks and reporting format: [filing-consistency.md](references/filing-consistency.md).
 
-- PRD content found **outside** `docs/prd/` — e.g. `docs/adr/PRD-*.md`, `docs/prd-*.md` in the docs root, or `PRD-*.md` at repo root.
-- ADR files carrying a `PRD-` prefix, or PRD files carrying no `PRD-` prefix.
-- Research records found **outside** `docs/research/` — e.g. `<stack>-<topic>-<major>.md` at repo root or under `docs/`.
-- **Number collisions** — two ADRs sharing the same `NNNN`, or two PRDs sharing the same `PRD-NNNN` (common when multiple sessions run concurrently). Scan the directory and report any duplicate numbers before creating a new file.
-- **Research record collisions** — two records sharing the same `<stack>-<topic>-<major>` filename (a `/research` duplicate; see `/research` Step 2 dedup).
+### Step 3a: PRD Conflict Check
 
-Report findings as a note in the skill output: *"Filing inconsistency found: <file> appears misplaced / <NNNN> is used by two files. Want me to relocate?"* Do not silently move or renumber.
+Only `/think` before creating a new PRD. `/story` and all non-PRD skills skip this step. Procedure: [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn).
 
-### Step 3a: PRD Conflict Check (only for PRD-creating skills)
+### Step 4: Check Upstream Artifacts
 
-Applies **only** to `/think` when it is about to create a new PRD file. Skills that only read an existing PRD — including `/story` — and all non-PRD skills (`debug`, `review`, etc.) skip this entirely.
+If consuming another skill's output, verify:
 
-The full procedure lives with the primary PRD-creator: see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn). It is owned there rather than in this shared protocol so that non-PRD skills don't carry PRD-management ceremony they never use. Only `think` creates PRDs; `story` requires an existing grilled PRD.
+| Signal | Action |
+|---|---|
+| Legacy minimal PRD from `/story` | Do not implement; recreate through `think` → `grill` |
+| `Open Questions` or `TODO` markers | Read-only planning may note; implementation and unqualified pass are blocked until `grill` resolves |
+| Empty `Grilled by` | Same: planning may note; coding/acceptance blocked until `grill` completes |
 
-### Step 4: Check Upstream Artifacts (Composability)
-
-If the skill consumes another skill's output, verify upstream quality:
-
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| Legacy PRD was created by `/story` (minimal PRD) | Requirements were never decision-complete | Do not implement from it; recreate through `think` → `grill` |
-| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Read-only planning may note it; implementation and an unqualified pass are blocked until `grill` resolves it |
-| PRD `Grilled by` field is empty | Plan not validated against domain model | Read-only planning may note it; implementation and an unqualified pass are blocked until `grill` completes |
-
-Record these in the skill's output. They are not blockers for read-only diagnosis; they are blockers for coding against the PRD and for claiming acceptance or completion.
+Record these in the skill output. They block coding and acceptance claims, not read-only diagnosis.
 
 ## Standalone vs Composable
 
-**Standalone (no prior skill ran):** The skill works with whatever context exists. If no PRD, no CONTEXT.md, no ADRs — the skill derives what it can from the codebase and user input. It does not refuse to start.
+**Standalone:** use whatever context exists. Missing PRD, CONTEXT or ADRs reduces precision but does not block work; state the missing evidence.
 
-**Composable (prior skills ran):** The skill reads prior outputs via the Traceability chain in PRD files. Each PRD's `## Traceability` section records which skills touched it, enabling the current skill to verify completeness.
+**Composable:** read prior outputs through the PRD `## Traceability` chain and verify completeness before relying on them.
 
 ## Reference
 
 Skills should reference this protocol as:
-```
+
+```text
 Apply the [Skill Entry Protocol](../rules/entry-protocol.md) before proceeding.
 ```
