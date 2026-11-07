@@ -1,11 +1,11 @@
 ---
 name: page-acceptance
-description: "Runtime acceptance of a change through the real UI. Use when a change is visible in the interface — a new or modified page, form, table, dialog, dashboard, permission-gated control, or styling change — and someone needs to know it actually works when rendered. Also use when the user says 页面验收、页面测试、功能自测、冒烟测试、走一遍页面、UI 走查、点一遍看看, or asks whether the UI change is really done. Compilation and code review do not substitute for this."
+description: "Page testing through the real UI: a separate stage, started explicitly by the user after a batch of implementation is finished. Verifies a change actually works when rendered — a new or modified page, form, table, dialog, dashboard, permission-gated control, or styling change. Trigger words: 页面测试、页面验收、功能自测、冒烟测试、走一遍页面、UI 走查、点一遍看看. Not run automatically inside implement; compilation and code review do not substitute for it."
 ---
 
 # Page Acceptance
 
-🥷 A rendered surface is its own artifact. Compilation proves syntax; this proves the page.
+🥷 A rendered surface is its own artifact. Compilation proves syntax; this proves the page. Run it as a separate stage after development, never as an automatic step inside implementation.
 
 # Outcome Contract
 
@@ -13,6 +13,13 @@ description: "Runtime acceptance of a change through the real UI. Use when a cha
 - **Done when**: The declared scope has been exercised end to end through the UI, console and network were checked, failures were either fixed and re-run or reported as failures, and anything not exercised is named.
 - **Evidence**: URL, browser tool, step sequence, observable result per step, screenshots for visual claims, console/network findings, and the data touched.
 - **Output**: Layer-by-layer verdict — render, interaction, data, permission — plus scope and untested items.
+
+## When this stage runs
+
+- **Started by the user, after development.** A batch of slices is finished and pushed; the user says "开始页面测试" or names the pages. Do not start on your own, and never inside `implement`.
+- **Unattended runs skip it.** A goal running without the user does not open a browser, does not need a login session or captcha. It stops with the slices marked `Dev Complete` and says page testing is pending.
+- **Fixes are re-tested narrowly.** When a defect is fixed, re-run only the affected page and path — not the whole batch. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
+- **Passing this stage is what allows `Done`.** An implemented-but-untested UI change stays `Dev Complete`.
 
 ## Step 0 — Declare the scope
 

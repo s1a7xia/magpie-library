@@ -1,9 +1,11 @@
 ---
 name: scm-collaboration
-description: 以统一流程协作 GitHub、GitLab、Gitee 或本地任务跟踪：识别当前仓库与平台适配器，关联需求、分支、提交、验证证据和 Issue/PR/MR。用于用户要求创建、读取、更新任务单或合并请求；不假设远程写入已授权或平台 API 已接通。
+description: 以统一流程协作 GitHub、GitLab、Gitee 或本地任务跟踪：识别当前仓库与平台适配器，关联需求、分支、提交、验证证据和 Issue/PR/MR。仅在需要读写远端任务单或合并请求时触发；本地提交与推送走常规 Git 流程，不经过本技能。不假设远程写入已授权或平台 API 已接通。
 ---
 
 # SCM Collaboration
+
+**Trigger boundary.** This skill handles the remote task layer: creating or reading Issues, opening PR/MR, syncing status, linking commits to work items. Local commits and pushes on an existing branch do not go through it — those follow the normal Git workflow in `engineering-workflow`.
 
 Keep one collaboration flow across code-hosting platforms. Git operations and
 task semantics are shared; only the remote transport is platform-specific.

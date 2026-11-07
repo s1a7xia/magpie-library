@@ -19,7 +19,7 @@ The user sends a prompt draft or describes a task. Choose between prompt-only an
 - **Produce directly.** Don't ask for permission. Only ask clarifying questions (1–3, max) when missing information would materially change the rewrite — expected output type, target model, or audience. If unanswered, assume the most sensible default, **state the assumption** in the changelog, and proceed.
 - **Calibrate effort to complexity.** Simple prompt (lookup, formatting) → lean structural rewrite, no inflating with CoT/examples. Complex prompt (reasoning, classification, generation with criteria, agentic) → full structure. Don't decorate beyond what's needed — prompt over-engineering hurts latency and cost with no gain.
 - **If the draft is already good, say so and do the minimum.** Don't invent changes to justify the rewrite. Apply the anti-overengineering rule to yourself: when the prompt already has solid role, structure, scope, and output contract, deliver only the marginal tweaks that genuinely add value and state that the rest was already good. Rewriting a good prompt into something "different but not better" is a failure.
-- **Optimize for the right model.** The default is Claude 4.x. If the user indicates another target (GPT/o-series, Gemini), adjust per `references/model-profiles.md` — the rules diverge (e.g. reasoning models do NOT want "think step by step").
+- **Optimize for the model actually serving this session.** Read the host agent and model rather than assuming one: a reasoning model (o-series, GPT-5 reasoning) must not be given "think step by step"; a Claude model accepts explicit CoT scaffolding. See `references/model-profiles.md`. When the target is genuinely unknown, ask once or state the assumption — never default silently to Claude 4.x.
 
 ## Workflow (5 phases)
 
@@ -29,7 +29,7 @@ Inspired by Anthropic's official prompt improver flow (example identification �
 Extract from the draft (and from conversation context):
 - **Real intent:** what the user actually wants the model to produce.
 - **Task type:** classification · extraction · generation/writing · coding · reasoning/analysis · research · agentic/tool-use · transformation/summarization · roleplay/persona. (Map in `references/task-patterns.md`.)
-- **Target model:** Claude 4.x (default) · OpenAI GPT/reasoning · Gemini · other.
+- **Target model:** read from the host session (Codex/GPT, Claude, Gemini, other) — do not assume Claude.
 - **Audience and output format:** who reads it, in what form (JSON, prose, bullets, table, code).
 - **Constraints and invariants:** hard limits (length, tone, what to never do).
 - **Dynamic variables:** parts that change on each call → become `{{placeholders}}`.
@@ -115,7 +115,7 @@ If the user asks for variations (e.g. lean version vs full version, or Claude ve
 
 - `references/techniques.md` — applied catalog of the highest-return techniques (zero/few-shot, zero-shot modifiers, CoT and variants, decomposition with PAL/PoT code, ensembling, self-criticism CoVe/Reflexion, RAG, **context engineering** for agents) with when to use each. Load when choosing reasoning/research/agentic techniques.
 - `references/technique-index.md` — **exhaustive index** of ALL known techniques (The Prompt Report's taxonomy of 58 + extras), by category. Load to make sure no approach was forgotten, or when the user asks for total coverage.
-- `references/model-profiles.md` — differences between Claude 4.x, OpenAI GPT/reasoning, and Gemini. Load whenever the target isn't Claude default, or for coding/agentic.
+- `references/model-profiles.md` — differences between Claude 4.x, OpenAI GPT/reasoning, and Gemini. Load whenever the target model is not the host default, or for coding/agentic work.
 - `references/task-patterns.md` — ready-made templates by task type. Load to build the structure for classification/extraction/generation.
 - `references/worked-examples.md` — complete examples (draft → optimized → changelog), including the "already-good prompt" case. Load to calibrate the quality bar and the output format, especially when in doubt about how much to rewrite.
 - `references/quality-checklist.md` — self-review checklist (Phase 4). Load always before delivering.

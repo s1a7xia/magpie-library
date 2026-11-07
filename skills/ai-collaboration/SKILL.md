@@ -1,9 +1,11 @@
 ---
 name: ai-collaboration
-description: 对齐 Magpie、Codex 和 dsh 的协作边界。微信入口细节以 ~/.dsh/im/AGENTS.md 和 REPORTER.md 为准；不把普通 dsh 项目限制为汇报官。
+description: 对齐 Magpie、Codex 和 dsh 的协作边界。仅在项目存在多 Agent 协作或启用了微信入口时加载；单 Agent 会话不加载。微信入口的主要用途是从手机查看项目进度，不参与开发。微信细节以 ~/.dsh/im/AGENTS.md 和 REPORTER.md 为准；不把普通 dsh 项目限制为汇报官。
 ---
 
 # 三方协作
+
+**Load condition.** Read this skill when the project has more than one agent working in it, or when the WeChat entry is enabled for status checks. A single-agent development session does not need it; skip it to keep context small.
 
 Magpie 管共享指令、技能与工具配置；Codex 负责用户交给它的开发与交付任务；普通 dsh 项目遵循用户当前需求和项目规则，可正常开发、测试和执行已授权 Git 操作。
 

@@ -1,13 +1,13 @@
 ---
 name: story
-description: "Break a plan into executable Issues using vertical slices. Accepts an existing PRD or a direct feature description. Use when the user explicitly asks to convert a plan to Issues, create implementation tickets, or decompose work into subtasks. Do not trigger for ordinary task lists or todos."
+description: "Break a frozen baseline into executable Issues using vertical slices. Requires a PRD with Status: Grilled — there is no shortcut that bypasses think/grill. Writes the slice list locally first, then syncs it to the tracker. Use when the user explicitly asks to convert a plan to Issues, create implementation tickets, or decompose work into subtasks. Do not trigger for ordinary task lists or todos."
 ---
 
 # Story: Break Plan Into Issues
 
 🥷 Vertical slices, each issue is end-to-end.
 
-Break plan into independently actionable issues using vertical slices (tracer bullets). Accepts an existing PRD or a direct feature description.
+Break a frozen, grilled baseline into independently actionable issues using vertical slices (tracer bullets). The PRD is the contract; this skill reads it and never rewrites its requirements.
 
 ## Outcome Contract
 
@@ -18,51 +18,54 @@ Break plan into independently actionable issues using vertical slices (tracer bu
 
 ## Prerequisites
 
-- **Input**: an existing PRD at `docs/prd/PRD-NNNN-<title>.md`, or a direct feature description from the user
+- **A frozen baseline is mandatory.** The input PRD must exist at `docs/prd/PRD-NNNN-<title>.md` with `Status: Grilled`. If there is no PRD, or its status is `Draft`, stop and tell the user to run `think` → `grill` first (grill runs automatically after think). There is no "minimal PRD" shortcut here: a baseline that was never grilled is not a baseline.
 - Apply the [Skill Entry Protocol](../rules/entry-protocol.md) to locate domain docs and issue tracker config
-- `docs/agents/issue-tracker.md` — read for issue creation convention
+- `docs/agents/issue-tracker.md` — read for issue creation convention; missing config means local-only output, not a guess at a tracker
 - `docs/agents/triage-labels.md` — read for label mapping
-- Missing tracker config → the Entry Protocol's fallback applies; `/story` then either creates the missing config files for the tracker the user names, or suggests `/setup-project` for full interactive setup
-
 ## Process Summary
 
-**Step 0**: Read project configuration — apply the [Skill Entry Protocol](../rules/entry-protocol.md); read `docs/agents/issue-tracker.md` and `triage-labels.md` for tracker convention and label mapping (see Prerequisites for fallback when missing)
+**Step 0**: Read project configuration — apply the [Skill Entry Protocol](../rules/entry-protocol.md); read `docs/agents/issue-tracker.md` and `triage-labels.md`.
 
-**Step 1**: Determine input source — locate existing PRD, or capture feature description from user
+**Step 1**: Verify the baseline. Locate the PRD and confirm `Status: Grilled`. Anything else stops here with the instruction to run `think` → `grill` first.
 
-**Step 2**: Extract requirements — from PRD or from user description + codebase exploration
+**Step 2**: Read the frozen baseline. Extract Goal, Requirements, Acceptance Criteria and Out of Scope. Do not add, soften or reinterpret requirements.
 
-**Step 3**: Ensure PRD exists — if not, create a minimal PRD capturing the requirements (run the PRD Conflict Check first; see think/REFERENCE.md)
+**Step 3**: Explore the codebase as needed to size the slices — current modules, existing patterns, ADRs, domain glossary.
 
-**Step 4**: Explore codebase (optional) — understand current state, use domain glossary, respect ADRs
+**Step 4**: Draft vertical slices. Each slice is a thin path through every affected layer and can land verified on its own.
 
-**Step 5**: Draft vertical slices — each is a thin vertical slice through all layers (schema, API, UI, tests)
+**Step 5**: Record dependencies explicitly. Every slice carries `blocked-by` (or `none`). This is not optional: `implement` uses it to skip blocked work in unattended runs.
 
-**Step 6**: Present to user — show title, type (HITL/AFK), blocked-by, user stories; self-check granularity/dependencies first, then ask one approval question
+**Step 6**: Write the local slice list first — update the PRD `## Traceability` `Sliced into` field and set `Status: Sliced`. This local list is the source of truth and must be complete before any remote write.
 
-**Step 7**: Publish issues in dependency order (blockers first). Issue title format: `[PRD-NNNN] <slice-description> — <core-behavior>`. Issue body includes a `Meta` section (PRD reference, Type, Siblings).
+**Step 7**: Present the slice list and ask one approval question. Show title, type (HITL/AFK), `blocked-by`, and the acceptance criteria each slice closes.
 
-**Step 8**: Update PRD with child issues; set `Status` to `Sliced` in the PRD metadata line. Update the `## Traceability` `Sliced into` field with the child issues list (number, title, type, status).
+**Step 8**: Publish to the tracker only after approval — via `scm-collaboration`, in dependency order. If the project has no tracker, stop after Step 6 and say so. A remote failure leaves the local list intact; report it and let the user retry.
 
-**Step 9**: Sync Issue (if parent exists). Update the parent Issue body, append child issues list.
+**Step 9**: Update the parent Issue (if one exists) with the child list. Do not change its title or close it.
+
+**Step 10**: Stop. Output the slice list and ask whether to start a batch with `implement`. Do not start implementation on your own.
 
 **Slice Types:**
 - **HITL**: Human-in-the-loop — requires human judgment (architecture, design, UX). Agent pauses at decision points for input.
 - **AFK**: Away-from-keyboard — implementable end-to-end without human interaction.
 
-See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single source) and [REFERENCE.md](REFERENCE.md) for input handling, slicing detail, and examples.
+See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single source) and [REFERENCE.md](REFERENCE.md) for slicing detail and examples.
 
 ## Gotchas
 
 | What happened | Rule |
 |---|---|
+| Slicing started without a grilled PRD | Step 1: require `Status: Grilled`; no minimal-PRD shortcut — send the user to `think` → `grill` |
+| Requirements were rewritten while slicing | Step 2: the PRD is the contract; changes go through the PRD `## Change Log`, not through this skill |
 | Horizontal slicing (all schema, then all API) | Use vertical slices through all layers |
 | Slices too thick | Prefer many thin slices over few thick ones |
-| Dependencies wrong | Publish in dependency order (blockers first) |
-| PRD/parent issue not updated | Step 8/9: Update PRD and sync Issue |
-| Input too vague for slicing | Suggest `/think` — do not run a full brainstorming session yourself |
-| Forced a wide refactor (rename shared column, retype shared symbol) into tracer bullets | Vertical Slice Rules: slice it expand → migrate batches → contract; a slice that can't land green alone isn't a slice |
-| Same topic got two PRDs (e.g. PRD-0001 + PRD-0002) | Step 3 (Ensure PRD Exists): run PRD Conflict Check (see think/REFERENCE.md §PRD Conflict Check) before creating |
+| A slice had no `blocked-by` | Step 5: every slice states its blockers or `none`; `implement` needs this to skip blocked work |
+| Remote Issue creation started before the local list was complete | Step 6 then Step 8: finish and confirm the local list first, publish second |
+| A remote failure lost the slice plan | Step 8: the local list survives; report and retry, never rebuild from memory |
+| Implementation started automatically after slicing | Step 10: stop and ask; `implement` is user-invoked |
+| PRD or parent issue left stale | Step 6/9: update `Sliced into` and sync the parent Issue |
+| Forced a wide refactor (rename shared column, retype shared symbol) into tracer bullets | Vertical Slice Rules: slice it expand → migrate batches → contract |
 
 ## Vertical Slice Rules
 
@@ -76,27 +79,15 @@ See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single
 ## Output
 
 ```
-Story complete.
+Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 
-Created issues:
-* #<issue-1> — <title> (AFK)
-* #<issue-2> — <title> (HITL, blocked by #1)
+**Slices (local list, source of truth):**
+* #<n> <slice name> — AFK — blocked-by: none
+* #<n> <slice name> — AFK — blocked-by: #<n>
+* #<n> <slice name> — HITL — blocked-by: #<n>
 
-Updated files:
-- docs/prd/PRD-NNNN-<title>.md — child issues updated (Status → Sliced)
+**Tracker:** <created N issues in order | local only (no tracker configured) | failed: <reason>, local list intact>
+**Updated:** docs/prd/PRD-NNNN-<title>.md — `Sliced into` filled, Status → Sliced
 
-Next: Invoke the implement workflow explicitly for planned orchestration, or implement directly under the project's delivery profile.
-```
-
-## Example
-
-```
-PRD: User subscription (PRD-0003-subscription)
-
-Proposed:
-1. Create subscription data model (AFK) — schema + API + tests
-2. Payment flow integration (AFK, blocked by #1) — gateway + webhooks + tests
-3. Management UI (HITL, blocked by #2) — design review + components + E2E
-
-User: granularity looks right, proceed → [Create 3 issues, Update PRD]
+**Next:** Start a batch with `implement` for these slices? Implementation stops after each batch for page testing.
 ```
