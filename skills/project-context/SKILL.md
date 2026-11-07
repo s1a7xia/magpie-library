@@ -30,7 +30,8 @@ make the project reusable, or explicitly requests project memory. Use
 because a small implementation task started.
 
 The state-file templates live in one place: [references/templates.md](references/templates.md) points to the `setup-project` skill's `templates/` directory, so the two skills cannot carry diverging copies.
-默认检查方式：默认只检查本次改动涉及的前后端能否编译，不再选择交付档位或重复询问验证授权。前后端均有改动时分别编译；仅改一端时只编译该端，纯文档或不影响编译的配置改动只核对差异。复用项目已有编译/构建命令，跳过测试，不独立运行 lint、类型检查或自动化测试；UI 可见改动另按 `page-acceptance` 走页面验收；已有构建命令内置的编译类型检查可保留。用户明确要求额外检查或暂不编译时按当次要求执行。编译失败或环境缺失时如实报告，不把编译通过等同于功能验收。
+
+**Scope boundary.** `setup-project` creates these files and re-configures them; this skill maintains them during normal work. Verification defaults, page testing, and commit rules are owned by the global instructions and `engineering-workflow` — do not restate them here.
 
 ## Keep It Useful
 
