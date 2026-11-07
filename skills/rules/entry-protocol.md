@@ -21,6 +21,8 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
 
+When the task involves both Codex and dsh, read `ai-collaboration.md` and apply its project-specific role refinements.
+
 ### Step 1a: Apply Standards
 
 Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-plus-dev` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
