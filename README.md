@@ -209,7 +209,7 @@ implement -> Dev Complete -> 用户发起 page-acceptance -> Accepted -> 用户�
 | `answer-me-with-html` | 把复杂结论、架构和流程生成单页 HTML；基线页由它渲染 |
 | `ai-collaboration` | 定义 Codex、dsh 和可选微信入口的职责边界 |
 | `scm-collaboration` | GitHub、GitLab、Gitee 或本地任务跟踪的统一流程 |
-| `ruoyi-plus-dev` | RuoYi-Vue-Plus 前后端和 SQL 的团队工艺与检查门槛 |
+| `ruoyi-plus-dev` | RuoYi-Vue-Plus 单一入口，按任务只加载通用、后端、前端、数据库或页面设计参考 |
 
 ### 维护规则
 
@@ -246,7 +246,7 @@ implement -> Dev Complete -> 用户发起 page-acceptance -> Accepted -> 用户�
 - 交付前核对横向溢出、按钮折行、深色模式对比度和 `z-index` 遮挡。
 - 需要参考成熟后台时，优先看 Ant Design Pro、Arco Design Pro、shadcn/ui dashboard、vue-element-plus-admin 的信息层级、密度和状态设计，不照抄视觉皮肤。
 
-修改 RuoYi-Vue-Plus 后端、plus-ui 或 SQL 时，按当前用户指令和项目配置加载技术 profile；项目未配置时使用全局 `ruoyi-plus-dev` 默认，显式 `none` 或其他 profile 覆盖默认。框架复用、权限、数据权限、加解密和字段映射以项目实际版本为准。
+修改 RuoYi-Vue-Plus 后端、plus-ui 或 SQL 时，按当前用户指令和项目配置加载技术 profile；项目未配置时使用全局 `ruoyi-plus-dev` 默认，显式 `none` 或其他 profile 覆盖默认。该 profile 先读通用基线，再按任务只加载后端、前端、数据库或页面设计参考。框架复用、权限、数据权限、加解密和字段映射以项目实际版本为准。
 
 ## 依赖摘要
 

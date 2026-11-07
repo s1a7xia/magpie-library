@@ -1,55 +1,69 @@
 ---
 name: ruoyi-plus-dev
-description: "RuoYi-Vue-Plus 6.x coding profile for Java backend, plus-ui Vue/TypeScript, and SQL. Default technical profile when the project does not select another one; load for business-code changes in a confirmed RuoYi project. Diagnosis, review, and planning keep their own workflow. Triggers: ruoyi-plus-dev, RuoYi-Vue-Plus, 若依Plus, 若依, Java 业务代码, plus-ui, Vue 页面, SQL."
+description: "RuoYi-Vue-Plus 6.x 开发配置：按任务只加载后端、前端、数据库和页面设计参考，提供框架约束、复用检查与验证门禁。用于已确认的 RuoYi 项目中的业务代码修改；诊断、审查与规划仍由当前工作流主导。触发：ruoyi-plus-dev、RuoYi-Vue-Plus、若依Plus、若依、plus-ui、Vue/React 页面、Java 业务代码、SQL。"
 ---
 
 # RuoYi-Vue-Plus Development Profile
 
+这是 RuoYi-Vue-Plus 6.x 的单一入口，不按后端、前端、数据库拆成多个技能。先读 [common.md](references/common.md)，再只加载当前任务真正涉及的领域参考。项目是 RuoYi 不等于本次要读完全部领域。
+
 ## Outcome Contract
 
-- **Outcome**: The current task follows the team's RuoYi-Vue-Plus 6.X backend, plus-ui frontend, and database conventions.
-- **Done when**: The original applicable rules have been read, relevant conventions checked against the target source, reuse decisions supported by the [Repository Reuse Check](REFERENCE.md#repository-reuse-check), and every check required for the active stage has passed under the [Standards Gate](../rules/entry-protocol.md#standards-gate). A blocked/failed check leaves the affected deliverable unfinished.
-- **Evidence**: Actual standard/profile/source paths read, reused methods or justified gaps, applicable checks, and command working directories, exit statuses and results for the final changes. Planning produces a design and records why code checks do not yet apply.
-- **Output**: Attach the applicable profile findings to the current workflow's output. This profile does not create a second PRD/specification or auto-start another skill.
+- **Outcome**: 当前任务遵循目标工程的 RuoYi-Vue-Plus 6.x 约定，而不是凭本技能的示例猜版本、路径或 API。
+- **Done when**: 已读通用基线和适用领域参考；已对照目标源码核实版本、模块、模板和复用点；适用检查通过，或把阻塞/失败如实留在交付状态里。
+- **Evidence**: 实际读取的项目配置、框架源码和模板路径；复用到的 `path#method` 或新增实现的缺口理由；编译/构建命令、工作目录、退出状态与结果。
+- **Output**: 把配置结论附在当前工作流输出中。本技能不另建 PRD，不自动启动其他技能。
 
-## Process Summary
+## Load Map
 
-1. Apply the [Skill Entry Protocol](../rules/entry-protocol.md). If it already selected this profile, continue without recursively restarting the protocol. Read the target project's coding-standards configuration and actual framework version.
-2. Read [REFERENCE.md](REFERENCE.md) for integration and the [complete original team standard](references/ry-coding.md) for the rules. Read the original sections relevant to the current stage in full; a summary does not replace them. Treat its code paths as target-project lookup hints, not files inside this skill package.
-3. Before writing affected code, complete the [Repository Reuse Check](REFERENCE.md#repository-reuse-check): for backend work inspect `ruoyi-common/ruoyi-common-core/src/main/java/org/dromara/common/core/utils/` (including subpackages) and relevant project utilities/services; for frontend work inspect shared utilities/hooks/components. Read matching implementations and existing callers. Inspect generator/demo templates for CRUD work. Verify API and behavioral fit from source; resolve baseline/version mismatches explicitly.
-4. Apply the profile at the current stage using the table below. Check only the affected scope, preserving existing API, authorization, validation, transaction, and UI contracts.
-5. Apply the [Standards Gate](../rules/entry-protocol.md#standards-gate) before declaring completion or approving compliance. Report checks and evidence using the active workflow's output; if used directly, use the compact output below.
+| 任务范围 | 必读 | 按需追加 |
+|---|---|---|
+| 任何 RuoYi 业务改动 | [common.md](references/common.md) | — |
+| Java / Spring Boot / MyBatis-Plus / Sa-Token | common | [backend.md](references/backend.md) |
+| plus-ui Vue / React / TypeScript | common | [frontend.md](references/frontend.md) |
+| 表结构 / SQL / 字典 / 参数 / 菜单 | common | [database.md](references/database.md) |
+| 可见页面、布局、样式、仪表盘 | common + frontend（若改 Vue） | [ui-design.md](references/ui-design.md) |
+| 前后端或全栈切片 | common | 对应领域文件全部加载 |
+
+页面可见改动还要按 `frontend-design` 的方法设计；`ui-design.md` 负责把 RuoYi 业务页收敛到既有产品边界。视觉结论只能来自渲染页面，按 [page-acceptance](../page-acceptance/SKILL.md) 验收。
+
+## Process
+
+1. **定位版本与边界**：读取目标工程的 `pom.xml`、模块 POM、`package.json`/锁文件和现有目录；确认当前模块、构建命令与实际前端位置。不要用本技能中的示例路径替代目标源码。
+2. **加载最小参考集**：按 Load Map 只读本次范围。跨模块改动再追加对应文件，不预读全部。
+3. **先看真实实现**：修改现有模块前读目标 Controller/Service/Mapper、Vue 页面/API/hooks；新增标准 CRUD 前读生成器 `fm/` 模板和 demo。数据库改动先看现有表、字典、参数和脚本方言。
+4. **做复用检查**：按 [common.md 的复用检查](references/common.md#repository-reuse-check) 搜索并读取候选实现、调用方和行为差异；确认现有能力不满足后才新增。跨模块调用优先 `ruoyi-api` 的接口与 DTO。
+5. **实现与验证**：只做已确认范围；修改 Entity/BO/VO 映射后执行实际 Maven 编译以触发 MapStruct。前端按项目脚本构建或类型检查。通过 [Standards Gate](../rules/entry-protocol.md#standards-gate) 后才算完成当前阶段；页面行为与外观另走页面验收。
 
 ## Stage Integration
 
-| Active stage | Profile contribution |
+| 当前阶段 | 本配置提供 |
 |---|---|
-| think / grill | Inventory framework reuse; resolve physical-column vs JSON needs, ownership vs audit fields, background execution identity, permissions, nullable updates, uniqueness and state transitions. Preserve the workflow's one-decision-at-a-time interview discipline. |
-| story | Put agreed SQL, Entity/BO/VO, API, permissions, frontend interactions and verification into the existing issue's build scope and acceptance criteria. Use the existing `ready-for-agent` / `ready-for-human` triage roles when relevant. |
-| implement | Check reuse before production edits, inspect templates, implement the agreed slice, and compile after mapping changes to generate MapStruct code. Preserve the active workflow's gates. |
-| debug | Inspect the affected framework layer while reproducing the defect; use the debugging workflow's evidence before changing code. |
-| review | Test perspective checks observable contracts; Code checks reuse evidence and framework/mapping/frontend conventions; Impact checks permissions, background identity, schema migration, and cross-module effects. Preserve the three independent perspectives. |
+| think / grill | 框架复用、字段落列与 JSON、归属与审计、权限、可空更新、唯一性和状态流转；不打破单问题访谈节奏 |
+| story | 把 DDL、Entity/BO/VO、API、权限、页面交互和验证写进现有 Issue 范围与验收标准 |
+| implement | 读真实模板与邻近实现，按切片编码；映射变更后编译；保留工作流的门禁 |
+| debug | 结合缺陷证据检查对应层级；先复现和定位，再改动 |
+| review | Test 视角看可观察契约，Code 视角看框架/映射/前端约定，Impact 视角看权限、后台身份、脚本和跨模块影响 |
 
 ## Gotchas
 
-| What happened | Rule |
+| 现象 | 规则 |
 |---|---|
-| Original RuoYi APIs mixed into Plus code | Do not introduce `SecurityUtils`, `@PreAuthorize`, `AjaxResult`, `TableDataInfo`, or `BeanUtils.copyProperties`; follow the verified Plus interfaces. |
-| Every setting becomes a new table | Check `sys_config`, `sys_dict_*`, and existing framework entities first; classify domain records separately. |
-| Existing tools are bypassed by a new helper or inline business-code implementation | Apply the [Repository Reuse Check](REFERENCE.md#repository-reuse-check); identify the existing method or document the concrete gap before adding equivalent logic. |
-| Every background task bypasses permissions | Define service identity and data scope; `DataPermissionHelper.ignore` requires an explicit, justified scope. |
-| Required mappings have not compiled | Run the project's actual Maven compile/test-compile command; an unavailable or failed required compilation leaves the deliverable blocked/failed, not complete. |
-| Unrelated project receives RuoYi constraints | Apply only in a confirmed RuoYi project or when explicitly selected in project configuration. |
+| 把原版 RuoYi 写法混进 Plus | 禁止 `SecurityUtils`、`@PreAuthorize`、`AjaxResult`、`TableDataInfo`、`BeanUtils.copyProperties`；以目标源码的 Plus 接口为准 |
+| 每个配置都新建表 | 先查 `sys_config`、`sys_dict_*`、`sys_oss` 与现有业务表；配置、枚举和业务记录分开判断 |
+| 已有工具被新 helper 覆盖 | 执行复用检查；写出选中的现有方法，或说明新增实现的具体缺口 |
+| 后台任务直接取登录人 | 明确任务身份、归属和数据范围；`DataPermissionHelper.ignore` 只在有理由的范围内使用 |
+| 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
+| 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
 
 ## Output
 
 ```text
-Profile: ruoyi-plus-dev — <scope and observed version>
-Status: <verified for this stage / blocked / failed>
-Standards read: <configuration, profile and original reference paths>
-Source/template evidence: <paths>
-Reuse evidence: <searched scope/terms; reused path#method or concrete gap and chosen implementation>
+Profile: ruoyi-plus-dev — <scope; observed backend/frontend versions>
+Loaded: common + <domain references>
+Source/template evidence: <paths read>
+Reuse evidence: <searched scope; reused path#method or concrete gap>
 Applicable checks: <passed / findings / not applicable>
-Verification: <command, working directory, exit status, relevant output>
-Unfinished requirements: <none / failed or blocked checks and next action>
+Page evidence: <rendered check or not applicable / not run>
+Unfinished: <none / failed or blocked checks and next action>
 ```

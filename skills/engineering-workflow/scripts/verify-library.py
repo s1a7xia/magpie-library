@@ -177,7 +177,6 @@ def main() -> int:
         long_descriptions: list[str] = []
         link_errors: list[str] = []
         link_count = 0
-        skip_links = {"ruoyi-plus-dev/references/ry-coding.md"}
         for skill_dir in sorted(source_skills.iterdir()):
             skill_md = skill_dir / "SKILL.md"
             if not skill_md.is_file():
@@ -198,8 +197,6 @@ def main() -> int:
 
         for markdown in sorted(source_skills.rglob("*.md")):
             rel = markdown.relative_to(source_skills).as_posix()
-            if rel in skip_links:
-                continue
             for target in markdown_links(markdown.read_text(encoding="utf-8")):
                 if target.startswith(("http://", "https://", "#", "mailto:", "codex:", "file:")):
                     continue
