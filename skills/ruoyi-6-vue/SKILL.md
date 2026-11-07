@@ -31,9 +31,10 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | 文件上传/下载、OSS、附件字段、预览和存储配置 | common | [file-oss.md](references/file-oss.md) |
 | WebSocket/SSE、站内消息、实时通知、消息推送 | common | [messaging.md](references/messaging.md) |
 | 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | common | [access-control.md](references/access-control.md) |
-| 目标前端实际采用 Soybean Admin + Naive UI | common + frontend | [soybean-ui.md](references/soybean-ui.md)；仅在项目确实使用该前端时 |
 | 需要查官方规范或功能说明 | common | [docs-map.md](references/docs-map.md) |
 | 前后端或全栈切片 | common | 对应领域文件全部加载 |
+
+本 profile 的唯一目标栈是 **RuoYi-Vue-Plus 6.0.0 + plus-ui + Element Plus**。Soybean 等外部仓库只作为信息结构和交互思路的外部借鉴，不进入本 Load Map，不作为技术 profile，也不代表目标项目可以混用其组件或代码。
 
 页面可见改动还要按 `frontend-design` 的方法设计；`ui-design.md` 负责把 RuoYi 业务页收敛到既有产品边界。视觉结论只能来自渲染页面，按 `page-acceptance` 验收。
 
@@ -66,7 +67,7 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | 已有工具被新 helper 覆盖 | 执行复用检查；写出选中的现有方法，或说明新增实现的具体缺口 |
 | 后台任务直接取登录人 | 明确任务身份、归属和数据范围；`DataPermissionHelper.ignore` 只在有理由的范围内使用 |
 | 普通 CRUD 误加载工作流或调度知识 | 只有任务实际涉及 Warm-Flow 或 SnailJob 时才读对应参考；模块目录存在不代表本次要改它 |
-| 把 Soybean 组件和 plus-ui 混写 | 默认仍是 Element Plus；`soybean-ui.md` 只用于实际采用 Naive UI/Soybean 的前端，不把 `N*` 组件搬进 plus-ui |
+| 把外部 UI 仓库当目标方案 | 只借鉴信息层级和交互，不引入 Naive UI、Soybean 组件或另一套请求层；目标栈始终是 plus-ui + Element Plus |
 | 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
 | 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
 

@@ -49,7 +49,7 @@
 | 安全 | [security/auth.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/auth.md)、[security/api.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/api.md) | Sa-Token、接口加密和认证边界 |
 | 代码生成器 | [engineering/code-generator.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/engineering/code-generator.md) | 模板、字段类型和生成后检查 |
 
-另有一个**可选前端变体**参考：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是官方 plus-ui；只在目标项目实际使用该前端时阅读 [soybean-ui.md](soybean-ui.md)。
+外部借鉴资料：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是本项目目标栈；只可借鉴其信息组织和交互思路，不加载其组件、请求层或工程配置。需要看这份外部参考时读 [soybean-ui.md](soybean-ui.md)，但不能据此改变 6.0.0 + plus-ui + Element Plus 的技术判断。
 
 ## 使用规则
 

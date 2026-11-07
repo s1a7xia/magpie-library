@@ -28,7 +28,7 @@
 - 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.0.0 + Vue 需要的后端、前端、数据库、页面设计和官方文档地图。
-- 在 `ruoyi-6-vue` 内按需增加 Warm-Flow、SnailJob 和 Soybean 条件参考；普通业务 CRUD 不预读这些领域知识。
+- 在 `ruoyi-6-vue` 内按需增加 Warm-Flow、SnailJob 等业务参考；普通业务 CRUD 不预读这些领域知识。Soybean 仅是外部 UI 借鉴，不是目标前端。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
 当前是 **16 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
@@ -243,10 +243,9 @@ RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 文件上传/下载、OSS、附件字段、预览和存储配置 | `references/file-oss.md` |
 | WebSocket/SSE、站内消息、实时通知、消息推送 | `references/messaging.md` |
 | 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | `references/access-control.md` |
-| 目标前端实际采用 Soybean Admin + Naive UI | `references/soybean-ui.md`（仅该前端） |
 | 需要查官方规范或功能说明 | `references/docs-map.md` |
 
-普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和 Soybean 都是条件参考，不因模块存在而预读。Soybean 是可选前端变体，不替代默认的 `plus-ui + Element Plus`。
+普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流和 SnailJob 都是条件参考，不因模块存在而预读。目标栈始终是 **RuoYi-Vue-Plus 6.0.0 + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
