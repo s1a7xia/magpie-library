@@ -92,9 +92,65 @@ plus-ui/src/
 | 字典、权限、分页、树面板 | `components/DictTag`、`utils/dict` 的 `useDict`、`v-hasPermi`/`checkPermi`、`pagination`、`TreePanel` |
 | 页面壳、搜索卡片、表格工具栏、主题 token | 先看 `assets/styles/tokens`、`components/_page-shell.scss`、`_search-panel.scss`、`_table-toolbar.scss` 和两三个兄弟页面 |
 
-## 6. 邻近实现入口
+## 6. 邻近实现与 CRUD Fast Path
 
-本项目没有代码生成器环节，前后端代码（包括基础 CRUD）全部由 AI 直接编写。优先读可运行的 demo 和同模块业务实现，确认分层、命名、注解、请求封装和交互顺序后手写；不要以 `ruoyi-gen`、`fm/`、`plus-ui/gen/` 或其他模板脚手架作为开发入口。
+本项目没有代码生成器环节，也不执行「页面生成 → 下载 zip → 解压导入」。但 `ruoyi-gen` 的 FreeMarker 模板是 AI 可直接读取的完整 CRUD 结构清单，适合作为新增标准 CRUD 的起点；它不替代目标项目的真实实现，也不是交付步骤。
+
+### 新增 CRUD 的最快路径
+
+1. **先定字段契约**：列出表名、业务名、模块名、主键、每个字段的 Java/TS 类型、`query`/`insert`/`edit`/`list`、查询方式、字典、必填、状态、排序、树父级和权限前缀。契约不清时不要直接套模板。
+2. **一次读齐骨架**：按需读 [后端模板入口](#后端模板)、[前端模板入口](#前端模板)，确认普通表还是树表，以及需要哪些条件分支。
+3. **读一份最接近的真实实现**：同模块优先；没有同模块实现时读 `ruoyi-demo` 的 `TestDemo` / `TestTree` 和 `plus-ui` 的 `demo` / `system` 页面，校准当前分支的实际命名、hooks 和请求封装。
+4. **AI 直接写目标文件**：按字段契约裁剪模板，不运行生成器、不生成中间 zip、不导入生成包。模板只提供结构和分支覆盖，最终代码服从目标模块现状。
+5. **只做受影响一侧的编译/构建**；页面可见改动仍留到用户发起的页面验收。
+
+模板适合补齐容易漏的分支；真实实现适合确认当前分支到底怎么接。两者冲突时，以真实源码为准。
+
+### 字段契约检查表
+
+模板按字段开关生成代码。字段契约至少写清：
+
+| 字段 | 需要确认 |
+|---|---|
+| 标识 | 表名、模块名、业务名、类名、权限前缀 |
+| 类型 | Java 类型、数据库类型、TypeScript 类型、是否大整数 |
+| 查询 | 是否出现在查询区、查询方式（EQ/LIKE/BETWEEN 等） |
+| 录入 | 是否出现在新增/编辑表单、校验分组、必填 |
+| 列表 | 是否作为表格列、字典、状态、排序、树父级 |
+| 能力 | 是否需要导出、状态切换、树结构、上传、翻译 |
+
+字段契约不完整时，先补齐或按最接近的现有表推断并明确标注；不要在模板里“边写边猜”。
+
+### 后端模板
+
+目录：`ruoyi-modules/ruoyi-gen/src/main/resources/fm/`
+
+| 模板 | 用途 |
+|---|---|
+| `java/domain.java.ftl` | Entity、`BaseEntity`、主键、逻辑删除、乐观锁、字段映射 |
+| `java/bo.java.ftl` | BO、校验分组、必填、查询字段、日期范围参数 |
+| `java/vo.java.ftl` | VO、Excel 注解、字典转换、翻译字段 |
+| `java/mapper.java.ftl` | `BaseMapperPlus<Entity, Vo>` |
+| `java/service.java.ftl` | Service 接口、分页/列表/增改删、状态、排序 |
+| `java/serviceImpl.java.ftl` | 查询条件、唯一性、树维护、状态、排序、删除的完整实现分支 |
+| `java/controller.java.ftl` | `R`、`PageResult`、`@SaCheckPermission`、`@Log`、`@RepeatSubmit` |
+| `xml/mapper.xml.ftl` | 需要 XML 时的空壳 |
+| `sql/mysql.sql.ftl` | 菜单、按钮权限 SQL；其他方言另有对应文件 |
+
+只读本次需要的模板。普通单表 CRUD 不读树表分支，也不因为模板存在就实现导出、状态或排序。
+
+### 前端模板
+
+主目录：`ruoyi-modules/ruoyi-gen/src/main/resources/fm/vue/`
+
+| 模板 | 用途 |
+|---|---|
+| `api.ts.ftl` | `AxiosPromise`、`request`、分页/树表返回、状态和排序接口 |
+| `types.ts.ftl` | `VO` / `Form` / `Query`、主键宽度、树节点 `children` |
+| `index.vue.ftl` | 普通 CRUD：搜索、表格、弹窗、字典、上传、状态、排序、导出 |
+| `index-tree.vue.ftl` | 树表 CRUD：`row-key`、展开折叠、树父级选择 |
+
+`plus-ui/gen/` 是另一份模板副本，不能默认与后端模板同步：`index.vue.ftl`、`types.ts.ftl` 当前一致，`api.ts.ftl`、`index-tree.vue.ftl` 存在差异。需要核对前端生成器实际输出时再比较，不要同时读两套全文。
 
 | 用途 | 目标工程入口 |
 |---|---|

@@ -68,6 +68,8 @@ src/views/<module>/<business>/index.vue  页面
 
 页面（包括标准 CRUD）由 AI 直接编写；本项目没有代码生成器或模板脚手架环节。页面结构按现有 demo 与业务页组合：
 
+新增标准 CRUD 时，可先按 [common.md 的 CRUD Fast Path](common.md#新增-crud-的最快路径) 读 `ruoyi-gen/.../fm/vue/` 的 `api.ts.ftl`、`types.ts.ftl`、`index.vue.ftl` 或 `index-tree.vue.ftl`，作为完整交互分支的清单；按字段契约裁剪后直接写目标页面。模板与真实业务页冲突时，以真实业务页为准。
+
 ```text
 搜索卡片（el-form + queryParams）
 表格卡片

@@ -22,6 +22,7 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 | 任务范围 | 必读 | 按需追加 |
 |---|---|---|
 | 任何 RuoYi 6.1.0 业务改动 | [common.md](references/common.md) | — |
+| 新增普通 CRUD 或树表 CRUD | common 的 CRUD Fast Path | [backend.md](references/backend.md) + [frontend-shell.md](references/frontend-shell.md) |
 | 模块归属、跨模块调用、请求链路、启动配置 | common | [architecture.md](references/architecture.md) |
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | common | [backend.md](references/backend.md) |
 | plus-ui Vue 3 / TypeScript / Element Plus | common | [frontend.md](references/frontend.md) |
