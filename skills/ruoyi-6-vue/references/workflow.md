@@ -44,4 +44,4 @@
 - 不直接脚本调用加密 API；页面流程通过真实前端 UI 验证。
 - 记录所用 `warm-flow.enabled`、流程定义编码、业务 ID、任务 ID 和实际结果，不在记录中写令牌或个人敏感数据。
 
-官方参考：[工作流模块](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/index.md)、[流程定义](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/definition.md)、[流程实例](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/instance.md)、[任务](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/task.md)。文档版本可能落后于 6.0.0，类名、配置和接口以固定提交源码为准。
+外部工程参考：[工作流模块](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/index.md)、[流程定义](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/definition.md)、[流程实例](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/instance.md)、[任务](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/task.md)。文档版本可能落后于 6.0.0，类名、配置和接口以固定提交源码为准。

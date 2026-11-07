@@ -1,6 +1,6 @@
 ---
 name: ruoyi-6-vue
-description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提交 61b9ee20 为固定事实基线，按任务只加载模块架构、后端、前端骨架、数据库、页面设计、工作流、任务、搜索、消息、AI/MCP、邮件短信、缓存锁、加解密等条件参考，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.x Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob、Elasticsearch、MQTT、AI、MCP。"
+description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提交 61b9ee20 为固定事实基线，按任务只加载编码规范、后端、API 契约、前端、CRUD、数据库、页面设计及工作流、任务、搜索、消息、AI/MCP等条件参考，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.x Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob、Elasticsearch、MQTT、AI、MCP。"
 ---
 
 # RuoYi 6.0 Vue Development Profile
@@ -22,10 +22,12 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提
 | 任务范围 | 必读 | 按需追加 |
 |---|---|---|
 | 任何 RuoYi 6.0.0 业务改动 | [common.md](references/common.md) | — |
-| 新增普通 CRUD 或树表 CRUD | common 的 CRUD Fast Path | [backend.md](references/backend.md) + [frontend-shell.md](references/frontend-shell.md) |
+| 写或改业务代码前 | [coding-standards.md](references/coding-standards.md) | 对应后端/前端/数据库规范 |
+| 新增普通 CRUD 或树表 CRUD | [crud.md](references/crud.md) | 新增/改表加 [database.md](references/database.md)；新增接口加 [api-contract.md](references/api-contract.md)；改 Vue 加 [frontend.md](references/frontend.md) + [frontend-shell.md](references/frontend-shell.md)；涉及权限加 [access-control.md](references/access-control.md)；可见页面加 [ui-design.md](references/ui-design.md) |
 | 模块归属、跨模块调用、请求链路、启动配置 | common | [architecture.md](references/architecture.md) |
-| Java / Spring Boot / MyBatis-Plus / Sa-Token | common | [backend.md](references/backend.md) |
-| plus-ui Vue 3 / TypeScript / Element Plus | common | [frontend.md](references/frontend.md) |
+| Java / Spring Boot / MyBatis-Plus / Sa-Token | common + coding-standards | [backend.md](references/backend.md) |
+| 新增/修改 REST 接口、响应、分页、错误或加密契约 | common + coding-standards | [api-contract.md](references/api-contract.md) + [backend.md](references/backend.md) + [frontend.md](references/frontend.md) |
+| plus-ui Vue 3 / TypeScript / Element Plus | common + coding-standards | [frontend.md](references/frontend.md) |
 | 请求封装、路由、Pinia、布局、hooks、页面骨架 | common + frontend | [frontend-shell.md](references/frontend-shell.md) |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | common | [database.md](references/database.md) |
 | 可见页面、布局、样式、仪表盘 | common + frontend（改 Vue 时） | [ui-design.md](references/ui-design.md) |
@@ -51,7 +53,7 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提
 
 本 profile 的唯一目标栈是 **RuoYi-Vue-Plus 6.0.0 + plus-ui 6.0.0 + Element Plus**。Soybean 等外部仓库只作为信息结构和交互思路的外部借鉴，不进入本 Load Map，不作为技术 profile，也不代表目标项目可以混用其组件或代码。
 
-页面可见改动还要按 `frontend-design` 的方法设计；`ui-design.md` 负责把 RuoYi 业务页收敛到既有产品边界。视觉结论只能来自渲染页面，按 `page-acceptance` 验收。
+页面可见改动还要按 `frontend-design` 的方法设计；`ui-design.md` 负责把 RuoYi 业务页收敛到既有产品边界。开发阶段只做代码层面的静态核对，不启动浏览器；视觉结论和交互验证必须由用户主动发起的 `page-acceptance` 产生。
 
 ## Process
 
@@ -59,7 +61,7 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提
 2. **加载最小参考集**：按 Load Map 只读本次范围。跨模块改动再追加对应文件，不预读全部。
 3. **先看真实实现**：修改现有模块前读目标 Controller/Service/Mapper、Vue 页面/API/hooks。新增 CRUD 时读同模块邻近实现和 `ruoyi-demo` / `plus-ui` demo，照实际分层直接手写完整的前后端代码。数据库改动先看现有表、字典、参数和脚本方言。
 4. **做复用检查**：按 [common.md 的复用检查](references/common.md#repository-reuse-check) 搜索并读取候选实现、调用方和行为差异；确认现有能力不满足后才新增。跨模块调用优先 `ruoyi-api` 的接口与 DTO。
-5. **实现与验证**：只做已确认范围；修改 Entity/BO/VO 映射后执行实际 Maven 编译以触发 MapStruct。前端按项目脚本构建或类型检查。通过 [Standards Gate](../rules/entry-protocol.md#standards-gate) 后才算完成当前阶段；页面行为与外观另走页面验收。
+5. **实现与验证**：只做已确认范围；修改 Entity/BO/VO 映射后执行实际 Maven 编译以触发 MapStruct。前端执行项目已有的实际构建；独立类型检查不替代构建。通过 [Standards Gate](../rules/entry-protocol.md#standards-gate) 后才算完成当前阶段；页面行为与外观另走页面验收。
 
 ## Stage Integration
 
@@ -84,6 +86,7 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提
 | 普通 CRUD 误加载工作流或调度知识 | 只有任务实际涉及 Warm-Flow 或 SnailJob 时才读对应参考；模块目录存在不代表本次要改它 |
 | 把外部 UI 仓库当目标方案 | 只借鉴信息层级和交互，不引入 Naive UI、Soybean 组件或另一套请求层；目标栈始终是 plus-ui + Element Plus |
 | 寻找代码生成器或模板脚手架 | 本项目没有生成器操作环节。基础 CRUD 由 AI 参照真实 demo、邻近业务实现和 `ruoyi-gen` 模板结构直接编写；不运行生成器、不下载 zip、不导入生成包，最终实现以目标项目真实源码为准 |
+| 把组件 name 硬等于菜单路由 name | 菜单路由名由后端 `routeName + menuId` 生成，页面加载器再用该名包装组件；不要手工假设两者是同一字符串。保持组件 name 稳定，并检查 keep-alive |
 | 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
 | 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
 | 把外部文档多租户方案套进本项目 | 固定基线未启用多租户；业务表不新增 `tenant_id`，不新增租户拦截器或租户管理页 |

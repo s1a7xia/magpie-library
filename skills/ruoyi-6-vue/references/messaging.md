@@ -24,4 +24,4 @@
 - 检查无权限用户、跨部门用户和未登录连接的行为。
 - 涉及通知中心时，同时检查未读计数、已读状态和刷新后的持久化结果。
 
-官方参考：[消息推送最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/message-push.md)。传输默认值和前端连接方式以目标源码为准。
+外部工程参考：[消息推送最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/message-push.md)。传输默认值和前端连接方式以目标源码为准。

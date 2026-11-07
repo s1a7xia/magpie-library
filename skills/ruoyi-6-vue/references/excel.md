@@ -25,4 +25,4 @@
 - 导入至少覆盖成功行、校验失败行和模板下载；确认失败提示可理解，测试数据能清理。
 - 大批量/异步导出若本次改动涉及，至少验证任务状态、完成通知和下载文件；不在无人值守阶段打开浏览器。
 
-官方参考：[Excel 操作最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/excel-operations.md)。文档版本可能落后于 6.0.0，API 以固定提交源码为准。
+外部工程参考：[Excel 操作最佳实践](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/excel-operations.md)。文档版本可能落后于 6.0.0，API 以固定提交源码为准。

@@ -19,7 +19,7 @@
 1. **探查底座与参考实现**：确认目标工程版本、模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 时读同模块的 Controller/Service/Mapper/Vue 页面和 demo，按现有分层直接手写完整代码。
 2. **对齐数据与契约**：DDL、Entity、BO、VO、API、TypeScript 类型、字典值和页面标签逐项对齐。先判断能否复用组织、账号、角色、字典、参数、文件等框架能力。
 3. **按最小范围实现**：只实现当前任务需要的接口和交互，不机械生成全套 CRUD，不为假想需求新增抽象、中间件或跨模块依赖。
-4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行目标工程的 Maven 编译，让 MapStruct 生成实现；前端按实际脚本构建或类型检查。可见页面是否可用、是否好看，必须另走渲染验收。
+4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行目标工程的 Maven 编译，让 MapStruct 生成实现；前端执行项目已有的实际构建，独立类型检查不替代构建。可见页面是否可用、是否好看，必须另走渲染验收。
 
 ## 3. 防幻觉红线
 
@@ -84,7 +84,7 @@ plus-ui/src/
 
 这些是搜索起点，不是可直接假设的 API 清单。比如集合转 Map 先看 `StreamUtils.toMap`/`toIdentityMap` 的重复键策略；多根树先看 `TreeBuildUtils.buildMultiRoot`/`buildTreeNodeMap` 及调用方。
 
-固定提交同时包含 `fm/react/`、`ruoyi-demo` 的 MQTT/MCP/Easy-ES 示例和 `ruoyi-extend/{monitor-admin,snailjob-server,snailai-server}`。它们证明“底座或示例存在”，不证明目标项目已经启用；使用前仍要读目标模块 POM、配置、Bean 和调用链。
+固定提交同时包含 `fm/react/`、`ruoyi-demo` 的 MQTT/MCP/Easy-ES 示例和 `ruoyi-extend/{ruoyi-monitor-admin,ruoyi-snailjob-server,ruoyi-snailai-server}`。它们证明“底座或示例存在”，不证明目标项目已经启用；使用前仍要读目标模块 POM、配置、Bean 和调用链。
 
 ### 前端常用候选
 
@@ -101,6 +101,8 @@ plus-ui/src/
 本项目没有代码生成器环节，也不执行「页面生成 → 下载 zip → 解压导入」。但 `ruoyi-gen` 的 FreeMarker 模板是 AI 可直接读取的完整 CRUD 结构清单，适合作为新增标准 CRUD 的起点；它不替代目标项目的真实实现，也不是交付步骤。
 
 ### 新增 CRUD 的最快路径
+
+字段契约、标准文件链、普通表/树表分支和权限清单见 [crud.md](crud.md)。本节只保留定位与模板入口；涉及改表必须追加 [database.md](database.md)，新增接口追加 [api-contract.md](api-contract.md)，改 Vue 追加 [frontend.md](frontend.md) 与 [frontend-shell.md](frontend-shell.md)。
 
 1. **先定字段契约**：列出表名、业务名、模块名、主键、每个字段的 Java/TS 类型、`query`/`insert`/`edit`/`list`、查询方式、字典、必填、状态、排序、树父级和权限前缀。契约不清时不要直接套模板。
 2. **一次读齐骨架**：按需读 [后端模板入口](#后端模板)、[前端模板入口](#前端模板)，确认普通表还是树表，以及需要哪些条件分支。
@@ -171,5 +173,5 @@ plus-ui/src/
 - [ ] Controller 分页签名为 `(XxxBo, PageQuery)`，Service 返回 `PageResult<Vo>` 而非 `R<T>`，Controller 返回 `R<PageResult<Vo>>`。
 - [ ] JSON 对象字段使用 `autoResultMap = true` + `JacksonTypeHandler`，Entity/BO/VO 类型同构；映射改动已编译。
 - [ ] 无登录态任务不强行依赖 `LoginHelper`；后台身份、归属字段和数据范围已明确。
-- [ ] 前端主键/关联 ID 使用 `string | number`，组件 `name` 与菜单路由 `name` 一致，权限和字典未绕过。
+- [ ] 前端主键/关联 ID 使用 `string | number`；组件 name 稳定且可被 keep-alive 使用，不手工假设它等于 `routeName + menuId` 生成的菜单路由名；权限和字典未绕过。
 - [ ] 适用检查有命令和结果；可见页面未做真实渲染验收时，不能宣称页面完成或颜值达标。

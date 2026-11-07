@@ -17,17 +17,17 @@ permission.ts
 ```
 
 - 路由来自后端 `/system/menu/getRouters`，`Layout`、`ParentView`、`InnerLink` 是特殊组件标识；业务页面按 `views/**/*.vue` 的路径被解析。
-- 页面组件的 `name` 必须与菜单路由 `name` 一致，否则 `keep-alive` 缓存、标签页和动态组件行为会异常。
+- 后端菜单路由名由 `routeName + menuId` 生成，`loadView` 会用该路由名包装页面组件。不要手工假设页面组件的 `name` 必须等于完整路由名；组件名保持稳定，修改后检查 `keep-alive` 和标签页缓存。
 - 无 token 时跳登录；登录态失效由 `request.ts` 的 401 分支统一处理。不要在页面里重复写跳登录或清 token。
-- 强制改密由后端 `PASSWORD_CHANGE_REQUIRED` 与 `mustChangePassword` 驱动，只有允许的路径可访问；新增拦截逻辑前先读 `permission.ts` 和 `request.ts`。
+- 固定提交 `permission.ts` 只有 token、白名单、`getInfo()` 和动态路由逻辑；未发现 `PASSWORD_CHANGE_REQUIRED` / `mustChangePassword` 强制改密分支。项目若二次实现，以目标源码为准，不把该能力写成固定基线已有。
 
 ## 2. 请求与返回类型
 
-- 所有 API 从 `@/utils/request` 导入 `request`，保留拦截器提供的 token、`clientid`、`Content-Language`、重复提交、RSA/AES 和错误提示。
+- 所有 API 从 `@/utils/request` 导入 `request`，保留拦截器提供的 token、`clientid`、`Content-Language`、重复提交、条件式 RSA/AES 和错误提示。
 - 请求函数返回类型使用 `AxiosPromise<T>`（来自 `@/utils/api-types`）；拦截器 resolve 的是若依风格 `{ code, msg, data }`，所以页面读取 `res.data`。
 - 分页返回类型是 `PageResult<T>`（来自 `@/api/types`）：`res.data.rows`、`res.data.total`。树表列表通常直接返回 `VO[]`。
 - 查询使用 `params`，新增修改使用 `data`；下载走 `download` 或现有下载入口，不手工拼裸链接绕过鉴权。
-- `isEncrypt`、`isToken`、`repeatSubmit` 是项目已有请求头开关；只在确有对应契约时使用，不要自创请求头协议。
+- `isEncrypt`、`isToken`、`repeatSubmit` 是项目已有请求头开关；只在确有对应契约时使用，不要自创请求头协议。请求体加密需要 `VITE_APP_ENCRYPT === 'true'` + `isEncrypt` + POST/PUT 同时成立，不是全站默认。
 
 ## 3. API 与页面位置
 
@@ -39,7 +39,7 @@ src/views/<module>/<business>/index.vue  页面
 
 - API 函数保持薄：拼 URL、method、params/data 和返回类型；业务编排留在页面或 hook。
 - `VO`、`Form`、`Query` 分开定义；主键和外部关联 ID 用 `string | number`，分页查询继承 `PageQuery`。
-- 页面使用 `<script setup name="Xxx" lang="ts">`；组件名与菜单路由一致。
+- 页面使用 `<script setup name="Xxx" lang="ts">`；组件名用于 keep-alive，菜单路由名由 `routeName + menuId` 生成，两者不要混为一谈。
 - 类型里的日期、状态、字典值、可空字段必须与后端 VO/BO 对齐；不要用 `any` 掩盖契约不一致。
 
 ## 4. 现有 hooks 与组件
@@ -83,7 +83,7 @@ el-dialog / el-drawer（form + rules + submit loading）
 
 1. 先写 `types.ts` 与 `api/index.ts`，对齐后端 URL、分页和字段。
 2. 页面用 `useLoading`、`useSearchToggle`、`useTableSelection`、`useFormDialog`、`useSearchReset` 搭骨架。
-3. 查询、重置、新增、编辑回填、提交、删除、导出按现有 demo 的调用顺序实现；编辑必须先拉详情再 `Object.assign` 回填。
+3. 查询、重置、新增、编辑回填、提交、删除、导出按现有 demo 的调用顺序实现；编辑必须先拉详情再回填。
 4. 状态列用 `DictTag` 或语义化 `el-tag`；权限按钮和行操作不遗漏 `v-hasPermi`。
 5. 最后按 [ui-design.md](ui-design.md) 调整信息层级与间距，不改变组件和交互契约。
 
@@ -96,7 +96,7 @@ el-dialog / el-drawer（form + rules + submit loading）
 
 ## 7. 构建与检查
 
-- 先读目标 `package.json`。固定提交 6.0.0 脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`；是否运行 lint/typecheck 以项目要求和本次范围为准。
+- 先读目标 `package.json`。固定提交 6.0.0 脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`；至少执行实际构建，独立类型检查不替代构建。
 - 修改路由、组件 `name`、请求封装、全局 store、布局时，检查影响的所有页面，不只检查当前页。
 - 构建通过不等于页面可用；可见页面必须在真实浏览器按 `page-acceptance` 验收。
 
@@ -105,6 +105,6 @@ el-dialog / el-drawer（form + rules + submit loading）
 - 在页面里直接用 Axios/fetch，绕过 token、加密、错误处理和重复提交保护。
 - 把 `R<T>` 当成页面直接数据，忘记读取 `res.data`；或把分页 `rows/total` 写成数组。
 - 为单页复制 `useFormDialog`、`useTableSelection`、字典缓存或权限判断。
-- 组件 `name` 与菜单路由 `name` 不一致，导致 keep-alive 和标签页失效。
+- 手工假设组件 name 必须等于 `routeName + menuId` 的完整菜单路由名，导致 keep-alive 或标签页判断错误。
 - 业务页复制全局布局或另造主题层；先复用 `layout`、页面壳和主题 token。
 - 用前端隐藏代替后端脱敏、权限或数据范围控制。

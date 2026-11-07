@@ -8,7 +8,8 @@
 - API 解密配置前缀是 `api-decrypt`：`enabled`、`headerFlag`、响应公钥、请求私钥；`CryptoFilter` 对带加密头的 PUT/POST 请求解密，对有 `@ApiEncrypt(response = true)` 的响应加密。
 - 字段加密配置前缀是 `mybatis-encryptor`：`enable`、默认算法、密码、公私钥、编码方式；只有开启后 MyBatis 拦截器才对 `@EncryptField` 字段加解密。
 - 支持算法包括 BASE64、AES、SM4、RSA、SM2，具体可用性和密钥格式以目标版本 `AlgorithmType`/加密器实现为准。
-- 登录、修改密码、个人资料、用户导入等现有接口可参考 `@ApiEncrypt` 用法；`TestDemoEncrypt` 只是示例，不要在生产业务复制示例密钥。
+- 固定提交中 `@ApiEncrypt` 实际命中登录、修改密码、个人资料等入口（如 `AuthController`、`SysProfileController`）；用户导入接口没有该注解。`TestDemoEncrypt` 只是示例，不要在生产业务复制示例密钥。
+- 必须区分三种开关：前端 `VITE_APP_ENCRYPT`、请求头 `isEncrypt` 和方法（只对 POST/PUT 加密），以及后端 `api-decrypt.enabled`。它们同时成立才开始相应解密链路；不是所有接口默认加密。
 
 ## 安全边界
 
@@ -27,4 +28,4 @@
 - 验证无加密头、错误密钥、错误算法、超长字段、空值和历史密文；确认旧数据仍可读或已按计划迁移。
 - 检查数据库、日志、浏览器网络和导出文件，确认没有泄露明文或密钥；不要记录完整认证头和密钥。
 
-官方参考：[Hutool Crypto](https://hutool.cn/docs/#/crypto/%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86-Crypto)、[Spring Security](https://docs.spring.io/spring-security/reference/)。算法和配置以目标源码为准。
+外部参考：[Hutool Crypto](https://hutool.cn/docs/#/crypto/%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86-Crypto)、[Spring Security](https://docs.spring.io/spring-security/reference/)。算法和配置以固定提交及目标源码为准。

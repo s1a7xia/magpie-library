@@ -7,14 +7,14 @@
 - 接口权限：Controller 使用 `@SaCheckPermission`，权限字符与 `sys_menu` 和前端 `v-hasPermi`/`checkPermi` 对齐。
 - 数据权限：`@DataPermission` 标注在 Mapper/方法上，通过 `DataPermissionHelper` 管理上下文；`DataPermissionHelper.ignore` 只在明确理由和最小范围内使用。
 - 数据范围：`DataScopeType`、`SysUserMapper`、`SysRoleMapper`、`SysDeptMapper` 等已有实现可作参照；字段必须和 SQL 别名对齐。
-- 字段敏感：沿用 `@Sensitive`、`SensitiveService`/现有脱敏实现，不在页面或导出中自行拼接明文。
+- 字段敏感：沿用 `@Sensitive`、`SensitiveService`/现有脱敏实现，不在页面或导出中自行拼接明文。固定基线提供的是出口脱敏，不等同于外部项目的动态字段读写权限；不要把它写成已有字段级授权体系。
 - 多租户：固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` **未启用**。`MybatisPlusConfig` 只装配数据权限、分页、乐观锁，没有 `TenantLineInnerInterceptor`、`TenantLineHandler` 或 `TenantHelper`；`ry_vue.sql`、`ry_ai.sql`、`ry_job.sql` 没有 `tenant_id`。业务表不自行新增租户字段。
 
 ## 检查顺序
 
 1. **功能权限和数据权限分开**：能进入页面不代表能看全部数据；列表、详情、导出、批量操作和关联选择都要检查数据范围。
 2. **写操作也受范围约束**：新增归属、修改/删除目标、跨部门转移不能只校验按钮权限；后台任务无登录态时显式确定身份和数据范围。
-3. **字段权限在出口统一处理**：列表、详情、导出、消息和日志使用同一脱敏策略；不要只在前端隐藏字段。
+3. **敏感字段在出口统一处理**：列表、详情、导出、消息和日志使用同一脱敏策略；不要只在前端隐藏字段。需要按角色动态控制字段可见性时，先确认目标项目是否真实实现，不能把脱敏当成字段权限。
 4. **不引入租户维度**：不新增租户实体、租户表、租户管理页或 `tenant_id`；数据隔离按现有部门、用户和角色数据权限解决。
 
 ## 常见缺口
@@ -33,4 +33,4 @@
 - 核对列表、详情、导出和写操作的可见范围一致。
 - 记录角色、权限字符、数据范围和实际结果；不记录凭证、完整令牌或个人敏感信息。
 
-官方参考：[权限控制](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/permission-control.md)、[数据权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/data-permission.md)、[字段权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/field-permission.md)。这些页面只借鉴思路；6.0.0 的类名、配置和权限链路以固定提交源码为准。
+外部工程参考：[权限控制](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/permission-control.md)、[数据权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/data-permission.md)、[字段权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/field-permission.md)。这些页面只借鉴思路；6.0.0 的类名、配置和权限链路以固定提交源码为准。其中的动态字段权限和 `tenant_id` 不写进本地能力。

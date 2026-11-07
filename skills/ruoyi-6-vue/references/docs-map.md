@@ -1,6 +1,6 @@
-# RuoYi-Plus 官方文档地图
+# RuoYi-Plus 外部工程参考地图
 
-这是外部 RuoYi-Plus 文档的**按需检索地图**，不是本地 6.0.0 源码的替代品。文档正文默认以 3.5.x 为主线；只借鉴章节组织、规范概念和检索思路，涉及类名、注解、配置、目录和接口时必须回到固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 核对。
+这是外部 RuoYi-Plus 工程文档的**按需检索地图**，不是本地 6.0.0 源码的替代品，也不是“官方事实”。文档正文默认以 3.5.x 和移动端/UniApp 为主线；只借鉴章节组织、规范概念和检索思路，涉及类名、注解、配置、目录和接口时必须回到固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 核对。移动端、UniApp、Astro、动态字段权限和多租户内容不进入我们的前后端事实。
 
 仓库：<https://github.com/bkywksj/ruoyi-plus-uniapp-docs>
 文档根目录：`src/content/docs/practices/`
@@ -16,6 +16,7 @@
 | 数据库规范 | [standards/database.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/standards/database.md) | 表、字段、索引、审计和 SQL 风格 |
 | 前端规范 | [standards/frontend.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/standards/frontend.md) | Vue 页面、API、状态和组件约定 |
 | Git 规范 | [standards/git.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/standards/git.md) | 提交、分支和变更说明 |
+| 工程化 Hooks（外部设计参考） | [engineering/claude-code-hooks.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/engineering/claude-code-hooks.md)、[Codex Hooks](https://developers.openai.com/codex/hooks) | 只借鉴事件、matcher 和护栏边界；不是完整开发流程，也不能把 Claude Code 配置直接复制到 Codex |
 
 ## 后端分层
 
@@ -67,3 +68,4 @@
 3. 不把文档站的 3.5.x 版本号、类名或配置直接复制到 6.0.0 项目。
 4. 本项目未启用多租户；外部多租户章节只能帮助理解概念，不能作为新增 `tenant_id`、租户拦截器或租户管理页的依据。
 5. 需要长期复用的结论写入项目 `docs/research/`，不要只留在聊天里。
+6. Hook 只是可选的护栏层；流程仍按 `setup-project`、`think/grill`、`story`、`implement`、`page-acceptance`、`review/debug` 执行。设计边界见 [Hook 护栏](../../rules/hook-guardrails.md)。
