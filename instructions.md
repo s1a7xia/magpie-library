@@ -30,6 +30,7 @@
 
 - 实现、修复、继续开发及交付收尾时按需读取 engineering-workflow。小事直接完成；需求未决才用 think，重要方案要压力测试才用 grill，明确要拆任务才用 story；明确调用 implement 时才进入完整编排。不得为了让每层“用上”而机械串联技能、子代理或 MCP。
 - 新项目初始化、协作方式或技术栈变化时说“按通用资源库配置这个项目”时使用 setup-project；普通实现和审查不强制先生成项目模板。
+- 项目沿用某个特定框架/团队约定（例如 RuoYi-Vue-Plus）时，由 setup-project 在初始化时确认并注册对应的技术档案技能（如 `ruoyi-plus-dev`），把该框架的独有约束写进项目配置；未确认时不得从语言或框架臆断。
 - 项目存在 `docs/agents/project-state.md`、`project-decisions.md` 或 `verification.md` 时，先读取与当前任务相关的部分；它们分别记录当前状态、已确认决策和验证证据，不把原始聊天历史当作项目事实。普通任务不因缺少这些文件停工，也不擅自创建项目文档。
 - 涉及 GitHub、GitLab、Gitee 的 Issue、PR/MR、评论、状态同步或交接时，按需读取 `scm-collaboration`，先识别当前远程和 `docs/agents/issue-tracker.md`；统一的是任务流程，不是假设三个平台已经有相同的 API 或写入权限。当前适配器：GitHub 与 Gitee 走 Magpie 内的 MCP，GitLab 走 `glab` CLI（不启用 `glab mcp serve`，其 220 个工具会挤占上下文）。
 - 技术版本、框架行为或官方最佳实践会改变实现方案时，按需使用 research 或权威文档工具核对；已有 Context7 时优先查官方文档，不把未核实的记忆写成事实。单页、已知问题、多来源或跨版本调研均由主代理直接核对来源并写结论。

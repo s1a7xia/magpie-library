@@ -29,7 +29,7 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 |---|---|---|---|
 | `issue-tracker.md` | `git remote -v` → does the remote match the tracker type in the file? | Remote changed (GitHub→GitLab, or no remote→local) | Present change, confirm, rewrite `issue-tracker.md` |
 | `ai-collaboration.md` | Are multiple agents still used, and do role ownership and handoff path match the project? | Agent roles, write boundaries, or tracker handoff changed | Present affected fields, confirm, update the contract |
-| `coding-standards.md` | Read existing standards, selected profile, stack/version, source paths and verification commands | Profile/version changed, source moved, or command no longer exists | Present the affected fields; preserve hand-written standards and explicit exceptions |
+| `coding-standards.md` | Read existing standards, selected profile, stack/version, source paths and verification commands | Profile/version changed, source moved, command no longer exists, or the project now follows an installed profile that was never registered | Present the affected fields; preserve hand-written standards and explicit exceptions. If a profile is now applicable, ask the Section F question and register it |
 | `triage-labels.md` | Check actual labels on 1-2 recent issues → do they still match the file? | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
 | `language.md` | Read existing value. Ask: "Is `<language>` still the right doc language for the team?" | Language preference changed | Confirm, rewrite `language.md`. If changed, trigger **Conformance Sweep** (Language Audit) |
@@ -204,6 +204,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
 - **Engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E)
+- **Technical profile**: present as "please confirm". List only profiles actually installed in this library (skills whose remit is one framework stack); ask whether this project follows one, and never infer it from language or framework alone (see Section F)
 
 ## Step 4: Ask for Overrides
 
@@ -279,7 +280,16 @@ If the file already carries a hand-written `## Engineering principles` (or equiv
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. Include the Coding standards section in the AGENTS.md/CLAUDE.md block below when this file is configured. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-For a confirmed RuoYi-Vue-Plus 6.X project using the team's conventions, select `ruoyi-plus-dev`; inspect POM/source and plus-ui rather than inferring it from Java/Vue alone. Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. With no extra conventions or selected profile, omit the optional file.
+**Ask about the technical profile — do not only detect it.** Step 1 stack detection tells you the languages and frameworks; that is not enough to choose a profile, because many Java/Vue projects are not RuoYi-Vue-Plus and a profile carries team-specific constraints. Build the candidate set from the profiles this resource library actually installs, then ask the user one question: "Does this project follow one of these framework profiles — <list installed profiles, e.g. `ruoyi-plus-dev`>? If so, I will register it so its constraints apply to affected work." If no installed profile fits the stack, say so and record "none" rather than inventing one.
+
+**When the user confirms a profile**, register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
+
+- Record the profile by name, its version/stack, and the scope it governs (modules, file types, languages).
+- Carry the profile's hard constraints into the registration — either the **Additional standards** field or an explicit **Project decisions and exceptions** entry. For a RuoYi-Vue-Plus profile these include "do not introduce original-RuoYi APIs", "check `sys_config`/`sys_dict_*` and existing entities before adding a table", and "background tasks declare service identity and data scope".
+- Keep the profile's full rules in the profile skill; register the pointer plus project-specific additions. Do not copy the entire profile into the workflow skills.
+- If the project is not that stack, omit the profile and say why (e.g. "Java/Vue only — not a confirmed RuoYi-Vue-Plus project").
+
+Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. With no extra conventions and no confirmed profile, omit the optional file.
 
 Example registration for that confirmed stack (render in the project's documentation language and fill paths/commands from the checkout):
 
