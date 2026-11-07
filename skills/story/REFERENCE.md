@@ -94,17 +94,17 @@ Present proposed breakdown as numbered list. For each slice, show:
 
 Before presenting, self-check the draft against these quality questions — granularity (too coarse / too fine), dependencies and cycles, merge/split candidates, HITL/AFK markings, and acceptance-criterion coverage — and fix what you find. State `Coverage: <assigned>/<total>`. Then ask exactly one question: **"Approve this breakdown, or adjust which part?"** (with your recommendation: approve). If the user names an adjustment, revise and ask again — one decision per message (anti-patterns #3, #4).
 
-### Step 7: Write Approved List and Publish Issues
+### Step 7: Write Approved List (Optional Remote Publish)
 
-After approval, first write the approved slice list to the PRD's `## Traceability → Sliced into` section using stable local slice IDs (`S1`, `S2`, ...) and set `Status: Sliced`. This local write is the source of truth if remote publishing fails. Then continue with publishing.
+After approval, first write the approved slice list to the PRD's `## Traceability → Sliced into` section using stable local slice IDs (`S1`, `S2`, ...) and set `Status: Sliced`. This local write is the source of truth. Local Markdown is the default; stop here unless a remote tracker is configured and the user asked to publish.
 
-Read `docs/agents/issue-tracker.md` for the issue creation convention (GitHub `gh`, GitLab `glab`, Gitee MCP/OpenAPI, or local markdown). Read `docs/agents/triage-labels.md` for the label mapping. Preserve string Issue numbers and full URLs; Gitee parent/dependency references follow its configured convention, not GitHub-only APIs.
+If publishing is requested, read `docs/agents/issue-tracker.md` for the issue creation convention (GitHub `gh`, GitLab `glab`, Gitee MCP/OpenAPI). Read `docs/agents/triage-labels.md` for the label mapping. Preserve string Issue numbers and full URLs; Gitee parent/dependency references follow its configured convention, not GitHub-only APIs.
 
 **Multi-repo:** If `repo-map.md` indicates issues should be created in a different repo, use that repo's issue tracker. Add `cross-repo` label (if configured) to issues touching multiple repos.
 
 **Issue title format**: `[PRD-NNNN] <vertical-slice-description> — <core-behavior>`. Use the same language as the user's input language; ask when unsure.
 
-For each approved slice, publish new issue to tracker. Use issue body template above. The `Meta` section must include:
+When publishing is requested, create a new issue for each approved slice. Use the issue body template above. The `Meta` section must include:
 - **PRD**: Full PRD file path (PRD-NNNN-<title>.md)
 - **Type**: AFK or HITL
 - **Covers**: Parent PRD requirement and acceptance-criterion IDs
@@ -114,7 +114,7 @@ If not otherwise indicated, these issues are considered ready for AFK agents, so
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in "Blocked by" fields.
 
-### Step 8: Replace Local IDs with Tracker IDs
+### Step 8: Optional — Replace Local IDs with Tracker IDs
 
 **Issue title format**: `[PRD-NNNN] <vertical-slice-description> — <core-behavior>`
 

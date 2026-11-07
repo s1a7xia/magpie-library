@@ -35,7 +35,7 @@ Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates the 
    - **Only running a demo can answer it** (options that reasoning and reading can't separate — which is faster, does the model hold up, what should it look like) → park the item and propose a minimal experiment; if a prototype skill is installed, it may be used. Fold the verdict back as an ADR / PRD update and resume the checklist.
 4. **Run the exhaustiveness gate** before declaring complete: Open Questions, Assumptions, terms, scope, code cross-check — all resolved.
 5. **Fill the PRD `## Traceability` `Grilled by` field** so downstream skills know the plan was validated.
-6. **Sync the parent Issue (if it exists).** Update its body to reflect scope changes (sharpened terms, confirmed boundaries, new ADRs). Do **not** change title or close it. If the `## Issue` field is empty and the PRD was created by `/think`, warn the user that the parent Issue was not created (see REFERENCE.md for exact message).
+6. **Sync the parent Issue only if one exists.** Update its body to reflect scope changes (sharpened terms, confirmed boundaries, new ADRs). Do **not** change title or close it. If the PRD says `N/A — local PRD only`, skip remote sync. If a remote tracker is configured and the field is unexpectedly empty, warn the user instead of inventing an Issue.
 7. **Freeze the baseline.** Set `Status: Grilled`. From here the requirements are a contract — see [Freezing the Baseline](#freezing-the-baseline).
 8. **Render the baseline page.** Use `answer-me-with-html` to write `docs/baseline/PRD-NNNN-<slug>.html` from the frozen PRD, then report its path so the user can confirm the whole scope in one view.
 9. **Update the project dashboard.** If `docs/agents/project-state.md` exists, set its `Workflow status → Baseline` to `Passed` and `Slices` to `Pending`, with the PRD path and next step.
@@ -93,7 +93,7 @@ Updated:
 - docs/baseline/PRD-NNNN-<slug>.html — rendered from the frozen PRD
 
 Exhaustiveness gate: passed
-Parent Issue: #<num> synced | skipped (none)
+Parent Issue: #<num> synced | local PRD only | skipped (none)
 
 Baseline page: <absolute path>
 Next: Confirm the page; then /story to slice the frozen baseline.

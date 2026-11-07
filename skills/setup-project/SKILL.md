@@ -1,163 +1,116 @@
 ---
 name: setup-project
-description: "Initialize or reconfigure a repository's engineering setup: issue tracker, project state, compile commands, domain docs, principles, coding profile, and optional WeChat entry. Use when the user says 按通用资源库配置这个项目 or asks to refresh project collaboration. Not required for every task."
+description: "Initialize or reconfigure a repository's engineering setup: project state, domain docs, compile commands, coding profile, optional issue tracker, and optional WeChat entry. Use when the user says 按通用资源库配置这个项目 or asks to refresh project collaboration. Not required for every task."
 ---
 
 # Setup Project
 
-Scaffold the per-repo configuration that the engineering skills assume:
+为当前仓库建立后续技能需要读取的项目事实。它是初始化/重配入口，不是每次开发的前置门槛；已有 `docs/agents/` 时可重复运行，只更新变化部分。
 
-- **Project standards** — project-specific conventions and a stack-tailored engineering quick reference written into `docs/agents/coding-standards.md`. Global working principles and workflow rules stay in the Magpie global instructions and are not copied per repo.
-- **Project structure** — single repo, monorepo (multiple packages in one repo), or multi-repo (multiple related repos)
-- **Issue tracker** — where issues live (GitHub, GitLab, Gitee via official MCP/OpenAPI, local markdown, or other)
-- **Triage labels** — the strings used for the five canonical triage roles
-- **Domain docs** — where `CONTEXT.md`, ADRs, PRDs, and the research index live; how consumer skills find them across repos
-- **Documentation language** — the language skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments), so output is readable for the team regardless of who triggers the skill
-- **Coding standards** — project conventions and a technical profile. The global default is `ruoyi-plus-dev`; do not probe framework signatures or ask whether the project is RuoYi. Register the selected profile in project config. If the user identifies the project as non-RuoYi, record `Technical profile: none` (or the user-named alternative) and the reason as an explicit project override so later sessions do not fall back to the global default. A different installed profile is used only when the user names it.
-- **Project handoff** — concise current state, durable decisions, versioned verification evidence, and affected-side compile commands
-- **Agent collaboration** — when multiple agents share a project, define role ownership and handoff in `docs/agents/ai-collaboration.md`
-- **WeChat entry (optional)** — when the project wants the WeChat assistant entry, keep the WeChat sections in `docs/agents/ai-collaboration.md` and output a ready-to-paste registry entry for the user. The machine-level index (`~/.dsh/im/PROJECTS.md`) is maintained by the user, never written by this skill. Without it the project runs standalone.
+## Global-first 默认
 
-This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write. It is required for project initialization or reconfiguration, not a gate before ordinary implementation tasks.
+全局 Magpie 指令是工作原则、工作流、编译口径、页面验收时机和 Git 规则的唯一来源。项目只保存**项目事实**，不复制全局流程。
 
-**Can be re-run.** If `docs/agents/` already exists, read current config first, detect what changed since last setup, present only the sections that need updating, and rewrite affected files. The user can also use this to switch issue trackers, add/remove repos from the map, or reorganize domain docs.
+- 默认不创建、不修改 `AGENTS.md` / `CLAUDE.md`。
+- 如果文件已存在或用户明确要求，只写项目事实和指向 `docs/agents/` 的短指针。
+- 项目专属原则（文件大小、依赖检查路径、验证命令）写入 `docs/agents/coding-standards.md`。
+- 默认技术 profile 是 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.0.0 + Vue）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
 
-## Global-first default
+## 产出
 
-The shared Magpie instructions are the single source for working principles, workflow routing, compile policy, page-acceptance timing, and Git rules. Project setup must not duplicate them.
+| 文件 | 内容 |
+|---|---|
+| `docs/agents/domain.md` | `CONTEXT.md`、PRD、ADR、research 的实际路径 |
+| `docs/agents/coding-standards.md` | 项目约定、技术 profile、源码证据、实际编译命令 |
+| `docs/agents/project-state.md` | 当前目标、阶段面板、阻塞、下一步、前后端编译命令 |
+| `docs/agents/project-decisions.md` | 已确认、跨任务有效的决策 |
+| `docs/agents/verification.md` | 带版本/提交、命令、结果、日期的验证证据 |
+| `docs/agents/language.md` | 文档语言 |
+| `docs/agents/issue-tracker.md` | 可选：本地 Markdown 或远端 Issue 跟踪方式 |
+| `docs/agents/triage-labels.md` | 可选：Issue 标签映射 |
+| `docs/agents/repo-map.md` | 多仓时记录仓库职责和主跟踪仓库 |
+| `docs/agents/ai-collaboration.md` | 可选：多 Agent 分工、交接和写入边界 |
+| `AGENTS.md` / `CLAUDE.md` | 仅已存在或用户明确要求时更新，写短指针 |
 
-- **Default: do not create or modify `AGENTS.md` / `CLAUDE.md`.** All project-specific facts go into `docs/agents/`.
-- If the project already has `AGENTS.md` or `CLAUDE.md`, only update the file that exists and only with project-specific facts or a short pointer to `docs/agents/`.
-- If the user explicitly asks for a project-level rules file, write a short pointer block; never copy the global Working principles, engineering workflow, compile policy, page-acceptance policy, or commit policy into it.
-- Project-specific engineering principles (file-size bounds, dependency-check paths, per-change verification commands) live in `docs/agents/coding-standards.md`.
+这些文件是消费者技能的读取入口，具体读取顺序见 [Skill Entry Protocol](../rules/entry-protocol.md)。
 
-## Relationship to the Entry Protocol
+## Process
 
-This skill creates the configuration that the [Skill Entry Protocol](../rules/entry-protocol.md) reads at the start of every consumer skill. Without this setup, consumer skills fall back to default paths and guesses.
+**Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。
 
-| Config file | Entry Protocol Step | What it tells the consumer skill |
-|---|---|---|
-| `docs/agents/domain.md` | Step 1 | Actual paths for CONTEXT.md, PRDs, ADRs, and `docs/research/INDEX.md` |
-| `docs/agents/issue-tracker.md` | Step 1 | Issue tracker type and CLI conventions |
-| `docs/agents/ai-collaboration.md` | Step 1 | Multi-agent role ownership, handoff, and write boundaries |
-| `docs/agents/triage-labels.md` | Step 1 | Label vocabulary mapping for the five canonical triage roles |
-| `docs/agents/language.md` | Step 1 | Language for all human-facing prose (PRDs, ADRs, CONTEXT, Issues, comments) |
-| `docs/agents/coding-standards.md` | Step 1a (if configured) | Scoped conventions, technical profile, source evidence, and verification commands |
-| `docs/agents/repo-map.md` | Step 2 (if exists) | Multi-repo structure — which repos exist, which owns the primary issue tracker |
-| `docs/agents/project-state.md` | Step 1 | Current objective, workflow-stage dashboard, blockers, next step, and actual backend/frontend compile commands |
-| `docs/agents/project-decisions.md` | Step 1 | Durable confirmed choices and their scope |
-| `docs/agents/verification.md` | Step 1 | Versioned verification evidence and known gaps |
+**Step 2 — Detect.** 识别项目结构、实际前端位置、后端模块、数据库脚本、测试/构建命令、Issue 跟踪现状。无法从仓库确认的多仓关系才问用户。
 
-This is not a consumer skill — it is the **foundation** that consumer skills depend on. The Entry Protocol's "If missing" degradation paths ensure skills still work without setup-project, but with reduced precision.
+**Step 3 — Present.** 先展示检测到的默认配置：结构、Issue 跟踪、领域文档、语言、技术 profile、编译命令、微信入口。更新时展示与当前配置的差异。
 
-## Outcome Contract
+**Step 4 — Ask overrides.** 一次性展示完整草案，只问“是否需要调整”；用户要改时按 A–I 逐项处理，每次只问一个决定：
 
-- **Outcome**: `docs/agents/` directory with issue-tracker, triage-labels, domain docs, documentation language, project-state, project-decisions, verification, optional multi-agent collaboration contract, optional coding-standards registration, and (for multi-repo) repo-map. `AGENTS.md`/`CLAUDE.md` is updated only when it already exists or the user explicitly asks; it carries a short project-specific pointer, not a copy of the global workflow. On re-run: conformance sweep results — naming, language, and format audit of existing doc files.
-- **Done when**: User confirms configuration, all required files written, and the AGENTS.md/CLAUDE.md decision is recorded (updated only when applicable)
-- **Evidence**: `docs/agents/issue-tracker.md`, `docs/agents/triage-labels.md`, `docs/agents/domain.md`, `docs/agents/language.md`, `docs/agents/project-state.md`, `docs/agents/project-decisions.md`, `docs/agents/verification.md`; `coding-standards.md` when configured; `docs/agents/repo-map.md` (multi-repo only); project-specific engineering quick-reference present in `coding-standards.md`
-- **Output**: Summary of configuration, next step to use engineering skills
+- A. Issue Tracker：默认本地 Markdown；需要 GitHub/GitLab/Gitee 时记录平台和读取方式。
+- B. Triage Labels：默认五项标准角色，可自定义。
+- C. Domain Docs：默认根 `CONTEXT.md`、`docs/prd/`、`docs/adr/`、`docs/research/`；多仓时写 `repo-map.md`。
+- D. Documentation Language：默认跟随用户当前语言。
+- E. Project Engineering Principles：只写项目实际需要的范围、文件大小、依赖检查路径和快速命令；不复制通用原则全文。
+- F. Coding Standards：默认 `ruoyi-6-vue`；非 RuoYi 项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
+- G. Project Handoff / Compile Commands：写实际后端、前端命令和工作目录；默认只编译受影响一侧，跳过测试、lint 和独立类型检查。
+- H. WeChat Entry：可选，默认关闭。开启时只在 `docs/agents/ai-collaboration.md` 保留项目事实和微信查看入口；`~/.dsh/im/PROJECTS.md` 由用户维护，不由本技能写入。不开启时项目独立运行。
+- I. Project AGENTS.md / CLAUDE.md：默认跳过；仅在文件已存在或用户明确要求时更新短指针。
 
-## Process Summary
+**Step 5 — Confirm.** 写出前展示完整文件草案；更新时只展示变化文件。不要用占位符生成真实项目配置。
 
-**Step 1: Explore** — detect current repo state (remote, existing AGENTS.md/CLAUDE.md, existing docs/agents/, workspace/monorepo structure) and stack signals for the principles tailoring (frontend/backend/DB, multi-tenant, verification scripts). If `docs/agents/` exists, read all current config files to understand existing setup. If neither AGENTS.md nor CLAUDE.md exists, do not create one by default.
+**Step 6 — Write.** 先写 `docs/agents/`，最后按需更新 `AGENTS.md`/`CLAUDE.md`。`project-state.md` 使用实际目标、阶段和编译命令；没有活动批次时把未开始阶段写 `N/A`，不要留模板文字。`project-decisions.md`、`verification.md` 没有内容时写“暂无记录”，不要留空模板。多 Agent 时填写 `ai-collaboration.md` 的实际角色和交接路径。写 `domain.md` 前扫描真实 PRD/ADR/research 文件名。
 
-**Step 2: Detect project structure** — single repo, monorepo, or multi-repo. Ask the user if detection is uncertain or if there are related repos not visible in this clone. If config already exists, compare detected structure against `repo-map.md` to find what changed.
+**Step 7 — Done.** 列出已配置文件和下一步。建议从 `/think` 或 `/research` 开始；`implement` 只在明确调用时进入。
 
-**Step 3: Present findings** — show detected defaults (project structure, issue tracker, triage labels, domain layout, documentation language, coding standards and any technical profile, project handoff and compile commands). If updating, show a diff of what changed vs current config.
+## 重跑与一致性
 
-**Step 4: Ask for overrides** — present the full detected configuration as a draft; ask if anything needs changing. If the user wants to change something, walk through that section one at a time. Sections: A (Issue Tracker), B (Triage Labels), C (Domain Docs), D (Documentation Language), E (Project Engineering Principles — scope, line bound, dependency paths, quick-reference commands; written into `docs/agents/coding-standards.md`), F (Coding Standards — project setting overrides the global `ruoyi-plus-dev` default; do not probe framework signatures or ask whether the project is RuoYi; if the user identifies a non-RuoYi project, record `none` or the named alternative explicitly with its reason), G (Project Handoff and Compile Commands), H (WeChat Entry — optional, default off), I (Project AGENTS.md/CLAUDE.md — default skip; update only if the file exists or the user explicitly asks). For G, record actual backend/frontend compile commands and working directories. Default to compiling only affected sides, skipping tests; do not ask the user to select delivery profiles or approve routine compilation. Do not independently run lint, type checks, tests or browser checks unless explicitly requested; preserve compilation checks built into the existing build command. If everything looks good, proceed.
-
-**Step 4a (Re-run only): Conformance sweep** — After config overrides are confirmed, scan `docs/prd/`, `docs/adr/`, `docs/research/` for files that don't match the new settings. Group findings by naming, language, format, and metadata. For naming violations suggest rename; for language flag and suggest manual translation or an installed writing skill; for format/metadata report only. Confirm with user before acting. See [REFERENCE.md](REFERENCE.md) Conformance Sweep.
-
-**Step 5: Confirm** — show the complete draft of all files to be written (each `docs/agents/` file, plus the optional AGENTS.md/CLAUDE.md pointer only when applicable). If updating, show only files that changed.
-
-**Step 6: Write** — write the `docs/agents/*.md` config files first. Update `AGENTS.md`/`CLAUDE.md` last, and only when it already exists or the user explicitly asked for it; a project-level file gets a short pointer to `docs/agents/`, not a copy of global rules. Write the project-specific engineering quick-reference into `docs/agents/coding-standards.md` (see [REFERENCE.md](REFERENCE.md) Step 6). When multiple agents are used, include `ai-collaboration.md` from its template and fill in the actual agent roles, tracker, and handoff path. If the project opted into the WeChat entry (Section H), keep the WeChat sections in that file, fill the project facts, and print the registry entry block for the user to paste into `~/.dsh/im/PROJECTS.md`; if not, drop those sections so the project runs standalone. When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Always write `project-state.md`, `project-decisions.md` and `verification.md` from actual confirmed project facts; never leave example placeholders (an empty decisions or verification section reads as "none recorded", not as a blank template) and never record unverified claims as current facts. For `project-state.md`, replace `<PRD-NNNN>` with the active PRD or `No active PRD`; when there is no active batch, mark the remaining stage rows `N/A` rather than leaving template text. Record actual compile commands in `project-state.md`; no delivery-profile selection is needed. Update in-place, never append duplicates.
-
-**Step 7: Done** — list skills now configured, suggest next step
-
-See [REFERENCE.md](REFERENCE.md) for seed templates and detailed steps.
+- 重跑时先读现有配置，比较实际结构，不重写未变化文件。
+- 发现 PRD/ADR/research 命名、语言或格式漂移时先报告，确认后再改；不自动翻译或批量重命名。
+- 项目配置变化后，提示重新运行受影响的阶段；不自动启动实现或页面验收。
 
 ## Gotchas
 
-| What happened | Rule |
+| 现象 | 规则 |
 |---|---|
-| Assumed GitHub without checking remote | Step 1: Run `git remote -v` first |
-| Missed monorepo/multi-repo structure | Step 2: Check for workspace files, subprojects, sibling repos |
-| Monorepo: only configured root, missed packages | Step 6: Create per-package `docs/agents/` dirs in monorepo |
-| Multi-repo: no coordination between repos | Step 6: Create `repo-map.md` linking repos to skill domains |
-| Asked all decisions at once | Step 3-4: present detected defaults first, then ask for overrides one section at a time |
-| Created AGENTS.md when neither file existed | Global-first default / Step 6: skip it; project facts belong in `docs/agents/` |
-| Copied global workflow or Working principles into a project file | Global-first default: keep the global instructions as the single source; write only project-specific facts or a short pointer |
-| Duplicated an existing `## Agent skills` block | Step 6: update the existing pointer in place, don't append |
-| Template principles copied wholesale into a single-stack repo | Step 4E: tailor to the detected stack — drop <Backend>/<Frontend>/<Multi-tenant> blocks that don't apply, confirm scope with the user |
-| Quick-reference commands invented instead of read from the repo | Step 4E: fill from package.json scripts / Makefile / CI config; drop rows with no real command |
-| Gitee remote treated as GitHub / GitLab | Use the Gitee template and connected MCP or OpenAPI; preserve string Issue numbers |
-| Standards not re-read before each check | Entry Protocol Step 1a: reload the selected profile and scoped standards before a compliance verdict |
-| Profile selected by probing framework signatures | Section F: default to `ruoyi-plus-dev`; do not probe signatures or ask whether the project is RuoYi. Record a user-confirmed non-RuoYi choice as an explicit project override (`none` or a named profile) |
-| Confirmed profile registered as a bare name only | Section F: also carry the profile's hard constraints into the project config so they are visible without loading the profile |
-| Overwrote the user's hand-written principles section | Step 4E: if a project-specific principles section already exists, ask adopt/merge/replace — never silently overwrite |
-| Wrote files without user confirmation | Step 5: Show full draft before writing |
-| Re-run: overwrote unchanged sections / missed drift | Step 1-2: Read existing config, compare structure against `repo-map.md`, only update what changed |
-| Re-run: language change undetected / per-package out of sync | Step 4D / Step 6: Compare existing config against current state on re-run |
-| Re-run: domain.md shows template examples, not actual files | Step 6: scan `docs/prd/` `docs/adr/` `docs/research/` for real filenames before writing domain.md |
-| Re-run: renamed PRDs not updated in referencing files | After renaming, scan `docs/adr/` and `CONTEXT.md` for references to old name; suggest update |
-| Re-run: language change didn't reach existing docs | Language Audit: flag files in wrong language; recommend manual translation or an installed writing skill — don't auto-translate |
-| Re-run: format drift not detected | Format Audit: compare each file's section structure against its FORMAT spec |
-| Migration: orphaned files after structure change (e.g. single→monorepo) | Step 2: Detect drift, present migration path, clean up with confirmation |
-| Wrote the machine-level WeChat index from a project skill | Step 6 / Section H: output the registry entry for the user to paste; `~/.dsh/im/PROJECTS.md` is global and out of a per-repo skill's scope |
-| WeChat sections written into projects that do not use the entry | Section H defaults off — drop the WeChat sections so the project runs standalone |
+| 没看 remote 就假设 GitHub | Step 1 先运行 `git remote -v` |
+| 单仓/多仓判断错误 | Step 2 检查 workspace、子项目和同级仓库 |
+| 创建了不需要的 AGENTS.md | 默认跳过；只写项目事实或短指针 |
+| 把全局工作流复制进项目文件 | 全局指令是唯一来源；项目只写事实 |
+| 技术 profile 靠探测框架签名决定 | 默认 `ruoyi-6-vue`；非 RuoYi 由用户明确说明后记录 `none` 或替代 profile |
+| 编译命令是猜的 | 从 `pom.xml`、`package.json`、CI 和实际目录读取 |
+| 多仓没有主跟踪仓库 | 写 `repo-map.md`，明确哪个仓库拥有主 Issue/PRD |
+| 微信入口写入机器级索引 | 只输出注册条目，`~/.dsh/im/PROJECTS.md` 由用户维护 |
+| 生成文件留模板占位符 | 用实际事实或“暂无记录”，不把模板当配置 |
+| 重跑覆盖手写内容 | 先读、展示 diff、只改确认部分 |
 
 ## Output
 
-**First run:**
-```
+**首次运行：**
+
+```text
 Setup complete.
 
 Configuration:
 - Project structure: <single / monorepo / multi-repo>
-- Issue tracker: <GitHub / GitLab / Gitee / Local / Other>
-- Coding standards: <existing conventions / selected profile / none>
+- Issue tracker: <local / GitHub / GitLab / Gitee / other>
+- Coding standards: <ruoyi-6-vue / none / other>
 - Triage labels: <defaults / customised>
 - Domain docs: <single-context / multi-context>
-- Documentation language: <English / Chinese / Other>
-- WeChat entry: <on — registry entry printed for ~/.dsh/im/PROJECTS.md / off (standalone)>
+- Documentation language: <Chinese / English / other>
+- WeChat entry: <on / off>
 
 Updated files:
-- AGENTS.md/CLAUDE.md — not created by default; if the file already existed or was requested, updated with a short ## Project context pointer
-- docs/agents/issue-tracker.md — created
-- docs/agents/triage-labels.md — created
-- docs/agents/domain.md — created
-- docs/agents/language.md — created
-- docs/agents/coding-standards.md — created/updated (project principles and verification quick reference)
-- docs/agents/repo-map.md — created (multi-repo only)
-- docs/agents/ai-collaboration.md — created/updated (WeChat sections only when the entry is on)
-- docs/agents/project-state.md — created (current objective, workflow-stage dashboard, blockers, next step, compile commands)
-- docs/agents/project-decisions.md — created (or "no decisions recorded yet")
-- docs/agents/verification.md — created (or "no verification recorded yet")
+- docs/agents/domain.md
+- docs/agents/coding-standards.md
+- docs/agents/project-state.md
+- docs/agents/project-decisions.md
+- docs/agents/verification.md
+- docs/agents/language.md
+- docs/agents/issue-tracker.md (if configured)
+- docs/agents/triage-labels.md (if configured)
+- docs/agents/repo-map.md (multi-repo only)
+- docs/agents/ai-collaboration.md (multi-agent / WeChat only)
+- AGENTS.md / CLAUDE.md (only when already existed or explicitly requested)
 
-Skills now configured: setup-project, think, research, grill, story, implement, page-acceptance, review, debug, project-context, scm-collaboration, frontend-design, ruoyi-plus-dev, rules, engineering-workflow
-
-Next: Start using skills. Run /think to brainstorm a feature, /research for technical investigation, or /debug to investigate a bug.
+Next: /think for a new feature, /research for a technical question, or /implement only when slices are approved.
 ```
 
-**Re-run (config update):**
-```
-Config updated.
-
-Changes:
-- <what changed, e.g., "Switched issue tracker from GitHub to GitLab">
-- <what changed, e.g., "Language changed from Chinese to English">
-
-Updated files:
-- docs/agents/<file>.md — updated (changed: <sections>)
-- <... other files ...>
-
-Conformance sweep:
-- ✅ Naming: all files conform
-- ⚠️ Language: 1 file in wrong language (manual translation or installed writing skill)
-- ✅ Format: all files comply
-
-Done with 1 finding, 0 fixed (requires manual translation or an installed writing skill).
-
-Next: Re-run affected skills if config change affects their behavior (e.g., after language change, update flagged docs with an installed writing skill).
-```
+**重跑：** 只列变化文件、漂移检查结果和下一步。`implement`、`page-acceptance` 不因初始化完成而自动开始。

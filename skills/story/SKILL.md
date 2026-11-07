@@ -55,9 +55,9 @@ If any check fails, stop before creating issues, name the offending sections or 
 
 **Step 7**: Present the slice list and ask one approval question. Show title, type (HITL/AFK), `blocked-by`, `Covers`, and the acceptance criteria each slice closes. Include `Coverage: <n>/<n> PRD acceptance criteria assigned`; do not ask for approval while a criterion is unassigned.
 
-**Step 8**: After approval, write the approved list to the PRD `## Traceability` `Sliced into` field with stable slice IDs (replace them with tracker issue numbers after publishing) and set `Status: Sliced`, then publish via `scm-collaboration` in dependency order. If the project has no tracker, stop after the local write and say so. A remote failure leaves the local list intact; report it and let the user retry.
+**Step 8**: After approval, write the approved list to the PRD `## Traceability` `Sliced into` field with stable local slice IDs and set `Status: Sliced`. Local Markdown is the default; stop after the local write and say so. If a remote tracker is configured and the user asked to publish, create the child Issues in dependency order using the platform MCP or CLI, then replace local IDs with the returned identifiers. A remote failure leaves the local list intact; report it and let the user retry.
 
-**Step 9**: Update the parent Issue (if one exists) with the child list. Do not change its title or close it. If `docs/agents/project-state.md` exists, set its `Workflow status → Slices` to `Passed` and `Development` to `Pending`, with the slice count and coverage total.
+**Step 9**: If a remote parent Issue exists, update it with the child list. Do not change its title or close it. If `docs/agents/project-state.md` exists, set its `Workflow status → Slices` to `Passed` and `Development` to `Pending`, with the slice count and coverage total.
 
 **Step 10**: Stop. Output the slice list and ask whether to start a batch with `implement`. Do not start implementation on your own.
 
@@ -77,7 +77,7 @@ See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single
 | Slices too thick | Prefer many thin slices over few thick ones |
 | A PRD requirement had no accepting slice | Baseline Consistency Gate / Step 5: assign every acceptance criterion to a slice before approval |
 | A slice had no `blocked-by` | Step 5: every slice states its blockers or `none`; `implement` needs this to skip blocked work |
-| Remote Issue creation started before the local list was complete | Step 6 then Step 8: finish and confirm the local list first, publish second |
+| Remote Issue creation started before the local list was complete | Step 6 then Step 8: finish and confirm the local list first; publish only when a tracker is configured and the user asked |
 | A remote failure lost the slice plan | Step 8: the local list survives; report and retry, never rebuild from memory |
 | Implementation started automatically after slicing | Step 10: stop and ask; `implement` is user-invoked |
 | PRD or parent issue left stale | Step 6/9: update `Sliced into` and sync the parent Issue |
@@ -104,7 +104,7 @@ Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 
 **Coverage:** <n>/<n> PRD acceptance criteria assigned
 
-**Tracker:** <created N issues in order | local only (no tracker configured) | failed: <reason>, local list intact>
+**Tracker:** <created N issues in order | local only (default) | failed: <reason>, local list intact>
 **Updated:** docs/prd/PRD-NNNN-<title>.md — `Sliced into` filled, Status → Sliced
 
 **Next:** Start a batch with `implement` for these slices? Implementation stops after each batch for page testing.

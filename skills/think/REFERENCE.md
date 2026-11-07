@@ -15,7 +15,7 @@
 - [Step 7: Q&A Loop (CONVERGE)](#step-7-qa-loop-converge)
 - [Step 8: Propose Approaches + Record Decision](#step-8-propose-approaches-record-decision)
 - [Step 9: Submit Plan for Approval](#step-9-submit-plan-for-approval)
-- [Step 10: Create Parent Issue & Finalize PRD](#step-10-create-parent-issue-finalize-prd)
+- [Step 10: Finalize PRD (Optional Parent Issue)](#step-10-finalize-prd-optional-parent-issue)
 - [Complexity Classification Detail](#complexity-classification-detail)
 
 ---
@@ -296,20 +296,20 @@ Here is my understanding of complete requirements:
 * PR3: <edge cases + docs + cleanup>
 
 Does this look correct? If confirmed, I will:
-1. Create the parent Issue in the issue tracker (for child issue tracking downstream)
-2. Record new domain terms for `/grill` to refine
-3. Finalize the PRD and recommend the next step
+1. Record new domain terms for `/grill` to refine
+2. Finalize the PRD
+3. Create a parent Issue only if a remote tracker is configured and you want remote tracking
 
-→ Then proceed to Step 10 (Create Parent Issue & Finalize PRD)
+→ Then proceed to Step 10 (Finalize PRD; optional parent Issue)
 ```
 
-## Step 10: Create Parent Issue & Finalize PRD
+## Step 10: Finalize PRD (Optional Parent Issue)
 
-After the user confirms the plan in Step 9, do **not** output the final message yet. First create the parent Issue, then record domain terms, then finalize.
+After the user confirms the plan in Step 9, do **not** output the final message yet. Record domain terms, then finalize the PRD. If a remote tracker is configured and the user wants remote tracking, create the parent Issue before finalizing.
 
-### 10a: Create Parent Issue (Required)
+### 10a: Create Parent Issue (only when a remote tracker is configured)
 
-Create the parent Issue as a **required** action. This is the single point where the PRD's parent Issue is created — `/grill` and `/story` downstream rely on the PRD's `## Issue` field to attach child issues. Skipping it leaves child issues orphaned (the "PRD has no parent Issue" break in the chain). Read `docs/agents/issue-tracker.md` for the issue creation convention.
+Create the parent Issue only when a remote tracker is configured and the user wants remote tracking. Local Markdown is the default; the PRD remains the tracking artifact and `/story` writes slices into its `## Traceability` section. When a remote tracker is used, this is the single point where the PRD's parent Issue is created; read `docs/agents/issue-tracker.md` for the creation convention.
 
 **If no PRD exists** (user declined PRD in Step 2): skip parent Issue creation — there is no `## Issue` field to record it in. Output the approved design summary without a parent Issue reference.
 
@@ -334,7 +334,7 @@ Create the issue with a structured body (not the raw PRD dump). Use the same Iss
 None — this is a parent issue
 ```
 
-The create-parent-Issue workflow above is the same for every configured tracker; only the provider operation changes. The following command is a GitHub-specific example. For GitLab, Gitee, or local Markdown, follow `docs/agents/issue-tracker.md` instead.
+When a remote tracker is configured, the create-parent-Issue workflow above is the same for every provider; only the operation changes. The following command is a GitHub-specific example. For GitLab or Gitee, follow `docs/agents/issue-tracker.md` instead.
 
 For GitHub:
 ```bash
@@ -358,24 +358,24 @@ EOF
 )" --label "prd"
 ```
 
-Record Issue number in PRD:
+If a parent Issue was created, record its number in the PRD:
 
 ```markdown
 ## Issue
 #<issue-number>
 ```
 
-### No-tracker degradation
+### Local-only tracking
 
-Step 10 assumes an issue tracker exists. If `docs/agents/issue-tracker.md` is absent **and** the user confirms the repo has no tracker (e.g. a local-only meta-repo, a docs-only project), the parent Issue step is **waived** — do not block the workflow and do not invent a tracker. Record the waiver explicitly so downstream skills (`/grill`, `/story`) know the `## Issue` field is intentionally empty rather than missing:
+Step 10 does not assume a remote tracker. If `docs/agents/issue-tracker.md` is absent, or the user chooses local-only tracking, the parent Issue step is **waived** — do not block the workflow and do not invent a tracker. Record the choice explicitly so downstream skills (`/grill`, `/story`) know the `## Issue` field is intentionally local rather than missing:
 
 ```markdown
 ## Issue
 
-N/A — no issue tracker configured for this repo (confirmed with user <YYYY-MM-DD>). PRD serves as the tracking artifact.
+N/A — local PRD only (confirmed with user <YYYY-MM-DD>). PRD serves as the tracking artifact.
 ```
 
-Downstream skills check this field's content: an `N/A —` line means "deliberately no tracker" (proceed without parent-issue sync); an empty/missing field during `/grill` or `/story` means "/think didn't run" (suggest running it). This single convention keeps the degradation legible across skills.
+Downstream skills check this field's content: an `N/A —` line means "deliberately local-only" (proceed without parent-issue sync); an empty/missing field during `/grill` or `/story` means "/think didn't run" (suggest running it). This single convention keeps the choice legible across skills.
 
 ### 10b: Record Domain Terms
 
@@ -395,7 +395,7 @@ Keep this lightweight — record only genuinely new or ambiguous terms (don't du
 
 ### 10c: Output Approved Plan
 
-After parent Issue creation and domain terms recorded, output the approved plan:
+After the PRD is finalized and domain terms are recorded, output the approved plan:
 
 ```markdown
 Plan approved. Next: Run /grill to challenge and refine this approach.
@@ -406,7 +406,7 @@ Plan approved. Next: Run /grill to challenge and refine this approach.
 - **Approach**: Chosen option + rationale
 - **Key decisions**: 3-5 items with rationale
 - **Unknowns**: Only explicitly deferred items with reason and owner
-- **Parent Issue**: #<num> created | (no PRD, skipped)
+- **Parent Issue**: #<num> created | local PRD only | (no PRD, skipped)
 ```
 
 ## Complexity Classification Detail

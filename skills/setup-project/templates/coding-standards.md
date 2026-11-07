@@ -6,11 +6,11 @@ This file registers the project's coding conventions. Consumer skills load it th
 
 - **Scope**: `<repository / modules / file types>`
 - **Stack and version**: `<observed framework and version, with source file>`
-- **Technical profile**: `<installed skill name, e.g. ruoyi-plus-dev; or none>`
+- **Technical profile**: `<installed skill name, e.g. ruoyi-6-vue; or none>`
 - **Additional standards**: `<project-relative paths to maintained team conventions, or none>`
 - **Source of API truth**: `<actual module, generator templates, and reference implementations>`
 
-Setup registers the global default `ruoyi-plus-dev` unless the user selects a project override. A user-confirmed non-RuoYi project must record `none` or a named alternative and the reason; explicit `none` suppresses the global default in later sessions. A Java/Vue dependency alone does not establish that the project uses RuoYi-Vue-Plus. When a profile is registered, also carry its hard constraints (the framework-specific "do nots" and required checks) into **Additional standards** or **Project decisions and exceptions**, so they are visible in the project without loading the profile skill. Do not leave placeholders in generated configuration.
+Setup registers the global default `ruoyi-6-vue` unless the user selects a project override. A user-confirmed non-RuoYi project must record `none` or a named alternative and the reason; explicit `none` suppresses the global default in later sessions. A Java/Vue dependency alone does not establish that the project uses RuoYi-Vue-Plus. When a profile is registered, also carry its hard constraints (the framework-specific "do nots" and required checks) into **Additional standards** or **Project decisions and exceptions**, so they are visible in the project without loading the profile skill. Do not leave placeholders in generated configuration.
 
 ## Project engineering principles
 

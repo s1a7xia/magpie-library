@@ -17,7 +17,7 @@ license: Complete terms in LICENSE.txt
 
 业务页不要套用独立站的“工作室视觉”。那会把表格、表单和弹窗装饰化，破坏用户已经熟悉的行为。独立展示页也不要被 Element Plus 组件限制，可以按完整视觉方向设计。
 
-如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 项目读 [RuoYi UI 规范](../ruoyi-plus-dev/references/ui-design.md)，本技能负责设计方法，项目规范负责收敛边界。
+如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 6.0.0 + Vue 项目读 [RuoYi UI 规范](../ruoyi-6-vue/references/ui-design.md)，本技能负责设计方法，项目规范负责收敛边界。
 
 ## Enhance mode
 

@@ -16,7 +16,7 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 | `ai-collaboration.md` | Multi-agent roles, handoff, write boundaries | Use `ai-collaboration` defaults when multiple agents collaborate |
 | `triage-labels.md` | Label vocabulary | Use canonical defaults |
 | `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
-| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi-plus-dev` unless the user or project explicitly selects another profile or `none` |
+| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi-6-vue` unless the user or project explicitly selects another profile or `none` |
 | `project-state.md` | Objective, stage dashboard, blockers, next step, compile commands | Use the current request only; do not create implicitly |
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
@@ -25,7 +25,7 @@ When the task involves both Codex and dsh, read `ai-collaboration.md` and apply 
 
 ### Step 1a: Apply Standards
 
-Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-plus-dev` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
+Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-6-vue` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
 
 Read the selected profile's `SKILL.md` and its task-relevant original rules from the installed skills directory; apply only to its declared repository/module/file scope. A profile is supplementary: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
 
@@ -39,11 +39,11 @@ Read the selected profile's `SKILL.md` and its task-relevant original rules from
 
 #### Tracker Conventions
 
-Use one collaboration workflow across GitHub, GitLab, Gitee and local trackers; only the transport adapter changes. Resolve the repository and `docs/agents/issue-tracker.md` first. From an Issue, read it and its comments/labels and use its acceptance criteria; a direct request does not force an Issue/PRD. Preserve returned identifiers/URLs; verify remote writes before updating local traceability; missing auth is an unpublished-work gap, not permission to switch trackers. Details: [scm-collaboration](../scm-collaboration/SKILL.md).
+Use one collaboration workflow across GitHub, GitLab, Gitee and local trackers; only the transport adapter changes. Resolve the repository and `docs/agents/issue-tracker.md` first. From an Issue, read it and its comments/labels and use its acceptance criteria; a direct request does not force an Issue/PRD. Preserve returned identifiers/URLs; verify remote writes before updating local traceability; missing auth is an unpublished-work gap, not permission to switch trackers. Local Markdown tracking is the default; when a remote tracker is configured, use the platform MCP or CLI directly and keep remote writes explicitly authorized.
 
 ### Project State
 
-`project-state.md` is an operational handoff, not requirements. Read only relevant sections; PRD `Status` and `Sliced into` remain the requirement source. Precedence: current request > project instructions > state file. Do not turn transient notes or hypotheses into decisions. Verification needs version/commit, command/path, result, date, and agent/user source. Details: [project-context](../project-context/SKILL.md).
+`project-state.md` is an operational handoff, not requirements. Read only relevant sections; PRD `Status` and `Sliced into` remain the requirement source. Precedence: current request > project instructions > state file. Do not turn transient notes or hypotheses into decisions. Verification needs version/commit, command/path, result, date, and agent/user source. The file is created and refreshed by `setup-project`; maintain it only at the stage transitions defined in the global instructions.
 
 ### Step 2: Multi-Repo Scope
 

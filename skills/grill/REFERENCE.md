@@ -119,7 +119,7 @@ Fill the `Grilled by` field in the PRD's `## Traceability` section AND set `Stat
 
 ## Sync Parent Issue
 
-The parent Issue is created by `/think` Step 10 (required) and recorded in the PRD's `## Issue` field (e.g. `#42`). grill's job is to **sync**, not create — creation is `/think`'s responsibility, and this division keeps a single point of ownership so `/story` always finds a parent to attach child issues to.
+The parent Issue is created by `/think` Step 10 only when a remote tracker is configured, and is recorded in the PRD's `## Issue` field (e.g. `#42`). With local-only tracking the field reads `N/A — local PRD only` and there is nothing to sync. grill's job is to **sync**, not create — creation is `/think`'s responsibility, and this division keeps a single point of ownership when a tracker exists.
 
 **3-step logic:**
 
@@ -130,9 +130,9 @@ The parent Issue is created by `/think` Step 10 (required) and recorded in the P
    - New ADRs and their key conclusions
    - **Do not** change the Issue title (it uses the PRD's `<Feature Name>`, set by `/think`)
    - **Do not** close the parent Issue — it stays open until child issues from `/story` are done
-3. **Field empty or missing** → first check the value: if it reads `N/A — no issue tracker configured` (from `/think` Step 10a no-tracker waiver), skip — the repo has no tracker. Otherwise, check the PRD's `## Traceability` → `Created by` field to determine the source:
+3. **Field empty or missing** → first check the value: if it reads `N/A — local PRD only` (from `/think` Step 10a), skip — the repo uses local tracking. Otherwise, check the PRD's `## Traceability` → `Created by` field to determine the source:
    - **Legacy PRD created by `/story`** (minimal PRD) → treat the baseline as invalid and route to `think` → `grill`; do not create a parent Issue for an un-grilled plan.
-   - **PRD created by `/think`** → warn (in the repo's documentation language per `docs/agents/language.md`; English template follows): *"⚠️ Parent Issue missing — /think Step 10 should have created one. This PRD's child issues cannot link to a parent. Options: (a) create the parent Issue manually, (b) re-run /think to recreate the PRD (which also creates the parent), or (c) continue without a parent (child issues will stand alone)."*
+- **PRD created by `/think` with a remote tracker configured** → warn (in the repo's documentation language per `docs/agents/language.md`; English template follows): *"⚠️ Parent Issue missing — /think Step 10 should have created one. This PRD's child issues cannot link to a parent. Options: (a) create the parent Issue manually, (b) re-run /think to recreate the PRD (which also creates the parent), or (c) continue without a parent (child issues will stand alone)."*
 
 **Boundary:** grill is "validate + sync", not "create". If you find yourself wanting to create a parent Issue, the right fix is upstream — the PRD should have gone through `/think` Step 10.
 

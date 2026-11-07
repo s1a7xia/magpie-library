@@ -55,10 +55,10 @@ If a question can be answered by exploring the codebase or a quick research pass
 
 **Step 8 — Propose approaches + record decision.** When requirements are clear, present 2-3 approaches (if not already done via research), ask preference, and record the result in the PRD's `Decision (ADR-lite)` section. If the options can't be separated by reasoning or trade-offs alone — and running code could separate them — propose a minimal experiment; if a prototype skill is installed, it may be used, and the verdict fills the decision plus the PRD's `Prototyped by` field.
 
-**Step 9 — Submit plan for approval.** Present the complete requirements (Goal, Requirements, Acceptance Criteria, Definition of Done, Out of Scope, Technical Approach, small-PR implementation plan). The approval submission asks exactly one thing — approval. Any setup decision still open (tracker or no tracker, PRD language, etc.) must have been settled as its own single question **before** this submission, so the user approves a complete plan with no riders attached. After user approval, proceed to Step 10 (Create Parent Issue & Finalize PRD) — do not wrap up yet.
+**Step 9 — Submit plan for approval.** Present the complete requirements (Goal, Requirements, Acceptance Criteria, Definition of Done, Out of Scope, Technical Approach, small-PR implementation plan). The approval submission asks exactly one thing — approval. Any setup decision still open (tracker or no tracker, PRD language, etc.) must have been settled as its own single question **before** this submission, so the user approves a complete plan with no riders attached. After user approval, proceed to Step 10 (Finalize PRD; optional parent Issue) — do not wrap up yet.
 
-**Step 10 — Create Parent Issue & Finalize PRD.** After plan approval:
-1. **Create the parent Issue** in the issue tracker (required — `/grill` and `/story` downstream rely on the PRD's `## Issue` field)
+**Step 10 — Finalize PRD (optional parent Issue).** After plan approval:
+1. **Create the parent Issue only when a remote tracker is configured and the user wants remote tracking.** Local Markdown is the default; record `## Issue` as `N/A — local PRD only` and keep the PRD as the tracking artifact. If a tracker is configured, create the parent Issue so `/grill` and `/story` can attach child issues.
 2. **Record new domain terms** found during brainstorming for `/grill` to refine
 3. **Finalize the PRD** — set Status to `Draft`, fill `Created by`, set `Last updated`, ensure all sections are populated
 4. Output the approved design summary with next step to `/grill`
@@ -80,11 +80,11 @@ See [REFERENCE.md](REFERENCE.md) for complexity classification detail, question-
 | Stayed on initial request without considering edges | Step 6: expansion scan before converging |
 | Domain terms introduced but not recorded for grill | Step 10: record new terms in PRD `## Domain Terms` section |
 | Same topic got two PRDs (e.g. PRD-0001 + PRD-0002) | Step 2: run PRD Conflict Check (REFERENCE.md) before assigning NNNN |
-| Parent Issue not created after plan approval | Step 10: parent issue creation is required before finalizing — unless the no-PRD or no-tracker waiver in REFERENCE 10a applies — `/grill` and `/story` rely on it |
+| Parent Issue not created when a remote tracker is configured | Step 10: create it before finalizing; with local-only tracking, record `N/A — local PRD only` and keep the PRD as the source |
 
 ## Output
 
-When plan is approved and parent Issue is created, output:
+When plan is approved and the PRD is finalized, output:
 
 ```
 Plan approved. Next: Run /grill to challenge and refine this approach.
@@ -95,7 +95,7 @@ Plan approved. Next: Run /grill to challenge and refine this approach.
 - **Approach**: Chosen option + rationale
 - **Key decisions**: 3-5 items with rationale
 - **Unknowns**: Only explicitly deferred items with reason and owner
-- **Parent Issue**: #<num> created | (no PRD, skipped)
+- **Parent Issue**: #<num> created | local PRD only | (no PRD, skipped)
 ```
 
 Stop after output. Implementation only starts on request.

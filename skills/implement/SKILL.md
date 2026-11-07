@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Orchestrate a batch of already-approved slices from /story: load the project profile and frontend-design, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
+description: "Orchestrate a batch of already-approved slices from /story: load the RuoYi 6.0 Vue profile and frontend-design, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
 ---
 
 # Implement: Workflow Orchestration
@@ -24,7 +24,7 @@ Sequences one batch of pre-agreed vertical slices: load the framework profile an
 
 **Step 1 — Entry Protocol.** Apply the [Skill Entry Protocol](../rules/entry-protocol.md). Read project config (`docs/agents/`), domain docs (CONTEXT.md, ADRs, research INDEX), and the input work items (PRD or Issues from `/story`). Require a frozen, consistent baseline: `Status: Sliced`, `In Progress`, or `Dev Complete`, no open questions/TODOs, and a filled `Grilled by`. If not, stop before coding and return to `think` → `grill` or `/story` as appropriate.
 
-**Step 2 — Work Inventory and profile loading.** List the approved slices and sort them by `blocked-by`. Before writing code, verify every PRD acceptance criterion is assigned through a slice `Covers` field; an unassigned criterion stops the batch and returns to `story`. Update PRD Status from `Sliced` to `In Progress`; set the project dashboard's `Development` row to `In Progress` when it exists. Resolve and load the technical profile once per batch per [entry protocol](../rules/entry-protocol.md), and load [frontend-design](../frontend-design/SKILL.md) when the batch changes frontend view files.
+**Step 2 — Work Inventory and profile loading.** List the approved slices and sort them by `blocked-by`. Before writing code, verify every PRD acceptance criterion is assigned through a slice `Covers` field; an unassigned criterion stops the batch and returns to `story`. Update PRD Status from `Sliced` to `In Progress`; set the project dashboard's `Development` row to `In Progress` when it exists. Resolve and load the technical profile once per batch per [entry protocol](../rules/entry-protocol.md); the default is [ruoyi-6-vue](../ruoyi-6-vue/SKILL.md). Load [frontend-design](../frontend-design/SKILL.md) when the batch changes frontend view files.
 - If Issues from `/story` exist — each issue is a seam
 - If only a PRD exists — stop and run `/story` first; do not invent slices inside `implement`
 - Sort by dependency order (blocked-by relationships from `/story`)
@@ -56,7 +56,7 @@ See [REFERENCE.md](REFERENCE.md) for detailed step instructions, implementation 
 | Page acceptance was run inside implement | Step 3.3 / Step 4: slice self-check is compile + diff only; page testing is a separate user-initiated stage |
 | Slices were batched into one commit | Step 3.4: one commit and push per slice, message `[PRD-NNNN] <slice name> — <summary>` |
 | A feature branch was created | Step 3.4: one branch per requirement is not allowed here — commit on the current branch only |
-| The framework profile or design standards were skipped | Step 2: resolve the project profile first (global `ruoyi-plus-dev` only when none is configured) and load `frontend-design` when views change, once per batch |
+| The framework profile or design standards were skipped | Step 2: resolve the project profile first (global `ruoyi-6-vue` only when none is configured) and load `frontend-design` when views change, once per batch |
 | Work items had hidden dependencies | Step 2: read `blocked-by` from `/story`; implement in dependency order and skip blocked slices |
 | A slice list missed a PRD acceptance criterion | Step 2 / Step 4: stop before coding or close-out; return to `story` instead of adding scope silently |
 | PRD was marked Done after implementation | Step 3 / Step 4: mark `Dev Complete` only; `Done` requires page testing to pass |

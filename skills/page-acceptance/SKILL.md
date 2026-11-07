@@ -21,6 +21,8 @@ description: "Test a rendered change in the real UI: render, visual finish, inte
 - **Fixes are re-tested narrowly.** When a defect is fixed, re-run only the affected page and path — not the whole batch. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
 - **Passing this stage produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing full review when one was requested.
 
+For RuoYi-Vue-Plus 6.0.0 + Vue, use [the RuoYi browser quick reference](references/ruoyi-6-vue-browser.md) for session reuse, snapshot refresh, the five-step CRUD smoke path, and the error loop.
+
 ## Step 0 — Declare the scope
 
 Write down, before touching the browser:
@@ -60,7 +62,7 @@ For a new or restyled page, a layout change, or any claim about "looks better", 
 - Dark-mode text, secondary text, borders and disabled states remain legible.
 - Dialogs, dropdowns, date pickers, tooltips and drawers have no z-index collision.
 
-If the project has a UI standard (for RuoYi-Vue-Plus: [RuoYi UI 规范](../ruoyi-plus-dev/references/ui-design.md)), use it as the acceptance reference. If the change is a deliberate design direction, compare the screenshot with the stated intent rather than with personal taste. Keep at least one screenshot for every visual claim.
+If the project has a UI standard (for RuoYi-Vue-Plus: [RuoYi UI 规范](../ruoyi-6-vue/references/ui-design.md)), use it as the acceptance reference. If the change is a deliberate design direction, compare the screenshot with the stated intent rather than with personal taste. Keep at least one screenshot for every visual claim.
 
 ## Step 3 — Walk the main path
 

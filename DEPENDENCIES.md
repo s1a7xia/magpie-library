@@ -11,7 +11,7 @@
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局协作指令 | 授权边界、编译口径、页面验收时机、提交规则 | 正文在 `instructions.md`，生成副本不在本仓库 |
-| 20 个技能 | 各阶段的方法、模板和检查门槛 | 在 `skills/` |
+| 16 个技能 | 各阶段的方法、模板和检查门槛 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -24,7 +24,7 @@
 
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
-| Magpie | `0.1.3233` | 必需 | 指令、技能、MCP 的统一分发与托管 |
+| Magpie | `0.1.3255` | 必需 | 指令、技能、MCP 的统一分发与托管 |
 | Codex | 随桌面端安装 | 必需 | 当前主要开发 Agent |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
@@ -72,11 +72,11 @@ winget install rtk-ai.rtk
 
 - `sharedSkills = true`
 - `mcpHub = true`
-- 技能数：20
+- 技能数：16
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Agent 共享目录：`C:\Users\<user>\.agents\skills\`
 
-本机 `~\.agents\skills` 下 20 项均是指向资源库的 Junction，不是独立副本。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
+本机 `~\.agents\skills` 下 16 项均是指向资源库的 Junction，不是独立副本。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -93,19 +93,15 @@ winget install rtk-ai.rtk
 | `ai-collaboration` | codex, dsh |
 | `answer-me-with-html` | claude, codex, dsh, qoder, workbuddy |
 | `debug` | codex |
-| `engineering-workflow` | codex |
 | `frontend-design` | codex |
 | `grill` | codex |
 | `implement` | codex |
 | `page-acceptance` | codex |
 | `powershell-windows` | codex |
-| `project-context` | codex, dsh |
-| `prompt-engineering` | codex |
 | `research` | codex |
 | `review` | codex |
 | `rules` | codex |
-| `ruoyi-plus-dev` | codex |
-| `scm-collaboration` | codex, dsh |
+| `ruoyi-6-vue` | codex |
 | `setup-project` | codex |
 | `story` | codex |
 | `think` | codex |
@@ -174,7 +170,7 @@ instructions.agents = ["codex"]
 | `~/.codex/config.toml` | Codex 模型、MCP 等运行配置 |
 | `~/.codex/AGENTS.md` | Magpie 生成的全局指令副本 |
 | `~/.codex/ssh-profiles.json` | SSH MCP 的目标配置 |
-| `~/.agents/skills/` | 20 个技能的共享 Junction |
+| `~/.agents/skills/` | 16 个技能的共享 Junction |
 | 项目内 `.ruoyi-auth.json`、浏览器状态 | 页面验收登录态；本地生成，不入库 |
 
 原则：
@@ -216,7 +212,7 @@ magpie backup --sign-ins C:\path\to\magpie-full.magpie-backup
 4. 运行结构校验：
 
    ```powershell
-   python "$env:USERPROFILE\.config\magpie\library\skills\engineering-workflow\scripts\verify-library.py"
+   python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
    ```
 
 5. 补装不属于 Magpie 整包的 CLI：Node.js、Python、Git、`gh` / `glab`、RTK、`agent-browser`，按实际项目需要选择。
@@ -250,7 +246,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 ```powershell
 magpie --version
 magpie library sync
-python "$env:USERPROFILE\.config\magpie\library\skills\engineering-workflow\scripts\verify-library.py"
+python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 ```
 
 健康检查验证：
@@ -278,7 +274,7 @@ Get-Content "$env:USERPROFILE\.codex\AGENTS.md" -TotalCount 20
 预期：
 
 - `magpie ls` 能看到 Codex；
-- `~/.agents/skills` 有 20 项，并指向资源库；
+- `~/.agents/skills` 有 16 项，并指向资源库；
 - `~/.codex/AGENTS.md` 含 `<!-- magpie:begin` 到 `<!-- magpie:end -->` 的指令块。
 
 ### 7.3 MCP
@@ -335,7 +331,7 @@ agent-browser --version
 - [ ] `magpie --version` 正常；
 - [ ] `magpie library sync` 成功；
 - [ ] `verify-library.py` 零错误；
-- [ ] `~/.agents/skills` 有 20 项；
+- [ ] `~/.agents/skills` 有 16 项；
 - [ ] Codex 新会话能读取全局规则；
 - [ ] `setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review` 能被正确路由；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；

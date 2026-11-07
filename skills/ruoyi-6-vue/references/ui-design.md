@@ -1,6 +1,13 @@
-# RuoYi-Vue-Plus Page Design
+# RuoYi 6.0 Vue Page Design
 
-本文件是 plus-ui 页面的视觉与验收边界。`frontend-design` 负责设计方法；本文件负责让业务页保持既有产品的一致性。视觉改动不改变权限、字典、分页、校验、请求和既有交互。实际 token、组件和样式类以目标 plus-ui 版本为准，动手前先读两三个兄弟页面。下列具体类名按 Vue/Element Plus 版写；React/Ant Design Pro 版保留同样的层级、状态和验收原则，组件按实际工程结构替换。
+本文件是 plus-ui 6.X-Vue 页面的视觉与验收边界。`frontend-design` 负责设计方法；本文件负责让业务页保持既有产品的一致性。视觉改动不改变权限、字典、分页、校验、请求和既有交互。
+
+实际 token、组件和样式类以目标 plus-ui 版本为准。6.X-Vue 已有一套页面壳和主题系统，动手前先读：
+
+- `src/assets/styles/tokens/_theme.scss`、`_theme-dark.scss`
+- `src/assets/styles/components/_page-shell.scss`
+- `_search-panel.scss`、`_table-toolbar.scss`
+- 两三个同模块兄弟页面
 
 ## 1. 先选界面模式
 
@@ -15,10 +22,10 @@
 
 ### 列表页
 
-- **页面壳**：复用现有 `app-container`/`p-2` 等页面壳和间距，不另造一套全局布局。
-- **筛选区**：筛选较多时用现有 `search-panel` 结构，支持折叠；搜索是主按钮，重置是次按钮。不要重复放同一组筛选。
-- **操作区**：标题、记录数/实际有用说明和操作按层级分组。主操作只有一个；新增、修改、删除、导出按权限和频率排列，保留 `right-toolbar`。
-- **表格**：状态用 `dict-tag` 或语义化 `el-tag`；时间、数字、长文本的列宽和对齐稳定；长文本用省略号加 tooltip，不强行撑宽页面；行操作用固定宽度和 link 按钮。
+- **页面壳**：复用 `p-2`、`app-container` 和现有间距；`p-2` 已是纵向 flex + 12px gap，不要再叠加一层大卡片。
+- **筛选区**：筛选较多时用现有 `search-panel` / `search-wrap` 结构，支持 `is-collapsed` 折叠；搜索是主按钮，重置是次按钮。不要重复放同一组筛选。
+- **操作区**：复用 `toolbar-shell`、`table-heading`、`toolbar-actions`、`panel-kicker`；主操作只有一个，新增、修改、删除、导出按权限和频率排列，保留 `right-toolbar`。
+- **表格**：状态用 `dict-tag` 或语义化 `el-tag`；时间、数字、长文本的列宽和对齐稳定；长文本用省略号加 tooltip，不强行撑宽页面；行操作用固定宽度和 link 按钮，沿用 `data-table` 的 28–32px 链接按钮规格。
 - **分页**：保留现有 `pagination`；窄屏隐藏不必要的跳页/页大小控件，不制造横向滚动。
 - **指标卡**：只有数据真实支撑时才加 2–4 个 KPI；每个数字回答一个实际问题，不做装饰性统计，不与操作区抢焦点。
 
@@ -36,7 +43,7 @@
 
 ### 树表 / 左右分栏
 
-- 复用现有 `TreePanel`、`el-tree-select` 和左右分栏比例；树可折叠时保证内容列获得宽度。
+- 复用现有 `TreePanel`、`el-tree-select`、`useTreeCollapsed` 和左右分栏比例；树可折叠时保证内容列获得宽度。
 - 树的搜索、选中、空节点、加载状态和键盘操作都要保留；右表筛选不能因树状态丢失。
 - 窄屏改为上下或可折叠结构，禁止整页横向溢出。
 
@@ -53,7 +60,7 @@
 
 ## 3. 视觉系统
 
-- 先读现有主题 token 与页面壳。若项目已有 `--app-*`、`--el-*`、`app-container`、`search-panel`、`table-panel`、`toolbar-shell`、`toolbar-actions`、`panel-kicker` 等，优先复用；不存在就不要为了“统一”擅自新建全局同名类。
+- 先读现有主题 token 与页面壳。6.X-Vue 已有 `--app-*`、`--el-*`、`app-container`、`search-panel`、`table-panel`、`toolbar-shell`、`toolbar-actions`、`panel-kicker`、`data-table` 等；优先复用，不存在就不要为了“统一”擅自新建全局同名类。
 - 颜色通过主题层和语义变量调整。Operate 页的状态色固定表达含义：成功/正常用 success，待处理/警告用 warning，失败/危险用 danger，未知/停用用 info；不要把所有状态都染成 primary。
 - 字号保持产品级克制：正文 14px 左右，区块标题 15–16px；不靠超大标题制造层级。间距优先 8/12/16/24 的现有刻度，少用边框，用留白分组。
 - 一个页面只设一个视觉焦点。主操作、标题和当前状态比装饰更重要；所有元素同等重量是“丑”的常见根因。

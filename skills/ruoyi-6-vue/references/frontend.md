@@ -1,9 +1,11 @@
-# Frontend Reference
+# Frontend Reference — plus-ui 6.X-Vue
 
-用于 plus-ui 的 Vue 3 / TS / Element Plus 与 React / Ant Design Pro 页面和 API。先读 [common.md](common.md) 的流程、复用检查和交付门禁；出现可见页面改动时再读 [ui-design.md](ui-design.md)。先看目标项目的 `gen_table.frontend_type`、`fm/<frontendType>/` 模板和现有页面，不要把两套组件体系混用。
+用于 RuoYi-Vue-Plus 6.0.0 配套的 **Vue 3 / TypeScript / Element Plus** 页面、API 与样式。先读 [common.md](common.md) 的流程、复用检查和交付门禁；出现可见页面改动时再读 [ui-design.md](ui-design.md)。
 
-## 目录与组件契约
+## 版本与目录
 
+- 官方前端分支为 `6.X-Vue`；本次核对到的依赖是 Vue 3.5、Element Plus 2.14、Vite 8、pnpm 10。`package.json` 的 version 字段可能是 6.1.0，不要据此反推后端版本。
+- 先读目标工程的 `package.json`、锁文件、`vite.config` 和现有页面，再决定命令。不要假设前端一定在后端仓库的 `plus-ui/` 下。
 - API、类型和页面分开：`src/api/<module>/<business>/{index.ts,types.ts}` 与 `src/views/<module>/<business>/index.vue`。
 - 页面使用 `<script setup name="Xxx" lang="ts">`；组件 `name` 与菜单路由 `name` 保持一致，否则 keep-alive 缓存会失效。
 - 修改前读同模块的两三个兄弟页面、现有 API 和 hooks，沿用页面壳、表格、表单、弹窗和主题 token；不要为单页另造一套组件体系。
@@ -17,7 +19,18 @@
 
 ## 页面交互
 
-- 复用 `useLoading`、`useFormDialog`、`useSearchReset`、`useSearchToggle`、`useTableSelection` 等现有 hooks。`openDialog` 会重置表单，编辑回填后使用 `showDialog`。
+优先复用 6.X-Vue 已有 hooks，不复制一套局部实现：
+
+| 能力 | 现有入口 |
+|---|---|
+| 加载态 | `@/hooks/async/useLoading` |
+| 表单弹窗生命周期 | `@/hooks/dialog/useFormDialog`、`useDialogState` |
+| 搜索重置/折叠 | `@/hooks/form/useSearchReset`、`useSearchToggle` |
+| 表格选择 | `@/hooks/table/useTableSelection` |
+| 树折叠/树表展开 | `@/hooks/tree/useTreeCollapsed`、`useTreeTableExpand` |
+| 日期范围查询 | `@/hooks/form/useDateRangeQuery` |
+
+- `openDialog` 会重置表单，编辑回填后使用 `showDialog`；具体签名以目标版本 hooks 为准。
 - 表单提交保留校验、按钮 loading 和失败恢复；请求失败时保留用户输入并恢复加载状态，状态开关失败时回滚。
 - 字典使用 `useDict` / `DictTag`，按钮权限使用 `v-hasPermi` 或 `checkPermi`。视觉调整不得隐藏、伪造或绕过权限控制。
 - 保留已有复杂交互：树筛选、列显隐、导入导出、分页、抽屉、选择弹窗、授权和批量操作。美化只改善层级、间距、状态与信息表达。
@@ -29,15 +42,12 @@
 - 登录页、工作台、态势大屏和独立展示页可按 Design 模式完整设计；进入 RuoYi 业务页后仍要服从 [ui-design.md](ui-design.md) 的组件与交互边界。
 - 不把“好看”作为唯一验收条件。视觉改动要有渲染截图，并按 [page-acceptance](../../page-acceptance/SKILL.md) 检查主路径和一个边界。
 
-## React 分支
-
-- 仅当目标工程的 `frontendType=react` 或现有前端确为 React 时使用；模板与现成页面优先于通用习惯。
-- 请求从 `@/api/request` 引入，类型使用 `R`/`PageResult`；列表页沿用 `PageContainer`、`ProTable`、`ModalForm`、`ActionType`。
-- 权限用 `useUserStore` 的 `userInfo` 与 `hasPermi`；表格选择、字典、日期范围、导出分别沿用 `useTableSelection`、`useDict`/`dictOptions`、`useDateRangeQuery`、`useTableExport`。
-- 文件、图片和富文本沿用 React 工程已有的 `FileUpload`、`ImageUpload`、`ImagePreview`、`RichTextEditor`；不要把 Vue 的 `v-hasPermi`、Element Plus 或 Pinia 写法带进来。
-
 ## 构建与检查
 
-- 从实际 `package.json`、锁文件和 CI 读取包管理器与脚本；官方 plus-ui 6.1 使用 pnpm，但不要把它当成所有项目的固定事实。
+- 从实际 `package.json`、锁文件和 CI 读取包管理器与脚本；官方 6.X-Vue 使用 pnpm，但不要把它当成所有项目的固定事实。
 - 至少执行项目已有的前端构建或类型检查；只在用户要求时运行额外 lint/test，不自行扩展测试范围。
 - 编译、类型检查通过不等于页面验收通过。页面可见改动在真实浏览器验收前，只能标记为“开发完成、未验收”。
+
+## 非 Vue 工程
+
+如果目标工程不是 Vue/Element Plus，停止使用本文件的前端细节，改读项目的 `docs/agents/coding-standards.md` 和实际前端工程。`ruoyi-6-vue` 不覆盖 React 分支，也不把 React 写法混入 Vue 页面。

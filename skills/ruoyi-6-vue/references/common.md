@@ -1,15 +1,25 @@
-# RuoYi-Vue-Plus Common Baseline
+# RuoYi-Vue-Plus 6.0.0 + Vue Common Baseline
 
-适用于 RuoYi-Vue-Plus 6.x。技术事实以目标工程源码为准；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
+适用于 **RuoYi-Vue-Plus 6.0.0 后端 + plus-ui 6.X-Vue 前端**。技术事实以目标工程源码为准；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
 
-## 1. 四步工作流
+## 1. 版本基线
+
+| 层 | 本次核对到的事实 | 使用规则 |
+|---|---|---|
+| 后端 | `revision=6.0.0`，Java 21，Spring Boot 4.1.1，MyBatis-Plus 3.5.17，Sa-Token 1.46.0 | 以目标仓库 `pom.xml` 和实际依赖为准 |
+| 前端 | 官方 `6.X-Vue` 分支：Vue 3.5、Element Plus 2.14、Vite 8、pnpm 10；`package.json` 版本字段可能是 6.1.0 | 前端是独立仓库时，分别读取它的锁文件和实际页面；不要把后端 revision 当成前端版本 |
+| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只用于规范概念和检索入口；6.0.0 的 API、类名和配置以源码为准 |
+
+官方文档地图见 [docs-map.md](docs-map.md)。
+
+## 2. 四步工作流
 
 1. **探查底座与参考实现**：确认目标工程版本、模块、构建命令和前端位置；读取本次要修改的邻近实现。新增标准 CRUD 前先读生成器模板和 demo。
 2. **对齐数据与契约**：DDL、Entity、BO、VO、API、TypeScript 类型、字典值和页面标签逐项对齐。先判断能否复用组织、账号、角色、字典、参数、文件等框架能力。
 3. **按最小范围实现**：只实现当前任务需要的接口和交互，不机械生成全套 CRUD，不为假想需求新增抽象、中间件或跨模块依赖。
 4. **执行交付门禁**：修改 Entity/BO/VO 映射后必须执行目标工程的 Maven 编译，让 MapStruct 生成实现；前端按实际脚本构建或类型检查。可见页面是否可用、是否好看，必须另走渲染验收。
 
-## 2. 防幻觉红线
+## 3. 防幻觉红线
 
 - 严禁混入原版 RuoYi 语法：`SecurityUtils`、`@PreAuthorize`、`AjaxResult`、`TableDataInfo`、`BeanUtils.copyProperties`。
 - 调用前读取接口、实现和必要调用点；不臆造类、方法、字段、权限字符、字典值或配置项。
@@ -17,9 +27,9 @@
 - 不把目录存在当成依赖已接入，不把示例路径当成目标工程事实，不把编译通过当成功能或页面验收通过。
 - 项目规则、执行权限、提交与外部写入遵循当前 `AGENTS.md`；数据库执行、部署和远端写入不因连接已配置而自动获得授权。
 
-## 3. 目标工程目录
+## 4. 目标工程目录
 
-以下为 6.x 常见结构；以目标仓库实际模块为准，不为每个业务功能新建 Maven 子模块。
+以下为 6.0.0 常见结构；以目标仓库实际模块为准，不为每个业务功能新建 Maven 子模块。
 
 ```text
 ruoyi-admin/                    # 启动、应用依赖、环境配置
@@ -33,17 +43,22 @@ ruoyi-modules/ruoyi-<module>/
 ├─ mapper/XxxMapper.java
 └─ service/{IXxxService.java,impl/XxxServiceImpl.java}
 ruoyi-extend/                   # 独立扩展服务
-plus-ui/src/                    # 前端存在时
-├─ api/<module>/<business>/{index.ts,types.ts}
-├─ views/<module>/<business>/index.vue
-├─ components/ hooks/ utils/
-└─ assets/styles/               # 主题、token、页面壳样式
 script/sql/                     # MySQL 及按方言分目录的脚本
 ```
 
-新增模块时核对父 POM 聚合、依赖管理、主应用依赖和权限菜单。前端是独立仓库时，按项目实际位置读取，不要假设后端仓库里一定存在 `plus-ui/`。
+前端通常是独立的 `plus-ui` 工程：
 
-## 4. Repository Reuse Check
+```text
+plus-ui/src/
+├─ api/<module>/<business>/{index.ts,types.ts}
+├─ views/<module>/<business>/index.vue
+├─ components/ hooks/ utils/
+└─ assets/styles/               # token、页面壳、搜索区、表格工具栏
+```
+
+新增模块时核对父 POM 聚合、依赖管理、主应用依赖和权限菜单。前端位置按项目实际结构读取，不要假设后端仓库里一定存在 `plus-ui/`。
+
+## 5. Repository Reuse Check
 
 在写任何公共操作、工具、Service 包装或前端 hook 之前，先证明目标工程没有可复用实现。实现和审查都执行这一步。
 
@@ -75,9 +90,9 @@ script/sql/                     # MySQL 及按方言分目录的脚本
 | 表格选择、加载态、查询重置/折叠 | `hooks/table`、`hooks/async`、`hooks/form` |
 | 表单弹窗生命周期 | `hooks/dialog/useFormDialog` |
 | 字典、权限、分页、树面板 | `components/DictTag`、`useDict`、`v-hasPermi`/`checkPermi`、`pagination`、`TreePanel` |
-| 页面壳、搜索卡片、表格工具栏、主题 token | 先看实际 `assets/styles` 和两三个兄弟页面 |
+| 页面壳、搜索卡片、表格工具栏、主题 token | 先看 `assets/styles/tokens`、`components/_page-shell.scss`、`_search-panel.scss`、`_table-toolbar.scss` 和两三个兄弟页面 |
 
-## 5. 模板与示例入口
+## 6. 模板与示例入口
 
 生成器实际加载 classpath 下的 `fm/`；`plus-ui/gen/` 是前端参考模板。可以直接参考模板写代码，无需先运行生成器。
 
@@ -91,7 +106,7 @@ script/sql/                     # MySQL 及按方言分目录的脚本
 | 标准后端示例 | `ruoyi-modules/ruoyi-demo/src/main/` |
 | 标准 Vue 页面与 API | `plus-ui/src/views/demo/`、`plus-ui/src/api/demo/` |
 
-## 6. 交付检查
+## 7. 交付检查
 
 - [ ] 代码中无原版 RuoYi API，模块边界和包布局与邻近实现一致。
 - [ ] 业务配置优先 `sys_config`，枚举优先 `sys_dict_*`，并附目标数据库配套 SQL。
