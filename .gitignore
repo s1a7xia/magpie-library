@@ -1,0 +1,21 @@
+# 本地运行时与临时产物
+__pycache__/
+*.py[cod]
+.venv/
+
+# 编辑/同步产生的备份，不入库
+*.bak
+*.bak-*
+*.bak.*
+
+# 同步与登录态属于机器状态，由 Magpie 同步或本地维护，不进技能库
+sync.json
+sync-state.json
+sync.lock
+*.magpie-backup
+
+# 编辑器与系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
