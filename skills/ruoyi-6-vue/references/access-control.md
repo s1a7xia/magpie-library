@@ -2,13 +2,13 @@
 
 只在任务涉及菜单/按钮权限、接口权限、数据范围、字段脱敏或后台任务身份时加载。普通 CRUD 也至少要遵守 `common.md` 的权限和归属检查；本文件用于更细的判断。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 接口权限：Controller 使用 `@SaCheckPermission`，权限字符与 `sys_menu` 和前端 `v-hasPermi`/`checkPermi` 对齐。
 - 数据权限：`@DataPermission` 标注在 Mapper/方法上，通过 `DataPermissionHelper` 管理上下文；`DataPermissionHelper.ignore` 只在明确理由和最小范围内使用。
 - 数据范围：`DataScopeType`、`SysUserMapper`、`SysRoleMapper`、`SysDeptMapper` 等已有实现可作参照；字段必须和 SQL 别名对齐。
 - 字段敏感：沿用 `@Sensitive`、`SensitiveService`/现有脱敏实现，不在页面或导出中自行拼接明文。
-- 多租户：`codex/p0-integration` **未启用**。`MybatisPlusConfig` 只装配数据权限、分页、乐观锁，没有 `TenantLineInnerInterceptor`、`TenantLineHandler` 或 `TenantHelper`；`ry_vue.sql`、`ry_ai.sql`、`ry_job.sql` 没有 `tenant_id`。业务表不自行新增租户字段。
+- 多租户：固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` **未启用**。`MybatisPlusConfig` 只装配数据权限、分页、乐观锁，没有 `TenantLineInnerInterceptor`、`TenantLineHandler` 或 `TenantHelper`；`ry_vue.sql`、`ry_ai.sql`、`ry_job.sql` 没有 `tenant_id`。业务表不自行新增租户字段。
 
 ## 检查顺序
 
@@ -33,4 +33,4 @@
 - 核对列表、详情、导出和写操作的可见范围一致。
 - 记录角色、权限字符、数据范围和实际结果；不记录凭证、完整令牌或个人敏感信息。
 
-官方参考：[权限控制](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/permission-control.md)、[数据权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/data-permission.md)、[字段权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/field-permission.md)。这些页面只借鉴思路；6.1.0 的类名、配置和权限链路以本地源码为准。
+官方参考：[权限控制](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/permission-control.md)、[数据权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/data-permission.md)、[字段权限](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/field-permission.md)。这些页面只借鉴思路；6.0.0 的类名、配置和权限链路以固定提交源码为准。

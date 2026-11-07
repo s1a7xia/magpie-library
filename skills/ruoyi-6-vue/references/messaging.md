@@ -2,7 +2,7 @@
 
 只在任务涉及 WebSocket、SSE、站内消息、实时通知、审批提醒或前后端消息订阅时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 统一推送能力在 `ruoyi-common/ruoyi-common-push`，配置前缀是 `message`；当前实现支持 `sse` 和 `websocket` 两种传输，默认传输以 `MessageProperties` 为准。
 - 关键入口包括 `PushHelper`、`PushDTO`、`PushSessionManager`、`SseEmitterSessionManager`、`WebSocketSessionManager`、`MessageTopicListener` 和 `SseController`。

@@ -2,7 +2,7 @@
 
 只在任务涉及 Redis 缓存、Caffeine/Spring Cache、分布式锁、防重复提交、接口限流、延迟/优先队列、序列号或跨实例协调时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - Redis 公共能力在 `ruoyi-common/ruoyi-common-redis`，底层使用 Redisson，另有 Spring Cache 管理器和 Caffeine 相关配置。
 - `CacheUtils` 操作 Spring Cache 的 cache name + key；`RedisUtils` 提供对象缓存、TTL、分布式限流、发布订阅、原子 set-if-absent 等；`QueueUtils` 提供普通/优先阻塞队列和元素订阅。

@@ -1,8 +1,8 @@
-# RuoYi 6.1 Vue Page Design
+# RuoYi 6.0 Vue Page Design
 
-本文件是 plus-ui 6.1.0 Vue 页面的视觉与验收边界。`frontend-design` 负责设计方法；本文件负责让业务页保持既有产品的一致性。视觉改动不改变权限、字典、分页、校验、请求和既有交互。
+本文件是 plus-ui 6.0.0 Vue 页面的视觉与验收边界。`frontend-design` 负责设计方法；本文件负责让业务页保持既有产品的一致性。视觉改动不改变权限、字典、分页、校验、请求和既有交互。
 
-实际 token、组件和样式类以目标 plus-ui 版本为准。6.1.0 Vue 已有一套页面壳和主题系统，动手前先读：
+实际 token、组件和样式类以目标 plus-ui 版本为准。固定提交 6.0.0 已有一套页面壳和主题系统，动手前先读：
 
 - `src/assets/styles/tokens/_theme.scss`、`_theme-dark.scss`
 - `src/assets/styles/components/_page-shell.scss`
@@ -60,7 +60,7 @@
 
 ## 3. 视觉系统
 
-- 先读现有主题 token 与页面壳。6.1.0 Vue 已有 `--app-*`、`--el-*`、`app-container`、`search-panel`、`table-panel`、`toolbar-shell`、`toolbar-actions`、`panel-kicker`、`data-table` 等；优先复用，不存在就不要为了“统一”擅自新建全局同名类。
+- 先读现有主题 token 与页面壳。固定提交 6.0.0 已有 `--app-*`、`--el-*`、`app-container`、`search-panel`、`table-panel`、`toolbar-shell`、`toolbar-actions`、`panel-kicker`、`data-table` 等；优先复用，不存在就不要为了“统一”擅自新建全局同名类。
 - 颜色通过主题层和语义变量调整。Operate 页的状态色固定表达含义：成功/正常用 success，待处理/警告用 warning，失败/危险用 danger，未知/停用用 info；不要把所有状态都染成 primary。
 - 字号保持产品级克制：正文 14px 左右，区块标题 15–16px；不靠超大标题制造层级。间距优先 8/12/16/24 的现有刻度，少用边框，用留白分组。
 - 一个页面只设一个视觉焦点。主操作、标题和当前状态比装饰更重要；所有元素同等重量是“丑”的常见根因。

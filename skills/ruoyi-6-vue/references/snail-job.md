@@ -2,10 +2,10 @@
 
 只在任务明确涉及定时执行、后台批处理、分布式调度、失败重试、分片/MapReduce 或任务日志时加载。普通业务 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 业务示例模块是 `ruoyi-modules/ruoyi-job`，客户端自动配置在 `ruoyi-common/ruoyi-common-job`，调度服务端在 `ruoyi-extend/ruoyi-snailjob-server`。
-- 6.1.0 根 POM 使用 SnailJob `2.0.2`；客户端配置前缀是 `snail-job`，默认开发配置可能为 `enabled: false`，以目标工程配置为准。
+- 固定提交 `61b9ee20` 的根 POM 使用 SnailJob `2.0.2`；客户端配置前缀是 `snail-job`，默认开发配置可能为 `enabled: false`，以目标工程配置为准。
 - `SnailJobConfig` 由 `snail-job.enabled=true` 条件启用，并同时启用 Spring Scheduling 和 SnailJob 客户端。
 - 普通任务示例使用 `@Component` + `@JobExecutor(name = "...")`，执行方法接收 `JobArgs` 并返回 `ExecuteResult`；MapReduce 另有 `@MapExecutor`、`@ReduceExecutor`。
 - 示例覆盖普通、广播、静态分片和 MapReduce 任务；这些是示例，不要把生产业务逻辑堆进 `ruoyi-job` 的 demo 类。

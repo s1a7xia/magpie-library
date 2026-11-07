@@ -9,7 +9,7 @@
 - BO/VO 与 Entity 的转换沿用 `@AutoMapper` 和 `MapstructUtils`。修改 Entity/BO/VO 映射字段后必须执行 Maven 编译，让 MapStruct 实现重新生成。
 - 请求校验按语义使用 `@NotBlank`、`@Size`、`@Email`、`@Xss` 或项目现有校验；展示敏感字段沿用 `@Sensitive`，关联名称优先复用 `@Translation`。
 
-新增标准 CRUD 时，可先按 [common.md 的 CRUD Fast Path](common.md#新增-crud-的最快路径) 读 `ruoyi-gen` 的 `fm/java/*.ftl` 和 `fm/sql/*.ftl` 作为结构清单；按字段契约裁剪后直接写目标文件，不运行生成器。模板与目标模块的真实实现冲突时，以真实实现为准。
+新增标准 CRUD 时，可先按 [common.md 的 CRUD Fast Path](common.md#新增-crud-的最快路径) 读 `ruoyi-gen` 的 `fm/java/*.ftl` 和 `fm/sql/*.ftl` 作为结构清单；按字段契约裁剪后直接写目标文件，不运行生成器。固定提交的模板同时包含 `fm/react/`，本项目只读 `fm/java/`、`fm/vue/`、`fm/xml/` 和本次需要的 `fm/sql/` 方言；模板与目标模块的真实实现冲突时，以真实实现为准。
 
 ### JSON 字段
 

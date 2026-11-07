@@ -2,7 +2,7 @@
 
 只在任务涉及文件上传、下载、附件、图片/视频、OSS 存储或文件预览时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 通用存储在 `ruoyi-common/ruoyi-common-oss`，核心入口是 `OssClient`、`OssFactory` 和 `OssClientConfig`；底层是 S3 兼容对象存储，不能假设所有环境都是本地磁盘。
 - 系统侧文件记录和上传接口在 `ruoyi-modules/ruoyi-system` 的 `SysOssController`、`ISysOssService`，常见路径为 `/resource/oss/upload`、`/list`、`/download/{ossId}`、`/delete`。

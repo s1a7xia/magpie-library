@@ -2,7 +2,7 @@
 
 只在任务涉及全文检索、搜索索引、Easy-ES Mapper、Elasticsearch 同步或复杂搜索页时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 搜索能力在 `ruoyi-common/ruoyi-common-elasticsearch`，基于 Easy-ES `3.0.2` 和 Elasticsearch Client `7.17.28`。
 - `EasyEsConfiguration` 由 `easy-es.enable=true` 条件启用，并扫描 `org.dromara.**.esmapper`；包名调整时必须同步修改扫描入口。

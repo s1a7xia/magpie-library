@@ -2,7 +2,7 @@
 
 只在任务涉及 LiteFlow、业务规则链、流程节点编排、复杂审批链路或把多步业务拆成可配置组件时加载。普通 CRUD 和工作流基础审批不自动加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - LiteFlow 公共能力在 `ruoyi-common/ruoyi-common-liteflow`；`LiteFlowAutoConfiguration` 注册通用节点，`LiteFlowUtils.execute(chainId, context)` 调用 `FlowExecutor.execute2Resp` 并透传失败原因。
 - 当前工作流模块用 LiteFlow 编排 `startProcessChain`、`completeTaskChain`、`taskOperationChain`、`deleteInstanceChain` 等链路，规则文件在 `ruoyi-modules/ruoyi-workflow/src/main/resources/liteflow/*.el.xml`。

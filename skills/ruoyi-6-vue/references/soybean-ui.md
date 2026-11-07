@@ -1,6 +1,6 @@
 # Soybean Admin / Naive UI 外部借鉴参考
 
-本文件只记录一个外部仓库的设计思路，不进入 `ruoyi-6-vue` 的默认 Load Map。本项目**始终以 RuoYi-Vue-Plus 6.1.0 + plus-ui + Element Plus 为目标栈**；`ruoyi-plus-soybean` 不是可切换的前端方案，也不改变本技能的技术判断。
+本文件只记录一个外部仓库的设计思路，不进入 `ruoyi-6-vue` 的默认 Load Map。本项目**始终以 RuoYi-Vue-Plus 6.0.0 + plus-ui + Element Plus 为目标栈**；`ruoyi-plus-soybean` 不是可切换的前端方案，也不改变本技能的技术判断。
 
 ## 已核实的差异
 
@@ -24,7 +24,7 @@
 - 不把现有 plus-ui 页面整体改写成 Naive UI；那是一次前端栈迁移，不是页面美化。
 - 不混用 Element Plus 与 Naive UI 的全局样式、弹窗、表单和消息系统。
 - 不照搬参考仓库的登录、RSA/AES、Sa-Token、菜单或接口封装；先核对目标后端的实际契约。
-- 不因参考仓库好看就替换现有设计系统。只借鉴布局、信息密度和状态表达，组件与交互仍服从当前 6.1.0 项目。
+- 不因参考仓库好看就替换现有设计系统。只借鉴布局、信息密度和状态表达，组件与交互仍服从当前 6.0.0 项目。
 
 ## 使用边界
 

@@ -1,11 +1,11 @@
-# Frontend Reference — plus-ui 6.1.0
+# Frontend Reference — plus-ui 6.0.0
 
-用于 `codex/p0-integration` 中 `plus-ui` 6.1.0 的 **Vue 3 / TypeScript / Element Plus** 页面、API 与样式。先读 [common.md](common.md) 的流程、复用检查和交付门禁；涉及 `utils/request`、路由、Pinia、layout、hooks 或全局组件时，先读 [frontend-shell.md](frontend-shell.md)；出现可见页面改动时再读 [ui-design.md](ui-design.md)。
+用于 `codex/p0-integration` 固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 中 `plus-ui` 6.0.0 的 **Vue 3 / TypeScript / Element Plus** 页面、API 与样式。先读 [common.md](common.md) 的流程、复用检查和交付门禁；涉及 `utils/request`、路由、Pinia、layout、hooks 或全局组件时，先读 [frontend-shell.md](frontend-shell.md)；出现可见页面改动时再读 [ui-design.md](ui-design.md)。
 
 ## 版本与目录
 
-- 本地基线的 `plus-ui/package.json` 是 6.1.0，依赖为 Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5、pnpm 10.34.5；不要据此反推后端版本。
-- 先读目标工程的 `package.json`、锁文件、`vite.config` 和现有页面，再决定命令。`codex/p0-integration` 的前端在同仓 `plus-ui/`。
+- 固定基线的 `plus-ui/package.json` 是 6.0.0，依赖为 Vue 3.5.42、Element Plus 2.14.5、Vite 8.2.2、pnpm 10.34.5；不要据此反推后端版本。
+- 先读目标工程的 `package.json`、锁文件、`vite.config` 和现有页面，再决定命令。提交 `61b9ee20` 的前端在同仓 `plus-ui/`。
 - API、类型和页面分开：`src/api/<module>/<business>/{index.ts,types.ts}` 与 `src/views/<module>/<business>/index.vue`。请求返回值、动态路由、页面缓存和全局 store 的实际链路见 [frontend-shell.md](frontend-shell.md)。
 - 页面使用 `<script setup name="Xxx" lang="ts">`；组件 `name` 与菜单路由 `name` 保持一致，否则 keep-alive 缓存会失效。
 - 修改前读同模块的两三个兄弟页面、现有 API 和 hooks，沿用页面壳、表格、表单、弹窗和主题 token；不要为单页另造一套组件体系。
@@ -19,7 +19,7 @@
 
 ## 页面交互
 
-优先复用 6.1.0 Vue 已有 hooks，不复制一套局部实现；完整入口和标准 CRUD 骨架见 [frontend-shell.md](frontend-shell.md)。
+优先复用 6.0.0 Vue 已有 hooks，不复制一套局部实现；完整入口和标准 CRUD 骨架见 [frontend-shell.md](frontend-shell.md)。
 
 | 能力 | 现有入口 |
 |---|---|
@@ -44,7 +44,7 @@
 
 ## 构建与检查
 
-- 从实际 `package.json`、锁文件和 CI 读取包管理器与脚本；官方 6.1.0 Vue 使用 pnpm，但不要把它当成所有项目的固定事实。
+- 从实际 `package.json`、锁文件和 CI 读取包管理器与脚本；固定基线 6.0.0 Vue 使用 pnpm，但不要把它当成所有项目的固定事实。
 - 至少执行项目已有的前端构建或类型检查；只在用户要求时运行额外 lint/test，不自行扩展测试范围。
 - 编译、类型检查通过不等于页面验收通过。页面可见改动在真实浏览器验收前，只能标记为“开发完成、未验收”。
 

@@ -1,6 +1,6 @@
-# Magpie 工程组合拳（RuoYi 6.1 Vue 版）
+# Magpie 工程组合拳（RuoYi 6.0 Vue 版）
 
-这是一套以 **RuoYi-Vue-Plus 6.1.0 + Vue 3 + Element Plus** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。
+这是一套以 **RuoYi-Vue-Plus 6.0.0 + Vue 3 + Element Plus** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。RuoYi 技术事实固定到 `codex/p0-integration` 提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`，不跟随该分支后续 HEAD。
 
 它解决的不是“让 AI 多写一点代码”，而是让每次开发都遵循同一条可追溯的路径：
 
@@ -27,7 +27,7 @@
 - 保留 2 个技术与设计技能：`ruoyi-6-vue`、`frontend-design`。
 - 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
-- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.1.0 + Vue 需要的后端、前端、数据库、页面设计和官方文档地图。
+- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.0.0 + Vue 需要的后端、前端、数据库、页面设计和官方文档地图。
 - 在 `ruoyi-6-vue` 内按需增加 Warm-Flow、SnailJob 等业务参考；普通业务 CRUD 不预读这些领域知识。Soybean 仅是外部 UI 借鉴，不是目标前端。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
@@ -70,7 +70,7 @@
 - 前后端实际编译命令；
 - 可选的多 Agent 协作或微信查看入口。
 
-默认按 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.1.0 + Vue）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
+默认按 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.0.0 + Vue，固定基线提交 `61b9ee20`）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
 
 ### 1. 需求和方案：`think` -> `grill`
 
@@ -137,7 +137,7 @@ implement -> Dev Complete -> 用户发起 page-acceptance -> Accepted -> 用户�
 - 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径。
 - 验证、修复、重测最多三轮，超限停止并报告。
 
-RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi-6-vue-browser.md`。
+RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi-6-vue-browser.md`。
 
 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
@@ -205,7 +205,7 @@ RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 
 | 技能 | 作用 |
 |---|---|
-| `ruoyi-6-vue` | RuoYi-Vue-Plus 6.1.0 + Vue 单一技术入口；按任务加载后端、前端、数据库、页面设计和官方文档地图 |
+| `ruoyi-6-vue` | RuoYi-Vue-Plus 6.0.0 + Vue 单一技术入口；按任务加载后端、前端、数据库、页面设计和官方文档地图 |
 | `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
 
 ### 支撑与环境（6）
@@ -226,7 +226,7 @@ RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 - 删除或合并低频技能优先于继续添加；共享模式下的技能越少，路由和上下文成本越低。
 - 每次改完运行 `python scripts/verify-library.py`，检查技能清单、frontmatter、全量 Markdown 相对链接、同步和凭证提示。
 
-## RuoYi 6.1 Vue 技术层
+## RuoYi 6.0 Vue 技术层
 
 `ruoyi-6-vue` 不按后端、前端、数据库拆成多个技能，而是单一入口按需加载：
 
@@ -258,15 +258,15 @@ RuoYi 6.1 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 动态数据源、主从库、多库访问、跨库事务 | `references/dynamic-datasource.md` |
 | 需要查官方规范或功能说明 | `references/docs-map.md` |
 
-普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 不是能力入口。目标栈始终是 **RuoYi-Vue-Plus 6.1.0 + plus-ui 6.1.0 + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.0.0 + plus-ui 6.0.0 + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
 - **已覆盖的业务能力**：Excel、文件/OSS、实时消息、权限/数据范围、Warm-Flow、SnailJob、AI/MCP、MQTT、Elasticsearch/Easy-ES、社交登录、短信/邮件、Redis 缓存/锁/幂等/限流、API/字段加密、LiteFlow、可观测性、国际化和动态数据源。
 - **按需加载**：上述能力都放在 `references/`，只在任务真正涉及对应领域时读取；普通 CRUD 的默认加载量没有增加。
-- **多租户**：本地 `codex/p0-integration` 的 6.1.0 基线未启用多租户，业务表不新增 `tenant_id`；Warm-Flow 自带租户列不代表业务租户能力。
+- **多租户**：固定基线提交 `61b9ee20` 未启用多租户，业务表不新增 `tenant_id`；Warm-Flow 自带租户列不代表业务租户能力。
 
-事实优先级：本地 `codex/p0-integration` 源码 > 6.1.0 源码核对过的约束 > 官方文档地图（正文默认 3.5.x，只借鉴结构）> 通用框架习惯。不要用文档站的 3.5.x 类名或配置直接覆盖本地 6.1.0 项目。
+事实优先级：`codex/p0-integration` 的固定提交 `61b9ee20` 源码 > 基于该提交核对过的约束 > 官方文档地图（正文默认 3.5.x，只借鉴结构）> 通用框架习惯。不要用文档站的 3.5.x 类名或配置直接覆盖 6.0.0 项目。
 
 ## 文档怎么分工
 

@@ -1,14 +1,16 @@
-# RuoYi-Vue-Plus 6.1.0 + Vue Common Baseline
+# RuoYi-Vue-Plus 6.0.0 + Vue Common Baseline
 
-适用于本地 `codex/p0-integration` 的 **RuoYi-Vue-Plus 6.1.0 后端 + plus-ui 6.1.0 前端**。技术事实以该分支源码为准；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
+适用于本地 `codex/p0-integration` 固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 的 **RuoYi-Vue-Plus 6.0.0 后端 + plus-ui 6.0.0 前端**。技术事实以该提交源码为准，不以分支后续 HEAD 覆盖；项目自己的 `AGENTS.md` 或 `docs/agents/coding-standards.md` 有更具体约定时，按更具体且不冲突的规则执行。本文件只保留跨后端、前端、数据库共用的流程、目录、复用入口和交付门禁。
 
 ## 1. 版本基线
 
 | 层 | 本次核对到的事实 | 使用规则 |
 |---|---|---|
-| 后端 | `revision=6.1.0`，Java 21，Spring Boot 4.1.2，MyBatis-Plus 3.5.18 | 以 `codex/p0-integration` 的 `pom.xml` 和实际依赖为准 |
-| 前端 | `plus-ui/package.json` 版本 6.1.0：Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5、pnpm 10.34.5 | 读取同分支 `plus-ui` 的锁文件和实际页面；不要把后端 revision 当成前端版本 |
-| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只借鉴章节组织和规范概念；6.1.0 的 API、类名和配置以本地源码为准 |
+| 后端 | `revision=6.0.0`，Java 21，Spring Boot 4.1.1，MyBatis-Plus 3.5.17 | 以提交 `61b9ee20` 的 `pom.xml` 和实际依赖为准 |
+| 前端 | `plus-ui/package.json` 版本 6.0.0：Vue 3.5.42、Element Plus 2.14.5、Vite 8.2.2、pnpm 10.34.5 | 读取该提交 `plus-ui` 的锁文件和实际页面；不要把后端 revision 当成前端版本 |
+| 文档参考 | `ruoyi-plus-uniapp-docs` 的 `practices/` 文档站，正文默认以 3.5.x 为主线 | 只借鉴章节组织和规范概念；6.0.0 的 API、类名和配置以固定提交源码为准 |
+
+固定提交不等于分支长期冻结。目标项目如果基于后续业务修改继续开发，先读该提交核对框架基线，再读目标项目当前源码确认实际契约；两者冲突时，当前项目自己的约定优先，但不得把分支 HEAD 的框架变化误写成能力已存在。
 
 官方文档地图见 [docs-map.md](docs-map.md)。
 
@@ -29,13 +31,13 @@
 
 ## 4. 目标工程目录
 
-以下为本地 6.1.0 的常见结构；以 `codex/p0-integration` 实际模块为准，不为每个业务功能新建 Maven 子模块。模块职责与跨模块调用边界见 [architecture.md](architecture.md)。
+以下为固定提交 `61b9ee20` 的常见结构；以该提交实际模块为准，不为每个业务功能新建 Maven 子模块。模块职责与跨模块调用边界见 [architecture.md](architecture.md)。
 
 ```text
 ruoyi-admin/                    # 启动、应用依赖、环境配置
 ruoyi-api/                      # 跨模块接口与 DTO
 ruoyi-common/                   # core、mybatis、satoken、redis、web 等通用能力
-ruoyi-modules/ruoyi-<module>/       # ruoyi-secops 是项目业务模块，不进入通用 skill
+ruoyi-modules/ruoyi-<module>/       # 标准模块：ai、demo、gen、job、system、workflow
 ├─ controller/XxxController.java
 ├─ domain/Xxx.java
 ├─ domain/bo/XxxBo.java
@@ -43,10 +45,10 @@ ruoyi-modules/ruoyi-<module>/       # ruoyi-secops 是项目业务模块，不�
 ├─ mapper/XxxMapper.java
 └─ service/{IXxxService.java,impl/XxxServiceImpl.java}
 ruoyi-extend/                   # 独立扩展服务
-script/sql/                     # MySQL、升级脚本及按方言分目录的脚本
+script/sql/                     # 数据库初始化脚本及方言；固定提交默认开发库为 PostgreSQL
 ```
 
-`codex/p0-integration` 中前端位于同仓 `plus-ui/`：
+提交 `61b9ee20` 中前端位于同仓 `plus-ui/`：
 
 ```text
 plus-ui/src/
@@ -81,6 +83,8 @@ plus-ui/src/
 | 已有业务能力或跨模块契约 | 所属模块 `service/`、`ruoyi-api/`、core `service/` 与 `constant/` |
 
 这些是搜索起点，不是可直接假设的 API 清单。比如集合转 Map 先看 `StreamUtils.toMap`/`toIdentityMap` 的重复键策略；多根树先看 `TreeBuildUtils.buildMultiRoot`/`buildTreeNodeMap` 及调用方。
+
+固定提交同时包含 `fm/react/`、`ruoyi-demo` 的 MQTT/MCP/Easy-ES 示例和 `ruoyi-extend/{monitor-admin,snailjob-server,snailai-server}`。它们证明“底座或示例存在”，不证明目标项目已经启用；使用前仍要读目标模块 POM、配置、Bean 和调用链。
 
 ### 前端常用候选
 
@@ -133,7 +137,7 @@ plus-ui/src/
 | `java/mapper.java.ftl` | `BaseMapperPlus<Entity, Vo>` |
 | `java/service.java.ftl` | Service 接口、分页/列表/增改删、状态、排序 |
 | `java/serviceImpl.java.ftl` | 查询条件、唯一性、树维护、状态、排序、删除的完整实现分支 |
-| `java/controller.java.ftl` | `R`、`PageResult`、`@SaCheckPermission`、`@Log`、`@RepeatSubmit` |
+| `java/controller.java.ftl` | `R`、`PageResult`、`@SaCheckPermission`、`@Log`、`@RepeatSubmit`；普通表与树表使用不同列表签名 |
 | `xml/mapper.xml.ftl` | 需要 XML 时的空壳 |
 | `sql/mysql.sql.ftl` | 菜单、按钮权限 SQL；其他方言另有对应文件 |
 
@@ -150,12 +154,12 @@ plus-ui/src/
 | `index.vue.ftl` | 普通 CRUD：搜索、表格、弹窗、字典、上传、状态、排序、导出 |
 | `index-tree.vue.ftl` | 树表 CRUD：`row-key`、展开折叠、树父级选择 |
 
-`plus-ui/gen/` 是另一份模板副本，不能默认与后端模板同步：`index.vue.ftl`、`types.ts.ftl` 当前一致，`api.ts.ftl`、`index-tree.vue.ftl` 存在差异。需要核对前端生成器实际输出时再比较，不要同时读两套全文。
+`plus-ui/gen/` 是另一份模板副本，不能默认与后端模板同步。需要核对前端生成器实际输出时，只比较本次涉及的模板，不要同时读两套全文。
 
 | 用途 | 目标工程入口 |
 |---|---|
 | 标准后端分层 | `ruoyi-modules/ruoyi-demo/src/main/java/org/dromara/demo/`、`ruoyi-modules/ruoyi-system/` |
-| 标准 Vue 页面与 API | `plus-ui/src/views/demo/`、`plus-ui/src/api/demo/`、`plus-ui/src/views/system/` |
+| 标准 Vue 页面与 API | `plus-ui/src/views/demo/demo/index.vue`、`plus-ui/src/views/demo/tree/index.vue`、`plus-ui/src/api/demo/`、`plus-ui/src/views/system/` |
 | 框架公共能力 | `ruoyi-common/`、`plus-ui/src/{utils,hooks,components}/` |
 | 跨模块契约 | `ruoyi-api/src/main/java/org/dromara/` |
 | 前端请求、路由、状态与布局 | 见 [frontend-shell.md](frontend-shell.md) |

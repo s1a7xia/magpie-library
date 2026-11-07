@@ -2,7 +2,7 @@
 
 只在任务涉及邮件发送、短信验证码、通知通道、SMTP、短信服务商或消息模板时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 邮件能力在 `ruoyi-common/ruoyi-common-mail`：`MailBuilder` 提供收件人、抄送、密送、主题、文本/HTML 正文、内联图片和附件，再调用 `send()` 返回 message-id。
 - 邮件配置前缀是 `mail`，由 `MailProperties` 映射 SMTP host、port、auth、user、pass、from、STARTTLS、SSL、超时等；`MailConfig` 注册全局 `MailAccount`。默认 `enabled: false` 时不要假设可发送。

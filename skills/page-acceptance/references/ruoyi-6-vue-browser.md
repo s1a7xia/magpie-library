@@ -1,6 +1,6 @@
-# RuoYi 6.1 Vue 页面验收速查
+# RuoYi 6.0 Vue 页面验收速查
 
-这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.1.0 + Vue 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；Axios 拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
+这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.0.0 + Vue 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；Axios 拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
 
 ## 1. 会话与登录态
 
@@ -14,7 +14,7 @@ agent-browser --session ruoyi get url
 - 如果未打开或停在 `/login`，用项目实际前端地址打开，例如 `http://localhost:80` 或 `http://localhost:5173`。
 - `snapshot -i` 只取可交互元素标号；不要抓完整 HTML/DOM。Element Plus 嵌套很深，全量 DOM 会迅速撑爆上下文。
 - 用项目配置的测试账号登录；凭据从项目环境或用户输入读取，不写入技能、报告、提交或截图。
-- 如果开发环境开启验证码，暂停并请开发者确认是否在 `application-dev.yml` 关闭 `captcha.enable`；不要尝试破解验证码。
+- 固定提交的验证码开关在公共 `application.yml` 的 `captcha.enable`（默认 `true`），不在 `application-dev.yml`；如果登录被验证码拦住，暂停并请开发者确认是否按项目约定关闭该开关，不要尝试破解验证码。
 - 登录成功后保存状态（路径按项目约定，例如 `.ruoyi-auth.json`），后续复用同一 `--session ruoyi`。
 
 ## 2. 快照刷新红线

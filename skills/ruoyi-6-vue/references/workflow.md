@@ -2,10 +2,10 @@
 
 只在任务实际涉及流程定义、发起流程、审批办理、待办/已办、流程状态或业务审批集成时加载。普通 CRUD 不需要读本文件。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 工作流是独立业务模块 `ruoyi-modules/ruoyi-workflow`，不是通用工具包。
-- 引擎为 Warm-Flow，规则编排另有 LiteFlow；模块 POM 引 `warm-flow-mybatis-plus-sb4-starter`、`warm-flow-plugin-ui-sb-web` 和 `ruoyi-common-liteflow`。
+- 引擎为 Warm-Flow `2.0.1`，规则编排另有 LiteFlow；模块 POM 引 `warm-flow-mybatis-plus-sb4-starter`、`warm-flow-plugin-ui-sb-web` 和 `ruoyi-common-liteflow`。
 - 工作流 Bean 普遍标注 `@ConditionalOnEnable`，由 `warm-flow.enabled=true` 控制；开关关闭时不要假设 Controller、Service 或监听器仍可用。
 - 跨模块调用入口是 `ruoyi-api` 的 `org.dromara.workflow.api.WorkflowService` 及其 DTO，不直接依赖工作流模块的 Service 实现或 Controller。
 - 常见控制器为 `FlwDefinitionController`、`FlwInstanceController`、`FlwTaskController`、`FlwCategoryController`、`FlwSpelController`；具体接口和权限字符以目标版本源码为准。
@@ -44,4 +44,4 @@
 - 不直接脚本调用加密 API；页面流程通过真实前端 UI 验证。
 - 记录所用 `warm-flow.enabled`、流程定义编码、业务 ID、任务 ID 和实际结果，不在记录中写令牌或个人敏感数据。
 
-官方参考：[工作流模块](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/index.md)、[流程定义](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/definition.md)、[流程实例](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/instance.md)、[任务](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/task.md)。文档版本可能落后于 6.1.0，类名、配置和接口以源码为准。
+官方参考：[工作流模块](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/index.md)、[流程定义](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/definition.md)、[流程实例](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/instance.md)、[任务](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/task.md)。文档版本可能落后于 6.0.0，类名、配置和接口以固定提交源码为准。

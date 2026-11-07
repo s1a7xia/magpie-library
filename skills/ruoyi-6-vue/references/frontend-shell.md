@@ -1,4 +1,4 @@
-# plus-ui 6.1.0 Frontend Shell
+# plus-ui 6.0.0 Frontend Shell
 
 用于理解 `plus-ui` 的请求、鉴权、动态路由、状态、布局与页面骨架。它解决“代码应该接在哪”，具体业务交互仍读 [frontend.md](frontend.md)，视觉边界读 [ui-design.md](ui-design.md)。
 
@@ -59,7 +59,7 @@ src/views/<module>/<business>/index.vue  页面
 | 权限 | `v-hasPermi` 指令、`checkPermi` |
 | 分页、页面壳、工具栏 | `pagination`、`right-toolbar`、现有 page-shell / search-panel / table-toolbar 样式 |
 
-- `useFormDialog.openDialog` 会重置表单，编辑回填后用 `showDialog`；具体签名以当前版本源码为准。
+- `useFormDialog.openDialog` 会重置表单，编辑回填后用 `showDialog`。固定提交导出的是 `{ dialog, resetForm, openDialog, showDialog, closeDialog, setTitle }`，页面直接解构使用；具体签名以当前版本源码为准。
 - 字典缓存由 Pinia `dict` store 管理，`useDict` 负责并发请求合并；不要在页面重复实现字典请求。
 - `v-hasPermi` 对 `el-dropdown-item` 等延迟渲染节点可能失效，改用 `checkPermi` + `v-if` 的现有做法。
 - 选择行的 `single`/`multiple` 语义来自 `useTableSelection`，不要手写一套不一致的禁用逻辑。
@@ -96,7 +96,7 @@ el-dialog / el-drawer（form + rules + submit loading）
 
 ## 7. 构建与检查
 
-- 先读目标 `package.json`。本地 6.1.0 脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`；是否运行 lint/typecheck 以项目要求和本次范围为准。
+- 先读目标 `package.json`。固定提交 6.0.0 脚本包括 `pnpm dev`、`pnpm build`、`pnpm lint`；是否运行 lint/typecheck 以项目要求和本次范围为准。
 - 修改路由、组件 `name`、请求封装、全局 store、布局时，检查影响的所有页面，不只检查当前页。
 - 构建通过不等于页面可用；可见页面必须在真实浏览器按 `page-acceptance` 验收。
 

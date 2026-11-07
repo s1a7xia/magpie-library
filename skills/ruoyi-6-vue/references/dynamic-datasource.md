@@ -2,7 +2,7 @@
 
 只在任务明确涉及多数据源、主从库、按业务切换数据库、`@DS`、`@DSTransactional` 或跨库事务时加载。普通单库 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - 动态数据源使用 dynamic-datasource，配置在 `spring.datasource.dynamic.*`，包含 `primary`、`strict` 和 `datasource`；当前开发配置默认 `master`，其他库以注释示例存在。
 - `DataBaseHelper` 通过 `DynamicDataSourceContextHolder` 读取当前数据源键；需要切库时按现有 `@DS`、`@DSTransactional` 用法处理，跨库操作先核对目标模块的实际配置。

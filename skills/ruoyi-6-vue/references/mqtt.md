@@ -2,7 +2,7 @@
 
 只在任务涉及 MQTT 客户端、设备接入、主题订阅/发布、物联网消息或第三方 MQTT Broker 时加载。普通 CRUD 不加载。
 
-## 6.1.0 源码事实
+## 6.0.0 源码事实
 
 - MQTT 公共能力在 `ruoyi-common/ruoyi-common-mqtt`，使用 `mica-mqtt-client-spring-boot-starter`。
 - `MqttAutoConfiguration` 由 `mqtt.client.enabled=true` 条件启用，注册连接监听器、全局消息监听器和虚拟线程执行器。

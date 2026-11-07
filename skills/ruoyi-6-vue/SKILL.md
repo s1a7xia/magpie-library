@@ -1,27 +1,27 @@
 ---
 name: ruoyi-6-vue
-description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模块架构、后端、前端骨架、数据库、页面设计、工作流、任务、搜索、消息、AI/MCP、邮件短信、缓存锁、加解密等条件参考，提供 6.1.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.x Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.1.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob、Elasticsearch、MQTT、AI、MCP。"
+description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：以 p0-integration 提交 61b9ee20 为固定事实基线，按任务只加载模块架构、后端、前端骨架、数据库、页面设计、工作流、任务、搜索、消息、AI/MCP、邮件短信、缓存锁、加解密等条件参考，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.x Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob、Elasticsearch、MQTT、AI、MCP。"
 ---
 
-# RuoYi 6.1 Vue Development Profile
+# RuoYi 6.0 Vue Development Profile
 
-这是 **RuoYi-Vue-Plus 6.1.0 + Vue** 的单一技术入口，不按后端、前端、数据库拆成多个技能。先读 [common.md](references/common.md)，再只加载当前任务真正涉及的领域参考。
+这是 **RuoYi-Vue-Plus 6.0.0 + Vue** 的单一技术入口，不按后端、前端、数据库拆成多个技能。先读 [common.md](references/common.md)，再只加载当前任务真正涉及的领域参考。
 
 ## 事实优先级
 
-1. 本地 `RuoYi-Vue-Plus` 的 `codex/p0-integration` 分支（后端 `revision=6.1.0`、`plus-ui` 6.1.0）和当前项目自己的真实源码。
+1. 本地 `D:\FDE\RuoYi-Vue-Plus` 的 `codex/p0-integration` 分支固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`（后端 `revision=6.0.0`、`plus-ui` 6.0.0）和当前项目自己的真实源码。
 2. 当前项目自己的 `AGENTS.md`、`docs/agents/coding-standards.md` 和项目源码。
-3. 本技能中以 6.1.0 源码核对过的约束。
-4. [官方文档地图](references/docs-map.md) 指向的 RuoYi-Plus 文档站；该站正文默认以 3.5.x 为主线，只借鉴章节组织与思路，不能替代 6.1.0 源码事实。
+3. 本技能中以提交 `61b9ee20` 核对过的约束。
+4. [官方文档地图](references/docs-map.md) 指向的 RuoYi-Plus 文档站；该站正文默认以 3.5.x 为主线，只借鉴章节组织与思路，不能替代固定提交的源码事实。
 5. 通用 Spring Boot、MyBatis-Plus、Vue、Element Plus 习惯。
 
-发生冲突时，以 `codex/p0-integration` 的源码和框架邻近实现为准。不要用示例路径、旧版 API、旧模板或文档站版本号猜目标工程。本项目没有代码生成器环节；基础 CRUD 和全部业务代码都由 AI 参照真实 demo、邻近业务实现和框架 API 直接编写，不运行、不依赖 `ruoyi-gen` 或模板脚手架。`ruoyi-modules/ruoyi-secops` 等业务模块可作为项目现状的只读证据，但不把业务实现抽成通用 skill。
+发生冲突时，以提交 `61b9ee20` 的源码和框架邻近实现为准，不以分支后续 HEAD 覆盖基线事实。不要用示例路径、旧版 API、旧模板或文档站版本号猜目标工程。本项目没有代码生成器操作环节；基础 CRUD 和全部业务代码都由 AI 参照真实 demo、邻近业务实现和 `ruoyi-gen` 模板结构直接编写，不运行生成器、不下载 zip、不导入生成包。`codex/p0-integration` 中业务模块可作为项目现状的只读证据，但不把业务实现抽成通用 skill。
 
 ## Load Map
 
 | 任务范围 | 必读 | 按需追加 |
 |---|---|---|
-| 任何 RuoYi 6.1.0 业务改动 | [common.md](references/common.md) | — |
+| 任何 RuoYi 6.0.0 业务改动 | [common.md](references/common.md) | — |
 | 新增普通 CRUD 或树表 CRUD | common 的 CRUD Fast Path | [backend.md](references/backend.md) + [frontend-shell.md](references/frontend-shell.md) |
 | 模块归属、跨模块调用、请求链路、启动配置 | common | [architecture.md](references/architecture.md) |
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | common | [backend.md](references/backend.md) |
@@ -49,13 +49,13 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 | 需要查官方规范或功能说明 | common | [docs-map.md](references/docs-map.md) |
 | 前后端或全栈切片 | common | 对应领域文件全部加载 |
 
-本 profile 的唯一目标栈是 **RuoYi-Vue-Plus 6.1.0 + plus-ui 6.1.0 + Element Plus**。Soybean 等外部仓库只作为信息结构和交互思路的外部借鉴，不进入本 Load Map，不作为技术 profile，也不代表目标项目可以混用其组件或代码。
+本 profile 的唯一目标栈是 **RuoYi-Vue-Plus 6.0.0 + plus-ui 6.0.0 + Element Plus**。Soybean 等外部仓库只作为信息结构和交互思路的外部借鉴，不进入本 Load Map，不作为技术 profile，也不代表目标项目可以混用其组件或代码。
 
 页面可见改动还要按 `frontend-design` 的方法设计；`ui-design.md` 负责把 RuoYi 业务页收敛到既有产品边界。视觉结论只能来自渲染页面，按 `page-acceptance` 验收。
 
 ## Process
 
-1. **定位版本与边界**：读取目标工程的 `pom.xml`、模块 POM、`package.json`/锁文件和现有目录；确认当前模块、构建命令与实际前端位置。6.1.0 基线是 Java 21、Spring Boot 4.1.2、MyBatis-Plus 3.5.18，前端 `plus-ui` 6.1.0（Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5），但以当前分支实际版本为准。`codex/p0-integration` 中前端与后端同仓，仍需分别读取各自清单。
+1. **定位版本与边界**：读取目标工程的 `pom.xml`、模块 POM、`package.json`/锁文件和现有目录；确认当前模块、构建命令与实际前端位置。固定基线提交 `61b9ee20` 是 Java 21、Spring Boot 4.1.1、MyBatis-Plus 3.5.17，前端 `plus-ui` 6.0.0（Vue 3.5.42、Element Plus 2.14.5、Vite 8.2.2），但以目标工程实际版本为准。`codex/p0-integration` 中前端与后端同仓，仍需分别读取各自清单。
 2. **加载最小参考集**：按 Load Map 只读本次范围。跨模块改动再追加对应文件，不预读全部。
 3. **先看真实实现**：修改现有模块前读目标 Controller/Service/Mapper、Vue 页面/API/hooks。新增 CRUD 时读同模块邻近实现和 `ruoyi-demo` / `plus-ui` demo，照实际分层直接手写完整的前后端代码。数据库改动先看现有表、字典、参数和脚本方言。
 4. **做复用检查**：按 [common.md 的复用检查](references/common.md#repository-reuse-check) 搜索并读取候选实现、调用方和行为差异；确认现有能力不满足后才新增。跨模块调用优先 `ruoyi-api` 的接口与 DTO。
@@ -77,16 +77,16 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 | 现象 | 规则 |
 |---|---|
 | 把原版 RuoYi 写法混进 Plus | 禁止 `SecurityUtils`、`@PreAuthorize`、`AjaxResult`、`TableDataInfo`、`BeanUtils.copyProperties`；以目标源码的 Plus 接口为准 |
-| 把框架版本与业务模块版本硬绑 | 以 `codex/p0-integration` 的根 POM 和 `plus-ui/package.json` 为准；分别读取，不根据业务模块名推断版本 |
+| 把框架版本与业务模块版本硬绑 | 以提交 `61b9ee20` 的根 POM 和 `plus-ui/package.json` 为准；分别读取，不根据业务模块名推断版本 |
 | 每个配置都新建表 | 先查 `sys_config`、`sys_dict_*`、`sys_oss` 与现有业务表；配置、枚举和业务记录分开判断 |
 | 已有工具被新 helper 覆盖 | 执行复用检查；写出选中的现有方法，或说明新增实现的具体缺口 |
 | 后台任务直接取登录人 | 明确任务身份、归属和数据范围；`DataPermissionHelper.ignore` 只在有理由的范围内使用 |
 | 普通 CRUD 误加载工作流或调度知识 | 只有任务实际涉及 Warm-Flow 或 SnailJob 时才读对应参考；模块目录存在不代表本次要改它 |
 | 把外部 UI 仓库当目标方案 | 只借鉴信息层级和交互，不引入 Naive UI、Soybean 组件或另一套请求层；目标栈始终是 plus-ui + Element Plus |
-| 寻找代码生成器或模板脚手架 | 本项目没有这一步。基础 CRUD 也由 AI 参照真实 demo、邻近业务实现和框架 API 直接编写；不运行 `ruoyi-gen`，不从生成模板反推业务设计 |
+| 寻找代码生成器或模板脚手架 | 本项目没有生成器操作环节。基础 CRUD 由 AI 参照真实 demo、邻近业务实现和 `ruoyi-gen` 模板结构直接编写；不运行生成器、不下载 zip、不导入生成包，最终实现以目标项目真实源码为准 |
 | 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
 | 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
-| 把外部文档多租户方案套进本项目 | 本地 6.1.0 未启用多租户；业务表不新增 `tenant_id`，不新增租户拦截器或租户管理页 |
+| 把外部文档多租户方案套进本项目 | 固定基线未启用多租户；业务表不新增 `tenant_id`，不新增租户拦截器或租户管理页 |
 
 ## Output
 

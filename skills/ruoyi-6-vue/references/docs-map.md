@@ -1,6 +1,6 @@
 # RuoYi-Plus 官方文档地图
 
-这是外部 RuoYi-Plus 文档的**按需检索地图**，不是本地 6.1.0 源码的替代品。文档正文默认以 3.5.x 为主线；只借鉴章节组织、规范概念和检索思路，涉及类名、注解、配置、目录和接口时必须回到 `codex/p0-integration` 核对。
+这是外部 RuoYi-Plus 文档的**按需检索地图**，不是本地 6.0.0 源码的替代品。文档正文默认以 3.5.x 为主线；只借鉴章节组织、规范概念和检索思路，涉及类名、注解、配置、目录和接口时必须回到固定提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1` 核对。
 
 仓库：<https://github.com/bkywksj/ruoyi-plus-uniapp-docs>
 文档根目录：`src/content/docs/practices/`
@@ -56,14 +56,14 @@
 | 安全合规 | [features/security-compliance.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/security-compliance.md) | 合规、数据最小化和审计要求 |
 | 系统架构 | [architecture/system.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/system.md) | 模块、依赖和系统边界 |
 
-外部借鉴资料：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是本项目目标栈；只可借鉴其信息组织和交互思路，不加载其组件、请求层或工程配置。需要看这份外部参考时读 [soybean-ui.md](soybean-ui.md)，但不能据此改变 6.1.0 + plus-ui + Element Plus 的技术判断。
+外部借鉴资料：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是本项目目标栈；只可借鉴其信息组织和交互思路，不加载其组件、请求层或工程配置。需要看这份外部参考时读 [soybean-ui.md](soybean-ui.md)，但不能据此改变 6.0.0 + plus-ui + Element Plus 的技术判断。
 
-文档站没有逐项展开 AI/MCP、MQTT 和 Easy-ES。相关任务先读本技能的 [ai-mcp.md](ai-mcp.md)、[mqtt.md](mqtt.md)、[search.md](search.md)，再查上游官方文档和本地源码；不要把通用第三方示例当成 6.1.0 已接入的事实。
+文档站没有逐项展开 AI/MCP、MQTT 和 Easy-ES。相关任务先读本技能的 [ai-mcp.md](ai-mcp.md)、[mqtt.md](mqtt.md)、[search.md](search.md)，再查上游官方文档和本地源码；不要把通用第三方示例当成固定基线已接入的事实。
 
 ## 使用规则
 
 1. 先读本技能对应领域文件，再按上表只打开与当前任务直接相关的一两页。
-2. 文档中的示例若与 `codex/p0-integration` 源码冲突，以源码和框架邻近实现为准。
-3. 不把文档站的 3.5.x 版本号、类名或配置直接复制到 6.1.0 项目。
+2. 文档中的示例若与提交 `61b9ee20` 的源码冲突，以源码和框架邻近实现为准。
+3. 不把文档站的 3.5.x 版本号、类名或配置直接复制到 6.0.0 项目。
 4. 本项目未启用多租户；外部多租户章节只能帮助理解概念，不能作为新增 `tenant_id`、租户拦截器或租户管理页的依据。
 5. 需要长期复用的结论写入项目 `docs/research/`，不要只留在聊天里。
