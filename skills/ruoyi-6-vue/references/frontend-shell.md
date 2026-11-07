@@ -66,7 +66,7 @@ src/views/<module>/<business>/index.vue  页面
 
 ## 5. 标准 CRUD 页面骨架
 
-AI 直接写代码，不运行生成器。页面结构按现有 demo 与业务页组合：
+页面（包括标准 CRUD）由 AI 直接编写；本项目没有代码生成器或模板脚手架环节。页面结构按现有 demo 与业务页组合：
 
 ```text
 搜索卡片（el-form + queryParams）

@@ -15,7 +15,7 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 4. [官方文档地图](references/docs-map.md) 指向的 RuoYi-Plus 文档站；该站正文默认以 3.5.x 为主线，只借鉴章节组织与思路，不能替代 6.1.0 源码事实。
 5. 通用 Spring Boot、MyBatis-Plus、Vue、Element Plus 习惯。
 
-发生冲突时，以 `codex/p0-integration` 的源码和框架邻近实现为准。不要用示例路径、旧版 API、旧模板或文档站版本号猜目标工程。AI 直接编写全部代码，不把运行代码生成器作为前置或交付步骤。`ruoyi-modules/ruoyi-secops` 等业务模块可作为项目现状的只读证据，但不把业务实现抽成通用 skill。
+发生冲突时，以 `codex/p0-integration` 的源码和框架邻近实现为准。不要用示例路径、旧版 API、旧模板或文档站版本号猜目标工程。本项目没有代码生成器环节；基础 CRUD 和全部业务代码都由 AI 参照真实 demo、邻近业务实现和框架 API 直接编写，不运行、不依赖 `ruoyi-gen` 或模板脚手架。`ruoyi-modules/ruoyi-secops` 等业务模块可作为项目现状的只读证据，但不把业务实现抽成通用 skill。
 
 ## Load Map
 
@@ -56,7 +56,7 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 
 1. **定位版本与边界**：读取目标工程的 `pom.xml`、模块 POM、`package.json`/锁文件和现有目录；确认当前模块、构建命令与实际前端位置。6.1.0 基线是 Java 21、Spring Boot 4.1.2、MyBatis-Plus 3.5.18，前端 `plus-ui` 6.1.0（Vue 3.5.44、Element Plus 2.14.7、Vite 8.3.5），但以当前分支实际版本为准。`codex/p0-integration` 中前端与后端同仓，仍需分别读取各自清单。
 2. **加载最小参考集**：按 Load Map 只读本次范围。跨模块改动再追加对应文件，不预读全部。
-3. **先看真实实现**：修改现有模块前读目标 Controller/Service/Mapper、Vue 页面/API/hooks。新增 CRUD 时读同模块邻近实现和 `ruoyi-demo` / `plus-ui` demo，照实际分层手写代码；不依赖生成器。数据库改动先看现有表、字典、参数和脚本方言。
+3. **先看真实实现**：修改现有模块前读目标 Controller/Service/Mapper、Vue 页面/API/hooks。新增 CRUD 时读同模块邻近实现和 `ruoyi-demo` / `plus-ui` demo，照实际分层直接手写完整的前后端代码。数据库改动先看现有表、字典、参数和脚本方言。
 4. **做复用检查**：按 [common.md 的复用检查](references/common.md#repository-reuse-check) 搜索并读取候选实现、调用方和行为差异；确认现有能力不满足后才新增。跨模块调用优先 `ruoyi-api` 的接口与 DTO。
 5. **实现与验证**：只做已确认范围；修改 Entity/BO/VO 映射后执行实际 Maven 编译以触发 MapStruct。前端按项目脚本构建或类型检查。通过 [Standards Gate](../rules/entry-protocol.md#standards-gate) 后才算完成当前阶段；页面行为与外观另走页面验收。
 
@@ -82,7 +82,7 @@ description: "RuoYi-Vue-Plus 6.1.0 + Vue 3 开发配置：按任务只加载模�
 | 后台任务直接取登录人 | 明确任务身份、归属和数据范围；`DataPermissionHelper.ignore` 只在有理由的范围内使用 |
 | 普通 CRUD 误加载工作流或调度知识 | 只有任务实际涉及 Warm-Flow 或 SnailJob 时才读对应参考；模块目录存在不代表本次要改它 |
 | 把外部 UI 仓库当目标方案 | 只借鉴信息层级和交互，不引入 Naive UI、Soybean 组件或另一套请求层；目标栈始终是 plus-ui + Element Plus |
-| 把代码生成器当开发入口 | 本项目由 AI 直接编写全部 CRUD 和业务代码；`ruoyi-gen` 不是前置步骤，模板只可作为框架风格的只读参考 |
+| 寻找代码生成器或模板脚手架 | 本项目没有这一步。基础 CRUD 也由 AI 参照真实 demo、邻近业务实现和框架 API 直接编写；不运行 `ruoyi-gen`，不从生成模板反推业务设计 |
 | 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
 | 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
 | 把外部文档多租户方案套进本项目 | 本地 6.1.0 未启用多租户；业务表不新增 `tenant_id`，不新增租户拦截器或租户管理页 |

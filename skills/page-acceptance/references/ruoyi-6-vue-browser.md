@@ -1,6 +1,6 @@
-# RuoYi 6.0 Vue 页面验收速查
+# RuoYi 6.1 Vue 页面验收速查
 
-这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.0.0 + Vue 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；后端 Axios 拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
+这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.1.0 + Vue 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；Axios 拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
 
 ## 1. 会话与登录态
 

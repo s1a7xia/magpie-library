@@ -21,7 +21,7 @@ description: "Test a rendered change in the real UI: render, visual finish, inte
 - **Fixes are re-tested narrowly.** When a defect is fixed, re-run only the affected page and path — not the whole batch. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
 - **Passing this stage produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing full review when one was requested.
 
-For RuoYi-Vue-Plus 6.0.0 + Vue, use [the RuoYi browser quick reference](references/ruoyi-6-vue-browser.md) for session reuse, snapshot refresh, the five-step CRUD smoke path, and the error loop. Read [REFERENCE.md](REFERENCE.md) only when the page needs detailed evidence templates, multi-role/permission testing, or a failure-classification workflow beyond this file.
+For RuoYi-Vue-Plus 6.1.0 + Vue, use [the RuoYi browser quick reference](references/ruoyi-6-vue-browser.md) for session reuse, snapshot refresh, the five-step CRUD smoke path, and the error loop. Read [REFERENCE.md](REFERENCE.md) only when the page needs detailed evidence templates, multi-role/permission testing, or a failure-classification workflow beyond this file.
 
 ## Step 0 — Declare the scope
 
