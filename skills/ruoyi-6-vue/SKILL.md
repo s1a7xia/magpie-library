@@ -1,6 +1,6 @@
 ---
 name: ruoyi-6-vue
-description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后端、前端、数据库、页面设计和官方文档地图，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.0.0 Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL。"
+description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后端、前端、数据库、页面设计、Warm-Flow 工作流、SnailJob 任务或官方文档地图，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.0.0 Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob。"
 ---
 
 # RuoYi 6.0 Vue Development Profile
@@ -25,6 +25,9 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | plus-ui Vue 3 / TypeScript / Element Plus | common | [frontend.md](references/frontend.md) |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | common | [database.md](references/database.md) |
 | 可见页面、布局、样式、仪表盘 | common + frontend（改 Vue 时） | [ui-design.md](references/ui-design.md) |
+| Warm-Flow 流程定义、发起流程、待办/已办、审批与业务集成 | common + backend | [workflow.md](references/workflow.md) |
+| SnailJob、定时任务、分布式调度、失败重试、任务日志 | common + backend | [snail-job.md](references/snail-job.md) |
+| 目标前端实际采用 Soybean Admin + Naive UI | common + frontend | [soybean-ui.md](references/soybean-ui.md)；仅在项目确实使用该前端时 |
 | 需要查官方规范或功能说明 | common | [docs-map.md](references/docs-map.md) |
 | 前后端或全栈切片 | common | 对应领域文件全部加载 |
 
@@ -58,6 +61,8 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | 每个配置都新建表 | 先查 `sys_config`、`sys_dict_*`、`sys_oss` 与现有业务表；配置、枚举和业务记录分开判断 |
 | 已有工具被新 helper 覆盖 | 执行复用检查；写出选中的现有方法，或说明新增实现的具体缺口 |
 | 后台任务直接取登录人 | 明确任务身份、归属和数据范围；`DataPermissionHelper.ignore` 只在有理由的范围内使用 |
+| 普通 CRUD 误加载工作流或调度知识 | 只有任务实际涉及 Warm-Flow 或 SnailJob 时才读对应参考；模块目录存在不代表本次要改它 |
+| 把 Soybean 组件和 plus-ui 混写 | 默认仍是 Element Plus；`soybean-ui.md` 只用于实际采用 Naive UI/Soybean 的前端，不把 `N*` 组件搬进 plus-ui |
 | 只编译就宣称页面完成 | 编译只证明代码可构建；可见页面必须实际渲染验收 |
 | 单领域任务加载全部参考 | 按 Load Map 加载；不要把“相关”理解成“全部” |
 

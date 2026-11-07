@@ -38,6 +38,9 @@
 | 字段权限 | [features/field-permission.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/field-permission.md) | 字段脱敏、可见性 |
 | Excel | [features/excel-operations.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/excel-operations.md) | 导入、导出、模板和批处理 |
 | 定时任务 | [features/scheduled-jobs.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/scheduled-jobs.md) | SnailJob/定时任务的身份与幂等 |
+| 工作流模块 | [backend/modules/workflow/index.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/index.md) | Warm-Flow 的模块边界、定义、实例和任务入口 |
+| 流程定义 | [backend/modules/workflow/definition.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/definition.md) | 设计、发布、导入和流程定义管理 |
+| 流程实例与任务 | [instance.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/instance.md)、[task.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/backend/modules/workflow/task.md) | 发起、审批、待办/已办和流程状态 |
 | 文件处理 | [features/file-processing.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/file-processing.md) | OSS、上传、下载和预览 |
 | 缓存 | [architecture/cache.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/cache.md) | 缓存键、失效和一致性 |
 | 数据库架构 | [architecture/database.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/database.md) | 表关系、扩展和迁移 |
@@ -45,6 +48,8 @@
 | 多租户 | [architecture/multi-tenant.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/multi-tenant.md) | 租户字段、隔离和权限 |
 | 安全 | [security/auth.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/auth.md)、[security/api.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/api.md) | Sa-Token、接口加密和认证边界 |
 | 代码生成器 | [engineering/code-generator.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/engineering/code-generator.md) | 模板、字段类型和生成后检查 |
+
+另有一个**可选前端变体**参考：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是官方 plus-ui；只在目标项目实际使用该前端时阅读 [soybean-ui.md](soybean-ui.md)。
 
 ## 使用规则
 
