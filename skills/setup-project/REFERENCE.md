@@ -204,7 +204,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
 - **Engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E)
-- **Technical profile**: present as "please confirm". List only profiles actually installed in this library (skills whose remit is one framework stack); ask whether this project follows one, and never infer it from language or framework alone (see Section F)
+- **Technical profile**: auto-detect from the installed profile skills and their signature files (see Section F). Present the detected result as a default, e.g. "detected: ruoyi-plus-dev (root POM declares org.dromara / ruoyi-vue-plus)". Ask only when no signature matches or signals conflict — never infer a profile from language or framework alone
 
 ## Step 4: Ask for Overrides
 
@@ -280,9 +280,14 @@ If the file already carries a hand-written `## Engineering principles` (or equiv
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. Include the Coding standards section in the AGENTS.md/CLAUDE.md block below when this file is configured. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Ask about the technical profile — do not only detect it.** Step 1 stack detection tells you the languages and frameworks; that is not enough to choose a profile, because many Java/Vue projects are not RuoYi-Vue-Plus and a profile carries team-specific constraints. Build the candidate set from the profiles this resource library actually installs, then ask the user one question: "Does this project follow one of these framework profiles — <list installed profiles, e.g. `ruoyi-plus-dev`>? If so, I will register it so its constraints apply to affected work." If no installed profile fits the stack, say so and record "none" rather than inventing one.
+**Detect the technical profile from its signature — ask only on ambiguity.** Language and framework alone are not a profile (`Java` + `Vue` does not mean RuoYi-Vue-Plus), but a real profile has unambiguous markers. For each installed profile skill, use the signature it names and verify it in the checkout; a match is a fact, not a guess.
 
-**When the user confirms a profile**, register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
+- **RuoYi-Vue-Plus** (`ruoyi-plus-dev`): the root POM declares `org.dromara` / `ruoyi-vue-plus`, or `<name>RuoYi-Vue-Plus</name>`; the module layout contains `ruoyi-admin`, `ruoyi-common`, `ruoyi-modules`. The exact version comes from the parent POM, never from a guess.
+- **No signature match, or conflicting signals** (for example a RuoYi fork renamed to another groupId, or several profiles matching): ask one question listing only the installed profiles that could apply, and record "none" when the user rules them out. Do not stall on a question the files already answer.
+
+A detected profile goes into the Step 5 confirmation draft together with everything else — that is the user's chance to correct it. Do not ask a second, separate "is this RuoYi?" question after detection.
+
+**Once a profile is established** (signature match, or the user's answer when it was ambiguous), register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
 
 - Record the profile by name, its version/stack, and the scope it governs (modules, file types, languages).
 - Carry the profile's hard constraints into the registration — either the **Additional standards** field or an explicit **Project decisions and exceptions** entry. For a RuoYi-Vue-Plus profile these include "do not introduce original-RuoYi APIs", "check `sys_config`/`sys_dict_*` and existing entities before adding a table", and "background tasks declare service identity and data scope".
