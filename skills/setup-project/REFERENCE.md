@@ -416,5 +416,8 @@ Each generated file is seeded from a template, customised based on the user's ch
 | `docs/agents/coding-standards.md` | [templates/coding-standards.md](templates/coding-standards.md) | Project conventions or a technical profile are configured |
 | `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only |
 | `docs/agents/ai-collaboration.md` | [templates/ai-collaboration.md](templates/ai-collaboration.md) | Multiple agents share a project; keep the WeChat sections only when Section H is enabled |
+| `docs/agents/project-state.md` | [templates/project-state.md](templates/project-state.md) | Always (current objective, active work, blockers, next step, actual compile commands) |
+| `docs/agents/project-decisions.md` | [templates/project-decisions.md](templates/project-decisions.md) | Always (confirmed cross-task decisions; no placeholders — write only confirmed facts, or leave the section empty) |
+| `docs/agents/verification.md` | [templates/verification.md](templates/verification.md) | Always (versioned evidence; write only facts actually observed, marked `agent` or `user`) |
 
 Read the relevant template file, apply the user's Step 4 overrides, and write the customised result to the target path.

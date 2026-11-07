@@ -1,81 +1,11 @@
 # Project Context Templates
 
-Use these as concise starting points. Delete sections that do not apply; do
-not leave placeholder values in a real project.
+The three state-file templates are maintained in **one** place — the `setup-project` skill's template directory — so they cannot drift into two copies. Read them there:
 
-## `docs/agents/project-state.md`
+| Output file | Template |
+|---|---|
+| `docs/agents/project-state.md` | [../../setup-project/templates/project-state.md](../../setup-project/templates/project-state.md) |
+| `docs/agents/project-decisions.md` | [../../setup-project/templates/project-decisions.md](../../setup-project/templates/project-decisions.md) |
+| `docs/agents/verification.md` | [../../setup-project/templates/verification.md](../../setup-project/templates/verification.md) |
 
-```markdown
-# Project State
-
-## Compile checks
-
-默认只编译受影响的前后端，不选择交付档位。记录实际命令和工作目录；没有的命令标为待确认。
-
-- Backend: <actual compile command and directory, or not applicable>
-- Frontend: <actual build command and directory, or not applicable>
-- 不自动运行测试、lint 或独立类型检查；UI 可见改动仍按 `page-acceptance` 走页面验收；构建内置编译检查保留。
-
-## Current objective
-
-<one sentence>
-
-## Active work
-
-- <task or issue identifier>: <state>
-
-## Blockers / risks
-
-- <only current, material blockers>
-
-## Next step
-
-<one concrete next action>
-
-## Updated
-
-<YYYY-MM-DD — source: agent or user>
-```
-
-## `docs/agents/project-decisions.md`
-
-```markdown
-# Project Decisions
-
-## Active decisions
-
-### <short decision title>
-
-- **Decision:** <what is settled>
-- **Scope:** <modules / dates / users affected>
-- **Why:** <concise rationale and source>
-- **Recorded:** <YYYY-MM-DD>
-
-## Superseded decisions
-
-### <old decision title>
-
-- **Replaced by:** <link or decision title>
-- **Why changed:** <concise reason>
-```
-
-## `docs/agents/verification.md`
-
-```markdown
-# Verification Evidence
-
-## Latest evidence
-
-### <task or change title>
-
-- **Change scope / commit:** <commit, branch, or precise changed area>
-- **Date:** <YYYY-MM-DD>
-- **Source:** agent | user
-- **Checks:** <command, page path, API call, or inspection performed>
-- **Result:** passed | failed | blocked | not run
-- **Notes:** <only material limitation or evidence>
-
-## Known gaps
-
-- <what is still unverified and why>
-```
+`setup-project` creates these files at initialization from confirmed project facts; this skill (`project-context`) maintains them afterwards. Do not leave placeholder values in a real project: an empty decisions or verification section reads as "none recorded", not as a blank template.

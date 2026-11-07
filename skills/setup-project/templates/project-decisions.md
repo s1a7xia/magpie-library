@@ -11,4 +11,7 @@
 
 ## Superseded decisions
 
-Add replaced decisions here with a link to the replacement and a concise reason.
+### <old decision title>
+
+- **Replaced by:** <link or decision title>
+- **Why changed:** <concise reason>

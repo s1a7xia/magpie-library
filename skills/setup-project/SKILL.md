@@ -63,7 +63,7 @@ This is not a consumer skill — it is the **foundation** that consumer skills d
 
 **Step 5: Confirm** — show the complete draft of all files to be written (AGENTS.md block + each `docs/agents/` file). If updating, show only files that changed.
 
-**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When multiple agents are used, include `ai-collaboration.md` from its template and fill in the actual agent roles, tracker, and handoff path. If the project opted into the WeChat entry (Section H), keep the WeChat sections in that file, fill the project facts, and print the registry entry block for the user to paste into `~/.dsh/im/PROJECTS.md`; if not, drop those sections so the project runs standalone. When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Write state, decisions and verification files from actual confirmed project facts; never leave example placeholders or record unverified claims as current facts. Record actual compile commands in `project-state.md` and the default affected-side compilation rule in the project `## Agent skills` block; no delivery-profile selection is needed. Update in-place, never append duplicates.
+**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When multiple agents are used, include `ai-collaboration.md` from its template and fill in the actual agent roles, tracker, and handoff path. If the project opted into the WeChat entry (Section H), keep the WeChat sections in that file, fill the project facts, and print the registry entry block for the user to paste into `~/.dsh/im/PROJECTS.md`; if not, drop those sections so the project runs standalone. When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Always write `project-state.md`, `project-decisions.md` and `verification.md` from actual confirmed project facts; never leave example placeholders (an empty decisions or verification section reads as "none recorded", not as a blank template) and never record unverified claims as current facts. Record actual compile commands in `project-state.md` and the default affected-side compilation rule in the project `## Agent skills` block; no delivery-profile selection is needed. Update in-place, never append duplicates.
 
 **Step 7: Done** — list skills now configured, suggest next step
 
@@ -121,6 +121,9 @@ Updated files:
 - docs/agents/coding-standards.md — created/updated (when configured)
 - docs/agents/repo-map.md — created (multi-repo only)
 - docs/agents/ai-collaboration.md — created/updated (WeChat sections only when the entry is on)
+- docs/agents/project-state.md — created (current objective, blockers, next step, compile commands)
+- docs/agents/project-decisions.md — created (or "no decisions recorded yet")
+- docs/agents/verification.md — created (or "no verification recorded yet")
 
 Skills now configured: think, research, grill, story, implement, review, debug, project-context, scm-collaboration, engineering-workflow
 

@@ -4,14 +4,16 @@
 
 No verification evidence recorded yet.
 
-When recording evidence, include:
+When recording evidence, add one entry per change:
 
-- **Change scope / commit**
-- **Date**
+### <task or change title>
+
+- **Change scope / commit:** <commit, branch, or precise changed area>
+- **Date:** <YYYY-MM-DD>
 - **Source:** `agent` or `user`
-- **Checks**
+- **Checks:** <command, page path, API call, or inspection performed>
 - **Result:** `passed`, `failed`, `blocked`, or `not run`
-- **Notes:** material limitations only
+- **Notes:** <only material limitation or evidence>
 
 ## Known gaps
 
