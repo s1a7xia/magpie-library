@@ -17,6 +17,7 @@ Scaffold the per-repo configuration that the engineering skills assume:
 - **Coding standards** — optional project conventions and technical profile (such as `ruoyi-plus-dev`), loaded by consumer skills
 - **Project handoff** — concise current state, durable decisions, versioned verification evidence, and affected-side compile commands
 - **Agent collaboration** — when multiple agents share a project, define role ownership and handoff in `docs/agents/ai-collaboration.md`
+- **WeChat entry (optional)** — when the project wants the WeChat assistant entry, keep the WeChat sections in `docs/agents/ai-collaboration.md` and output a ready-to-paste registry entry for the user. The machine-level index (`~/.dsh/im/PROJECTS.md`) is maintained by the user, never written by this skill. Without it the project runs standalone.
 
 This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
 
@@ -56,13 +57,13 @@ This is not a consumer skill — it is the **foundation** that consumer skills d
 
 **Step 3: Present findings** — show detected defaults (project structure, issue tracker, triage labels, domain layout, documentation language, project handoff and compile commands). If updating, show a diff of what changed vs current config.
 
-**Step 4: Ask for overrides** — present the full detected configuration as a draft; ask if anything needs changing. If the user wants to change something, walk through that section one at a time. Sections: A (Issue Tracker), B (Triage Labels), C (Domain Docs), D (Documentation Language), E (Engineering Principles — scope, line bound, dependency paths, quick-reference commands), F (Coding Standards — existing conventions and optional technical profile), G (Project Handoff and Compile Commands). For G, record actual backend/frontend compile commands and working directories. Default to compiling only affected sides, skipping tests; do not ask the user to select delivery profiles or approve routine compilation. Do not independently run lint, type checks, tests or browser checks unless explicitly requested; preserve compilation checks built into the existing build command. If everything looks good, proceed.
+**Step 4: Ask for overrides** — present the full detected configuration as a draft; ask if anything needs changing. If the user wants to change something, walk through that section one at a time. Sections: A (Issue Tracker), B (Triage Labels), C (Domain Docs), D (Documentation Language), E (Engineering Principles — scope, line bound, dependency paths, quick-reference commands), F (Coding Standards — existing conventions and optional technical profile), G (Project Handoff and Compile Commands), H (WeChat Entry — optional, default off). For G, record actual backend/frontend compile commands and working directories. Default to compiling only affected sides, skipping tests; do not ask the user to select delivery profiles or approve routine compilation. Do not independently run lint, type checks, tests or browser checks unless explicitly requested; preserve compilation checks built into the existing build command. If everything looks good, proceed.
 
 **Step 4a (Re-run only): Conformance sweep** — After config overrides are confirmed, scan `docs/prd/`, `docs/adr/`, `docs/research/` for files that don't match the new settings. Group findings by naming, language, format, and metadata. For naming violations suggest rename; for language flag and suggest manual translation or an installed writing skill; for format/metadata report only. Confirm with user before acting. See [REFERENCE.md](REFERENCE.md) Conformance Sweep.
 
 **Step 5: Confirm** — show the complete draft of all files to be written (AGENTS.md block + each `docs/agents/` file). If updating, show only files that changed.
 
-**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When multiple agents are used, include `ai-collaboration.md` from its template and fill in the actual agent roles, tracker, and handoff path. When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Write state, decisions and verification files from actual confirmed project facts; never leave example placeholders or record unverified claims as current facts. Record actual compile commands in `project-state.md` and the default affected-side compilation rule in the project `## Agent skills` block; no delivery-profile selection is needed. Update in-place, never append duplicates.
+**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When multiple agents are used, include `ai-collaboration.md` from its template and fill in the actual agent roles, tracker, and handoff path. If the project opted into the WeChat entry (Section H), keep the WeChat sections in that file, fill the project facts, and print the registry entry block for the user to paste into `~/.dsh/im/PROJECTS.md`; if not, drop those sections so the project runs standalone. When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Write state, decisions and verification files from actual confirmed project facts; never leave example placeholders or record unverified claims as current facts. Record actual compile commands in `project-state.md` and the default affected-side compilation rule in the project `## Agent skills` block; no delivery-profile selection is needed. Update in-place, never append duplicates.
 
 **Step 7: Done** — list skills now configured, suggest next step
 
@@ -93,6 +94,8 @@ See [REFERENCE.md](REFERENCE.md) for seed templates and detailed steps.
 | Re-run: language change didn't reach existing docs | Language Audit: flag files in wrong language; recommend manual translation or an installed writing skill — don't auto-translate |
 | Re-run: format drift not detected | Format Audit: compare each file's section structure against its FORMAT spec |
 | Migration: orphaned files after structure change (e.g. single→monorepo) | Step 2: Detect drift, present migration path, clean up with confirmation |
+| Wrote the machine-level WeChat index from a project skill | Step 6 / Section H: output the registry entry for the user to paste; `~/.dsh/im/PROJECTS.md` is global and out of a per-repo skill's scope |
+| WeChat sections written into projects that do not use the entry | Section H defaults off — drop the WeChat sections so the project runs standalone |
 
 ## Output
 
@@ -107,6 +110,7 @@ Configuration:
 - Triage labels: <defaults / customised>
 - Domain docs: <single-context / multi-context>
 - Documentation language: <English / Chinese / Other>
+- WeChat entry: <on — registry entry printed for ~/.dsh/im/PROJECTS.md / off (standalone)>
 
 Updated files:
 - AGENTS.md — added ## Agent skills block (opens with the Working principles prompt) + ## Engineering principles section (stack-tailored, with change quick reference)
@@ -116,6 +120,7 @@ Updated files:
 - docs/agents/language.md — created
 - docs/agents/coding-standards.md — created/updated (when configured)
 - docs/agents/repo-map.md — created (multi-repo only)
+- docs/agents/ai-collaboration.md — created/updated (WeChat sections only when the entry is on)
 
 Skills now configured: think, research, grill, story, implement, review, debug, project-context, scm-collaboration, engineering-workflow
 

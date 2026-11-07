@@ -34,6 +34,7 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
 | `language.md` | Read existing value. Ask: "Is `<language>` still the right doc language for the team?" | Language preference changed | Confirm, rewrite `language.md`. If changed, trigger **Conformance Sweep** (Language Audit) |
 | **doc content** | Scan `docs/prd/`, `docs/adr/`, `docs/research/` for naming/language/format drift | Config changed (language, naming, FORMAT) | Trigger **Conformance Sweep** after overrides |
+| `ai-collaboration.md` — WeChat entry | Is the entry still wanted, and do the project facts (root, remote, inbox path) still match? | Entry turned on/off, or root/remote/inbox changed | Present the change, confirm, update the sections, and re-print the registry entry for the user to replace in `~/.dsh/im/PROJECTS.md` |
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
 | AGENTS.md/CLAUDE.md `## Agent skills` block | Does the block open with the `### Working principles` section (first-principles prompt, verbatim)? | Block was written before the working-principles rule existed — section missing | Present the missing section, confirm, rewrite the block in-place (never append a duplicate) |
@@ -293,6 +294,31 @@ Verification: actual Maven and frontend commands, with working directories
 
 On re-run, update only changed registrations. A requested tracker change does not authorize overwriting unrelated coding standards. The [Standards Gate](../rules/entry-protocol.md#standards-gate) defines loading, verification evidence and completion conditions for consumers. Register checks with their applicable stage/scope and actual commands; planning is not required to compile code that has not changed.
 
+### Section H — WeChat Entry (Optional, Default Off)
+
+> The WeChat assistant is one optional entry point, not a dependency of this skill set. It reads a **machine-level** project index (`~/.dsh/im/PROJECTS.md` on Windows) to know which project a message refers to, because one assistant serves many projects. A project that does not use it must still run standalone.
+
+Ask once, defaulting to **off**: "Should this project be reachable from the WeChat assistant entry?"
+
+**If no** (the default): drop the `## 微信需求与交接` and `## 微信调研简报` sections from `docs/agents/ai-collaboration.md`. Do not reference WeChat anywhere else. The project runs standalone.
+
+**If yes**: keep those sections in `docs/agents/ai-collaboration.md` and fill in the project's real facts (repo root, remote, tracker, inbox paths, publish script paths). Then **print a registry entry** for the user to paste into `~/.dsh/im/PROJECTS.md`:
+
+```text
+## <项目显示名>
+- 名称：<用于识别的别名，逗号分隔；避免与其他项目重名>
+- 本机根目录：`<绝对路径>`。
+- origin：`<远端 URL>`；分支每次用 Git 核对。
+- 规则：`<项目根>/docs/agents/ai-collaboration.md`；微信仅按 REPORTER 通过受控脚本发布本条需求目录，不获得业务写权限。
+- 状态入口：该项目 `docs/agents/project-state.md`；按需读 project-decisions.md、verification.md。
+- 微信需求通过 `publish-wechat-requirement.ps1` 发布到 `<项目根>/docs/inbox/<需求ID>/`；只提交该目录。
+- 微信调研通过 `publish-wechat-research.ps1` 发布到 `<项目根>/docs/research/inbox/<RES-ID>/`；简报是待核验材料。
+```
+
+**Boundary:** `PROJECTS.md` is global and belongs to the user, not to this project. This skill **outputs the entry text and stops** — it never writes that file, and never edits another project's entry. On re-run, if the project's facts changed (root moved, remote switched, tracker changed), re-print the updated entry for the user to replace.
+
+**Why the separation matters:** the per-project facts live in `docs/agents/ai-collaboration.md`, which travels with the repo, enters Git, and comes back on a new machine. The index lives on one machine and merely points at those facts. Writing the global index from a per-repo skill would let one project's setup silently change another's registration.
+
 ## Step 5: Confirm
 
 Show the user a draft of all files to be written. Let them edit before writing. The draft includes the tailored `## Engineering principles` section — confirm its scope, placeholder fills, and quick-reference commands before writing.
@@ -389,6 +415,6 @@ Each generated file is seeded from a template, customised based on the user's ch
 | `docs/agents/language.md` | [templates/language.md](templates/language.md) | Always (fill in the team's chosen language) |
 | `docs/agents/coding-standards.md` | [templates/coding-standards.md](templates/coding-standards.md) | Project conventions or a technical profile are configured |
 | `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only |
-| `docs/agents/ai-collaboration.md` | [templates/ai-collaboration.md](templates/ai-collaboration.md) | Multiple agents share a project |
+| `docs/agents/ai-collaboration.md` | [templates/ai-collaboration.md](templates/ai-collaboration.md) | Multiple agents share a project; keep the WeChat sections only when Section H is enabled |
 
 Read the relevant template file, apply the user's Step 4 overrides, and write the customised result to the target path.

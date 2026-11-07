@@ -9,13 +9,13 @@
 | 路径 | 说明 |
 |---|---|
 | `instructions.md` | 通用协作指令（写入各 Agent `AGENTS.md` 的正文） |
-| `skills/` | 21 个技能目录 |
+| `skills/` | 20 个技能目录 |
 
 技能分四组：
 
 - **流程**：`engineering-workflow`、`think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`prompt-engineering`
 - **质量**：`page-acceptance`、`frontend-design`、`rules`
-- **工具与环境**：`agent-browser`、`powershell-windows`、`find-skills`、`answer-me-with-html`
+- **工具与环境**：`agent-browser`、`powershell-windows`、`answer-me-with-html`
 - **项目与协作**：`setup-project`、`project-context`、`ai-collaboration`、`scm-collaboration`、`ruoyi-plus-dev`
 
 ## 唯一事实源
