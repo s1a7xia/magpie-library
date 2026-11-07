@@ -46,10 +46,20 @@
 | 数据库架构 | [architecture/database.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/database.md) | 表关系、扩展和迁移 |
 | 分布式 | [architecture/distributed.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/distributed.md) | 锁、消息、任务和跨服务 |
 | 多租户 | [architecture/multi-tenant.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/multi-tenant.md) | 租户字段、隔离和权限 |
-| 安全 | [security/auth.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/auth.md)、[security/api.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/api.md) | Sa-Token、接口加密和认证边界 |
+| 安全 | [security/overview.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/overview.md)、[security/auth.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/auth.md)、[security/api.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/api.md) | Sa-Token、接口加密和认证边界 |
+| 数据安全 | [security/data.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/data.md) | 字段加密、脱敏和数据安全边界 |
+| 审计 | [security/audit.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/audit.md) | 操作日志、登录日志和审计 |
+| 客户端认证 | [security/client.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/security/client.md) | 客户端标识、授权和登录边界 |
+| 国际化 | [features/i18n.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/i18n.md) | 消息资源、语言和文案 |
+| 第三方集成 | [features/third-party-integration.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/third-party-integration.md) | 社交、邮件、短信等外部能力的通用边界 |
+| 消息推送 | [features/message-push.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/message-push.md) | SSE、WebSocket 和站内通知 |
+| 安全合规 | [features/security-compliance.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/features/security-compliance.md) | 合规、数据最小化和审计要求 |
+| 系统架构 | [architecture/system.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/architecture/system.md) | 模块、依赖和系统边界 |
 | 代码生成器 | [engineering/code-generator.md](https://github.com/bkywksj/ruoyi-plus-uniapp-docs/blob/master/src/content/docs/practices/engineering/code-generator.md) | 模板、字段类型和生成后检查 |
 
 外部借鉴资料：<https://github.com/m-xlsea/ruoyi-plus-soybean>。它是 RuoYi 后端 + Soybean Admin + Naive UI，不是本项目目标栈；只可借鉴其信息组织和交互思路，不加载其组件、请求层或工程配置。需要看这份外部参考时读 [soybean-ui.md](soybean-ui.md)，但不能据此改变 6.0.0 + plus-ui + Element Plus 的技术判断。
+
+文档站没有逐项展开 AI/MCP、MQTT 和 Easy-ES。相关任务先读本技能的 [ai-mcp.md](ai-mcp.md)、[mqtt.md](mqtt.md)、[search.md](search.md)，再查上游官方文档和目标源码；不要把通用第三方示例当成 6.0.0 已接入的事实。
 
 ## 使用规则
 

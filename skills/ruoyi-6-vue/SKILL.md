@@ -1,6 +1,6 @@
 ---
 name: ruoyi-6-vue
-description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后端、前端、数据库、页面设计、Warm-Flow 工作流、SnailJob 任务或官方文档地图，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.0.0 Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob。"
+description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后端、前端、数据库、页面设计、工作流、任务、搜索、消息、AI/MCP、邮件短信、缓存锁、加解密等条件参考，提供 6.0.0 源码约束、复用检查与验证门禁。用于已确认的 RuoYi 6.0.0 Vue 项目；也是全局默认技术 profile。触发：ruoyi-6-vue、RuoYi-Vue-Plus 6.0.0、若依Plus、plus-ui、Vue 页面、Java 业务代码、SQL、Warm-Flow、SnailJob、Elasticsearch、MQTT、AI、MCP。"
 ---
 
 # RuoYi 6.0 Vue Development Profile
@@ -31,6 +31,17 @@ description: "RuoYi-Vue-Plus 6.0.0 + Vue 3 开发配置：按任务只加载后�
 | 文件上传/下载、OSS、附件字段、预览和存储配置 | common | [file-oss.md](references/file-oss.md) |
 | WebSocket/SSE、站内消息、实时通知、消息推送 | common | [messaging.md](references/messaging.md) |
 | 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | common | [access-control.md](references/access-control.md) |
+| AI / Snail AI / MCP Server/Client / 智能体集成 | common + backend | [ai-mcp.md](references/ai-mcp.md) |
+| MQTT 客户端、设备接入、主题订阅与发布 | common + backend | [mqtt.md](references/mqtt.md) |
+| Elasticsearch / Easy-ES、全文检索、索引同步 | common + backend | [search.md](references/search.md) |
+| 社交登录 / JustAuth / OAuth 回调与账号绑定 | common + backend | [social-login.md](references/social-login.md) |
+| 邮件、短信、验证码、外部通知通道 | common + backend | [mail-sms.md](references/mail-sms.md) |
+| Redis 缓存、分布式锁、防重复、限流、队列 | common + backend | [cache-lock.md](references/cache-lock.md) |
+| API 加解密、字段加密、密钥与密文迁移 | common + backend | [encryption.md](references/encryption.md) |
+| LiteFlow 业务规则编排、复杂链路 | common + backend | [orchestration.md](references/orchestration.md) |
+| 操作日志、登录日志、审计、Actuator、接口文档 | common + backend | [observability.md](references/observability.md) |
+| 多语言、消息资源、翻译字段 | common + frontend | [i18n.md](references/i18n.md) |
+| 动态数据源、主从库、多库访问、跨库事务 | common + backend + database | [dynamic-datasource.md](references/dynamic-datasource.md) |
 | 需要查官方规范或功能说明 | common | [docs-map.md](references/docs-map.md) |
 | 前后端或全栈切片 | common | 对应领域文件全部加载 |
 

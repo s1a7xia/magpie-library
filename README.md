@@ -243,14 +243,25 @@ RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 文件上传/下载、OSS、附件字段、预览和存储配置 | `references/file-oss.md` |
 | WebSocket/SSE、站内消息、实时通知、消息推送 | `references/messaging.md` |
 | 菜单/按钮权限、数据范围、字段脱敏、多租户判断 | `references/access-control.md` |
+| AI / Snail AI / MCP Server/Client / 智能体集成 | `references/ai-mcp.md` |
+| MQTT 客户端、设备接入、主题订阅与发布 | `references/mqtt.md` |
+| Elasticsearch / Easy-ES、全文检索、索引同步 | `references/search.md` |
+| 社交登录 / JustAuth / OAuth 回调与账号绑定 | `references/social-login.md` |
+| 邮件、短信、验证码、外部通知通道 | `references/mail-sms.md` |
+| Redis 缓存、分布式锁、防重复、限流、队列 | `references/cache-lock.md` |
+| API 加解密、字段加密、密钥与密文迁移 | `references/encryption.md` |
+| LiteFlow 业务规则编排、复杂链路 | `references/orchestration.md` |
+| 操作日志、登录日志、审计、Actuator、接口文档 | `references/observability.md` |
+| 多语言、消息资源、翻译字段 | `references/i18n.md` |
+| 动态数据源、主从库、多库访问、跨库事务 | `references/dynamic-datasource.md` |
 | 需要查官方规范或功能说明 | `references/docs-map.md` |
 
-普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流和 SnailJob 都是条件参考，不因模块存在而预读。目标栈始终是 **RuoYi-Vue-Plus 6.0.0 + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。目标栈始终是 **RuoYi-Vue-Plus 6.0.0 + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
-- **已覆盖**：Excel、文件/OSS、实时消息、权限/数据范围/多租户判断、Warm-Flow、SnailJob。
-- **暂不单独展开**：AI/MCP、MQTT、Elasticsearch、社交登录、短信/邮件等。遇到真实任务时先读目标源码和现有模块，不预建一套通用知识。
+- **已覆盖的业务能力**：Excel、文件/OSS、实时消息、权限/数据范围/多租户判断、Warm-Flow、SnailJob、AI/MCP、MQTT、Elasticsearch/Easy-ES、社交登录、短信/邮件、Redis 缓存/锁/幂等/限流、API/字段加密、LiteFlow、可观测性、国际化和动态数据源。
+- **按需加载**：上述能力都放在 `references/`，只在任务真正涉及对应领域时读取；普通 CRUD 的默认加载量没有增加。
 - **多租户**：`ruoyi-p0` 当前没有完整租户链路，`access-control.md` 只要求先判断项目是否真的启用，不把文档站的完整多租户方案当成 6.0.0 源码事实。
 
 事实优先级：目标工程源码 > 6.0.0 源码核对过的约束 > 官方文档地图（正文默认 3.5.x）> 通用框架习惯。不要用文档站的 3.5.x 类名或配置直接覆盖 6.0.0 项目。
