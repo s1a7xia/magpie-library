@@ -15,7 +15,7 @@ At the repository root, inspect these files when they exist:
 
 | File | Read it for | Do not use it for |
 |---|---|---|
-| `docs/agents/project-state.md` | active objective, current work, blockers, next step, compile commands and scope | permanent architectural rationale |
+| `docs/agents/project-state.md` | active objective, current work, workflow-stage dashboard, blockers, next step, compile commands and scope | permanent architectural rationale |
 | `docs/agents/project-decisions.md` | confirmed cross-task decisions and their scope | transient implementation notes or unresolved options |
 | `docs/agents/verification.md` | versioned validation evidence and known gaps | proof that later changes still pass |
 
@@ -37,7 +37,9 @@ The state-file templates live in one place: [references/templates.md](references
 
 - Update `project-state.md` after a material task only when the files already
   exist or the user requested project context. Keep it short: current goal,
-  completed work, active blockers, and one concrete next step.
+  completed work, active blockers, and one concrete next step. Update the
+  workflow-stage dashboard at stage transitions only; the PRD remains the
+  source of requirement status.
 - Add a decision only when it is confirmed, affects future tasks, and has a
   stated scope. Mark replaced choices as superseded rather than silently
   deleting their rationale.

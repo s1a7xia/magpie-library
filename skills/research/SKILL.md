@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Investigate a technical stack/version question against authoritative sources (official docs, source, specs) and persist a versioned, immutable best-practice record into a searchable knowledge base. Use before committing to a stack/version-specific approach — so the next task can query INDEX.md instead of re-searching. Not for product/market/competitor analysis or open-ended brainstorming (that is /think territory). Trigger words: research, 调研, 最佳实践, best practice, 技术选型, tech evaluation, 选哪个库, 官方文档, how does X work in version Y, 权威信源."
+description: "Research a technical stack/version question against authoritative sources and persist a reusable, versioned best-practice record. Use before stack/version decisions or when the user says 调研、最佳实践、技术选型、官方文档、权威资料. Not for product or open-ended brainstorming."
 ---
 
 # Research: Authoritative Technical Investigation, Persisted

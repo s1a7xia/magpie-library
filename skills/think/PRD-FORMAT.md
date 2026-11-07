@@ -30,6 +30,8 @@ PRD 文件格式模板。由 `think` 或 `story`（无 PRD 时）生成和维护
 
 ## PRD 生命周期状态
 
+> 此表是 PRD 与切片生命周期的唯一来源；`story`、`implement`、`page-acceptance`、`review` 引用这里，不复制完整状态定义。
+
 PRD 在其生命周期内经历以下状态，每个状态的进入由可验证证据驱动：
 
 ```
@@ -93,18 +95,21 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 
 ## Requirements
 
-* <requirement 1>
-* <requirement 2>
+* R1 — <requirement 1>
+* R2 — <requirement 2>
 
 ## Acceptance Criteria
 
-* [ ] <testable criterion 1>
-* [ ] <testable criterion 2>
-* [ ] <testable criterion 3>
+* [ ] AC1 — <testable criterion 1>
+* [ ] AC2 — <testable criterion 2>
+* [ ] AC3 — <testable criterion 3>
+
+需求与验收标准使用稳定 ID（`R1`、`AC1`），供 `story` 的 `Covers` 和 `implement` 的覆盖门引用。基线冻结后不得重新编号；旧 PRD 缺少 ID 时，在 `## Change Log` 记一行“仅补充编号”，再补齐。
 
 ## Definition of Done
 
 * 声明的验收标准已在约定范围内验证通过，未验证项已列明
+* 每条需求至少有一条可观察的验收标准；切片后每条验收标准都有明确切片承接
 * 受影响的前后端编译通过；用户明确要求的其他检查通过
 * 行为变化涉及的文档已同步
 * 有风险时已说明上线与回退方式
@@ -168,14 +173,14 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 
 ## Traceability
 
-- **Created by**: `/think` (or `/story` for minimal PRD)
+- **Created by**: `/think`
 - **Prototyped by**: minimal experiment (<YYYY-MM-DD>) — if a demo adjudicated a design option — <divergence> → <selected X / eliminated Y, because <evidence>>
 - **Grilled by**: `/grill` (completed <YYYY-MM-DD>) — <summary: terms sharpened, assumptions resolved, ADRs created>
 - **Sliced by**: `/story` (completed <YYYY-MM-DD>) — child issues listed under `Sliced into` below
 - **Sliced into**:
-  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Dev Complete
-  - #<issue-2> — [PRD-NNNN] <slice title> (HITL, blocked by #<issue-1>) — In Progress
-  - #<issue-3> — [PRD-NNNN] <slice title> (AFK)
+  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — covers: R1, AC1 — Dev Complete
+  - #<issue-2> — [PRD-NNNN] <slice title> (HITL, blocked by #<issue-1>) — covers: R2, AC2 — In Progress
+  - #<issue-3> — [PRD-NNNN] <slice title> (AFK) — covers: R3, AC3
 - **Implemented by**: implementation workflow (Issue reference)
 - **Accepted by**: `/page-acceptance` (<YYYY-MM-DD>) — <pages/routes and evidence location>
 - **Debugged by**: `/debug` (if bug fix touched this feature) — <bug summary + root cause>
@@ -200,8 +205,8 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 | Assumptions | 需要验证的临时假设 |
 | Open Questions | 仅阻塞/偏好问题 |
 | Domain Terms (draft) | 头脑风暴中新增的草稿术语（Term / Working Definition / Status）；由 `/think` Step 10b 追加，交 `/grill` 推进到 `CONTEXT.md`；可选章节 |
-| Requirements | 功能需求列表 |
-| Acceptance Criteria | 可测试的验收标准 |
+| Requirements | 功能需求列表，使用稳定 ID（`R1`、`R2`）|
+| Acceptance Criteria | 可测试的验收标准，使用稳定 ID（`AC1`、`AC2`）|
 | Definition of Done | 完成定义（团队质量标准） |
 | Out of Scope | 明确不做的事情 |
 | Technical Approach | 技术方案和关键决策 |
@@ -212,4 +217,4 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 | Technical Notes | 技术笔记 |
 | Traceability | 全链路追踪（各 skill 阶段自动填充）|
 | Issue | 对应的 Issue 编号 |
-| Sliced into | 子 Issues 列表，Traceability 的一环（由 /story 自动填写，格式：`#<number> — <title> (type)`；PRD 无独立 "Child Issues" 字段）|
+| Sliced into | 子 Issues 列表，Traceability 的一环（由 /story 自动填写，格式：`#<number> — <title> (type) — covers: R#, AC# — status`；PRD 无独立 "Child Issues" 字段）|

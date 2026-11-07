@@ -110,11 +110,11 @@ After reading the shared context, check for signs that upstream skills were skip
 
 | Signal | Meaning | Action |
 |--------|---------|--------|
-| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Note in report: "PRD has unresolved items — some decisions may be unvalidated" |
-| No tests in diff | Tests may not have been written | Flag in Test Review: "No new tests found in diff" |
+| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Note the gap and withhold an unqualified approve recommendation |
+| No tests in diff | Tests were not part of the authorized scope | Flag only when the current request or project profile explicitly requires test work |
 | `CONTEXT.md` mentions terms not used in code | Domain model may have drifted | Note in Impact Review: "Domain terms in CONTEXT.md not reflected in implementation" |
 
-These are notes, not blockers. Record them in the appropriate perspective reports.
+Record these in the appropriate perspective reports. Unresolved requirements block an unqualified pass; absent tests are a gap only when tests were requested.
 
 ### Step 4: Gather Shared Context Paths
 
@@ -207,8 +207,8 @@ Apply the [Perspective Common](#perspective-common-applies-to-chapters-2-3-4) in
 
 Review test quality for the changes in the diff. Focus exclusively on test concerns:
 
-- **Test coverage**: are all acceptance criteria from the PRD/Issue tested?
-- **Boundary coverage**: are edge cases and boundary conditions tested?
+- **Test coverage**: when tests are in the authorized scope, do they cover the PRD/Issue acceptance criteria? If no test work was requested, record that and do not treat its absence as a defect.
+- **Boundary coverage**: when tests are in scope, are edge cases and boundary conditions covered? Otherwise rely on the authorized compile/page evidence and name the gap.
 - **Test design**: do tests verify behavior through public interfaces, not implementation details?
 - **Mock usage**: are mocks used appropriately?
 - **Naming**: do test names clearly describe the scenario?
@@ -682,7 +682,7 @@ When all vertical slices of a PRD are complete, perform additional checks beyond
 - **Cross-slice data flow**: Do the slices integrate correctly when combined?
 - **Shared state consistency**: Do slices agree on data models, state transitions, event payloads?
 - **Full PRD acceptance criteria coverage**: Are ALL acceptance criteria from the PRD met across all child issues?
-- **Integration test coverage**: Are there tests that verify slices working together, not just unit tests per slice?
+- **Cross-slice verification evidence**: Do the authorized tests, compile results, or page-acceptance evidence show the slices working together when that was in scope?
 - **Dependency order verification**: Were slices implemented in the correct dependency order?
 
 State explicitly: "Integration Review — checking <N> slices for PRD <name>."

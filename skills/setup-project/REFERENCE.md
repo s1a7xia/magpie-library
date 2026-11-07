@@ -37,8 +37,8 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 | `ai-collaboration.md` — WeChat entry | Is the entry still wanted, and do the project facts (root, remote, inbox path) still match? | Entry turned on/off, or root/remote/inbox changed | Present the change, confirm, update the sections, and re-print the registry entry for the user to replace in `~/.dsh/im/PROJECTS.md` |
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
-| AGENTS.md/CLAUDE.md `## Agent skills` block | Does the block open with the `### Working principles` section (first-principles prompt, verbatim)? | Block was written before the working-principles rule existed — section missing | Present the missing section, confirm, rewrite the block in-place (never append a duplicate) |
-| AGENTS.md/CLAUDE.md `## Engineering principles` section | Re-run the Step 1 stack detection and script scan — does the section still match (scope blocks, line bound, dependency paths, quick-reference commands)? | Stack dimension added/removed (frontend introduced, DB added), verification scripts renamed/added, section missing entirely (pre-principles run) | Present diff, confirm, rewrite the section in-place (never append a duplicate) |
+| AGENTS.md/CLAUDE.md (optional) | Does a project file already exist? Does it contain copied global rules instead of a short pointer to `docs/agents/`? | File exists, or the user explicitly asked for one | Keep only project-specific facts and a short `## Project context` pointer; remove duplicated global workflow |
+| `docs/agents/coding-standards.md` Project engineering principles | Re-run stack detection and script scan — do scope, file-size bound, dependency paths and quick-reference commands still match? | Stack dimension added/removed, verification scripts renamed/added, section missing | Present diff, confirm, update in place |
 
 **If no drift detected in any section**, tell the user: "All config is current — no changes needed." and stop.
 
@@ -144,7 +144,7 @@ When the project structure changes, re-running `/setup-project` updates the conf
 Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
 - `git remote -v` — GitHub, GitLab, Gitee, another host, or no remote? Handle HTTPS and SSH forms. With multiple remotes, retain an explicit tracker selection; a mirror alone does not select the tracker. A ZIP without `.git` is not evidence that the project uses local issues.
-- `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
+- `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already a project-level rules section? If neither exists, do not create one by default; project facts belong in `docs/agents/`.
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
 - `docs/adr/` and `docs/prd/` directories
 - `docs/agents/` — does this skill's prior output already exist?
@@ -203,7 +203,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Triage labels**: defaults (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix)
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
-- **Engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E)
+- **Project engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E). These are written to `docs/agents/coding-standards.md`.
 - **Technical profile**: default to `ruoyi-plus-dev` (RuoYi-Vue-Plus) with no framework-signature probe and no "is this RuoYi?" question (see Section F). Exclude it only when the user identifies the project as non-RuoYi; use another installed profile only when the user names it. Read the checkout only to fill the exact version, governed paths and real commands
 
 ## Step 4: Ask for Overrides
@@ -262,9 +262,9 @@ This is a **single language for the whole project** — it applies uniformly to 
 
 **Common pitfall:** the user typing the command is not necessarily the audience. A Chinese-speaking developer may still want English docs for an international team. Ask which language the *team* reads, not which language the conversation is in.
 
-### Section E — Engineering Principles
+### Section E — Project Engineering Principles
 
-> The `## Engineering principles` section in AGENTS.md/CLAUDE.md tells every agent session and contributor how this repo expects engineering work done — design-first planning, module quality, boundaries, security, concurrency, UX, reuse, maintainability, reversibility — and which commands verify each kind of change before committing. It is generated from [templates/engineering-principles.md](templates/engineering-principles.md), tailored to this repo.
+> Project-specific engineering rules — design-first boundaries, module quality, security, concurrency, UX, dependency checks, and per-change verification — belong in `docs/agents/coding-standards.md`, not in a project `AGENTS.md`. The global Magpie instructions already carry the shared working principles and workflow.
 
 Present the detected tailoring as a draft; the user confirms or edits:
 
@@ -274,13 +274,13 @@ Present the detected tailoring as a draft; the user confirms or edits:
 - **Change quick reference** — baseline and per-change-type commands, filled from package.json scripts / Makefile / CI config. Never invent commands; a row with no real command is dropped, not guessed.
 - **Language** — the section is rendered in the Section D language (headings and prose translated; commands, paths, and identifiers stay as-is)
 
-If the file already carries a hand-written `## Engineering principles` (or equivalent) section, ask: adopt as-is (setup stops managing it), merge, or replace. Never overwrite it silently.
+Write the result into `## Project engineering principles` and `## Verification quick reference` in `docs/agents/coding-standards.md`, using [templates/engineering-principles.md](templates/engineering-principles.md) as source material. If the project already carries a hand-written engineering-principles section in `AGENTS.md`/`CLAUDE.md`, ask adopt/merge/replace; do not duplicate it into the new file.
 
 ### Section F — Coding Standards and Technical Profile
 
-Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. Include the Coding standards section in the AGENTS.md/CLAUDE.md block below when this file is configured. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
+Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. A project `AGENTS.md`/`CLAUDE.md` pointer is optional and only used when the file already exists or the user explicitly asks for one. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-plus-dev` applies by default. Put it in the Step 5 confirmation draft together with everything else; the draft is the user's chance to say the project is non-RuoYi. Never ask a separate "is this RuoYi?" question. A different installed profile is selected only when the user names it.
+**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-plus-dev` applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
 
 For the default or a user-named profile, read the checkout only to establish registration facts — the exact version, governed module paths and real verification commands. Do not use those facts to re-decide whether the default applies. For RuoYi-Vue-Plus, take the exact version from the parent POM, never from a guess.
 
@@ -289,9 +289,9 @@ For the default or a user-named profile, read the checkout only to establish reg
 - Record the profile by name, its version/stack, and the scope it governs (modules, file types, languages).
 - Carry the profile's hard constraints into the registration — either the **Additional standards** field or an explicit **Project decisions and exceptions** entry. For a RuoYi-Vue-Plus profile these include "do not introduce original-RuoYi APIs", "check `sys_config`/`sys_dict_*` and existing entities before adding a table", and "background tasks declare service identity and data scope".
 - Keep the profile's full rules in the profile skill; register the pointer plus project-specific additions. Do not copy the entire profile into the workflow skills.
-- When the user identifies the project as non-RuoYi, exclude the default profile, record the named alternative or "none", and say why.
+- When the user identifies the project as non-RuoYi, exclude the default profile, record the named alternative or `none`, and say why. Keep the explicit `none` registration even when there are no additional team conventions; it prevents later sessions from reapplying the global default.
 
-Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. With no extra conventions and no confirmed profile, omit the optional file.
+Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. Omit the optional file only when there are no extra conventions and no selected profile or explicit `none` override to preserve.
 
 Example registration for that confirmed stack (render in the project's documentation language and fill paths/commands from the checkout):
 
@@ -333,61 +333,23 @@ Ask once, defaulting to **off**: "Should this project be reachable from the WeCh
 
 ## Step 5: Confirm
 
-Show the user a draft of all files to be written. Let them edit before writing. The draft includes the tailored `## Engineering principles` section — confirm its scope, placeholder fills, and quick-reference commands before writing.
+Show the user a draft of all files to be written. Let them edit before writing. The draft includes the `docs/agents/coding-standards.md` project-principles and verification sections; confirm their scope, placeholder fills, and quick-reference commands. Include an AGENTS.md/CLAUDE.md pointer only when applicable.
 
 ## Step 6: Write
 
-**Pick the file to edit:**
+**Project files first.** Write `docs/agents/*.md` from the seed templates in [templates/](templates/). Do not create `AGENTS.md` or `CLAUDE.md` when neither exists; the global Magpie instructions already provide the workflow.
 
-- If `CLAUDE.md` exists, edit it.
-- Else if `AGENTS.md` exists, edit it.
-- If neither exists, ask the user which one to create — don't pick for them.
+**If a project file already exists, or the user explicitly asks for one:** update only that file, in place. Add a short `## Project context` section that points to `docs/agents/` and names the selected technical profile. Do not copy the global Working principles, engineering workflow, compile policy, page-acceptance policy, or Git rules. Do not create the other file when one already exists.
 
-Never create `AGENTS.md` when `CLAUDE.md` already exists (or vice versa) — always edit the one that's already there.
-
-If an `## Agent skills` block already exists in the chosen file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to the surrounding sections.
-
-**The `## Agent skills` block** (single-repo / monorepo baseline; multi-repo adds the Repo map section):
-
-The block opens with a fixed **Working principles** section — the first-principles reasoning prompt below, copied **verbatim** into every repo. It is not customised per project and has no `docs/agents/` config file: it lives in AGENTS.md/CLAUDE.md itself so every agent session reads it at startup, before any skill runs. All other sections are one-line summaries pointing at `docs/agents/` config files.
+Example pointer (adapt to the project):
 
 ```markdown
-## Agent skills
+## Project context
 
-### Working principles
-
-Apply first-principles reasoning to engineering work. Establish WHAT before determining HOW. Verify material facts before relying on them: inspect the actual code and relevant files, run the relevant commands or tests, and do not infer behavior beyond the available evidence. When verification is impossible, state the gap explicitly as an assumption; treat unstated goals and constraints the same way. Analogy is not evidence. Decompose a problem only until further decomposition can no longer change the next action. Trace every material conclusion to a fact, constraint, goal, or explicit assumption. Prefer the simplest solution that satisfies all real constraints and can be verified. Treat existing code and conventions as evidence about the system, not as unquestionable authority: understand why an existing solution works before extending, replacing, or reusing it; follow established conventions by default, and deviate only with a stated reason.
-
-### Issue tracker
-
-[one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-[one-line summary of the label vocabulary]. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-[one-line summary of layout — "single-context" or "multi-context"]. See `docs/agents/domain.md`.
-
-### Documentation language
-
-[one-line summary — e.g. "all docs in English"]. See `docs/agents/language.md`.
-
-<!-- Include when project coding standards or a technical profile are configured -->
-### Coding standards
-
-[selected profile and affected scope]. Read `docs/agents/coding-standards.md` and its registered original rules before affected work; apply the installed Entry Protocol's Standards Gate for verification and completion.
-
-<!-- Multi-repo only: include this section -->
-### Repo map
-
-[one-line summary of multi-repo structure]. See `docs/agents/repo-map.md`.
+This repository uses the shared Magpie engineering baseline. Read `docs/agents/project-state.md`, `docs/agents/coding-standards.md`, and `docs/agents/domain.md` before affected work. Project-specific decisions and verification evidence live in `docs/agents/`.
 ```
 
-Then write the docs files using the seed templates in [templates/](templates/).
-
-**The `## Engineering principles` section** — written into the same file, immediately after the `## Agent skills` block, from [templates/engineering-principles.md](templates/engineering-principles.md). Apply the Section E tailoring: drop inapplicable conditional blocks, fill placeholders from detected evidence, render in the Section D language. If the section already exists, update it in-place — never append a duplicate. If the user chose "adopt as-is" in Section E, skip writing it.
+Then write the remaining `docs/agents/` files. The project-specific engineering principles and verification quick reference go into `docs/agents/coding-standards.md`, from [templates/engineering-principles.md](templates/engineering-principles.md). Apply the Section E tailoring: drop inapplicable conditional blocks, fill placeholders from detected evidence, render in the Section D language. If the section already exists, update it in-place — never append a duplicate. If the user chose "adopt as-is" in Section E, skip writing it.
 
 ### Monorepo: Per-Package Config
 
@@ -417,7 +379,8 @@ Each generated file is seeded from a template, customised based on the user's ch
 
 | Output file | Seed template | When used |
 |---|---|---|
-| AGENTS.md/CLAUDE.md `## Engineering principles` | [templates/engineering-principles.md](templates/engineering-principles.md) | Always (tailor per Section E; skip if the user keeps their own section) |
+| `docs/agents/coding-standards.md` Project engineering principles + Verification quick reference | [templates/engineering-principles.md](templates/engineering-principles.md) | Always (tailor per Section E; skip if the user keeps their own section) |
+| `AGENTS.md`/`CLAUDE.md` (optional) | none | Only when the file already exists or the user explicitly asks; write a short `## Project context` pointer, not global rules |
 | `docs/agents/issue-tracker.md` | [templates/issue-tracker-github.md](templates/issue-tracker-github.md) | Remote points to github.com |
 | | [templates/issue-tracker-gitlab.md](templates/issue-tracker-gitlab.md) | Remote points to gitlab.com or self-hosted GitLab |
 | | [templates/issue-tracker-gitee.md](templates/issue-tracker-gitee.md) | Gitee selected; verify public vs Enterprise/private API |
@@ -428,7 +391,7 @@ Each generated file is seeded from a template, customised based on the user's ch
 | `docs/agents/coding-standards.md` | [templates/coding-standards.md](templates/coding-standards.md) | Project conventions or a technical profile are configured |
 | `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only |
 | `docs/agents/ai-collaboration.md` | [templates/ai-collaboration.md](templates/ai-collaboration.md) | Multiple agents share a project; keep the WeChat sections only when Section H is enabled |
-| `docs/agents/project-state.md` | [templates/project-state.md](templates/project-state.md) | Always (current objective, active work, blockers, next step, actual compile commands) |
+| `docs/agents/project-state.md` | [templates/project-state.md](templates/project-state.md) | Always (current objective, workflow-stage dashboard, active work, blockers, next step, actual compile commands) |
 | `docs/agents/project-decisions.md` | [templates/project-decisions.md](templates/project-decisions.md) | Always (confirmed cross-task decisions; no placeholders — write only confirmed facts, or leave the section empty) |
 | `docs/agents/verification.md` | [templates/verification.md](templates/verification.md) | Always (versioned evidence; write only facts actually observed, marked `agent` or `user`) |
 

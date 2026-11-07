@@ -52,7 +52,7 @@ Rules moved off the always-loaded path because no skill cites them. Numbers are 
 |---|--------------|--------------|
 | 2 | Hallucinate paths (reference files from memory) | Generic agent discipline, embodied by every skill's read-before-acting step; no skill-specific consumer |
 | 7 | Over-format (wrap simple answers in heading+list+summary) | Generic output discipline; skill output templates already fix each skill's shape |
-| 9 | Declare instead of act ("I will now update the file") | Generic model discipline; AGENTS.md Working principles cover it |
+| 9 | Declare instead of act ("I will now update the file") | Generic model discipline; global Magpie instructions cover it |
 | 10 | Unsolicited summary / version bump after every edit | Covered by #13's spirit plus each skill's output template; generic elsewhere |
 | 11 | Invent missing data | Covered by think's question gating (Blocking/Preference) and #28 |
 | 14 | Retry without new evidence | Debug's instrumentation discipline covers the diagnostic case; generic elsewhere |

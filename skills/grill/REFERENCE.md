@@ -131,7 +131,7 @@ The parent Issue is created by `/think` Step 10 (required) and recorded in the P
    - **Do not** change the Issue title (it uses the PRD's `<Feature Name>`, set by `/think`)
    - **Do not** close the parent Issue — it stays open until child issues from `/story` are done
 3. **Field empty or missing** → first check the value: if it reads `N/A — no issue tracker configured` (from `/think` Step 10a no-tracker waiver), skip — the repo has no tracker. Otherwise, check the PRD's `## Traceability` → `Created by` field to determine the source:
-   - **PRD created by `/story`** (minimal PRD, no `/think` session) → skip silently. Child issues stand alone by design. Do not create a parent Issue here.
+   - **Legacy PRD created by `/story`** (minimal PRD) → treat the baseline as invalid and route to `think` → `grill`; do not create a parent Issue for an un-grilled plan.
    - **PRD created by `/think`** → warn (in the repo's documentation language per `docs/agents/language.md`; English template follows): *"⚠️ Parent Issue missing — /think Step 10 should have created one. This PRD's child issues cannot link to a parent. Options: (a) create the parent Issue manually, (b) re-run /think to recreate the PRD (which also creates the parent), or (c) continue without a parent (child issues will stand alone)."*
 
 **Boundary:** grill is "validate + sync", not "create". If you find yourself wanting to create a parent Issue, the right fix is upstream — the PRD should have gone through `/think` Step 10.

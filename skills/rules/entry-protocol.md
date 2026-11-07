@@ -24,20 +24,20 @@ When the task involves both Codex and dsh, read `docs/agents/ai-collaboration.md
 | `docs/agents/ai-collaboration.md` | Multi-agent role ownership, handoff channel, and write boundaries | Use the shared role defaults in `ai-collaboration` when multiple agents collaborate |
 | `docs/agents/triage-labels.md` | Label vocabulary mapping | Use canonical defaults |
 | `docs/agents/language.md` | Language consumer skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments) | Fall back to the user's input language; ask when unsure |
-| `docs/agents/coding-standards.md` | Applicable coding conventions, technical profile, source paths, and verification commands | Follow existing project instructions/style; do not assume a framework profile |
-| `docs/agents/project-state.md` | Current objective, active work, blockers, next step, and default delivery profile | Treat the current request as the only task context; do not create a state file implicitly |
+| `docs/agents/coding-standards.md` | Applicable coding conventions, technical profile, source paths, and verification commands | Use the global `ruoyi-plus-dev` default unless project `AGENTS.md` or the current user instruction explicitly selects another profile or `none` |
+| `docs/agents/project-state.md` | Current objective, workflow-stage dashboard, active work, blockers, next step, and compile commands | Treat the current request as the only task context; do not create a state file implicitly |
 | `docs/agents/project-decisions.md` | Confirmed cross-task decisions, their scope, and superseded choices | Use current code and user instructions when no matching decision exists |
 | `docs/agents/verification.md` | Reusable verification evidence and known gaps | Do not treat old evidence as proof for changed code |
 
 ### Step 1a: Apply Project Standards and Tracker Conventions
 
-**Coding standards.** If configured, read the maintained standards and the named technical profile's `SKILL.md` from the installed skills directory, then its task-relevant original references. Apply only to its declared repository/module/file scope. If no profile is configured, use one only when the actual project or explicit task establishes its applicability. A profile is supplementary context: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
+**Coding standards.** Resolve the profile in this order: current user instruction, explicit project `docs/agents/coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-plus-dev` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile. Read the maintained standards and the selected technical profile's `SKILL.md` from the installed skills directory, then its task-relevant original references. Apply only to its declared repository/module/file scope. A profile is supplementary context: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
 
 #### Standards Gate
 
 **Required context before affected work.** Once a standard/profile applies, successfully read its configuration, entry point and relevant original rules before changing affected code or approving its compliance. Record their actual paths in the task evidence. A missing/unreadable file, an unresolved reference or a missing original is a blocked prerequisite: stop affected code changes and compliance approval, identify what could not be read, and restore it within the authorized scope when possible. Read-only diagnosis and unrelated work may continue; a prior session's summary does not satisfy this gate.
 
-**Verification authorization before completion.** Checks are required only when the current request, the project's explicitly adopted delivery profile, or this stage's explicitly authorized verification calls for them. Derive the scope from the active stage, applicable standards and actual project build configuration. When checks are authorized, a code task is complete, verified, or eligible for a `Done` transition only after they pass against its final changes; preserve command, working directory, exit status and relevant output as evidence. When no check is authorized, complete the implementation with the diff reviewed, label it unverified, and do not claim test, acceptance, or runtime success. When an authorized check fails, repair and rerun it within scope; when it cannot run, report the affected task as blocked/unverified. Existing merge/release criteria still apply after authorized checks pass.
+**Verification authorization before completion.** Checks are required only when the current request, the project's explicitly adopted standards, or this stage's explicitly authorized verification calls for them. Derive the scope from the active stage, applicable standards and actual project build configuration. When checks are authorized, a code task is complete, verified, or eligible for a `Done` transition only after they pass against its final changes; preserve command, working directory, exit status and relevant output as evidence. When no check is authorized, complete the implementation with the diff reviewed, label it unverified, and do not claim test, acceptance, or runtime success. When an authorized check fails, repair and rerun it within scope; when it cannot run, report the affected task as blocked/unverified. Existing merge/release criteria still apply after authorized checks pass.
 
 **Stage boundaries.** Planning does not require compiling prospective code. A read-only review may use current, verifiable build/test evidence for the change under review instead of rerunning unchanged checks solely because a review was requested. An intermediate phase that is not the delivered result (planning notes, a spike, a probe) is not a completed implementation; apply the delivery checks once the real change exists. Mark a check not applicable only with an explicit stage/scope reason. A missing dependency, failed command or unread standard is not a not-applicable reason. A review may report findings with verification gaps, but must withhold an unqualified pass when required evidence is missing or stale.
 
@@ -53,7 +53,7 @@ Preserve the tracker's returned identifiers and URLs (Gitee Issue numbers are ca
 
 ### Project State and Delivery Profile
 
-Treat `project-state.md` as a concise operational handoff, not a replacement for requirements or source inspection. Read only the sections relevant to the current task. Its default delivery profile is effective only when the project `AGENTS.md`/`CLAUDE.md` explicitly adopts it; otherwise the global default remains change-only. The order of precedence is: current request, applicable project instructions, then the state file.
+Treat `project-state.md` as a concise operational handoff, not a replacement for requirements or source inspection. Read only the sections relevant to the current task. Its workflow-stage dashboard is a progress view; PRD `Status` and `Sliced into` remain the source of requirement state. The order of precedence is: current request, applicable project instructions, then the state file.
 
 `project-decisions.md` records durable, confirmed choices. Do not turn a transient implementation detail, an unverified hypothesis, or a chat preference into a decision. `verification.md` must identify the version or commit, command/path, result, date, and whether the evidence came from the agent or the user. A changed file, environment, dependency, or requirement can invalidate old evidence.
 
@@ -89,9 +89,9 @@ Report findings as a note in the skill output: *"Filing inconsistency found: <fi
 
 ### Step 3a: PRD Conflict Check (only for PRD-creating skills)
 
-Applies **only** to skills about to create a new PRD file (`/think` Step 2, `/story` Step 3). Skills that only read an existing PRD — and all non-PRD skills (`debug`, `review`, etc.) — skip this entirely.
+Applies **only** to `/think` when it is about to create a new PRD file. Skills that only read an existing PRD — including `/story` — and all non-PRD skills (`debug`, `review`, etc.) skip this entirely.
 
-The full procedure lives with the primary PRD-creator: see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn). It is owned there rather than in this shared protocol so that non-PRD skills don't carry PRD-management ceremony they never use. `/story` follows the same procedure when it creates a minimal PRD.
+The full procedure lives with the primary PRD-creator: see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn). It is owned there rather than in this shared protocol so that non-PRD skills don't carry PRD-management ceremony they never use. Only `think` creates PRDs; `story` requires an existing grilled PRD.
 
 ### Step 4: Check Upstream Artifacts (Composability)
 
@@ -99,11 +99,11 @@ If the skill consumes another skill's output, verify upstream quality:
 
 | Signal | Meaning | Action |
 |--------|---------|--------|
-| PRD Traceability shows `Created by: /story (minimal PRD)` | Requirements may not be decision-complete — no `/think` session | Confirm acceptance criteria with user before proceeding |
-| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Note: "PRD has unresolved items" — proceed but flag uncertainty |
-| PRD `Grilled by` field is empty | Plan not validated against domain model | Proceed but note plan is unvalidated |
+| Legacy PRD was created by `/story` (minimal PRD) | Requirements were never decision-complete | Do not implement from it; recreate through `think` → `grill` |
+| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Read-only planning may note it; implementation and an unqualified pass are blocked until `grill` resolves it |
+| PRD `Grilled by` field is empty | Plan not validated against domain model | Read-only planning may note it; implementation and an unqualified pass are blocked until `grill` completes |
 
-These are notes, not blockers. Record them in the skill's output.
+Record these in the skill's output. They are not blockers for read-only diagnosis; they are blockers for coding against the PRD and for claiming acceptance or completion.
 
 ## Standalone vs Composable
 

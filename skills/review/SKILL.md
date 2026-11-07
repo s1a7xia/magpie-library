@@ -23,7 +23,7 @@ Performs three independent review perspectives — Test Review, Code Review, Imp
 
 ## Process Summary
 
-**Step 1 — Collect context**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md). Read the diff — staged + unstaged if the working tree is dirty, otherwise the branch range since the default branch (or the PR diff) when the work is already committed (see [REFERENCE.md Chapter 1](REFERENCE.md)). Read README, package.json, Makefile, CI configs. If the diff contains an Issue reference, read the PRD path from the Issue body's `Meta → PRD` field and load it. Gather available shared context paths (PRD, Story, Issues, CONTEXT.md, ADRs). **PRD quality check:** if PRD Traceability shows `Created by: /story (minimal PRD)`, note that requirements may not be decision-complete — review acceptance criteria coverage with extra care.
+**Step 1 — Collect context**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md). Read the diff — staged + unstaged if the working tree is dirty, otherwise the branch range since the default branch (or the PR diff) when the work is already committed (see [REFERENCE.md Chapter 1](REFERENCE.md)). Read README, package.json, Makefile, CI configs. If the diff contains an Issue reference, read the PRD path from the Issue body's `Meta → PRD` field and load it. Gather available shared context paths (PRD, Story, Issues, CONTEXT.md, ADRs). Check the PRD's `Covers` chain and acceptance-criterion coverage before judging the implementation.
 
 **Step 2 — Produce three review perspectives**: Re-read the shared context from disk and complete Test Review, Code Review and Impact Review in sequence. Do not reuse another perspective's cached conclusions.
 
@@ -33,7 +33,7 @@ Performs three independent review perspectives — Test Review, Code Review, Imp
 
 **Step 5 — Authorization gate**: Present the report and ask **one** question — approve the recommendation, or request changes. Merge/release and other actions are not part of the approval: they are requested (and authorized) separately per Chapter 6. Local doc updates are allowed when necessary; remote actions require current-turn explicit authorization.
 
-**Step 6 — Execute authorized actions**: Perform only actions the user explicitly requested in the current turn — local file updates, issue sync, release follow-through. A passing review does not bypass page acceptance: a slice that has not passed the user-initiated `page-acceptance` stays `Dev Complete`. A slice already `Accepted` may be marked `— Done` after review passes. Set the PRD to `Done` only when every slice is `— Done` and the project's other close-out conditions hold. See [Authorization Boundaries](#authorization-boundaries).
+**Step 6 — Execute authorized actions**: Perform only actions the user explicitly requested in the current turn — local file updates, issue sync, release follow-through. A passing review does not bypass page acceptance: a slice that has not passed the user-initiated `page-acceptance` stays `Dev Complete`. A slice already `Accepted` may be marked `— Done` after review passes. Set the PRD to `Done` only when every slice is `— Done` and the project's other close-out conditions hold. When `project-state.md` exists, update its `Workflow status → Review` and `Close-out` rows with the actual result. See [Authorization Boundaries](#authorization-boundaries).
 
 See [REFERENCE.md](REFERENCE.md) for detailed checklists and report templates.
 

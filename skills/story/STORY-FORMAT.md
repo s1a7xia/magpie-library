@@ -23,9 +23,9 @@
 
 **示例**：
 ```
-[PRD-0003] 用户订阅数据模型 — schema + CRUD API + 测试
-[PRD-0003] 支付流程 — 支付网关集成 + webhook 处理 + 测试
-[PRD-0003] 订阅管理 UI — 查看/取消/升级 + E2E 测试
+[PRD-0003] 用户订阅数据模型 — schema + CRUD API + 编译验证
+[PRD-0003] 支付流程 — 支付网关集成 + webhook 处理 + 编译验证
+[PRD-0003] 订阅管理 UI — 查看/取消/升级 + 页面验收
 ```
 
 ## Issue Body 模板
@@ -35,6 +35,7 @@
 
 - **PRD**: PRD-NNNN-<title>.md
 - **Type**: AFK | HITL
+- **Covers**: R1, AC1-AC2 (父 PRD 中本切片承接的需求与验收标准)
 - **Siblings**: #<issue-2>, #<issue-3> (其他 Child Issues；advisory，非承重；/story 在 Publish Issues 时填充)
 
 ## Parent
@@ -66,6 +67,7 @@
 |------|------|
 | Meta → PRD | 所属 PRD 文件路径（PRD-NNNN-<title>.md）|
 | Meta → Type | AFK（可自动完成）或 HITL（需人工交互）|
+| Meta → Covers | 本切片承接的父 PRD 需求编号与验收标准编号；用于实现前检查和批次收口核对覆盖 |
 | Meta → Siblings | 同一 PRD 的其他 Child Issues（advisory，/story 填充）|
 | Parent | 父 Issue 引用（如有）|
 | What to build | 端到端行为描述 |

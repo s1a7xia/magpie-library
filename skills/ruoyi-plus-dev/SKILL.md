@@ -1,6 +1,6 @@
 ---
 name: ruoyi-plus-dev
-description: "Use when writing or changing Java business code, plus-ui Vue/TypeScript, or SQL in a confirmed RuoYi-Vue-Plus 6.X project, or when project configuration selects this coding profile. Provides team framework conventions and verification gates. For diagnosis, diff review or planning, keep debug/review/think/grill as the active workflow and load this profile as context. Trigger words: ruoyi-plus-dev, RuoYi-Vue-Plus, 若依Plus, 若依编码规范."
+description: "RuoYi-Vue-Plus 6.x coding profile for Java backend, plus-ui Vue/TypeScript, and SQL. Default technical profile when the project does not select another one; load for business-code changes in a confirmed RuoYi project. Diagnosis, review, and planning keep their own workflow. Triggers: ruoyi-plus-dev, RuoYi-Vue-Plus, 若依Plus, 若依, Java 业务代码, plus-ui, Vue 页面, SQL."
 ---
 
 # RuoYi-Vue-Plus Development Profile

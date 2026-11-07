@@ -10,9 +10,18 @@ This file registers the project's coding conventions. Consumer skills load it th
 - **Additional standards**: `<project-relative paths to maintained team conventions, or none>`
 - **Source of API truth**: `<actual module, generator templates, and reference implementations>`
 
-Choose a profile only when the project or user identifies it. A Java/Vue dependency alone does not establish that the project uses RuoYi-Vue-Plus. When a profile is registered, also carry its hard constraints (the framework-specific "do nots" and required checks) into **Additional standards** or **Project decisions and exceptions**, so they are visible in the project without loading the profile skill. Do not leave placeholders in generated configuration.
+Setup registers the global default `ruoyi-plus-dev` unless the user selects a project override. A user-confirmed non-RuoYi project must record `none` or a named alternative and the reason; explicit `none` suppresses the global default in later sessions. A Java/Vue dependency alone does not establish that the project uses RuoYi-Vue-Plus. When a profile is registered, also carry its hard constraints (the framework-specific "do nots" and required checks) into **Additional standards** or **Project decisions and exceptions**, so they are visible in the project without loading the profile skill. Do not leave placeholders in generated configuration.
 
-## Verification
+## Project engineering principles
+
+Record only project-specific rules here. The global Magpie instructions already own working principles, workflow routing, page-acceptance timing, and Git policy; do not copy them into this file.
+
+- **Scope:** `<which modules and file types these rules govern>`
+- **File-size / complexity bound:** `<actual project convention, or none>`
+- **Dependency-check locations:** `<where to look before adding a dependency>`
+- **Project-specific constraints:** `<multi-tenancy, data scope, encryption, compatibility, or none>`
+
+## Verification quick reference
 
 | Stage / affected change | Required check and applicability | Command and working directory | Evidence |
 |---|---|---|---|

@@ -1,6 +1,6 @@
 ---
 name: page-acceptance
-description: "Page testing through the real UI: a separate stage, started explicitly by the user after a batch of implementation is finished. Verifies a change actually works when rendered — a new or modified page, form, table, dialog, dashboard, permission-gated control, or styling change. Trigger words: 页面测试、页面验收、功能自测、冒烟测试、走一遍页面、UI 走查、点一遍看看. Not run automatically inside implement; compilation and code review do not substitute for it."
+description: "Test a rendered change in the real UI: render, visual finish, interaction, data round-trip, permission, console/network. Use when the user says 页面测试、页面验收、功能自测、冒烟测试、UI 走查、走一遍页面. Separate from implement; compile and code review do not substitute."
 ---
 
 # Page Acceptance
@@ -51,6 +51,17 @@ Load the entry route, then confirm the page rendered before judging the feature:
 
 Record what you saw. A failed request that predates your change is still worth naming, but separate it from the change under test.
 
+### Visual layer (when the change is visual)
+
+For a new or restyled page, a layout change, or any claim about "looks better", check the rendered pixels against the project's UI standard and the craft floor:
+
+- No unintended horizontal overflow at a narrow viewport.
+- Button labels stay on one line.
+- Dark-mode text, secondary text, borders and disabled states remain legible.
+- Dialogs, dropdowns, date pickers, tooltips and drawers have no z-index collision.
+
+If the project has a UI standard (for RuoYi-Vue-Plus: [RuoYi UI 规范](../ruoyi-plus-dev/references/ui-design.md)), use it as the acceptance reference. If the change is a deliberate design direction, compare the screenshot with the stated intent rather than with personal taste. Keep at least one screenshot for every visual claim.
+
 ## Step 3 — Walk the main path
 
 Drive the change the way a user would, through the rendered controls only.
@@ -86,11 +97,12 @@ Report each layer separately and never merge them into a single "done":
 | Layer | Meaning |
 |---|---|
 | Render | Page, table, form, states draw correctly |
+| Visual | Layout, spacing, color, overflow, contrast and layer order match the project standard |
 | Interaction | Controls respond; dialogs, dropdowns and pagination behave |
 | Data | Values round-trip correctly through create/read/update/delete |
 | Permission | Controls and requests match the role under test |
 
-Name the untested items. A passing main path does not imply passing boundaries, other roles, or other pages.
+Name the untested items. A passing main path does not imply passing boundaries, other roles, or other pages. A functional pass does not imply a visual pass; report them separately.
 
 ## Step 7 — Write the verdict back
 
@@ -100,6 +112,8 @@ Persist the result in the same turn; a browser-only report leaves the project st
 - **`accepted with caveats`** — keep the tested scope at `Accepted` only when the caveats are outside its acceptance criteria. Record each unexercised role, boundary or page as an explicit remaining gap; otherwise keep it at `Dev Complete`.
 - **`not accepted` or `blocked`** — keep the status at `Dev Complete`. Record the failing step, symptom and evidence. Enter `debug` for the confirmed defect, then re-test only the affected path.
 - **No PRD or slice exists** — still write the evidence to `docs/agents/verification.md` when that file is configured; otherwise report it and name the missing record instead of inventing a status.
+
+When `docs/agents/project-state.md` exists, update its **Workflow status → Page acceptance** row in the same turn: `Passed`, `Blocked`, or `In Progress`, with the tested routes and a one-line next step. Do not rewrite the rest of the dashboard.
 
 After a defect fix passes re-testing, update the same verdict record — do not append a contradictory second "accepted" entry.
 
@@ -111,6 +125,7 @@ Commit and push the verdict update with the affected slice's repository state. I
 - **Snapshot, then act, then snapshot again.** Element references go stale after navigation, dialog open/close, dropdown expansion, and table refresh. Re-read the interactive elements after any of these.
 - **Never dump a full component-tree DOM.** Component libraries nest deeply and the dump destroys the working context. Read the compact interactive-element list instead.
 - **Judge visuals from pixels, not source.** Any claim about layout, spacing, color or polish needs a rendered screenshot.
+- **A functional pass is not a visual pass.** When the change is visible, record the visual layer separately; "works" and "looks right" are different claims.
 - **Keep the scope.** Do not turn one page check into a full regression sweep.
 
 ## Gotchas
@@ -134,6 +149,7 @@ Scope:      <main path> + <boundary>
 Account:    <role>              Data: <read-only | created and cleaned up | leftover: ...>
 
 Render:      pass | fail | not checked — <what was seen>
+Visual:      pass | fail | not checked — <overflow, button wrap, contrast, z-index, screenshot>
 Interaction: pass | fail | not checked — <steps and results>
 Data:        pass | fail | not checked — <round-trip evidence>
 Permission:  pass | fail | not checked — <role and control/request behavior>

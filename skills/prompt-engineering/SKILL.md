@@ -1,6 +1,6 @@
 ---
 name: prompt-engineering
-description: Improve prompts or internally turn complex, ambiguous, high-risk, or cross-step requests into an explicit task contract before executing them. Covers objective, context, constraints, acceptance criteria, output boundaries, and target-model techniques. Use when the user asks for a reusable prompt, mentions /prompt-engineering or prompt optimization, or when execution is requested but the raw request is draft-like, cross-step, or high-impact. Do not add a prompt-refinement pass to simple, clear, low-risk tasks, and do not show the internal prompt unless the user asks for it.
+description: Turn complex, ambiguous, high-risk, or cross-step requests into an explicit task contract before execution. Use for reusable prompts, /prompt-engineering, or draft-like execution requests. Skip simple, clear, low-risk tasks; do not show the internal prompt unless asked.
 license: MIT
 ---
 

@@ -39,7 +39,7 @@
 | `gh` | `2.103.2` | 可选 | GitHub CLI 兜底；MCP 不可用时的只读排查 |
 | `glab` | `1.128.0` | 可选 | GitLab 任务和 MR；当前明确不启用 `glab mcp serve` |
 | `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用 |
-| `agent-browser` | **未安装** | 可选 | 浏览器自动化 CLI；未安装时页面验收使用当前 Agent 已有浏览器能力 |
+| `agent-browser` | 技能已安装 / CLI 未在 PATH | 可选 | 浏览器自动化；未安装 CLI 时页面验收使用当前 Agent 已有浏览器能力 |
 | Google Chrome | 已安装 | 页面验收时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
 | Microsoft Edge | 已安装 | 页面验收后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 
@@ -296,7 +296,7 @@ magpie tools
 agent-browser --version
 ```
 
-当前机器没有该命令，预期失败，不代表整套资源库损坏。页面验收优先使用当前 Agent 已有的浏览器工具；需要跨机器统一行为时再安装 `agent-browser`。
+当前机器没有该命令，预期失败，不代表整套资源库损坏。技能目录存在，但 CLI 不在 PATH；页面验收优先使用当前 Agent 已有的浏览器工具。需要跨机器统一行为时再安装 `agent-browser`，并在新会话中确认。
 
 ## 8. 常见故障
 
@@ -321,7 +321,7 @@ agent-browser --version
 
 1. **全局规则只分发 Codex**：其他 Agent 需要单独确认是否能承载相同约束。
 2. **逐 Agent 技能启用不统一**：多数流程技能只勾选 Codex；共享目录存在不等于所有 Agent 已启用。
-3. **`agent-browser` 未安装**：页面验收依赖当前 Agent 的浏览器能力，跨机器一致性尚未补齐。
+3. **`agent-browser` CLI 未安装**：技能目录存在，但 CLI 不在 PATH；页面验收暂依赖当前 Agent 的浏览器能力，跨机器一致性尚未补齐。
 4. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
 5. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
 6. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。

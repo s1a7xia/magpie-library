@@ -1,9 +1,9 @@
 # Engineering Principles (seed template)
 
 <!--
-Seed for the `## Engineering principles` section written into the repo's AGENTS.md/CLAUDE.md,
-immediately after the `## Agent skills` block. Tailoring rules (apply before writing; the result
-is confirmed with the user in Step 4E / Step 5):
+Seed for the `## Project engineering principles` section written into
+`docs/agents/coding-standards.md`. Tailoring rules (apply before writing; the result is confirmed
+with the user in Step 4E / Step 5):
 
 - Language: render the section in the team's documentation language (docs/agents/language.md) —
   translate headings and prose; keep commands, paths, and identifiers as-is.
@@ -21,7 +21,7 @@ These are project-level mandates for the target repo. They complement the dev-sk
 intentional. Keep the section self-contained — no links into install-path-dependent skill files.
 -->
 
-## Engineering principles
+## Project engineering principles
 
 These principles govern all engineering work in this repo — planning, implementation, review. They are enforced in design and code, not aspirations.
 

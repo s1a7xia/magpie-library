@@ -24,12 +24,39 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def is_backup(path: Path) -> bool:
+    return ".bak" in path.name or path.name.endswith("~")
+
+
 def skill_files(root: Path) -> list[Path]:
     return [
         item
         for item in root.rglob("*")
         if item.is_file()
+        and not is_backup(item)
         and not any(part in {".git", "node_modules", "__pycache__"} for part in item.parts)
+    ]
+
+
+def frontmatter(text: str) -> dict[str, str]:
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.S)
+    if not match:
+        return {}
+    fields: dict[str, str] = {}
+    for line in match.group(1).splitlines():
+        if ":" not in line or line.startswith((" ", "\t")):
+            continue
+        key, value = line.split(":", 1)
+        fields[key.strip()] = value.strip().strip("\"'")
+    return fields
+
+
+def markdown_links(text: str) -> list[str]:
+    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    text = re.sub(r"`[^`]*`", "", text)
+    return [
+        match.group(1).strip()
+        for match in re.finditer(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text)
     ]
 
 
@@ -112,6 +139,114 @@ def main() -> int:
                 )
             else:
                 checks.append(f"all skill copies match the library in {target_label}")
+
+        skill_dirs = {
+            item.name
+            for item in source_skills.iterdir()
+            if item.is_dir() and (item / "SKILL.md").is_file()
+        }
+        declared_names = [
+            item.get("name") for item in data.get("skills", []) if item.get("name")
+        ]
+        declared = set(declared_names)
+        if len(declared_names) != len(declared):
+            errors.append("library.json contains duplicate skill names")
+        if skill_dirs != declared:
+            errors.append(
+                "library.json skill list differs from skills/ directories: "
+                f"missing={sorted(skill_dirs - declared)}, extra={sorted(declared - skill_dirs)}"
+            )
+        else:
+            checks.append(f"library.json lists all {len(skill_dirs)} skills")
+
+        backups = [
+            item for item in source_skills.rglob("*") if item.is_file() and is_backup(item)
+        ]
+        if backups:
+            warnings.append(
+                f"backup files remain under skills/ ({len(backups)}); move them out before sync"
+            )
+
+        external = {
+            item.get("name")
+            for item in data.get("skills", [])
+            if item.get("name") and item.get("source")
+        }
+        seen_names: set[str] = set()
+        malformed: list[str] = []
+        long_descriptions: list[str] = []
+        link_errors: list[str] = []
+        link_count = 0
+        skip_links = {"ruoyi-plus-dev/references/ry-coding.md"}
+        for skill_dir in sorted(source_skills.iterdir()):
+            skill_md = skill_dir / "SKILL.md"
+            if not skill_md.is_file():
+                continue
+            text = skill_md.read_text(encoding="utf-8")
+            fields = frontmatter(text)
+            name = fields.get("name", "")
+            description = fields.get("description", "")
+            if name != skill_dir.name:
+                malformed.append(f"{skill_dir.name}: name is {name!r}")
+            if not description:
+                malformed.append(f"{skill_dir.name}: missing description")
+            elif skill_dir.name not in external and len(description) > 800:
+                long_descriptions.append(f"{skill_dir.name}: {len(description)} chars")
+            if name in seen_names:
+                malformed.append(f"{skill_dir.name}: duplicate name {name!r}")
+            seen_names.add(name)
+
+        for markdown in sorted(source_skills.rglob("*.md")):
+            rel = markdown.relative_to(source_skills).as_posix()
+            if rel in skip_links:
+                continue
+            for target in markdown_links(markdown.read_text(encoding="utf-8")):
+                if target.startswith(("http://", "https://", "#", "mailto:", "codex:", "file:")):
+                    continue
+                if any(char in target for char in "<>{}"):
+                    continue
+                if target in {"URL", "direct-URL"} or target.startswith("/") or re.match(
+                    r"^[A-Za-z]:", target
+                ):
+                    continue
+                target_path = target.split("#", 1)[0]
+                if not target_path:
+                    continue
+                link_count += 1
+                if not (markdown.parent / target_path).exists():
+                    link_errors.append(f"{rel} -> {target}")
+
+        if malformed:
+            errors.extend(f"skill frontmatter: {item}" for item in malformed)
+        else:
+            checks.append("skill frontmatter names match directories")
+        if long_descriptions:
+            warnings.append(
+                "skill descriptions above 800 chars: " + ", ".join(long_descriptions)
+            )
+        if link_errors:
+            errors.extend(f"broken relative link: {item}" for item in link_errors)
+        else:
+            checks.append(f"relative links resolve ({link_count} checked)")
+
+        inline_credentials = []
+        for server in data.get("mcp", []):
+            headers = server.get("headers", {})
+            if not isinstance(headers, dict):
+                continue
+            for key, value in headers.items():
+                if (
+                    key.lower() == "authorization"
+                    and isinstance(value, str)
+                    and "{{" not in value
+                    and re.search(r"\bBearer\s+[A-Za-z0-9._-]{20,}", value)
+                ):
+                    inline_credentials.append(server.get("name", "<unnamed>"))
+        if inline_credentials:
+            warnings.append(
+                "MCP headers contain inline credentials (move to Magpie placeholders): "
+                + ", ".join(sorted(set(inline_credentials)))
+            )
 
     print("Magpie library health check")
     print("=" * 32)

@@ -23,9 +23,9 @@ Check the PRD's `## Traceability` section for each of these signals and note the
 
 | Signal | Meaning | Note |
 |--------|---------|------|
-| PRD is not `Status: Grilled` or newer | Requirements may not be frozen | Confirm the frozen baseline before proceeding |
-| `Open Questions` or `TODO` markers remain | Decisions unresolved | Flag uncertainty in output |
-| `Grilled by` field empty | Plan not validated against domain model | Proceed but note plan is unvalidated |
+| PRD is not `Status: Grilled` or newer | Requirements are not frozen | Stop; return to `think` → `grill` |
+| `Open Questions` or `TODO` markers remain | Decisions unresolved | Stop; return to `grill` |
+| `Grilled by` field empty | Plan not validated against domain model | Stop; return to `grill` |
 
 ### Filing-Consistency Check
 
@@ -41,15 +41,19 @@ While scanning domain docs, flag (report, do not auto-fix):
 
 ### Determine Work Items
 
-Priority order for determining what to implement:
+Work items come from the approved slice list. Do not create a second work breakdown here:
 
 1. **Issues from `/story`** — read the `## Sliced into` list in the PRD. Each issue is a seam. Read each issue's body for its Acceptance Criteria and blocked-by relationships.
-2. **PRD Acceptance Criteria** — if no issues exist, extract the `## Acceptance Criteria` section from the PRD as work items.
-3. **User description** — if only a verbal description is given, confirm work items with the user before proceeding.
+2. **No slice list** — stop and return to `/story`. A PRD alone is a frozen baseline, not an implementation batch.
+3. **No PRD** — a small, clear change is handled by direct implementation; a larger request returns to `think` → `grill`.
 
 ### Dependency Ordering
 
 Check each issue for `Blocked by` references in its body. Implement non-blocked items first, then their dependents. If no explicit dependencies exist, implement in the order listed in `## Sliced into`.
+
+### Coverage Pre-check
+
+Read every slice's `Covers` field and compare it with the PRD's numbered `Requirements` (`R#`) and `Acceptance Criteria` (`AC#`). Every PRD acceptance criterion must be assigned to at least one slice before coding starts. If a criterion is unassigned, stop and return to `story`; if the PRD has no stable IDs, treat coverage as unverifiable and return to `story`/`grill` to label it. Do not add a new requirement or silently widen a slice. Record `Coverage: <assigned>/<total>` in the batch evidence.
 
 ### PRD Status Update
 
@@ -108,7 +112,7 @@ Implemented <what>.
 - Commit only the changes related to this item
 - Do not commit changes that belong to a different work item — **minimal change per commit** (anti-pattern #5)
 - If the working tree has pre-existing dirty state unrelated to this session, warn the user before committing
-- Include the slice's status and affected runtime documentation in the same commit
+- Include the slice's PRD status in the same commit. Update `project-state.md` and `verification.md` once at batch close-out; the verification entry carries the actual compile result for each slice in that batch.
 - After pushing, verify the remote reference; if the push fails, report the slice as committed but not pushed
 
 **Commit message examples:**
@@ -132,7 +136,7 @@ Closes #43
 After each item is committed and pushed, update the PRD's `## Sliced into` list. Change the relevant slice's status from `— In Progress` or no marker to `— Dev Complete`:
 
 ```
-- #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Dev Complete
+- #<issue-1> — [PRD-NNNN] <slice title> (AFK) — covers: R1, AC1 — Dev Complete
 ```
 
 `Dev Complete` means code is implemented, compiled, committed and pushed. It does not mean accepted or done: page testing and review are separate stages.
@@ -141,10 +145,13 @@ After each item is committed and pushed, update the PRD's `## Sliced into` list.
 
 After all items in the batch are implemented and pushed:
 
-1. Compile the affected sides once more and record the commands and results.
-2. List every slice with its commit hash, push state and `Dev Complete` or unverified status.
-3. Set the PRD status to `Dev Complete` only when every slice is implemented, compiled and pushed; otherwise keep `In Progress` and name the blockers.
-4. Do not open a browser, run page acceptance, run a full review or mark the PRD `Done`.
+1. Compile the affected sides once more and record the commands and results, retaining each slice's compile command/result in the batch evidence.
+2. Run the coverage gate: every PRD requirement and acceptance criterion maps through `Covers` to a slice that is `Dev Complete`. Report `Coverage: <n>/<n>` and name every gap.
+3. If a PRD criterion has no slice, keep the PRD `In Progress` and return to `story` for a new slice (with a PRD Change Log entry when scope changed). If the slice exists but the code does not satisfy it, fix that slice and recompile.
+4. Update `project-state.md` once with the batch objective, completed slices and next step; update `verification.md` once with the actual per-slice compile results and any gaps.
+5. List every slice with its commit hash, push state and `Dev Complete` or unverified status.
+6. Set the PRD status to `Dev Complete` only when every slice is implemented, compiled, pushed and its `Covers` criteria are accounted for; otherwise keep `In Progress` and name the blockers.
+7. Do not open a browser, run page acceptance, run a full review or mark the PRD `Done`.
 
 ## Step 5: Hand Off to Page Testing
 
@@ -153,6 +160,7 @@ Present the batch state to the user:
 ```
 All <N> work items implemented; compile checks, commits and pushes completed.
 Compile: PASS | FAIL | NOT RUN (reason)
+Coverage: <n>/<n> PRD acceptance criteria assigned; gaps: <none | IDs>
 
 Next: Start page testing for <routes/pages>. Page acceptance is a separate, user-initiated stage.
 ```
@@ -182,8 +190,8 @@ If a change for item B breaks compilation for previously implemented item A:
 If the working tree has uncommitted changes before starting:
 
 1. Warn the user: "Working tree has uncommitted changes from outside this session."
-2. Ask: "Stash them and proceed, or commit them separately?"
-3. Follow the user's choice. Do not include unrelated changes in implement commits.
+2. Stop the affected slice when the changes cannot be separated safely. Do not stash, revert, or include unrelated changes in implement commits.
+3. Resume only after the user resolves or explicitly assigns those changes.
 
 ### Compile Command Not Found
 
