@@ -204,7 +204,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
 - **Engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E)
-- **Technical profile**: auto-detect from the installed profile skills and their signature files (see Section F). Present the detected result as a default, e.g. "detected: ruoyi-plus-dev (root POM declares org.dromara / ruoyi-vue-plus)". Ask only when no signature matches or signals conflict — never infer a profile from language or framework alone
+- **Technical profile**: default to `ruoyi-plus-dev` (RuoYi-Vue-Plus) with no framework-signature probe and no "is this RuoYi?" question (see Section F). Exclude it only when the user identifies the project as non-RuoYi; use another installed profile only when the user names it. Read the checkout only to fill the exact version, governed paths and real commands
 
 ## Step 4: Ask for Overrides
 
@@ -280,19 +280,16 @@ If the file already carries a hand-written `## Engineering principles` (or equiv
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. Include the Coding standards section in the AGENTS.md/CLAUDE.md block below when this file is configured. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Detect the technical profile from its signature — ask only on ambiguity.** Language and framework alone are not a profile (`Java` + `Vue` does not mean RuoYi-Vue-Plus), but a real profile has unambiguous markers. For each installed profile skill, use the signature it names and verify it in the checkout; a match is a fact, not a guess.
+**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-plus-dev` applies by default. Put it in the Step 5 confirmation draft together with everything else; the draft is the user's chance to say the project is non-RuoYi. Never ask a separate "is this RuoYi?" question. A different installed profile is selected only when the user names it.
 
-- **RuoYi-Vue-Plus** (`ruoyi-plus-dev`): the root POM declares `org.dromara` / `ruoyi-vue-plus`, or `<name>RuoYi-Vue-Plus</name>`; the module layout contains `ruoyi-admin`, `ruoyi-common`, `ruoyi-modules`. The exact version comes from the parent POM, never from a guess.
-- **No signature match, or conflicting signals** (for example a RuoYi fork renamed to another groupId, or several profiles matching): ask one question listing only the installed profiles that could apply, and record "none" when the user rules them out. Do not stall on a question the files already answer.
+For the default or a user-named profile, read the checkout only to establish registration facts — the exact version, governed module paths and real verification commands. Do not use those facts to re-decide whether the default applies. For RuoYi-Vue-Plus, take the exact version from the parent POM, never from a guess.
 
-A detected profile goes into the Step 5 confirmation draft together with everything else — that is the user's chance to correct it. Do not ask a second, separate "is this RuoYi?" question after detection.
-
-**Once a profile is established** (signature match, or the user's answer when it was ambiguous), register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
+**Once a profile is established** (the default, a user-named alternative, or none), register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
 
 - Record the profile by name, its version/stack, and the scope it governs (modules, file types, languages).
 - Carry the profile's hard constraints into the registration — either the **Additional standards** field or an explicit **Project decisions and exceptions** entry. For a RuoYi-Vue-Plus profile these include "do not introduce original-RuoYi APIs", "check `sys_config`/`sys_dict_*` and existing entities before adding a table", and "background tasks declare service identity and data scope".
 - Keep the profile's full rules in the profile skill; register the pointer plus project-specific additions. Do not copy the entire profile into the workflow skills.
-- If the project is not that stack, omit the profile and say why (e.g. "Java/Vue only — not a confirmed RuoYi-Vue-Plus project").
+- When the user identifies the project as non-RuoYi, exclude the default profile, record the named alternative or "none", and say why.
 
 Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. With no extra conventions and no confirmed profile, omit the optional file.
 

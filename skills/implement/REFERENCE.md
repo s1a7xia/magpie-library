@@ -23,7 +23,7 @@ Check the PRD's `## Traceability` section for each of these signals and note the
 
 | Signal | Meaning | Note |
 |--------|---------|------|
-| `Created by: /story (minimal PRD)` | Requirements may not be decision-complete | Confirm acceptance criteria with user before proceeding |
+| PRD is not `Status: Grilled` or newer | Requirements may not be frozen | Confirm the frozen baseline before proceeding |
 | `Open Questions` or `TODO` markers remain | Decisions unresolved | Flag uncertainty in output |
 | `Grilled by` field empty | Plan not validated against domain model | Proceed but note plan is unvalidated |
 
@@ -74,39 +74,28 @@ the project is documentation-driven, so the PRD or issue body is the contract.
 1. **Understand the behavior** — read the issue body or PRD acceptance criteria
 2. **Implement** — write the minimal code that satisfies the acceptance criteria
 3. **Apply engineering principles design-time** — there is no separate Refactor phase behind this path. Consult [../rules/engineering-principles.md](../rules/engineering-principles.md) while writing; its Consumer & Ownership Map lists this path against every principle, in design-time terms. Read each entry's *When NOT to apply* before restructuring anything — the counter-indications are what keep this from becoming speculative abstraction.
-4. **Run authorized checks** — when the current request, project profile or this stage authorizes checks, run them and make them pass; otherwise record that verification was not run
+4. **Run the required compile check** — compile the affected side with the project's real build command and make it pass; otherwise record the slice as unverified
 5. **Tests** — write or run tests only when the current request explicitly asks for test work
 
-### 3b. Typechecking
+### 3b. Compilation
 
 After each item is implemented:
 
-1. Detect the project's typechecker from existing config files:
-   - `tsconfig.json` → `tsc --noEmit`
-   - `pyproject.toml` with `[tool.mypy]` → `mypy .`
-   - `Cargo.toml` → `cargo check`
-   - `Makefile` with `typecheck` target → `make typecheck`
-   - `package.json` with `typecheck` script → `npm run typecheck`
-   - Other patterns as discovered
-2. Run the typechecker when verification is authorized. If it fails, **read the error output and diagnose** (anti-pattern #12 — ignoring error output). Fix type errors before proceeding.
+1. Take the actual backend/frontend compile commands and working directories from the project config, build files or verified run instructions.
+2. Run only the affected side: backend for backend changes, frontend for frontend changes, both when both changed.
+3. If it fails, read the error output, fix the cause and re-run. Do not substitute a separate typechecker, lint run or full test suite for the required compile check.
 
-If no typechecker is detected, skip silently and note the absence in the output.
+If no real compile command can be found, mark the slice unverified and name the missing command; do not invent one.
 
-### 3c. Testing
+### 3c. Testing Boundary
 
-After typechecking passes:
+Compilation is the normal slice gate. Do not run tests unless the current request explicitly asks for test work. Page testing is a separate stage in `page-acceptance`, started by the user after the batch is pushed.
 
-1. Identify the most specific test target for the changed files:
-   - Single test file: `npm test -- --grep <pattern>` or `pytest tests/test_foo.py`
-   - Module-level: `npm run test -- --dir src/foo` or `pytest tests/foo/`
-2. Run that target when verification is authorized. All tests must pass.
-3. If tests fail, fix the implementation and re-run. When tests are not authorized, report them as not run.
-
-**Verify the artifact, not just the source** (anti-pattern #17) — ensure the test runner actually executed and reported results. Paste the output as evidence (anti-pattern #6 — claim without evidence).
+When tests are explicitly requested, run only the requested minimal target and report its actual output. When they are not requested, record `not run — outside current request`; never imply that compilation proves runtime behavior.
 
 ### 3d. Committing
 
-When local commit authorization applies, commit with a descriptive message:
+Commit each slice separately with a descriptive message, then push it to the existing upstream on the current branch. Never create a feature branch for one requirement.
 
 ```
 [PRD-NNNN] <seam title> — <summary>
@@ -119,6 +108,8 @@ Implemented <what>.
 - Commit only the changes related to this item
 - Do not commit changes that belong to a different work item — **minimal change per commit** (anti-pattern #5)
 - If the working tree has pre-existing dirty state unrelated to this session, warn the user before committing
+- Include the slice's status and affected runtime documentation in the same commit
+- After pushing, verify the remote reference; if the push fails, report the slice as committed but not pushed
 
 **Commit message examples:**
 ```
@@ -132,61 +123,59 @@ Closes #42
 [PRD-0003] Subscription management UI — view/cancel/upgrade
 
 Implemented subscription management page with view, cancel, and upgrade flows.
-Includes E2E tests for all three actions.
+Page testing remains a separate stage.
 Closes #43
 ```
 
-### PRD Issue Status Update
+### Slice Status Update
 
-After each item is committed, update the PRD's `## Sliced into` list. Change the relevant issue's status from `— In Progress` or `— <empty>` to `— Done`:
-
-```
-- #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Done
-```
-
-If an implementation workflow already set the issue to `— In Progress`, update it to `— Done`.
-
-## Step 4: Full Test Suite
-
-After all items are implemented and committed (or left uncommitted for an explicit reason):
-
-1. Run the project's full test suite when authorized by the project profile or request (use the command used for CI or pre-merge testing)
-2. If all tests pass → proceed to Step 5
-3. If any authorized tests fail:
-   - Identify which item's changes caused the failure
-   - Return to Step 3 for that item
-   - Fix and re-commit (amend the previous commit for that item, or create a fixup commit)
-
-## Step 5: Recommend /review
-
-Present the completed state to the user:
+After each item is committed and pushed, update the PRD's `## Sliced into` list. Change the relevant slice's status from `— In Progress` or no marker to `— Dev Complete`:
 
 ```
-All <N> work items implemented; authorized checks and commits completed.
-Checks: PASS | NOT RUN (reason)
-
-Next: Run /review to review all changes before merge.
+- #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Dev Complete
 ```
 
-Do not auto-run `/review`. Follow the project's convention that skills do not auto-chain — the user explicitly invokes the next skill.
+`Dev Complete` means code is implemented, compiled, committed and pushed. It does not mean accepted or done: page testing and review are separate stages.
+
+## Step 4: Batch Close-out
+
+After all items in the batch are implemented and pushed:
+
+1. Compile the affected sides once more and record the commands and results.
+2. List every slice with its commit hash, push state and `Dev Complete` or unverified status.
+3. Set the PRD status to `Dev Complete` only when every slice is implemented, compiled and pushed; otherwise keep `In Progress` and name the blockers.
+4. Do not open a browser, run page acceptance, run a full review or mark the PRD `Done`.
+
+## Step 5: Hand Off to Page Testing
+
+Present the batch state to the user:
+
+```
+All <N> work items implemented; compile checks, commits and pushes completed.
+Compile: PASS | FAIL | NOT RUN (reason)
+
+Next: Start page testing for <routes/pages>. Page acceptance is a separate, user-initiated stage.
+```
+
+Do not auto-run page testing or `/review`. Wait for the user to start page acceptance; after it passes, the user decides whether to run a full review.
 
 ## Step 6: Output
 
 Produce the output template from SKILL.md, filling in:
 - Each work item with its implementation method and commit hash
 - PRD reference and current status
-- Full test suite result
-- Next step to `/review`
+- Compile result and any unverified slices
+- Next step to user-initiated `page-acceptance`
 
 ## Recovery Procedures
 
-### Test Suite Regression
+### Compile Regression
 
-If a change for item B breaks tests for previously implemented item A:
+If a change for item B breaks compilation for previously implemented item A:
 
 1. The dependency ordering was wrong — item B should have been implemented after A
 2. Fix item B's implementation to not break A
-3. Re-run tests for both A and B before proceeding
+3. Recompile both A and B before proceeding
 
 ### Dirty Working Tree
 
@@ -196,10 +185,10 @@ If the working tree has uncommitted changes before starting:
 2. Ask: "Stash them and proceed, or commit them separately?"
 3. Follow the user's choice. Do not include unrelated changes in implement commits.
 
-### Typechecker Not Found
+### Compile Command Not Found
 
-If no typechecker can be detected:
+If no real compile command can be found:
 
-1. Skip typechecking for all items
-2. Note in the output: "No typechecker detected — skipped typechecking"
-3. Proceed with testing
+1. Mark the affected slices unverified
+2. Record the missing command and the evidence gap in `verification.md`
+3. Do not invent a command or claim the slice compiled

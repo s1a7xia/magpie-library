@@ -10,7 +10,7 @@ description: "Page testing through the real UI: a separate stage, started explic
 # Outcome Contract
 
 - **Outcome**: A verdict on the changed surface, backed by what was observed in a real browser.
-- **Done when**: The declared scope has been exercised end to end through the UI, console and network were checked, failures were either fixed and re-run or reported as failures, and anything not exercised is named.
+- **Done when**: The declared scope has been exercised end to end through the UI, console and network were checked, failures were either fixed and re-run or reported as failures, anything not exercised is named, and the verdict has been written back to the project record.
 - **Evidence**: URL, browser tool, step sequence, observable result per step, screenshots for visual claims, console/network findings, and the data touched.
 - **Output**: Layer-by-layer verdict — render, interaction, data, permission — plus scope and untested items.
 
@@ -19,7 +19,7 @@ description: "Page testing through the real UI: a separate stage, started explic
 - **Started by the user, after development.** A batch of slices is finished and pushed; the user says "开始页面测试" or names the pages. Do not start on your own, and never inside `implement`.
 - **Unattended runs skip it.** A goal running without the user does not open a browser, does not need a login session or captcha. It stops with the slices marked `Dev Complete` and says page testing is pending.
 - **Fixes are re-tested narrowly.** When a defect is fixed, re-run only the affected page and path — not the whole batch. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
-- **Passing this stage is what allows `Done`.** An implemented-but-untested UI change stays `Dev Complete`.
+- **Passing this stage produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing full review when one was requested.
 
 ## Step 0 — Declare the scope
 
@@ -91,6 +91,19 @@ Report each layer separately and never merge them into a single "done":
 | Permission | Controls and requests match the role under test |
 
 Name the untested items. A passing main path does not imply passing boundaries, other roles, or other pages.
+
+## Step 7 — Write the verdict back
+
+Persist the result in the same turn; a browser-only report leaves the project status stale.
+
+- **`accepted`** — set the tested PRD or slice from `Dev Complete` to `Accepted`. Tick only the acceptance criteria actually exercised. Append the URL/route, account role, main path, boundary, console/network result, evidence paths and date to `docs/agents/verification.md`, marked as verified by the agent. Do not mark `Done` and do not close Issues without separate authorization.
+- **`accepted with caveats`** — keep the tested scope at `Accepted` only when the caveats are outside its acceptance criteria. Record each unexercised role, boundary or page as an explicit remaining gap; otherwise keep it at `Dev Complete`.
+- **`not accepted` or `blocked`** — keep the status at `Dev Complete`. Record the failing step, symptom and evidence. Enter `debug` for the confirmed defect, then re-test only the affected path.
+- **No PRD or slice exists** — still write the evidence to `docs/agents/verification.md` when that file is configured; otherwise report it and name the missing record instead of inventing a status.
+
+After a defect fix passes re-testing, update the same verdict record — do not append a contradictory second "accepted" entry.
+
+Commit and push the verdict update with the affected slice's repository state. If the evidence belongs to a batch already pushed, use one documentation commit for this testing round; do not rewrite history or create a feature branch.
 
 ## Hard rules
 

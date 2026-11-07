@@ -44,13 +44,13 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 | **Sliced** | PRD 已拆分为 Issues，Traceability 的 `Sliced into` 列表已填充 | `/story` |
 | **In Progress** | 至少一个 Child Issue 开始实现 | 实现工作流首次执行 |
 | **Dev Complete** | 所有切片代码写完、编译通过、已提交推送，但**未做页面测试** | `implement` 批次结束 |
-| **Accepted** | 用户发起的页面测试通过，确认缺陷已修复并复测 | `page-acceptance` 通过 |
-| **Done** | 所有 Child Issues 关闭，验收标准满足，代码已合并；完整 review（若用户要求）已通过 | `/review` 或人工 |
+| **Accepted** | 用户发起的页面测试通过，确认缺陷已修复并复测，验收证据已落盘 | `page-acceptance` 通过 |
+| **Done** | `Accepted` 已完成，所有 Child Issues 关闭，代码已合并；用户要求的完整 review 已通过 | `/review` 或人工 |
 | **Deprecated** | PRD 被放弃或替代（从任意前置状态可达） | 人工标记 |
 
-**状态与代码的关系**: `Done` 判定**以代码为唯一事实源**——不依赖 Issue 关闭状态或口头确认，而是验证：
+**状态与代码的关系**: `Done` 判定以代码和验收证据为准——不依赖 Issue 关闭状态或口头确认，而是验证：
 - 对应功能代码已合并到主分支
-- 测试覆盖 Acceptance Criteria 并通过
+- 声明的页面测试范围已通过，Acceptance Criteria 已按实际验证结果勾选（用户明确要求但未运行的测试必须标为未验证，不能写成通过）
 - 无 `[TEMPORARY]` / `TODO(prd-NNNN)` 残留标记
 
 **Status 字段格式**（放在 PRD 模板中 `# <Feature Name>` 之后的第一行）:
@@ -104,10 +104,10 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 
 ## Definition of Done
 
-* Tests added/updated (unit/integration where appropriate)
-* Lint / typecheck / CI green
-* Docs/notes updated if behavior changes
-* Rollout/rollback considered if risky
+* 声明的验收标准已在约定范围内验证通过，未验证项已列明
+* 受影响的前后端编译通过；用户明确要求的其他检查通过
+* 行为变化涉及的文档已同步
+* 有风险时已说明上线与回退方式
 
 ## Change Log
 
@@ -173,10 +173,11 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 - **Grilled by**: `/grill` (completed <YYYY-MM-DD>) — <summary: terms sharpened, assumptions resolved, ADRs created>
 - **Sliced by**: `/story` (completed <YYYY-MM-DD>) — child issues listed under `Sliced into` below
 - **Sliced into**:
-  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Done
+  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Dev Complete
   - #<issue-2> — [PRD-NNNN] <slice title> (HITL, blocked by #<issue-1>) — In Progress
   - #<issue-3> — [PRD-NNNN] <slice title> (AFK)
 - **Implemented by**: implementation workflow (Issue reference)
+- **Accepted by**: `/page-acceptance` (<YYYY-MM-DD>) — <pages/routes and evidence location>
 - **Debugged by**: `/debug` (if bug fix touched this feature) — <bug summary + root cause>
 - **Arch reviewed by**: separate architecture review (if performed) — <finding summary>
 - **Reviewed by**: `/review` (PR reference)

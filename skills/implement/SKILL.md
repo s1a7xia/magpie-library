@@ -13,10 +13,10 @@ Sequences one batch of pre-agreed vertical slices: load the framework profile an
 
 ## Outcome Contract
 
-- **Outcome**: All items from the PRD's acceptance criteria or child issues are implemented, with authorized checks and review handled under the current request.
-- **Done when**: Each seam is complete against its acceptance criteria, authorized checks pass, review is recommended, and authorized commits exist.
-- **Evidence**: Authorized typecheck/test results, diff analysis, review outcome or explicitly deferred review, and commit hashes when committed.
-- **Output**: Summary of implemented items, authorized checks actually run, commits or uncommitted reason, next step.
+- **Outcome**: All items from the PRD's acceptance criteria or child issues are implemented, compile-checked, committed, and pushed. Page testing and review remain separate user-initiated stages.
+- **Done when**: Each slice is complete against its acceptance criteria, the affected side compiles, the slice is committed and pushed, and the PRD records `Dev Complete`. Unverified or blocked slices are named rather than marked complete.
+- **Evidence**: Compile commands, working directories, exit status and results; diff review; commit hashes and push state; PRD and project-state updates.
+- **Output**: Summary of implemented slices, compile evidence, commits and pushes, unverified items, and the explicit handoff to user-initiated page testing.
 
 ## Process Summary
 

@@ -33,7 +33,7 @@ Performs three independent review perspectives — Test Review, Code Review, Imp
 
 **Step 5 — Authorization gate**: Present the report and ask **one** question — approve the recommendation, or request changes. Merge/release and other actions are not part of the approval: they are requested (and authorized) separately per Chapter 6. Local doc updates are allowed when necessary; remote actions require current-turn explicit authorization.
 
-**Step 6 — Execute authorized actions**: Perform only actions the user explicitly requested in the current turn — local file updates, issue sync, release follow-through. If the review passes and the Issue belongs to a PRD's `Sliced into` list, update the Issue's status there to `— Done`. If all entries in `Sliced into` are `— Done`, update the PRD Status to `Done`. See [Authorization Boundaries](#authorization-boundaries).
+**Step 6 — Execute authorized actions**: Perform only actions the user explicitly requested in the current turn — local file updates, issue sync, release follow-through. A passing review does not bypass page acceptance: a slice that has not passed the user-initiated `page-acceptance` stays `Dev Complete`. A slice already `Accepted` may be marked `— Done` after review passes. Set the PRD to `Done` only when every slice is `— Done` and the project's other close-out conditions hold. See [Authorization Boundaries](#authorization-boundaries).
 
 See [REFERENCE.md](REFERENCE.md) for detailed checklists and report templates.
 

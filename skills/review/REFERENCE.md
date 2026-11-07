@@ -592,11 +592,12 @@ These updates are allowed **only when the review has verified the underlying cha
 
 **PRD Child Issues Status Sync:** When the review verifies a task is complete:
 1. From the Issue being reviewed, read `Meta → PRD` to locate the PRD
-2. Find the Issue in the PRD's `Sliced into` list
-3. Update the Issue's status marker: `— In Progress` → `— Done`
-4. Check if ALL Child Issues are marked `— Done`:
-   - If yes: update PRD `Status` from `In Progress` to `Done`
-   - If no: keep PRD `Status` as `In Progress`
+2. Find the slice in the PRD's `Sliced into` list
+3. Never turn `Dev Complete` into `— Done`: page acceptance is a separate user-initiated gate
+4. After review passes for an accepted slice, update its marker: `— Accepted` → `— Done`
+5. Check if ALL slices are marked `— Done`:
+   - If yes: update PRD `Status` from `Accepted` to `Done`
+   - If no: keep the status at `Accepted` or `Dev Complete` according to the page-acceptance evidence
 
 Perform these updates as part of the review when applicable. List what was updated in the report.
 

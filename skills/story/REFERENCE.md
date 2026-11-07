@@ -144,13 +144,15 @@ Add created issues to PRD's `## Traceability → Sliced into` section:
 
 ```markdown
 - **Sliced into**:
-  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Done
+  - #<issue-1> — [PRD-NNNN] <slice title> (AFK) — Dev Complete
   - #<issue-2> — [PRD-NNNN] <slice title> (HITL, blocked by #<issue-1>) — In Progress
   - #<issue-3> — [PRD-NNNN] <slice title> (AFK)
 ```
 
 **Status markers**:
-- `— Done` — Issue closed and code merged
+- `— Dev Complete` — code implemented, compiled, committed and pushed; page testing not yet passed
+- `— Accepted` — the declared page-testing scope passed
+- `— Done` — accepted, reviewed when requested, and closed/merged
 - `— In Progress` — Issue being implemented
 - No marker — Issue not started
 
