@@ -60,7 +60,7 @@ Rules moved off the always-loaded path because no skill cites them. Numbers are 
 | 23 | Promote one-off report to persistent rule | Guidance for rule-writers, not for skill execution; kept here for maintainers |
 | 24 | Local overlay as source of truth | Niche setup concern; setup-project writes tracked public files by construction |
 | 26 | Review request as worktree authorization | Covered by review's authorization boundaries chapter in spirit; rare in practice |
-| 31 | Compensatory complexity (elaborate workaround around misbehavior) | Rare; have-a-try/delete-or-absorb discipline covers the prototype case |
+| 31 | Compensatory complexity (elaborate workaround around misbehavior) | Rare; the delete-or-absorb discipline covers the prototype case |
 | 33 | Stale request after compression | Superseded for skill purposes by #36 (session recovery), which includes compression/resume re-read |
 
 ## Numbering history
@@ -85,4 +85,4 @@ Rules absorbed into a merged cluster (no direct successor): old #6 → #1, old #
 
 2026-07-05: twelve uncited rules (#2, #7, #9, #10, #11, #14, #22, #23, #24, #25, #26, #31, #33) moved to Archive after a full-repo citation sweep; main table now contains only rules with at least one citing consumer. See `docs/audits/2026-07-05-workflow-design-audit.md`.
 
-2026-09-14: **#25 returned to the main table**, broadened from "Scorecard without contract" to "Judgment without contract" — it now has two citing consumers (`review` Ch3 Engineering Principles, `improve-architecture` §4 Finding Quality Checklist), which is the condition the Archive rule sets for a return. Number unchanged. See `docs/audits/2026-07-03-anti-pattern-citation-audit.md` for the note superseding its archived name.
+2026-09-14: **#25 returned to the main table**, broadened from "Scorecard without contract" to "Judgment without contract" — it is cited by `review` Ch3 Engineering Principles and by the engineering-principles catalog, which is the condition the Archive rule sets for a return. Number unchanged. See `docs/audits/2026-07-03-anti-pattern-citation-audit.md` for the note superseding its archived name.

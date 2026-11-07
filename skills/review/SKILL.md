@@ -65,7 +65,7 @@ Default review is local inspection only. Local doc/PRD/CONTEXT/ADR updates are a
 - **Test coverage**: New code should have tests whenever the project profile or current request authorizes writing or running tests; otherwise record the gap as a risk. Review never writes tests on its own.
 - **Evidence first**: Every conclusion needs evidence. Run only authorized checks and never claim one passed without running it (anti-pattern #6). An unauthorized check is reported as not run.
 - **Verify the artifact, not just the source**: "tests pass, code looks right" is not done. Report each layer's status separately — source tests, build/package, CI, runtime — a missing layer is an explicit gap, not passing evidence (anti-pattern #17).
-- **Missing dependency**: `/improve-architecture`, `/have-a-try`, and `/write` are external; when one is unavailable, say so and keep the finding in this report instead of stalling or inventing its output.
+- **Missing dependency**: a skill this review names but that is not installed is not an implicit dependency. Complete the review with the steps here and record the uncovered capability instead of stalling, inventing a result, or asking for a skill the project never had.
 
 ## Integration Review
 

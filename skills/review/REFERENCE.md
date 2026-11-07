@@ -392,11 +392,11 @@ Perform full-chain impact analysis. Focus on what this change affects beyond the
 
 Do NOT review test quality or implementation quality — those belong to other perspectives.
 
-### Boundary with improve-architecture
+### Architecture Scope Boundary
 
 This perspective evaluates architecture impact **local to this change only**: does this specific diff introduce new coupling, violate existing ADRs, or create local design problems?
 
-For **global** architecture concerns — overall system design health, cross-cutting patterns, strategic refactoring — record the concern and offer a separate architecture review when an installed skill supports it. Do not attempt a full architecture review here.
+For **global** architecture concerns — overall system design health, cross-cutting patterns, strategic refactoring — record the concern as a finding and report it in this review. Do not attempt a full architecture review here.
 
 ### Review Checklist
 

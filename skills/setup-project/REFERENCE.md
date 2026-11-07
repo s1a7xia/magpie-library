@@ -131,7 +131,7 @@ This skill does not create or modify PRDs, so it does not fill any PRD `## Trace
 setup-project (config layer)
     ↓ docs/agents/*.md are read by the Entry Protocol
     ↓
-think / research / have-a-try / grill / story / implement / tdd / review / debug / improve-architecture / write
+think / research / grill / story / implement / review / debug
     ↓ each fills its own PRD Traceability fields
 ```
 
@@ -238,7 +238,7 @@ Ask the user if they want to override any of the default label strings. If their
 
 ### Section C — Domain Docs
 
-> Some skills (`improve-architecture`, `debug`, `tdd`, `review`) read `CONTEXT.md` for domain language, `docs/adr/` for past decisions, and `docs/prd/` for product requirements. They need to know where these live.
+> Some skills (`debug`, `review`, `implement`, `story`) read `CONTEXT.md` for domain language, `docs/adr/` for past decisions, and `docs/prd/` for product requirements. They need to know where these live.
 
 Options:
 - **Single-context** — one `CONTEXT.md` + `docs/adr/` + `docs/prd/` at the repo root. Most repos are this.

@@ -27,7 +27,7 @@ Every file in this directory is listed here. A rules file that is not listed is 
 | `anti-patterns.md` | Cross-skill behavioral constraints (main table + frozen-number Archive) | every skill; cited by number |
 | `entry-protocol.md` | Shared bootstrap: project config, required standards loading and verification gate, domain docs, upstream-artifact checks | every skill's first step |
 | `writing-skills.md` | Authoring discipline: two loads, descriptions, information hierarchy, wording, pruning | contributors and any skill edit |
-| `engineering-principles.md` | Single definition source for SOLID/DRY/KISS/YAGNI/LoD/composition/explicit/fail-fast/immutability, plus the gates that keep principle findings from becoming nitpicks | `review`, `improve-architecture`, `tdd`, `implement` |
+| `engineering-principles.md` | Single definition source for SOLID/DRY/KISS/YAGNI/LoD/composition/explicit/fail-fast/immutability, plus the gates that keep principle findings from becoming nitpicks | `review`, `implement` |
 
 ## The rule that governs this directory
 
