@@ -15,10 +15,10 @@ Ask **exactly one question per message, always** — never a batch, never a pre-
 
 ## Outcome Contract
 
-- **Outcome**: A frozen business baseline — the PRD with every open decision resolved — plus a rendered baseline page for human review
-- **Done when**: Every open decision resolved, terminology consistent with `CONTEXT.md`, ADRs created where the 3 conditions are met, PRD `Status: Grilled`, and `docs/baseline/PRD-NNNN-<slug>.html` rendered from the final PRD
-- **Evidence**: Updated `docs/prd/PRD-NNNN-<title>.md` (status → Grilled), updated `CONTEXT.md`, created `docs/adr/<NNNN>-*.md` (where warranted), baseline page path
-- **Output**: Baseline page for the user to confirm, parent Issue synced (if created by `/think`), next step to `/story`
+- **Outcome**: A frozen business baseline — the PRD with every open decision resolved
+- **Done when**: Every open decision resolved, terminology consistent with `CONTEXT.md`, ADRs created where the 3 conditions are met, and PRD `Status: Grilled`
+- **Evidence**: Updated `docs/prd/PRD-NNNN-<title>.md` (status → Grilled), updated `CONTEXT.md`, created `docs/adr/<NNNN>-*.md` (where warranted)
+- **Output**: Updated PRD, parent Issue synced (if created by `/think`), next step to `/story`
 
 ## Before You Start
 
@@ -37,8 +37,7 @@ Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates the 
 5. **Fill the PRD `## Traceability` `Grilled by` field** so downstream skills know the plan was validated.
 6. **Sync the parent Issue only if one exists.** Update its body to reflect scope changes (sharpened terms, confirmed boundaries, new ADRs). Do **not** change title or close it. If the PRD says `N/A — local PRD only`, skip remote sync. If a remote tracker is configured and the field is unexpectedly empty, warn the user instead of inventing an Issue.
 7. **Freeze the baseline.** Set `Status: Grilled`. From here the requirements are a contract — see [Freezing the Baseline](#freezing-the-baseline).
-8. **Render the baseline page.** Use `answer-me-with-html` to write `docs/baseline/PRD-NNNN-<slug>.html` from the frozen PRD, then report its path so the user can confirm the whole scope in one view.
-9. **Update the project dashboard.** If `docs/agents/project-state.md` exists, set its `Workflow status → Baseline` to `Passed` and `Slices` to `Pending`, with the PRD path and next step.
+8. **Update the project dashboard.** If `docs/agents/project-state.md` exists, set its `Workflow status → Baseline` to `Passed` and `Slices` to `Pending`, with the PRD path and next step.
 
 ## What Goes Where
 
@@ -55,9 +54,10 @@ Reaching `Status: Grilled` **freezes the baseline**. From that moment the PRD's 
 
 **Changes after freezing go through the PRD, not around it.** Record every change in a `## Change Log` table — one row per change: `date | what changed | why and who asked | affected slices`. Keep `Status: Grilled` for additive changes (new field, extra validation, an added state). If the goal itself or the scope changes materially, send the PRD back to `Draft` and re-run `think` → `grill`.
 
-**Render the baseline page as part of finishing.** After the PRD reaches `Grilled`, use [answer-me-with-html](../answer-me-with-html/SKILL.md) to render `docs/baseline/PRD-NNNN-<slug>.html` from the PRD: goal, in scope, out of scope, key decisions with their ADRs, and any assumption that stayed unresolved. Render it before reporting completion — the user should open one page and answer "is this what we agreed?".
-
-**The page is a view, never the source.** The PRD is authoritative. If the page and the PRD disagree, the PRD wins and the page is re-rendered. Re-render after any `## Change Log` entry so the page date matches the PRD's `Last updated`. Commit the page with the documentation; it is a delivery artifact, not a throwaway render.
+**Do not render a baseline page automatically.** `grill` completes when the PRD, terminology and
+ADRs are frozen. If the user later explicitly asks for a visual baseline, load
+[answer-me-with-html](../answer-me-with-html/SKILL.md) and render
+`docs/baseline/PRD-NNNN-<slug>.html`. The PRD remains authoritative; the page is an optional view.
 
 ## Gotchas
 
@@ -75,6 +75,7 @@ Reaching `Status: Grilled` **freezes the baseline**. From that moment the PRD's 
 | PRD not updated after interview | Update `docs/prd/PRD-NNNN-<title>.md` and set `Status` to `Grilled` before declaring complete |
 | Declared complete without the exhaustiveness gate | Run the 5-point gate first |
 | Parent Issue body stale after grill changed scope | Sync the parent Issue (if `## Issue` field present) — reflect sharpened terms, scope, ADRs; don't change title or close |
+| Rendered a baseline page without an explicit request | Keep HTML opt-in; finish `grill` with the frozen PRD and call `answer-me-with-html` only when the user asks |
 
 ## Output
 
@@ -90,11 +91,9 @@ Updated:
 - docs/prd/PRD-NNNN-<title>.md — Status → Grilled
 - CONTEXT.md — <count> terms sharpened/added
 - docs/adr/<NNNN>-<title>.md — created (if any)
-- docs/baseline/PRD-NNNN-<slug>.html — rendered from the frozen PRD
 
 Exhaustiveness gate: passed
 Parent Issue: #<num> synced | local PRD only | skipped (none)
 
-Baseline page: <absolute path>
-Next: Confirm the page; then /story to slice the frozen baseline.
+Next: Review the frozen PRD; then /story to slice the baseline.
 ```

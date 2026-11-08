@@ -42,7 +42,7 @@
 - 需求确实模糊、存在多个实质不同方案时使用 `think`；`think` 完成后自动进入 `grill`，也可以直接手动启动 `grill`。
 - `think` 和 `grill` 每次只问一个必须由人拍板的问题，并给出推荐答案；能从代码、表结构、文档回答的事实由 AI 自查，不反问用户。
 - `research` 可以显式独立发起，也可以由 `think`、`implement`、`debug` 隐式触发。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`；值得复用的结论写入 `docs/research/`。
-- `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR；用 `answer-me-with-html` 生成 `docs/baseline/PRD-NNNN-<slug>.html`。基线页是视图，PRD 是事实源。
+- `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR。默认不生成 HTML 基线页；只有用户明确要求生成视觉基线页时，才调用 `answer-me-with-html`。
 - 基线冻结后，需求和验收标准是合同；后续变化写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。
 
 ### 2. 拆任务：`story`
@@ -82,7 +82,7 @@
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
 - `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
-- `answer-me-with-html`：基线冻结后自动生成可视基线页；复杂结论需要单页解释时也可使用。
+- `answer-me-with-html`：仅在用户明确调用 `/answer-me-with-html`，或明确要求生成 HTML 可视化页面、基线页或解释视频时加载；普通回答、`grill`、`review` 和基线冻结都不自动触发。
 - `ai-collaboration`：仅在项目存在多 Agent 协作或启用了微信入口时加载。微信入口只用于从手机查看项目进度，不开发、不测试、不改项目最终状态；细节只以 `~/.dsh/im/AGENTS.md` 和 `REPORTER.md` 为准。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。

@@ -2,17 +2,11 @@
 name: answer-me-with-html
 argument-hint: "[config [key value] | clean | update]"
 description: >-
-  Turns an answer into a one-page visual HTML explainer: the model writes a short Markdown draft and
-  the bundled CLI builds one page. Use it proactively and liberally in replies to the user, without being asked, whenever a
-  page would help the reader more than plain text, even if plain text would also work: any explanation
-  of how something works or how parts relate (flow, request path, architecture, code or folder
-  structure, state machine, lifecycle, history); any comparison, trade-off or decision with pros and
-  cons; any diagnosis, review or investigation, especially with several causes or findings to rank;
-  any answer with a table, a numbered or ranked list, steps, branches or several sections; or when the
-  user says "I don't get it / draw it / explain visually / 讲讲原理 / 没看懂 / 画个图". When in doubt, use it: a
-  page is quick and cheap to make. Also for explainer videos ("make a video", "做个视频") and for changing
-  its settings. Skip only for small talk, a trivial one-line answer, or when the user asks for plain
-  text.
+  Generate a one-page visual HTML explainer only when the user explicitly invokes
+  /answer-me-with-html, asks to turn an answer, PRD, decision or baseline into an HTML or visual
+  page, asks for an explainer video, or asks to change this skill's settings. Do not load or use this
+  skill proactively for ordinary answers, reviews, plans, grill, baseline freezing, or complex
+  explanations.
 ---
 
 # Answer me with HTML: answer a complex question with one HTML page
@@ -27,34 +21,20 @@ Arguments for this call: `$ARGUMENTS`
 
 When the arguments start with `config`, `clean` or `update`, or the user asks to change a setting, clean up pages or update this skill: read `${CLAUDE_SKILL_DIR}/references/settings.md` and follow it. That turn produces no page.
 
-## 1. Decide: produce a page or not
+## 1. Explicit-only rule
 
-Produce a page if any of these is true:
-- There are ≥3 interrelated concepts, and the reader needs to see how they relate.
-- There is a flow, protocol, call chain or state transition (especially with branches or several actors).
-- There is a comparison across ≥3 dimensions, a trade-off between options, or a "can / cannot" list.
-- There is a hierarchy or an evolution over time.
+This skill is opt-in. Load it only when the user:
 
-Otherwise answer in plain text. When unsure: the more the question "needs a picture to understand", the more it calls for a page.
+- invokes `/answer-me-with-html`;
+- explicitly asks for an HTML page, visual explainer, visual baseline page, or explainer video;
+- explicitly asks to change this skill's settings or clean its generated pages.
 
-Automatic pages are for replies to the user. An internal report returned to another agent is not one:
+Do not load it for an ordinary answer, a complex explanation, a plan, a review, a diagnosis,
+`grill`, or a frozen baseline. Do not attach a page unless the user explicitly requested one.
 
-- If a parent agent or a coordinator delegated research, implementation, a review or a progress report, return the text or structure it asked for, with the findings and the evidence. Render no page.
-- The parent consolidates the reports. Its reply to the user follows the normal rules of this section.
-- If the delegated task explicitly asks for a page, render it, and return the page path together with the verification details the parent asked for. A video needs an explicit video request; delegation alone never authorizes one.
-- Judge this by who receives the reply and what was asked for, not by the host or agent name.
-
-### Always-on mode
-
-If the context contains the `[answer-me-with-html always-on]` reminder (the user added the always-on rule to a rules file such as `CLAUDE.md` or `AGENTS.md`), the bar is lower:
-
-- Whenever this turn gives a conclusion, summary, plan, comparison, review or explanation, attach a page.
-- Do not skip it because "the answer is short". If there is a conclusion, produce a page.
-- For everyday conclusions use a small page with 2–4 panels: one callout with the conclusion, plus one table or one diagram. Do not add panels just to fill space.
-- Render with `--no-open`, so no browser window interrupts the user. The user opens the page by clicking the path at the end of the reply.
-- Order: render the page first, then write the text reply. The reply is the last thing in the turn, with the page link on its last line (see step 5). Do not write the reply and then call `am render`. The one call that may come after the reply is the choice tool that puts the page's asks to the user, when your host can ask questions: write the reply first, so the user holds the link before answering (see step 5).
-- The internal-report rule of step 1 applies here too: a delegated report that inherits the always-on rule renders no page, unless the delegated task explicitly asks for one.
-- Produce no page for small talk, one or two sentences with no conclusion, pure command output, or when the user asks for plain text.
+If another agent delegates work and does not explicitly request an HTML page or video, return only
+the text or structure it asked for. If the current user explicitly invokes this skill without naming
+a subject, ask what page they want.
 
 ## 2. Workflow (one Bash call)
 
@@ -207,6 +187,6 @@ Every sentence on the page gives the reader one fact they need. The idea comes f
 
 ## 7. Explainer videos (am video, 3Blue1Brown style)
 
-Use only when the user explicitly asks for a video ("make a video", "explain it as a video", "3b1b style", "explainer video"). Do not produce a video unasked in always-on mode either.
+Use only when the user explicitly asks for a video ("make a video", "explain it as a video", "3b1b style", "explainer video"). Do not produce a video unless the user explicitly requests one.
 
 Before you write a video draft, read `${CLAUDE_SKILL_DIR}/references/video.md` and follow it.
