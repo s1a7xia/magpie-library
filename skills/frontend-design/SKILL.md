@@ -1,10 +1,12 @@
 ---
 name: frontend-design
-description: "Intentional UI design for new, redesigned, or plain-looking pages. Use for React/Ant Design CRUD pages, admin consoles, dashboards, login pages, styling and layout changes. Enhance existing components instead of replacing them; use full visual direction only for standalone pages. Triggers: 美化、太丑、不好看、高级感、视觉优化、UI 设计、页面风格、页面改版."
+description: "Explicit deep visual design layered on the project's existing UI baseline. Use when the user requests page beautification, a full visual direction, a substantial redesign, login pages, dashboards or large screens. For RuoYi pages, load it on top of the ruoyi6 frontend baseline, never as a replacement for component and behavior boundaries."
 license: Complete terms in LICENSE.txt
 ---
 
 # Frontend Design
+
+这是**显式调用的深度设计技能**。普通 RuoYi 业务页面的默认视觉质量由 [RuoYi 前端基线](../ruoyi6/references/frontend.md#样式与设计) 负责；用户明确要求页面美化、整页改版或完整视觉方向时，可以在这里继续叠加设计方法，也可以由 `ruoyi6` 路由进入。它不是 `ruoyi6` 的替代品，RuoYi 的组件、主题、权限和行为边界仍然生效。文件扩展名本身不触发本技能。
 
 先判断页面属于哪一种模式，再开始设计。模式判断错误，比缺少装饰更伤页面。
 

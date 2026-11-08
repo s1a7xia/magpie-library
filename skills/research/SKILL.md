@@ -7,6 +7,8 @@ description: "Research a technical stack/version question against authoritative 
 
 🥷 Research once, reuse forever — but only from sources that actually know.
 
+This skill answers technical questions with evidence; it does not design or beautify pages. Do not load `frontend-design` from research. If the user asks for a visual or product-design decision, route it separately as an explicit design task.
+
 A research record is a **durable note capturing best practice for one stack × topic × major-version**, sourced exclusively from authoritative sources. It lives in `docs/research/` so the next skill — notably `/think` Step 5 — can query `INDEX.md` and reuse the TL;DR instead of re-searching. This sits beside `/grill` (domain glossary `CONTEXT.md`): grill curates *project domain language*; research curates *external technical best practice*.
 
 ## Outcome Contract

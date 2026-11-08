@@ -40,7 +40,7 @@
 | 全局规则 | 说明什么能做、什么必须停、何时提交、何时验收 | `instructions.md`，同步到 Codex 的 `AGENTS.md` |
 | 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 15 个技能 |
 | 项目事实 | 当前目标、决策、验证证据、编译命令 | 项目内 `docs/agents/`，由 `setup-project` 创建 |
-| 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 7 个 MCP，加上本机 CLI |
+| 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 8 个 MCP，加上本机 CLI |
 
 各层各司其职：
 
@@ -111,15 +111,18 @@ Hook 是平台事件适配层，不是第二套开发流程。它可以检查启
 每个切片：
 
 1. 按验收标准做最小充分改动；
-2. 默认加载 `ruoyi6`；涉及前端视图时自动加载 `frontend-design`；
-3. 只编译受影响的一侧，并核对 diff；
-4. 更新 PRD 中本切片状态；
-5. 在**当前同一分支**提交并推送一次，提交信息带切片说明；
-6. 标记为 `Dev Complete`。
+2. 默认加载 `ruoyi6`；页面和样式改动先使用其 `frontend.md` 的业务页面基线；用户明确要求美化或深度设计时，再叠加 `frontend-design`，两者可以同时生效；
+3. 开工前把 PRD 切片改为 `In Progress`；
+4. 只编译受影响的一侧，并核对 diff；
+5. 更新 PRD 中本切片状态；
+6. 在**当前同一分支**提交并推送一次，提交信息带切片说明；
+7. 标记为 `Dev Complete`。
 
 开发阶段**不打开浏览器**，不执行页面验收，不运行全量测试。无人值守执行到这一层就停，不依赖登录态、验证码或人工测试环境。
 
 整批完成后，先做覆盖门：每条需求和验收标准都有 `Dev Complete` 切片承接；更新 `project-state.md` 和 `verification.md`；输出切片、提交、推送和编译证据，并提示可以开始页面验收。
+
+阻塞的切片在 PRD 中保持 `In Progress` 并说明原因，不要标记 `Dev Complete`。
 
 ### 4. 页面验收：`page-acceptance`
 
@@ -209,7 +212,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | 技能 | 作用 |
 |---|---|
 | `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；按 Direct / Increment / New Module 分级，新模块再扫描框架复用能力并确认业务契约，按任务加载后端、前端和数据库规范 |
-| `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
+| `frontend-design` | 显式深度视觉设计；用于用户明确要求的页面美化、整页改版、登录页、工作台、大屏或独立展示页。可直接调用，也可在明确需求下由 `ruoyi6` 路由进入，并叠加在其前端基线之上 |
 
 ### 支撑与环境（5）
 
@@ -293,7 +296,9 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - `rtk 1.1.0`
 - Chrome 和 Edge
 
-MCP 由 Magpie 统一托管，当前登记 7 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-web-search`、`ssh`。
+MCP 由 Magpie 统一托管，当前登记 8 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-web-search`、`ssh`、`vikunja`。
+
+`vikunja` 仅记录为本机已登记 MCP，暂不纳入 skills 工作流。
 
 版本、Agent 分发矩阵、凭据位置、换机恢复、校验和故障处理见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 

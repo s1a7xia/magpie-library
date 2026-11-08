@@ -57,7 +57,7 @@
 
 - `implement` 只在用户明确调用时进入，一次处理一批已确认的切片。`goal` 只能从 `implement` 起步，不从 think/story 自动进入。
 - 默认技术 profile 是 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，具体版本以当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 为准）；项目 `coding-standards.md` 或 `AGENTS.md` 明确选择其他 profile 或 `none` 时，以项目配置为准。
-- 涉及前端视图文件（`.tsx`、`.ts`、`.css`、`.less`、组件、布局）时自动加载 `frontend-design`；只改数据层或纯后端时不加载。
+- 涉及 RuoYi 前端页面或样式时，`ruoyi6` 的前端基线始终是默认质量层；用户明确要求页面美化、深度视觉设计或整页改版时，可以再叠加 `frontend-design`。两条路径不是互斥关系，文件扩展名本身不触发 `frontend-design`。
 - 每个切片：按验收标准做最小充分改动；只编译受影响的一侧并核对 diff；更新 PRD 中本切片状态；在当前同一分支提交并推送一次，提交信息带切片说明；标记为 `Dev Complete`。
 - 开发阶段不打开浏览器，不执行页面验收，不运行全量测试。无人值守执行到这一层就停，不依赖登录态、验证码或人工测试环境。
 - 整批完成后做覆盖门：每条需求和验收标准都有 `Dev Complete` 切片承接；更新 `docs/agents/project-state.md` 和 `verification.md`；输出切片、提交、推送和编译证据，提示可以开始页面验收。
@@ -76,12 +76,13 @@
 - 普通“审查一下/check/把关”由主代理轻审；只有用户明确调用 `review` 才做三视角完整审查。
 - `review` 在页面验收通过后执行，不能替代页面验收；确认的缺陷自动进入 `debug`，设计、风格或可维护性建议只列出，由用户决定是否处理。
 - 计划外的报错、崩溃、回归自动使用 `debug`；先复现和定位根因，再改动。修复后只重测受影响路径，不默认全批回归。
+- `research` 和 `debug` 不触发 `frontend-design`、页面美化或视觉改版。`research` 只回答事实和方案问题；`debug` 只恢复预期行为，视觉缺陷先按现有设计基线修复，不顺手重做页面。
 - `review` 通过且页面已 `Accepted` 后，才可按项目约定进入 `Done`；不要因为代码审查通过就跳过页面验收。
 
 ### 6. 按需技能
 
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
-- `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
+- `frontend-design`：显式深度视觉设计技能，可由用户直接调用，也可在明确的美化/整页改版诉求下从 `ruoyi6` 路由进入；它叠加在 `ruoyi6` 的前端基线上，不替代当前组件、主题和行为边界。普通页面、`research`、`debug` 和 `page-acceptance` 不加载该技能。
 - `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Increment / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
 - `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
@@ -116,25 +117,7 @@
 - 未要求测试不阻塞交付，不反复询问是否要测试；不把实现完成或已提交说成运行验证、验收或部署通过。
 - 有实质阻塞时，说明缺少的证据或选择，不伪称完成。完成后不自行扩展持续监控、额外审计或下一轮任务。
 
-## 项目看板约定（Vikunja）
+## 未纳入 skills 的工具
 
-本地 Vikunja 是项目状态的唯一事实源，手机端（微信 AstrBot）与 Codex 读写同一份数据，不做同步。
-
-### 工具
-经 magpie hub 暴露为 `vikunja__*`：`projects_*`、`tasks_*`、`task_comments_*`、`labels_*`，以及 `find_action` / `do_action` / `filter_syntax`。
-参数易错点：`tasks_create` 用 `project` + `title`；`tasks_read/update/delete` 只用 `task`（不带 project）；`task_comments_*` 用 `task`（+ `commentid`）。
-
-### 看板
-项目「项目看板」= project id 2。置顶任务 `📌 当前状态` = task id 1，正文三段固定：`## 当前状态` / `## 下一步` / `## 阻塞`。
-
-### 状态
-label：`状态/待办`、`状态/进行中`、`状态/阻塞`、`状态/完成`。完成时同时置 `done=true`。
-
-### 读写规则
-- 接单：先 `tasks_read` 读任务，再按 `docs/` 的 PRD/契约实现，不臆造字段。
-- 进展：`task_comments_create` 追加，不改 #1 正文。
-- 收工：`tasks_update(task, done=true)`，再用 `task_comments_create` 回填 commit hash 与改动摘要。
-- 删除任务：只有人能删。
-
-### 编号
-identifier（#N）只在项目内唯一。
+- Vikunja MCP 可以继续作为本机工具使用，但当前**暂不纳入 skills 工作流**：`setup-project` 不初始化看板，`story` 不建任务，`implement` 不读写任务状态，PRD、`docs/agents/` 和 Git 仍是开发流程的事实源。
+- 后续如需接入看板，另行评估并更新相应技能流程，不影响现有技能和文档流程。

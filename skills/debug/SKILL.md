@@ -7,6 +7,8 @@ description: "Root cause analysis and systematic fix. Quick root cause location,
 
 🥷 Find root cause before fixing.
 
+This skill restores intended behavior; it does not redesign the UI. Do not load `frontend-design` or add visual polish during debugging. If the requested outcome is a visual redesign rather than a defect fix, stop and treat it as a separate explicit design task.
+
 > **Terminology note:** debug uses **Stage** (macro: Stage 0 context / Stage 1 quick-locate / Stage 2 systematic-fix) and **Phase** (micro: the 6-phase loop inside Stage 2) deliberately, to distinguish quick-locate from systematic-fix. Other skills use **Step**. This is an intentional divergence, not drift.
 
 ## Outcome Contract

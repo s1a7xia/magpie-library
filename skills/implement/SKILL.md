@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Orchestrate a batch of already-approved slices from /story: load the RuoYi 6.x React profile and frontend-design, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
+description: "Orchestrate a batch of already-approved slices from /story: load the RuoYi 6.x React profile and its frontend baseline, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
 ---
 
 # Implement: Workflow Orchestration
@@ -24,7 +24,7 @@ Sequences one batch of pre-agreed vertical slices: load the framework profile an
 
 **Step 1 — Entry Protocol.** Apply the [Skill Entry Protocol](../rules/entry-protocol.md). Read project config (`docs/agents/`), domain docs (CONTEXT.md, ADRs, research INDEX), and the input work items (PRD or Issues from `/story`). Require a frozen, consistent baseline: `Status: Sliced`, `In Progress`, or `Dev Complete`, no open questions/TODOs, and a filled `Grilled by`. If not, stop before coding and return to `think` → `grill` or `/story` as appropriate.
 
-**Step 2 — Work Inventory and profile loading.** List the approved slices and sort them by `blocked-by`. Before writing code, verify every PRD acceptance criterion is assigned through a slice `Covers` field; an unassigned criterion stops the batch and returns to `story`. Update PRD Status from `Sliced` to `In Progress`; set the project dashboard's `Development` row to `In Progress` when it exists. Resolve and load the technical profile once per batch per [entry protocol](../rules/entry-protocol.md); the default is [ruoyi6](../ruoyi6/SKILL.md). Load [frontend-design](../frontend-design/SKILL.md) when the batch changes frontend view files.
+**Step 2 — Work Inventory and profile loading.** List the approved slices and sort them by `blocked-by`. Before writing code, verify every PRD acceptance criterion is assigned through a slice `Covers` field; an unassigned criterion stops the batch and returns to `story`. Update PRD Status from `Sliced` to `In Progress`. Resolve and load the technical profile once per batch per [entry protocol](../rules/entry-protocol.md); the default is [ruoyi6](../ruoyi6/SKILL.md). For page or style changes, apply the framework profile's frontend baseline. When the user explicitly requests page beautification, deep visual design or a full redesign, layer [frontend-design](../frontend-design/SKILL.md) on top; it does not replace the framework's component and behavior boundaries.
 - If Issues from `/story` exist — each issue is a seam
 - If only a PRD exists — stop and run `/story` first; do not invent slices inside `implement`
 - Sort by dependency order (blocked-by relationships from `/story`)
@@ -33,12 +33,15 @@ Sequences one batch of pre-agreed vertical slices: load the framework profile an
 **Step 3 — Implement each slice.** For each work item in dependency order:
 
 1. **Read the slice's acceptance criteria** — from the PRD or the issue it came from; confirm they are clear before writing code.
-2. **Implement directly** — write the smallest change that satisfies them; apply [engineering principles](../rules/engineering-principles.md) design-time, the loaded framework profile, and `frontend-design` for view changes. Write tests only when the current request explicitly asks for test work.
-3. **Self-check** — compile the affected frontend/backend. For UI slices this is a compile check only; do not open a browser. Record what was checked.
-4. **Commit and push this slice** — commit with `[PRD-NNNN] <slice name> — <summary>` and push to the existing upstream on the same branch. Never create a feature branch. If a check fails, fix it or mark the slice unverified before moving on.
-5. **Sync slice status** — update the slice status in the PRD `Sliced into` list in the same commit. Do not rewrite `project-state.md` or append a separate `verification.md` entry for every slice.
+2. **Start the slice** — before the first code change, set the slice in the PRD `Sliced into` list to `— In Progress`.
+3. **Implement directly** — write the smallest change that satisfies them; apply [engineering principles](../rules/engineering-principles.md) design-time and the loaded framework profile, including its frontend baseline for view changes. Write tests only when the current request explicitly asks for test work.
+4. **Self-check** — compile the affected frontend/backend. For UI slices this is a compile check only; do not open a browser. Record what was checked.
+5. **Commit and push this slice** — commit with `[PRD-NNNN] <slice name> — <summary>` and push to the existing upstream on the same branch. Never create a feature branch. If a check fails, fix it or mark the slice unverified before moving on.
+6. **Sync slice status** — update the slice status in the PRD `Sliced into` list in the same commit. Do not rewrite `project-state.md` or append a separate `verification.md` entry for every slice.
 
 Mark the slice `Dev Complete`, never `Done` — `Done` requires page testing.
+
+**Blocked slice.** If a dependency, missing decision or external condition prevents the slice from proceeding, leave the PRD slice `In Progress` and report the blocker. Do not mark it `Dev Complete`. Continue with other unblocked slices in the dependency order.
 
 **Step 4 — Batch close-out.** After every slice is implemented and pushed, compile the affected sides once more. Run the **coverage gate**: every PRD requirement and acceptance criterion must map through `Covers` to a slice that is `Dev Complete`; an uncovered criterion keeps the batch `In Progress`. A missing slice returns to `story`; a code gap is fixed inside its existing slice. Then update `project-state.md` once with `Development` set to `Passed` (or `In Progress` with gaps) and `verification.md` once with the actual per-slice compile commands/results and any gaps. List slices with their commit hashes, slices marked `Dev Complete`, and anything blocked or unverified. Do not run page acceptance, do not run full review, do not mark the PRD `Done`.
 
@@ -53,14 +56,16 @@ See [REFERENCE.md](REFERENCE.md) for detailed step instructions, implementation 
 | What happened | Rule |
 |---|---|
 | A slice started before its acceptance criteria were clear | Step 3.1: read and confirm the acceptance criteria first |
-| Page acceptance was run inside implement | Step 3.3 / Step 4: slice self-check is compile + diff only; page testing is a separate user-initiated stage |
-| Slices were batched into one commit | Step 3.4: one commit and push per slice, message `[PRD-NNNN] <slice name> — <summary>` |
-| A feature branch was created | Step 3.4: one branch per requirement is not allowed here — commit on the current branch only |
-| The framework profile or design standards were skipped | Step 2: resolve the project profile first (global `ruoyi6` only when none is configured) and load `frontend-design` when views change, once per batch |
+| Page acceptance was run inside implement | Step 3.4 / Step 4: slice self-check is compile + diff only; page testing is a separate user-initiated stage |
+| Slices were batched into one commit | Step 3.5: one commit and push per slice, message `[PRD-NNNN] <slice name> — <summary>` |
+| A feature branch was created | Step 3.5: one branch per requirement is not allowed here — commit on the current branch only |
+| The framework profile or frontend baseline was skipped | Step 2: resolve the project profile first (global `ruoyi6` only when none is configured); use its frontend baseline once per batch. Add `frontend-design` on top only for an explicit beautification or deep-design request |
 | Work items had hidden dependencies | Step 2: read `blocked-by` from `/story`; implement in dependency order and skip blocked slices |
 | A slice list missed a PRD acceptance criterion | Step 2 / Step 4: stop before coding or close-out; return to `story` instead of adding scope silently |
 | PRD was marked Done after implementation | Step 3 / Step 4: mark `Dev Complete` only; `Done` requires page testing to pass |
-| Unattended run tried to open a browser | Step 3.3: no browser, no login state, no captcha in unattended mode — mark the slice unverified and continue |
+| Unattended run tried to open a browser | Step 3.4: no browser, no login state, no captcha in unattended mode — mark the slice unverified and continue |
+| The PRD slice still looked unstarted while code was in flight | Step 3.2: set the PRD slice to `— In Progress` before coding |
+| A blocked slice was marked complete | Blocked slice rule: leave the PRD slice `In Progress` and report the blocker |
 | User expected /review to run automatically | Step 5: review is explicitly user-invoked and runs after page testing |
 
 ## Output

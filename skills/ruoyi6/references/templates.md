@@ -75,29 +75,11 @@ public class XxxController extends BaseController {
     @SaCheckPermission("<module>:<business>:export")
     @Log(title = "Xxx", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(@Validated XxxBo bo, HttpServletResponse response) {
+    public void export(@Validated(QueryGroup.class) XxxBo bo, HttpServletResponse response) {
         List<XxxVo> list = xxxService.queryList(bo);
         ExcelBuilder.of(list, XxxVo.class).sheetName("Xxx").toResponse(response);
     }
 
-    /**
-     * 导入Xxx
-     *
-     * @param file 导入文件
-     */
-    @Log(title = "Xxx", businessType = BusinessType.IMPORT)
-    @SaCheckPermission("<module>:<business>:import")
-    @PostMapping(value = "/importData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public R<Void> importData(@RequestPart("file") MultipartFile file) throws Exception {
-        ExcelResult<XxxImportVo> excelResult = ExcelBuilder.read(file.getInputStream(), XxxImportVo.class)
-            .validate(true)
-            .doRead();
-        List<Xxx> list = MapstructUtils.convert(excelResult.getList(), Xxx.class);
-        xxxService.saveBatch(list);
-        // 作者写法：R.ok 的单参数重载把字符串作为提示消息，业务数据为空。
-        // 若要把分析结果返回给页面，声明 R<String> 并使用 R.ok(msg, data) 或 R.data(data)。
-        return R.ok(excelResult.getAnalysis());
-    }
 }
 ```
 
@@ -118,7 +100,6 @@ public interface IXxxService {
 
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
 
-    Boolean saveBatch(List<Xxx> list);
 }
 ```
 
@@ -138,6 +119,15 @@ public class XxxServiceImpl implements IXxxService {
 
     @Override
     public PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery) {
+        // 示例为默认 10、上限 100；沿用项目已有分页约定时替换这两个值。
+        int size = pageQuery.getPageSize() == null ? 10 : pageQuery.getPageSize();
+        if (size < 1 || size > 100) {
+            throw new ServiceException("分页大小须在1到100之间");
+        }
+        pageQuery.setPageSize(size);
+        // 最小模板只按 ID 排序；需要交互排序时先校验业务列白名单。
+        pageQuery.setOrderByColumn(null);
+        pageQuery.setIsAsc(null);
         LambdaQueryWrapper<Xxx> lqw = buildQueryWrapper(bo);
         Page<XxxVo> result = xxxMapper.selectVoPage(pageQuery.build(), lqw);
         return PageResult.build(result.getRecords(), result.getTotal());
@@ -174,8 +164,8 @@ public class XxxServiceImpl implements IXxxService {
     }
 
     private void validEntityBeforeSave(Xxx entity) {
-        // 按当前契约完成业务校验；唯一键未确认时，沿用业务上最可信的唯一组合做检查，
-        // 并用 TODO 标记待业务确认，不能直接跳过重复校验。
+        // 按业务补齐规则；若无额外规则可移除此方法与调用，不把空方法当作已校验。
+        // 唯一性等未定口径按本文 TODO 规则处理，不从 name 字段自动推断唯一键。
     }
 
     @Override
@@ -192,10 +182,6 @@ public class XxxServiceImpl implements IXxxService {
         return xxxMapper.deleteByIds(ids) > 0;
     }
 
-    @Override
-    public Boolean saveBatch(List<Xxx> list) {
-        return xxxMapper.insertBatch(list);
-    }
 }
 ```
 
@@ -221,23 +207,6 @@ public class Xxx extends BaseEntity {
      */
     private String name;
 
-    /**
-     * 排序号
-     */
-    @OrderBy(asc = false, sort = 1)
-    private Integer orderNum;
-
-    /**
-     * 版本
-     */
-    @Version
-    private Long version;
-
-    /**
-     * 删除标志
-     */
-    @TableLogic
-    private Long delFlag;
 }
 ```
 
@@ -263,10 +232,6 @@ public class XxxBo implements Serializable {
     @NotBlank(message = "名称不能为空", groups = {AddGroup.class, EditGroup.class})
     private String name;
 
-    /**
-     * 版本
-     */
-    private Long version;
 }
 ```
 
@@ -293,25 +258,6 @@ public class XxxVo implements Serializable {
     @ExcelProperty(value = "名称")
     private String name;
 
-    /**
-     * 创建时间
-     */
-    @ExcelRequired
-    @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
-    @ExcelProperty(value = "创建时间")
-    private LocalDateTime createTime;
-
-    /**
-     * 创建人账号
-     */
-    @Translation(type = TransConstant.USER_ID_TO_NAME, mapper = "createBy")
-    @ExcelProperty(value = "创建人账号")
-    private String createByName;
-
-    /**
-     * 版本
-     */
-    private Long version;
 }
 ```
 
@@ -374,7 +320,18 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 
 `Xxx` 必须有 `deptId`、`userId`（或当前业务真实归属列），Mapper 片段中的列名必须同步替换。服务层按现有作者写法调用这些 Mapper 方法，不要只在列表接口加数据权限。删除时先调用带数据权限的 `selectByIds`/`selectVoById` 校验范围，再执行 `deleteByIds`；如果业务还要求删除前的引用检查，继续放在同一个 Service 事务中。
 
+启用数据权限后，范围校验不能由可选的 `isValid=false` 跳过；该参数只控制额外业务检查。归属可并发变化时，另确认删除时的数据范围约束或锁策略，先查后删本身不保证范围不会变化。
+
 ## 使用说明
+
+最小模板只包含 `id`、`name` 及 Entity 的基类审计字段，与前端单表模板对齐；删除默认是物理删除，仅在业务允许时使用。导出接口与 Excel 注解不需要时一起移除。业务校验注释是编写位置提示，不代表已实现业务规则。
+
+| 按需能力 | 必须一起补齐的契约 |
+|---|---|
+| 排序 | DDL、Entity/BO/VO、前端类型/表单/展示和查询排序规则 |
+| 乐观锁 | DDL 默认值、Entity `@Version`、编辑 BO 必填版本、详情 VO、前端类型及隐藏版本字段；编辑提交原版本，更新失败给冲突提示 |
+| 创建人翻译 | VO 同时包含来源 `createBy` 和展示 `createByName`，再配置 `@Translation(mapper = "createBy")`；确认查询/映射有来源值，前端按需声明展示字段 |
+| 逻辑删除 | DDL 删除标记、Entity `@TableLogic`、实际配置值及唯一索引重建语义 |
 
 - 这套模板来自作者 `TestDemo*`，标准单表沿用同一分层和命名；有主从、状态、导入、异步、外部接入等额外形态时，按其最小充分结构扩展，不为套模板删减业务契约。
 - 上面的 `QueryBuilder` 写法演示条件辅助方法；若目标模块已有 `Wrappers.lambdaQuery()` 风格，保持现状，不整体重写。引用时按现有 import 补齐 `QueryBuilder`、`CollUtil` 和实体类型。
@@ -382,26 +339,28 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。
 
-## TODO 占位
+## 可选导入
+
+用 `ExcelBuilder.read(..., XxxImportVo.class)` 解析并校验独立 ImportVo，把行数据交给业务 Service 的导入方法。不要在 Controller 转 Entity 后调用无业务约束的 `saveBatch`。
+
+Service 先批量核对文件内重复、库内冲突、关联和归属，再复用普通写入的业务规则并批量持久化。全量成功模式用事务并在校验或持久化失败时抛异常；部分成功模式返回成功/失败行和原因，不能混用全量回滚语义。新增对应 Service 契约和结果 VO，Controller 返回实际导入结果；`excelResult.getAnalysis()` 只描述解析结果。
+
+写法入口见 [backend.md](backend.md#excel-选择) 和 [author-patterns.md](author-patterns.md)，实际批大小与失败策略按业务确定。
+
+## TODO 待确认记录
 
 业务口径没定时，先按当前业务推荐做法完成可运行实现，再用固定格式留下 TODO，保证功能完整、其它功能可测：
 
 ```java
-// TODO(待确认): 业务唯一键是否由 name + deptId 组成
-// 当前推荐实现: 按 name + deptId 做重复校验，数据库先建普通索引；
-//               唯一约束待业务确认后再补，避免错误数据进入。
-// 确认人: 业务方 / 产品
-```
-
-```ts
-// TODO(待确认): 业务是否允许同名记录
-// 当前推荐实现: 前端沿用后端当前唯一组合提示重复，不隐藏错误。
-// 确认人: 业务方 / 产品
+// TODO(待确认): <具体业务口径>
+// 当前推荐实现: <已实现的行为及业务依据，包含相关校验、约束和页面反馈>
+// 确认人: <业务方 / 产品>
 ```
 
 规则：
 
 - 占位后必须保证能编译、能启动、页面能打开、不阻断其它功能。
 - TODO 不是“暂不实现”的许可。能按当前业务判断的默认行为要先实现，再记录待确认点；不得写“先允许重复”“先不校验”“前端不提示”这类绕过业务约束的占位。
+- 推荐规则不能覆盖已确认契约。若推荐规则要求唯一性，应同时实现适当的数据库唯一约束与冲突反馈；普通索引和先查后写不能保证并发唯一性。唯一字段组合从业务语义推导，不把名称或部门当通用唯一键。编写迁移脚本与执行数据库变更的授权分开。
 - 不能用于掩盖未实现；接口没写、页面没做、数据没接不算 TODO。
 - 交付时汇总 TODO 清单，写入 `docs/agents/project-state.md` 或 PRD。

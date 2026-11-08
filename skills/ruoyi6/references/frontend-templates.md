@@ -21,7 +21,6 @@ import { DeleteOutlined, DownloadOutlined, EditOutlined, PlusOutlined } from '@a
 import {
   ModalForm,
   PageContainer,
-  ProFormDigit,
   ProFormText,
   ProTable,
   type ActionType,
@@ -178,7 +177,6 @@ export default function XxxPage() {
       >
         <ProFormText name="id" hidden />
         <ProFormText name="name" label="名称" rules={[{ required: true, message: '名称不能为空' }]} />
-        <ProFormDigit name="orderNum" label="排序" min={0} />
       </ModalForm>
     </PageContainer>
   );
@@ -441,8 +439,6 @@ export interface XxxForm extends BaseEntity {
   /** 名称 */
   name?: string;
 
-  /** 上级节点 */
-  parentId?: string | number;
 }
 
 export interface XxxQuery extends PageQuery {
@@ -452,7 +448,7 @@ export interface XxxQuery extends PageQuery {
 ```
 
 - `VO`、`Form`、`Query` 的可空性按后端 VO/BO 契约映射，示例里的可选标记不是通用规则。`Form` 通常继承 `BaseEntity`，`Query` 通常继承 `PageQuery`。前端 `BaseEntity` 不含 `createDept`，需要时在 `Form` 中显式声明。
-- 树表 `Query` 不继承 `PageQuery`，`VO` 增加可选 `children`。
+- 树表 `Query` 不继承 `PageQuery`，`VO` 增加 `parentId` 和可选 `children`，`Form` 增加 `parentId`，同时补齐后端契约。单表模板不预带树字段。
 - 主键和关联 ID 用 `string | number`，避免雪花 ID 丢精度。
 - 字段名与后端 BO/VO 完全一致；日期范围保留 `Query.params`。
 - 纯类型导入用 `import type`；若目标模块已统一使用普通导入，保持该模块风格。
@@ -461,7 +457,7 @@ export interface XxxQuery extends PageQuery {
 
 - [ ] 页面使用 `PageContainer`、`ProTable` 和 `ModalForm` 的现有页面壳。
 - [ ] 查询、表格、弹窗和表单字段来自同一份业务契约。
-- [ ] 使用了现有 `useTableSelection`、`useTableExport`、`useTableScroll`、`useDateRangeQuery`、`useDict`、`useTreeTableExpand`。
+- [ ] 所需行为已复用对应 hooks；不为凑清单引入日期范围、字典或树等未使用能力。
 - [ ] 编辑先拉详情再回填，新增先重置；提交失败保留输入并恢复提交状态。
 - [ ] 删除有确认和刷新；树表新增子节点携带 `parentId`。
 - [ ] 权限字符在菜单 SQL、后端注解和 `hasPermi` 三处一致。

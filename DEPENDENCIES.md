@@ -2,7 +2,7 @@
 
 本文记录这套组合拳在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-07。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-09。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
@@ -115,7 +115,7 @@ instructions.agents = ["codex"]
 
 ## 4. MCP 清单
 
-当前登记 7 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
+当前登记 8 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
@@ -128,17 +128,19 @@ instructions.agents = ["codex"]
 | `magpie-image` | stdio `magpie.exe mcp image` | codex | 图片生成与识图；依赖本机 Magpie 可执行文件和模型配置 |
 | `magpie-web-search` | stdio `magpie.exe mcp search` | codex, dsh | 联网搜索；`research` 的首选搜索入口 |
 | `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | codex | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |
+| `vikunja` | HTTP `http://127.0.0.1:3456/api/v2/mcp` | codex | 本地 Vikunja 服务；当前保留为已登记 MCP，暂不参与 skills 工作流。Token 在 `library.json` |
 
 说明：
 
 - `dbhub` 不是通用数据库万能入口；当前配置只指向本机 PostgreSQL。换项目时先核对目标库。
 - `ssh` 只有在 `~/.codex/ssh-profiles.json` 中有对应配置时才可用。
+- `vikunja` 依赖本机 `127.0.0.1:3456` 服务；当前只记录其作为本机 MCP 的事实，不纳入 `story`、`implement` 或其他技能的流程。
 - `github` 与 `gitee` 的 HTTP 头部包含真实认证信息，由 Magpie 保存；不要复制到聊天、文档或截图。
 - 登记成功、进程在监听、MCP hub 显示绿色，都不等于当前 Agent 会话已挂载或已获写权限。
 
 ### 4.1 实际连通性
 
-本次只核对了配置和进程级依赖，**没有逐个 MCP 发起请求做全量连通测试**。
+本次核对了配置和进程级依赖；**没有对所有 MCP 做全量连通测试**。
 
 恢复后应按用途做一次最小只读验证：
 
@@ -150,6 +152,7 @@ instructions.agents = ["codex"]
 | `dbhub` | 连接目标库并只读查询版本或一张已知表 |
 | `ssh` | 连接已登记目标并运行只读命令 |
 | `magpie-image` | 生成一张小图或识别一张本地测试图 |
+| `vikunja` | 读取一次已配置的本地服务状态；不纳入 skills 工作流 |
 
 不要用“写入成功”作为首次连通性检查。写入必须另有明确授权，并先确认目标环境。
 
@@ -230,7 +233,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 还需要另外完成：
 
 1. 在 Magpie 中创建或恢复 `library.json`；
-2. 重新登记 7 个 MCP 和认证信息；
+2. 重新登记 8 个 MCP 和认证信息；
 3. 重新配置模型供应商；
 4. 重新勾选技能分发给哪些 Agent；
 5. 执行 `magpie library sync`；

@@ -38,7 +38,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。按任务规模判�
 | 用户、部门、角色、字典、参数、OSS、消息 | [backend.md](references/backend.md) | 跨模块能力走 `ruoyi-api`；不复制系统模块实现。 |
 | 展示名称、翻译、脱敏、导入导出 | [backend.md](references/backend.md)、[author-patterns.md](references/author-patterns.md) | 先复用 `@Translation`、`ExcelBuilder` 和作者示例；需要新增翻译类型时看扩展入口。 |
 | React 页面、API、类型、hooks、样式 | [frontend.md](references/frontend.md) | 按现有页面壳、公共组件和 hooks 组合；请求统一走 `@/api/request`。 |
-| 新 React 单表/树表页面 | [frontend-templates.md](references/frontend-templates.md) | 模板是唯一前端骨架；新页面还要登记动态路由。 |
+| 新页面或布局调整 | [frontend.md](references/frontend.md) | 先按用户任务选页面形态并应用视觉基线；单表/树表才取对应模板，新业务页面登记动态路由。用户明确要求美化或深度改版时，可再叠加 `frontend-design`。 |
 | 菜单、字典、参数 SQL、字段链路 | [database.md](references/database.md) | 核对 PostgreSQL 方言、幂等脚本和全链路字段。 |
 | 工作流、任务、AI、监控 | [optional-integrations.md](references/optional-integrations.md) | 只在有当前验收标准时接入，区分同进程模块和独立服务。 |
 
@@ -67,7 +67,7 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 
 | 契约 | 需要明确 |
 |---|---|
-| 主体与归属 | 业务对象是什么，归属用户、部门、组织还是无归属 |
+| 主体与归属 | 业务对象是什么；归属由服务端确定还是允许选择，是否允许转移；关联对象是否可操作 |
 | 可见范围 | 列表、详情、导出和批量操作分别受什么功能权限和数据权限约束 |
 | 状态与生命周期 | 状态、触发者、合法迁移、终态和失败恢复 |
 | 唯一与幂等 | 业务唯一键、重复提交、导入和外部回调如何识别 |
@@ -82,12 +82,12 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 
 ### New Module
 
-1. 判业务形态和机制，扫描数据库、后端、前端和作者示例。
+1. 从用户业务动作及成功/失败结果判业务形态和机制，再定位框架能力；提交、审批、执行、重试、统计等不强套增删改查。
 2. 过业务契约门，确定表、字段、状态、唯一性、删除、权限、查询和集成边界。
-3. 选择最小模板：单表用 `TestDemo*` 和 `pages/demo/demo`，树表用 `TestTree*` 和 `pages/demo/tree`。
+3. 选择最小结构：单表参考 `TestDemo*`，树表参考 `TestTree*`；其它业务组合框架能力。新建 Maven 模块时另核对 [backend.md](references/backend.md) 的装配入口。
 4. 写 DDL、字典、参数和菜单 SQL；项目未另行指定数据库时默认 PostgreSQL，并沿用当前脚本落点。
-5. 写 Entity、BO、VO、Mapper、Service 接口、ServiceImpl、Controller；完整骨架只取 [templates.md](references/templates.md)。
-6. 写 `types.ts`、`api/index.ts`、`pages/.../index.tsx`；完整页面骨架只取 [frontend-templates.md](references/frontend-templates.md)。
+5. 按业务契约实现后端分层；普通单表骨架见 [templates.md](references/templates.md)，业务动作使用对应入参和 Service 方法。
+6. 涉及页面创建或布局调整时按 [frontend.md](references/frontend.md) 选择页面形态、信息层级和视觉基线，再组合组件；单表/树表参考 [frontend-templates.md](references/frontend-templates.md)，报表、大屏、工作区不套 CRUD 布局。用户明确要求页面美化、深度视觉设计或整页改版时，再叠加 `frontend-design`；它不会替代本文件的组件与行为边界。纯 API/类型改动不加载设计技能。
 7. 登记 `dynamicPage.tsx`，核对菜单 `component`、路由、权限字符和页面壳。
 8. 过前后端联动门：路径、方法、响应、字段、权限、查询、导入导出和文件契约。
 9. 编译受影响后端、构建受影响前端；页面可见改动只标 `Dev Complete`，验收交给用户发起的 `page-acceptance`。
@@ -114,7 +114,7 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 | 导入导出 | VO 注解、接口方法与文件流 | `useTableExport` / `download` / `Upload` |
 | 文件与富文本 | OSS ID 字段和存储值 | `FileUpload`、`ImageUpload` 保存逗号分隔 OSS ID；`RichTextEditor` 使用 `oss://<ossId>` |
 
-只后端或只前端时，仍检查另一侧现有契约是否已经存在；不存在时明确列为未完成项。
+只检查本次业务实际需要的调用链。后台任务、回调或内部接口可以没有页面；只有本次范围需要的另一侧契约缺失时才列为未完成项。
 
 ## 硬规则
 

@@ -100,7 +100,13 @@ plus-ui-React/src/
 └─ pages/<module>/<business>/index.tsx
 ```
 
-字段、查询条件、导入导出和权限至少同时出现在上述链路中。先读 `TestDemo*` 的完整实现，再按业务命名替换。
+按业务需要贯通字段、查询和权限；导入导出按需增加。先读 `TestDemo*` 的相关实现，再按业务契约裁剪。
+
+### 新建工程模块时
+
+在已有模块加业务沿用其装配，不重复配置。只有新建 Maven 模块时，参照现有模块核对父 POM 的 `modules`、依赖版本管理、`ruoyi-admin` 的运行依赖，以及包扫描、Mapper/XML 资源和条件配置。Java 文件编译成功不等于模块已被主应用加载。
+
+菜单 SQL、动态页面登记之外，还要确认目标角色的菜单/按钮授权入口；未执行的 SQL 或未配置的授权明确报告，不把管理员可见等同于目标角色可用。
 
 ## Controller 职责
 
@@ -134,6 +140,8 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 完整 Service 接口、实现和 Mapper 骨架只在 [templates.md](templates.md) 维护一份。这里只说明边界：Service 做业务校验、编排、事务和并发；Mapper 继承 `BaseMapperPlus<Xxx, XxxVo>`；需要行级隔离时沿用 `@DataPermission`，列名必须与表字段和查询别名一致。
 
 ## Controller 与接口
+
+先按业务动作定契约。提交、撤回、执行、重试等使用专用请求对象或校验分组，只接受该动作可修改的字段；状态转换和关联校验在 Service 执行，不让通用编辑接口绕过规则。嵌套明细需要级联校验，不能只校验外层 BO。
 
 标准路径为 `/{module}/{business}`，权限字符为 `{module}:{business}:{action}`。类上按作者写法固定 `@Validated` + `@RequiredArgsConstructor` + `@RestController` + `@RequestMapping` + `extends BaseController`。
 
@@ -196,6 +204,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 - 方法级注解优先于类级；XML / MPJ 联表使用表别名时，`@DataColumn` 的 `value` 必须写 `别名.列名`。
 - 需要临时绕过时，`DataPermissionHelper.ignore(...)` 或 `@InterceptorIgnore(dataPermission = "true")` 只包最小范围，并说明原因。
 - 功能权限只控制“能否调用”，数据权限控制“能看到/操作哪些数据”，两者不能互相替代。
+- 新增时由服务端确定归属，或校验用户选择的归属范围；修改归属另查转移权限。关联 ID 和子记录还要校验可访问性及所属主记录，不能只信任页面选项或 `@DataPermission` 对原记录的过滤。
 
 ## Service、事务与并发
 
@@ -281,6 +290,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 ### Excel 选择
 
 - 导入使用独立 `ImportVo`，不复用数据库 Entity；建议 `@ExcelIgnoreUnannotated`、`ExcelDictConvert` / `ExcelEnumConvert`、Validator 校验。
+- 导入、普通新增和其它写入入口共享必要的业务约束（唯一性、关联、归属、状态）；导入 Service 可批量预查和批量写入，不必逐行调用新增方法。先确定全量回滚还是部分成功，校验文件内重复与库内冲突；成功消息必须来自实际持久化结果，解析成功不等于导入成功。接入结构见 [templates.md](templates.md#可选导入)。
 - 默认 `failFast=true`；需要收集全部错误行时用 `.failFast(false)` 和自定义 `ExcelListener` / `DefaultExcelListener`。
 - 导出按需使用 `@CellMerge`、`@ExcelRequired`、`@ExcelNotation`、`DropDownOptions`、`.merge()`、`.options(...)`、`.zip(...)`、模板导出和 `ExcelBuilder.writer()` 多 sheet。
 - 本地示例优先读 `TestDemoController.importData`、`TestExcelController.importWithOptions`、`ExportExcelServiceImpl`、`ExportDemoListener`、`TestDemoImportVo`，不要复制整篇 Fesod 文档。
