@@ -1,6 +1,6 @@
 # React 页面模板
 
-本文件按 `plus-ui-React/src/pages/demo/demo/index.tsx`、`src/pages/demo/tree/index.tsx`、对应 API/types 和 `gen/*.ftl` 蒸馏，供标准单表和树表页面按需加载。
+本文件按 `plus-ui-React/src/pages/demo/demo/index.tsx`、`src/pages/demo/tree/index.tsx`、对应 API/types 和 `gen/*.ftl` 蒸馏，供标准单表和树表页面按需加载。前端 API、types 和页面骨架只在本文件维护一份；`frontend.md` 只负责规则和复用边界。
 
 模板只提供页面壳、hooks 组合、请求和类型骨架。字段、权限、状态、查询条件和业务流程以当前需求和已确认契约为准；目标模块只用于核对字段、路由、权限和集成事实，不把 demo 字段或业务页面写法直接带进新需求。
 
@@ -244,24 +244,86 @@ import { SortAscendingOutlined } from '@ant-design/icons';
 import { ProFormTreeSelect } from '@ant-design/pro-components';
 import { useMemo, useState } from 'react';
 import { useTreeTableExpand } from '@/hooks/useTreeTableExpand';
-import { filterTree, handleTree } from '@/utils/ruoyi';
+import { handleTree } from '@/utils/ruoyi';
+
+interface TreeSelectNode {
+  title: string;
+  value: string | number;
+  children?: TreeSelectNode[];
+}
+
+function toTreeSelectData(
+  getTitle: (node: XxxVO) => string,
+  nodes: XxxVO[],
+  excludedIds: Set<string | number> = new Set()
+): TreeSelectNode[] {
+  return nodes
+    .filter(node => !excludedIds.has(node.id))
+    .map(node => ({
+      title: getTitle(node),
+      value: node.id,
+      children: node.children?.length ? toTreeSelectData(getTitle, node.children, excludedIds) : undefined
+    }));
+}
+
+function collectSubtreeIds(nodes: XxxVO[], rootId: string | number): Set<string | number> {
+  const result = new Set<string | number>();
+  const walk = (items: XxxVO[]) => {
+    for (const item of items) {
+      if (item.id === rootId) {
+        const collect = (node: XxxVO) => {
+          result.add(node.id);
+          node.children?.forEach(collect);
+        };
+        collect(item);
+        return true;
+      }
+      if (item.children?.length && walk(item.children)) return true;
+    }
+    return false;
+  };
+  walk(nodes);
+  return result;
+}
 
 const [treeOptions, setTreeOptions] = useState<XxxVO[]>([]);
 const [tableRows, setTableRows] = useState<XxxVO[]>([]);
+const [excludedTreeIds, setExcludedTreeIds] = useState<Set<string | number>>(new Set());
 const { expandAll, expandedRowKeys, onExpandedRowsChange, syncExpandedRows, toggleExpandAll } =
   useTreeTableExpand<XxxVO>(row => row.id);
+const treeSelectData = useMemo(
+  () => [
+    {
+      title: '顶级节点',
+      value: 0,
+      children: toTreeSelectData(node => node.name, treeOptions, excludedTreeIds)
+    }
+  ],
+  [treeOptions, excludedTreeIds]
+);
 
-const loadTreeOptions = async (excludeId?: string | number) => {
+const loadTreeOptions = async () => {
   const res = await listXxx();
-  const rows = handleTree<XxxVO>(res.data || [], 'id', 'parentId');
-  setTreeOptions(excludeId ? filterTree(rows, node => node.id !== excludeId) : rows);
+  setTreeOptions(handleTree<XxxVO>(res.data || [], 'id', 'parentId'));
 };
 
 const openAdd = async (row?: XxxVO) => {
   await loadTreeOptions();
+  setExcludedTreeIds(new Set());
   form.resetFields();
   form.setFieldsValue({ ...defaultXxxForm, parentId: row?.id || 0 });
   setModalTitle('添加Xxx');
+  openModal();
+};
+
+const openEdit = async (row: XxxVO) => {
+  const [listRes, detailRes] = await Promise.all([listXxx(), getXxx(row.id)]);
+  const rows = handleTree<XxxVO>(listRes.data || [], 'id', 'parentId');
+  setTreeOptions(rows);
+  setExcludedTreeIds(collectSubtreeIds(rows, row.id));
+  form.resetFields();
+  form.setFieldsValue(detailRes.data);
+  setModalTitle('修改Xxx');
   openModal();
 };
 

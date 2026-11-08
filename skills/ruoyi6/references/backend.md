@@ -2,7 +2,7 @@
 
 ## 写业务前
 
-先按 `SKILL.md` 的业务判型、复用扫描和业务契约门确认范围，再决定文件。后端重点检查：
+按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和业务契约门，Slice / Direct 只读现有契约和调用链后实现。后端重点检查：
 
 1. 现有表、字典、参数、菜单是否已经覆盖数据。
 2. `ruoyi-api` 是否已有跨模块查询、消息、配置、文件或工作流接口。
@@ -102,55 +102,9 @@ plus-ui-React/src/
 
 字段、查询条件、导入导出和权限至少同时出现在上述链路中。先读 `TestDemo*` 的完整实现，再按业务命名替换。
 
-## Controller 模板
+## Controller 职责
 
-```java
-@Validated
-@RequiredArgsConstructor
-@RestController
-@RequestMapping("/<module>/<business>")
-public class XxxController extends BaseController {
-
-    private final IXxxService xxxService;
-
-    @SaCheckPermission("<module>:<business>:list")
-    @GetMapping("/list")
-    public R<PageResult<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery) {
-        return R.ok(xxxService.queryPageList(bo, pageQuery));
-    }
-
-    @SaCheckPermission("<module>:<business>:query")
-    @GetMapping("/{id}")
-    public R<XxxVo> getInfo(@NotNull @PathVariable Long id) {
-        return R.ok(xxxService.queryById(id));
-    }
-
-    @SaCheckPermission("<module>:<business>:add")
-    @Log(title = "<业务名>", businessType = BusinessType.INSERT)
-    @RepeatSubmit
-    @PostMapping
-    public R<Void> add(@Validated(AddGroup.class) @RequestBody XxxBo bo) {
-        return toAjax(xxxService.insertByBo(bo));
-    }
-
-    @SaCheckPermission("<module>:<business>:edit")
-    @Log(title = "<业务名>", businessType = BusinessType.UPDATE)
-    @RepeatSubmit
-    @PutMapping
-    public R<Void> edit(@Validated(EditGroup.class) @RequestBody XxxBo bo) {
-        return toAjax(xxxService.updateByBo(bo));
-    }
-
-    @SaCheckPermission("<module>:<business>:remove")
-    @Log(title = "<业务名>", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public R<Void> remove(@NotEmpty @PathVariable Long[] ids) {
-        return toAjax(xxxService.deleteWithValidByIds(Arrays.asList(ids), true));
-    }
-}
-```
-
-导入、导出、状态变更和排序按现有同类接口追加，不把文件流塞进普通 JSON 响应。
+完整 Controller 骨架只在 [templates.md](templates.md) 维护一份；这里只保留选型规则。导入、导出、状态变更和排序按现有同类接口追加，不把文件流塞进普通 JSON 响应。
 
 ## 命名
 
@@ -175,62 +129,9 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
 - 修改映射后实际编译，让 MapStruct 生成实现。
 
-## Service 与 Mapper 模板
+## Service 与 Mapper 职责
 
-```java
-@RequiredArgsConstructor
-@Service
-public class XxxServiceImpl implements IXxxService {
-
-    private final XxxMapper xxxMapper;
-
-    @Override
-    public XxxVo queryById(Long id) {
-        return xxxMapper.selectVoById(id);
-    }
-
-    @Override
-    public PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery) {
-        Page<XxxVo> page = xxxMapper.selectVoPage(pageQuery.build(), buildQueryWrapper(bo));
-        return PageResult.build(page.getRecords(), page.getTotal());
-    }
-
-    @Override
-    public Boolean insertByBo(XxxBo bo) {
-        Xxx entity = MapstructUtils.convert(bo, Xxx.class);
-        validEntityBeforeSave(entity);
-        return xxxMapper.insert(entity) > 0;
-    }
-
-    @Override
-    public Boolean updateByBo(XxxBo bo) {
-        Xxx entity = MapstructUtils.convert(bo, Xxx.class);
-        validEntityBeforeSave(entity);
-        return xxxMapper.updateById(entity) > 0;
-    }
-
-    private LambdaQueryWrapper<Xxx> buildQueryWrapper(XxxBo bo) {
-        LambdaQueryWrapper<Xxx> lqw = Wrappers.lambdaQuery();
-        lqw.like(StringUtils.isNotBlank(bo.getName()), Xxx::getName, bo.getName());
-        return lqw;
-    }
-}
-```
-
-Mapper 继承 `BaseMapperPlus<Xxx, XxxVo>`；需要行级隔离时沿用 `@DataPermission`，列名必须与表字段和查询别名一致：
-
-```java
-public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
-    @Override
-    @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
-        @DataColumn(key = "userName", value = "user_id")
-    })
-    default <P extends IPage<XxxVo>> P selectVoPage(IPage<Xxx> page, Wrapper<Xxx> wrapper) {
-        return selectVoPage(page, wrapper, this.currentVoClass());
-    }
-}
-```
+完整 Service 接口、实现和 Mapper 骨架只在 [templates.md](templates.md) 维护一份。这里只说明边界：Service 做业务校验、编排、事务和并发；Mapper 继承 `BaseMapperPlus<Xxx, XxxVo>`；需要行级隔离时沿用 `@DataPermission`，列名必须与表字段和查询别名一致。
 
 ## Controller 与接口
 
@@ -264,16 +165,30 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 ## 查询与 Mapper
 
 - 继承 `BaseMapperPlus<Xxx, XxxVo>`，列表、详情和分页优先用自带的 `selectVo*` 方法，不手写结果转换。
-- 条件查询按场景选入口；具体方法名和重载以当前源码为准，不凭记忆或旧示例调用：
-  - 单表条件查询并直接取 VO：`mapper.lambda()`，适合一个业务 Service 内的链式查询和更新。
-  - 需要复用或集中构建 Wrapper：`QueryBuilder.lambda(Entity.class)`，最后 `.build()`。
-  - 多表联查：`QueryBuilder.lambdaJoin("u", Entity.class)`，支持别名、联表和分页。
-  - 简单条件直接用 `LambdaQueryWrapper` 即可，不必强行上链式。
-- 查询条件集中在 `buildQueryWrapper`；可选条件先判空。
+- 先按查询入口表选型；具体方法名、重载和调用方式以当前源码为准，不凭记忆或旧示例调用。
+- 查询条件集中在构建方法；可选条件优先用条件辅助方法，不在每个字段重复写 `StringUtils.isNotBlank(...)` 布尔参数。
 - 老模块已有 `Wrappers.lambdaQuery()` 或显式 `StringUtils.isNotBlank(...)` 时可增量保持，不与新写法混改。
 - 空 ID 集合直接返回空结果，禁止生成无条件全表查询。
 - 分页在数据库完成；关联展示批量查询或 `@Translation`，避免 N+1。
 - `PageQuery` 支持 `orderByColumn`、`isAsc` 的多字段排序，前端 `ascending` / `descending` 会自动转成 `asc` / `desc`；排序字段仍要防止任意列注入。
+
+### 查询入口能力表
+
+| 场景 | 入口 | 关键能力 | 边界 |
+|---|---|---|---|
+| 单表查询并直接取 VO，或按条件更新/删除 | `BaseMapperPlus#lambda()` → `LambdaCrudChainWrapper` | `voList()`、`voOne()`、`voPage()`、`count()`、`exists()`、`update()`、`delete()` | 适合一个 Service 内的链式查询；执行更新/删除前确认条件和影响行数。 |
+| 可复用或集中构建的 Wrapper | `QueryBuilder.lambda(Entity.class)` → `LambdaQueryBuilder` | 常规条件、子查询、聚合、分页 Wrapper；最后 `.build()` | 需要把 Wrapper 传给 `selectVoPage` / `selectVoList` 时用。 |
+| 多表联查 | `QueryBuilder.lambdaJoin(...)` | 主表别名、联表、分页、联表条件辅助 | 只在确有联表需求时用；`@DataColumn` 写 `别名.列名`。 |
+| 可选条件 | `LambdaQueryCondition` | `eqIfPresent`、`eqIfText`、`neIfPresent`、`likeIfText`、`betweenIfPresent`、`betweenParams`、`inIfNotEmpty`、`findInSetIfPresent` | 按方法语义使用；空集合、日期范围和数据权限仍要单独核对。 |
+| 简单固定条件 | `LambdaQueryWrapper` | MyBatis-Plus 原生条件 | 条件少、无需链式 CRUD 或条件辅助时直接用。 |
+
+`findInSetIfPresent` 需要字段侧用 `FIND_IN_SET` 语义，且不同数据库实现不同；使用前读 `DataBaseHelper.findInSet` 和当前方言，不要把它当成跨库通用字符串包含查询。
+
+### 翻译扩展
+
+- 已有用户、部门、字典、OSS 等展示值优先用 VO 字段上的 `@Translation`。
+- 需要新增翻译类型时，实现 `TranslationInterface<T>` 并标注 `@TranslationType`；批量列表优先覆盖 `translationBatch(...)`，复用 `collectLongIds`、`parseLongIds`、`joinMappedValues`，避免逐条查询。
+- JSON 内字段翻译由 `TranslationJsonFieldProcessor` 处理；先读现有实现和配置，不要另建翻译框架。
 
 ### 数据权限
 

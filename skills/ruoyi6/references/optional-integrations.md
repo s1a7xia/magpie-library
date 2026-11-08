@@ -25,6 +25,8 @@
 
 业务模块依赖 `ruoyi-api` 里的 `WorkflowService` 接口，不依赖 `ruoyi-workflow` 的实现类。
 
+工作流 Bean 使用 `@ConditionalOnEnable` 按 `warm-flow.enabled=true` 条件装配。新增工作流适配器、监听器或流程组件时沿用该注解；未启用工作流时，不得让业务模块因缺失 Bean 而启动失败，也不要通过无条件扫描把工作流依赖变成默认依赖。
+
 典型调用点（参考 `TestLeaveServiceImpl`）：
 
 - 业务保存成功后发起流程：构造 `StartProcessDTO`，设置 `businessId`（业务主键字符串）、`flowCode`（流程定义编码）和 `variables`（流程变量，通常包含业务详情），再调用发起方法。

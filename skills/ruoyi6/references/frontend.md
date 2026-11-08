@@ -2,7 +2,7 @@
 
 ## 写页面前
 
-先按 `SKILL.md` 的任务判型、业务判型、复用扫描和契约门确认范围，再决定组件和文件。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
+按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和契约门，Slice / Direct 只读现有契约和调用链后实现。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
 
 前端重点检查：
 
@@ -68,12 +68,12 @@ plus-ui-React/src/
 
 业务路由来自后端菜单，`src/pages/dynamicPage.tsx` 用 `migratedPages` 把菜单 `component` 映射到 React 页面。新页面只创建 TSX 不够：
 
-1. 在后端菜单中保留 `component`（通常是 `@/views/<module>/<business>/index`）。
+1. 在后端菜单中保留 `component`。当前初始化 SQL 和作者示例使用不带 `@/views/` 的键，例如 `system/user/index`、`demo/demo/index`；不要默认生成 `@/views/...`。
 2. 在 `dynamicPage.tsx` import 新页面，并登记对应键，例如 `module/business/index`。
 3. 若页面遵循稳定路径前缀，可评估 `migratedPathPrefixes`，但新业务默认用显式键，避免误匹配。
 4. 未登记会进入页面占位提示，即使 TSX 本身构建通过。
 
-`normalizeComponentKey` 会规范菜单 `component` 键。后端菜单格式以现有归一化规则为准，不为了前端改动菜单契约。
+`normalizeComponentKey` 兼容多种历史菜单写法；它是迁移适配，不代表新菜单应继续沿用历史格式。后端菜单格式以当前初始化 SQL 和现有数据为准。
 
 ## 页面骨架
 
@@ -103,53 +103,7 @@ PageContainer
 - 日期范围保留 `Query.params`；列表页 `Query` 继承 `PageQuery`，树表 `Query` 不继承。
 - API 函数优先跟随 `plus-ui-React/gen/api.ts.ftl` 的命名和 `export function` 形式；相邻模块已统一另一风格时保持该模块风格。
 
-### API 模板
-
-```ts
-import type { PageResult, R } from '@/api/types';
-import request from '@/api/request';
-import type { XxxForm, XxxQuery, XxxVO } from './types';
-
-export function listXxx(query?: XxxQuery) {
-  return request<R<PageResult<XxxVO>>>({
-    url: '/<module>/<business>/list',
-    method: 'get',
-    params: query
-  });
-}
-
-export function getXxx(id: string | number) {
-  return request<R<XxxVO>>({
-    url: `/<module>/<business>/${id}`,
-    method: 'get'
-  });
-}
-
-export function addXxx(data: XxxForm) {
-  return request<R>({
-    url: '/<module>/<business>',
-    method: 'post',
-    data
-  });
-}
-
-export function updateXxx(data: XxxForm) {
-  return request<R>({
-    url: '/<module>/<business>',
-    method: 'put',
-    data
-  });
-}
-
-export function delXxx(id: string | number | Array<string | number>) {
-  return request<R>({
-    url: `/<module>/<business>/${id}`,
-    method: 'delete'
-  });
-}
-```
-
-`types.ts` 至少分开 `XxxVO`、`XxxForm`、`XxxQuery`；字段名与 BO/VO 完全一致，主键、关联 ID 和雪花 ID 不使用单 `number` 类型。
+完整 API 和类型骨架只在 [frontend-templates.md](frontend-templates.md) 维护一份；`types.ts` 至少分开 `XxxVO`、`XxxForm`、`XxxQuery`，字段名与 BO/VO 完全一致，主键、关联 ID 和雪花 ID 不使用单 `number` 类型。
 
 ## 页面行为
 

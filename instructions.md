@@ -82,7 +82,7 @@
 
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
-- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
+- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Slice / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
 - `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。

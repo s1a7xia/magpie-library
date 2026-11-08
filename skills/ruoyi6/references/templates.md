@@ -1,6 +1,6 @@
 # 代码模板
 
-以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。
+以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。这是后端代码骨架的唯一来源，`backend.md` 只讲规则和选型。片段省略 import，按目标模块现有风格补齐，不要机械复制无法解析的符号。
 
 ## Controller
 
@@ -149,11 +149,11 @@ public class XxxServiceImpl implements IXxxService {
     }
 
     private LambdaQueryWrapper<Xxx> buildQueryWrapper(XxxBo bo) {
-        LambdaQueryWrapper<Xxx> lqw = Wrappers.lambdaQuery();
-        lqw.eq(bo.getDeptId() != null, Xxx::getDeptId, bo.getDeptId());
-        lqw.like(StringUtils.isNotBlank(bo.getName()), Xxx::getName, bo.getName());
-        lqw.orderByAsc(Xxx::getId);
-        return lqw;
+        return QueryBuilder.lambda(Xxx.class)
+            .eqIfPresent(Xxx::getDeptId, bo.getDeptId())
+            .likeIfText(Xxx::getName, bo.getName())
+            .orderByAsc(Xxx::getId)
+            .build();
     }
 
     @Override
@@ -182,6 +182,9 @@ public class XxxServiceImpl implements IXxxService {
 
     @Override
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+        if (CollUtil.isEmpty(ids)) {
+            return false;
+        }
         if (isValid) {
             List<Xxx> list = xxxMapper.selectByIds(ids);
             if (list.size() != ids.size()) {
@@ -356,6 +359,7 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 ## 使用说明
 
 - 这套模板来自作者 `TestDemo*`，标准单表沿用同一分层和命名；有主从、状态、导入、异步、外部接入等额外形态时，按其最小充分结构扩展，不为套模板删减业务契约。
+- 上面的 `QueryBuilder` 写法演示条件辅助方法；若目标模块已有 `Wrappers.lambdaQuery()` 风格，保持现状，不整体重写。引用时按现有 import 补齐 `QueryBuilder`、`CollUtil` 和实体类型。
 - 不需要数据权限的表，去掉 Mapper 上的 `@DataPermission` 重写即可，其余保持。
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。
