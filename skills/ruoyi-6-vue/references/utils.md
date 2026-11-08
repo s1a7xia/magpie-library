@@ -15,32 +15,35 @@
 
 只有稳定、跨模块、无业务归属的能力才考虑提升为公共工具；不要因为“以后可能复用”就新增一层。
 
-## 高频入口
+## 按场景找入口
 
-| 场景 | 优先入口 | 典型用途 |
-|---|---|---|
-| 字符串判空、截取、格式化 | `org.dromara.common.core.utils.StringUtils` | `isBlank`、`isNotBlank`、`trim`、`substring`、`format("{}")` |
-| 字符串拆分、拼接、命名转换 | `StringUtils` | `splitList`、`splitTo`、`str2List`、`str2Set`、`joinComma`、`toCamelCase`、`toUnderScoreCase` |
-| 集合、Stream、Map | `org.dromara.common.core.utils.StreamUtils` | `filter`、`toList`、`toSet`、`toMap`、`groupByKey`、`sorted`、`join`、`merge` |
-| 集合空值和 Map 工具 | Hutool `CollUtil`、`MapUtil` | 空集合判断、空 Map 判断、创建可变集合 |
-| 对象安全取值 | `org.dromara.common.core.utils.ObjectUtils` | `notNullGetter`、`notNull` |
-| BO/Entity/VO 转换 | `org.dromara.common.core.utils.MapstructUtils` | `convert(source, Target.class)`、列表转换 |
-| JSON | `org.dromara.common.json.utils.JsonUtils` | `toJsonString`、`parseObject`、`parseArray`、`parseMap`、`isJson` |
-| 日期时间 | `org.dromara.common.core.utils.DateUtils` | 继承 Hutool `DateUtil`；时间差、范围校验和友好时间用本类已有方法 |
-| 树结构 | `org.dromara.common.core.utils.TreeBuildUtils` | `build`、`buildMultiRoot`、`getLeafNodes`、`buildTreeNodeMap` |
-| 参数校验 | `ValidatorUtils.validate`、分组校验注解 | 新增/编辑/查询分组；业务失败抛 `ServiceException` |
-| 国际化 | `org.dromara.common.core.utils.MessageUtils` | `message("code", args...)` |
-| 下载文件名 | `org.dromara.common.core.utils.file.FileUtils` | `setAttachmentResponseHeader`、`percentEncode` |
-| IP 判断与匹配 | `org.dromara.common.core.utils.NetUtils` | `isIPv4`、`isIPv6`、`isInnerIPv6`、`isMatchIpRule`、`isMatchCidr` |
-| 正则提取 | `org.dromara.common.core.utils.regex.RegexUtils` | `extractFromString`；预定义规则用 `RegexConstants` |
-| SQL 排序和关键字 | `org.dromara.common.core.utils.sql.SqlUtil` | `escapeOrderBySql`、`isValidOrderBySql`、`filterKeyword` |
+下表只回答“这类处理该去哪个类找”；具体方法名、重载和返回值以当前 checkout 为准，不要凭清单或旧示例直接调用。
+
+| 场景 | 优先入口 |
+|---|---|
+| 字符串判空、截取、格式化、拆分、拼接、命名转换 | `org.dromara.common.core.utils.StringUtils`（继承 Commons Lang3） |
+| 集合、Stream、Map 转换 | `org.dromara.common.core.utils.StreamUtils` |
+| 集合空值和 Map 工具 | Hutool `CollUtil`、`MapUtil` |
+| 对象安全取值、默认值 | `org.dromara.common.core.utils.ObjectUtils` |
+| BO/Entity/VO 及列表转换 | `org.dromara.common.core.utils.MapstructUtils` |
+| JSON 序列化与解析 | `org.dromara.common.json.utils.JsonUtils` |
+| 日期时间计算、范围校验、友好展示 | `org.dromara.common.core.utils.DateUtils`（继承 Hutool `DateUtil`） |
+| 树结构构建、找叶子、多根节点 | `org.dromara.common.core.utils.TreeBuildUtils` |
+| 参数校验、分组校验 | `ValidatorUtils` 与现有分组注解 |
+| 国际化消息 | `org.dromara.common.core.utils.MessageUtils` |
+| 下载文件名与响应头 | `org.dromara.common.core.utils.file.FileUtils` |
+| IP 判断与网段匹配 | `org.dromara.common.core.utils.NetUtils` |
+| 正则提取 | `org.dromara.common.core.utils.regex.RegexUtils`、`RegexConstants` |
+| SQL 排序与关键字校验 | `org.dromara.common.core.utils.sql.SqlUtil` |
+
+不确定某个能力是否已封装时，先按“选择顺序”找到对应类，再读当前源码中的可用方法，而不是假设存在某个方法名。
 
 ## 各领域边界
 
 ### 字符串与集合
 
 - 先看 `StringUtils` 是否已经提供等价方法，再考虑 `StrUtil`、Commons Lang3 或手写。
-- `StringUtils` 继承 Commons Lang3，因此 `isBlank`、`isNotBlank`、`join`、`split`、`capitalize` 等继承方法也可用；不要仅因为方法定义不在当前文件就另写一份。
+- `StringUtils` 继承 Commons Lang3，因此父类的判空、拼接、拆分、大小写等方法同样可用；不要仅因为方法定义不在当前文件就另写一份。
 - `StreamUtils` 的集合转换会跳过 `null` 元素，并保留项目约定的可变 `List` 语义；涉及空集合、去重和顺序时先读实现。
 - 普通集合操作优先用 `StreamUtils`；复杂流式组合可以直接使用标准 Stream API，但要保持同样的空值和可变集合行为。
 
@@ -53,7 +56,7 @@
 ### JSON、日期与校验
 
 - 请求、响应、缓存和 JSON 字段使用 `JsonUtils`，不要另建 `JsonMapper` 或静态 `ObjectMapper`。
-- `JsonUtils` 的空文本、空数组和解析失败行为并不完全一致；调用前看当前方法签名，需要静默解析时不要假设存在 `parseObjectQuietly`。
+- `JsonUtils` 对不同输入（空文本、空数组、解析失败）的行为并不一致；调用前看当前方法签名，不要假设存在某个工具方法。
 - 日期计算、时间差、范围校验和友好展示先看 `DateUtils`；实体字段和接口使用项目现有的 `LocalDateTime`、`Date` 约定，不自行拼接 `SimpleDateFormat`。
 - 业务方法内部需要校验 DTO 时用 `ValidatorUtils.validate` 和现有分组；Controller 参数优先用 `@Validated` 与分组注解。
 
@@ -79,13 +82,13 @@
 
 | 不要这样写 | 先检查 |
 |---|---|
-| 手写逗号拆分、去空、去重 | `StringUtils.str2List`、`StringUtils.splitList`、`StreamUtils` |
-| 手写 `for` 循环做集合转 Map、分组、拼接 | `StreamUtils.toMap`、`groupByKey`、`join` |
-| 手写 BO/VO 逐字段复制 | `MapstructUtils.convert` |
+| 手写字符串拆分、去空、去重 | `StringUtils`、`StreamUtils` |
+| 手写 `for` 循环做集合转 Map、分组、拼接 | `StreamUtils` |
+| 手写 BO/VO 逐字段复制 | `MapstructUtils` |
 | 新建 `ObjectMapper` 或手写 JSON 字符串 | `JsonUtils` |
 | 手写递归建树、找叶子、拼路径 | `TreeBuildUtils` |
 | 手写日期差、范围校验 | `DateUtils` |
-| 复制正则、IP 或 SQL 排序校验 | `RegexUtils`、`NetUtils`、`SqlUtil` |
+| 自己写正则、IP 或 SQL 排序校验 | `RegexUtils`、`NetUtils`、`SqlUtil` |
 | 为一个业务加通用 `XxxUtils` | 先查现有工具；单业务逻辑留在业务模块 |
 
 ## 检查

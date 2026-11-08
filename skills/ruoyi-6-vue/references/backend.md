@@ -256,11 +256,12 @@ PUT    /updateSort            R<Void>
 
 ## 查询与 Mapper
 
-- 继承 `BaseMapperPlus<Xxx, XxxVo>`，优先用 `selectVoById`、`selectVoByIds`、`selectVoList`、`selectVoPage`。
-- 简单条件用 `LambdaQueryWrapper` 或 `QueryBuilder`；需要链式查询和更新时，先识别本地增强入口：
-  - `mapper.lambda()`：`eqIfText`、`likeIfText`、`betweenParams`、`inIfNotEmpty`、`voOne`、`voList`、`voPage`、`update`、`deleteCount`。
-  - `QueryBuilder.lambda(Entity.class)`：适合 Service 内构造可复用 Wrapper，最后 `.build()`。
-  - `QueryBuilder.lambdaJoin("u", Entity.class)`：多表联查、`selectAs`、`leftJoin`、别名条件、`list`/`page`/`count`。
+- 继承 `BaseMapperPlus<Xxx, XxxVo>`，列表、详情和分页优先用自带的 `selectVo*` 方法，不手写结果转换。
+- 条件查询按场景选入口；具体方法名和重载以当前源码为准，不凭记忆或旧示例调用：
+  - 单表条件查询并直接取 VO：`mapper.lambda()`，适合一个业务 Service 内的链式查询和更新。
+  - 需要复用或集中构建 Wrapper：`QueryBuilder.lambda(Entity.class)`，最后 `.build()`。
+  - 多表联查：`QueryBuilder.lambdaJoin("u", Entity.class)`，支持别名、联表和分页。
+  - 简单条件直接用 `LambdaQueryWrapper` 即可，不必强行上链式。
 - 查询条件集中在 `buildQueryWrapper`；可选条件先判空。
 - 老模块已有 `Wrappers.lambdaQuery()` 或显式 `StringUtils.isNotBlank(...)` 时可增量保持，不与新写法混改。
 - 空 ID 集合直接返回空结果，禁止生成无条件全表查询。

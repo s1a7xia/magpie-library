@@ -15,26 +15,32 @@ description: "RuoYi-Vue-Plus 6.x + Vue 3 业务模块开发规范。先判定业
 | 建表、改字段、写 SQL | [database.md](references/database.md) |
 | 写后端业务，需要字符串、集合、对象转换、JSON、日期、树、文件、IP、SQL 工具 | [utils.md](references/utils.md) |
 | 新增完整 CRUD | 后端 + 前端 + 数据库 |
-| 工作流、任务、消息、AI、MQTT 等 | 先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
+| 工作流、定时任务、AI、消息、MQTT、搜索等 | 按需；需求确实涉及才加载，先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
 作者仓库的 `.codex/skills/ruoyi-plus-ai-coding` 与 `.codex/skills/frontend-crud-coding` 是外部参考，不直接加载。它们覆盖的规则已合并进本技能；若与本技能冲突，以当前项目真实代码和本技能为准。
+
+绝大多数业务模块只依赖 `ruoyi-common`（公共技术能力）、`ruoyi-system`（系统能力）和业务模块自身所在的分层。下面的工作流、AI、定时任务、MQTT 等属于框架可选能力，**不是业务模块的前置依赖**：只有需求明确用到时才引入，不必也没有理由为它们预留结构。
 
 ## 工程定位
 
 ```text
 ruoyi-admin/                 启动与登录入口
 ruoyi-api/                   跨模块接口和 DTO
-ruoyi-common/                公共技术能力
-ruoyi-modules/ruoyi-system/  用户、角色、部门、菜单、字典、参数、OSS
-ruoyi-modules/ruoyi-demo/    CRUD、树表、Excel、MQTT、MCP、ES 示例
+ruoyi-common/                公共技术能力；业务模块的核心复用来源
+ruoyi-modules/ruoyi-system/  用户、角色、部门、菜单、字典、参数、OSS；系统能力来源
+ruoyi-modules/ruoyi-<业务>/  业务模块；新增功能主要落在这里
+ruoyi-modules/ruoyi-demo/    CRUD、树表、Excel、MQTT、MCP、ES 示例；只做骨架参考
 ruoyi-modules/ruoyi-gen/     生成模板，只用于查漏，不运行生成器
-ruoyi-modules/ruoyi-*/       其它模块；业务模块只用于了解集成约束，不作为模板
+ruoyi-modules/ruoyi-* 其它    工作流、AI、定时任务等按需能力；随主应用装配，用到才接入
+ruoyi-extend/                独立服务：monitor-admin、snailjob-server、snailai-server；各自进程，只通过客户端或 HTTP 交互，不并入主应用
 plus-ui/src/                 Vue 3 + TypeScript + Element Plus
 script/sql/                  初始化 SQL
 docs/sql/                    业务增量 SQL
 ```
 
 写代码前先读同模块的 Controller、ServiceImpl、Mapper、BO、VO 和兄弟 Vue 页面，确认现有接口和调用方式。目录存在不等于能力已启用；以当前源码、POM、配置、Bean 和调用链为准。已有业务模块可以帮助理解集成边界，但不要复制其中的分层、命名、组件或公共能力实现。
+
+复用前先分清两种边界：`ruoyi-modules/ruoyi-workflow`、`ruoyi-ai`、`ruoyi-job` 与业务代码在同一个 Spring 进程内，通过 `ruoyi-api` 接口或现有 Bean 调用；`ruoyi-extend/` 下的服务是独立进程，只能通过客户端、HTTP 或消息交互，不要试图把它当作本地 Bean 注入。业务模块默认不依赖前者，也不直接对接后者。
 
 ### 取样优先级
 
