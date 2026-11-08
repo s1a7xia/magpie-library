@@ -16,6 +16,8 @@ description: "RuoYi-Vue-Plus 6.x + Vue 3 业务模块开发规范。先判定业
 | 新增完整 CRUD | 后端 + 前端 + 数据库 |
 | 工作流、任务、消息、AI、MQTT 等 | 先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
+作者仓库的 `.codex/skills/ruoyi-plus-ai-coding` 与 `.codex/skills/frontend-crud-coding` 是外部参考，不直接加载。它们覆盖的规则已合并进本技能；若与本技能冲突，以当前项目真实代码和本技能为准。
+
 ## 工程定位
 
 ```text
@@ -33,11 +35,22 @@ docs/sql/                    业务增量 SQL
 
 写代码前先读同模块的 Controller、ServiceImpl、Mapper、BO、VO 和兄弟 Vue 页面，确认现有接口和调用方式。目录存在不等于能力已启用；以当前源码、POM、配置、Bean 和调用链为准。已有业务模块可以帮助理解集成边界，但不要复制其中的分层、命名、组件或公共能力实现。
 
+### 取样优先级
+
+出现冲突时按下列顺序取样，不拿“更通用”的写法覆盖项目已形成的强约定：
+
+1. 目标模块内最近似的真实实现，以及它与前端 API、页面、权限的联动。
+2. `ruoyi-common-*`、`ruoyi-api` 和当前项目公共 hooks、组件、工具的既有约定。
+3. `ruoyi-gen` 后端模板和 `plus-ui/gen` 前端模板。
+4. 通用 Spring Boot / MyBatis-Plus / Vue / Element Plus 习惯。
+
+模板只补骨架和字段映射。目标模块已有数据权限、联表、缓存、导入导出、审批、树筛选或特殊交互时，增量扩展，不能回退成模板裸产物。
+
 版本和依赖事实从当前 checkout 读取：后端看根 `pom.xml`，前端看 `plus-ui/package.json`。本技能不把某个固定补丁版本或提交号当作代码事实，代码变化后以实际文件为准。
 
 ## 业务模块落地
 
-顺序固定为：**业务判型 -> 框架复用扫描 -> 业务契约门 -> 选择最小模板 -> 实现与编译**。不要先套 CRUD 模板再倒推业务。
+顺序固定为：**业务判型 -> 框架复用扫描 -> 业务契约门 -> 选择最小模板 -> 实现与编译 -> 前后端联动检查**。不要先套 CRUD 模板再倒推业务。
 
 ### 业务判型
 
@@ -94,6 +107,8 @@ docs/sql/                    业务增量 SQL
 
 模板只提供文件落点和调用方式，不是业务事实源。不要因为模板有某个字段、按钮或接口，就把它带进当前需求。
 
+后端模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`；前端模板位于 `plus-ui/gen/`。查找顺序是“同模块真实实现 -> 公共能力 -> 模板”；没有同类真实实现时才用模板生成骨架。只借鉴模板的字段、权限、导出、状态/排序和日期范围结构，最终代码必须符合当前项目的 hooks、组件和页面壳。
+
 ## 本地参考实现
 
 | 场景 | 优先参考 |
@@ -123,6 +138,23 @@ docs/sql/                    业务增量 SQL
 
 登录、会话、动态路由看 `views/login.vue`、`permission.ts`、`store/modules/user.ts`、`store/modules/permission.ts`；布局、导航、页签、设置看 `layout/components/`、`store/modules/app.ts`、`store/modules/settings.ts`；请求、鉴权、加解密、权限判断看 `utils/request.ts`、`utils/auth.ts`、`utils/crypto.ts`、`utils/permission.ts`；主题和页面样式看 `assets/styles/tokens/`、`assets/styles/layout/`、`assets/styles/components/`。
 
+## 前后端联动门
+
+接口和页面必须作为一条契约同时核对，不能一侧完成就宣布开发完成：
+
+| 契约 | 后端 | 前端 |
+|---|---|---|
+| 路径与方法 | `@RequestMapping`、HTTP 方法和参数位置 | `src/api` 的 URL、`method`、`params`/`data` |
+| 响应结构 | `R<T>`、`PageResult<T>` 的 `rows`/`total` | `AxiosPromise<T>`、`res.data.rows`/`res.data.total` |
+| 字段 | Entity/BO/VO，含必填、类型和可空性 | `types.ts` 的 `VO`/`Form`/`Query` 和页面字段 |
+| 权限 | `sys_menu.perms` + `@SaCheckPermission` | `v-hasPermi` / `checkPermi` 使用完全相同的权限字符 |
+| 状态与排序 | `changeStatus` / `updateSort` 入参和返回 | `el-switch` / 排序控件及失败回滚 |
+| 查询范围 | `PageQuery`、`params.begin*/end*`、排序白名单 | 日期范围、分页、排序参数的字段名与格式 |
+| 导入导出 | VO 注解、接口方法与文件流 | 上传/下载入口、文件名和错误反馈 |
+| 文件与富文本 | OSS ID 字段和存储值 | `FileUpload`、`ImageUpload`、`Editor` 的 `ossId` / `oss://` 约定 |
+
+只后端或只前端时，仍检查另一侧现有契约是否已存在；不存在时明确列为未完成项，不假设另一侧会自动适配。
+
 ## 硬规则
 
 - 后端固定 `Controller -> Service 接口 -> ServiceImpl -> Mapper`，不新增 DAO/Repository 层。
@@ -142,6 +174,8 @@ docs/sql/                    业务增量 SQL
 - 业务路径、包名、表前缀、权限前缀沿用项目登记；新业务不得混用框架 `/system` 命名或另起一套缩写。
 - 不把生成器输出当作事实源；模板只用于确认字段命名、注解和文件落点，最终代码按本规范、框架示例和当前项目登记约定写。
 - 前端请求默认使用 `import request from '@/utils/request'`；不要写成命名导入。
+- 后端不暴露 Entity，前端不改写后端字段；跨层字段名不一致时，在 BO/VO 边界修正，不在页面拼第二套映射。
+- 已有复杂模块（如 user、role、workflow）的树筛选、导入导出、列显隐、详情抽屉、分配页面和路由跳转必须保留；只做本需求范围内的增量修改。
 - 不改需求范围外的代码；修改公共组件或公共方法前检查所有调用方。
 
 ## 实施闭环
@@ -153,7 +187,8 @@ docs/sql/                    业务增量 SQL
 5. 写 Entity、BO、VO、Mapper、Service 接口、ServiceImpl、Controller；列表分页，树表返回列表。
 6. 写 `types.ts`、`api/index.ts`、`index.vue`；先查询、表格、分页，再弹窗、校验、提交。
 7. 接菜单和权限：新增目录/菜单用 `C`，按钮用 `F`；权限字符与后端注解、前端指令一致。
-8. 后端编译，前端构建；页面可见改动只标 `Dev Complete`，交给用户发起 `page-acceptance`。
+8. 过前后端联动门，核对字段、路径、权限、查询、导入导出和文件契约。
+9. 后端编译，前端构建；页面可见改动只标 `Dev Complete`，交给用户发起 `page-acceptance`。
 
 普通单表按 `TestDemoController` 和 `views/demo/demo/index.vue`；树表按 `TestTreeController` 和 `views/demo/tree/index.vue`。两者签名和导出方法不同，不混用。
 
@@ -167,6 +202,8 @@ docs/sql/                    业务增量 SQL
 - [ ] 字段在表、Entity、BO/VO、TS 类型、页面标签和字典中一致。
 - [ ] 分页、空集合、唯一性、事务、数据权限和权限字符已处理。
 - [ ] 复用了现有组件、hooks、工具、跨模块 API 和公共能力；没有照抄业务模块或另造第二套实现。
+- [ ] 已按“同模块真实实现 -> 公共能力 -> 模板 -> 通用习惯”取样，并保留目标模块的复杂增强。
+- [ ] 已核对前后端路径、响应、字段、权限、查询、导入导出和文件契约。
 - [ ] 后端已编译，前端已构建；未做页面验收时明确写“开发完成、未验收”。
 - [ ] 没把生成器、外部框架文档或旧提交当作当前代码事实。
 

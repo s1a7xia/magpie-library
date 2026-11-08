@@ -12,6 +12,8 @@
 
 页面实现不是把现有业务页面整页复制后改名。已有业务页面只帮助理解交互和集成约束；基础行为以 `components/`、`hooks/`、`utils/` 和框架 demo 为准。
 
+取样顺序固定为：目标目录最近似真实页面 -> 公共 hooks/组件/工具 -> `plus-ui/gen` 模板 -> 通用 Vue / Element Plus 习惯。模板是标准骨架，不是最终答案；复杂页面不能为了“标准 CRUD”退化成模板裸产物。
+
 ## 选择页面形态
 
 | 页面用途 | 最小实现 |
@@ -58,7 +60,7 @@ p-2 app-container
 ```
 
 - 页面用 `<script setup name="Xxx" lang="ts">`。
-- 组件 `name` 用于 keep-alive；菜单路由名由后端 `routeName + menuId` 生成，两者不要求相等。
+- 路由 `name` 必须唯一且非空；组件 `name` 默认与路由 `name` 保持一致，供 `<keep-alive>` 命中。通过后端菜单动态加载时，`loadView` / `createCustomNameComponent` 会注入路由名兜底，但不能把“不一致”当作常规写法。
 - Props 用 `withDefaults(defineProps<Props>())`，事件用 `defineEmits`。
 - 列表 `key` 用稳定业务主键。
 
@@ -70,6 +72,9 @@ p-2 app-container
 - `VO` 表示返回，`Form` 表示提交，`Query` 继承分页查询。
 - 主键和关联 ID 用 `string | number`。
 - 不使用 `any` 掩盖字段不一致；纯类型导入用 `import type`。
+- `AxiosPromise` 来自 `@/utils/api-types`，`PageResult` 来自 `@/api/types`，不要从 `axios` 导入。
+- 日期范围继续保留 `Query.params`；列表页 `Query` 继承 `PageQuery`，树表 `Query` 不继承。
+- 接口函数优先跟随 `plus-ui/gen/api.ts.ftl` 的命名和 `export const` 形式；相邻模块已统一使用 `export function` 时保持该模块风格。
 
 ### API 模板
 
@@ -110,6 +115,9 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 - 页面至少处理 loading、空结果、请求失败、无权限和提交失败；不能只覆盖成功路径。
 - 删除、批量操作、状态变更和导入都要有明确的确认、结果反馈和刷新策略。
 - 表单字段、列表字段和查询字段从同一份契约派生；不要在不同组件里各自硬编码标签和枚举。
+- 状态切换失败必须回滚 `el-switch` 的原值。
+- 树表使用 `handleTree` / `row-key` / `tree-props` 和 `useTreeTableExpand`；新增子节点时从当前行带入 `parentId`。
+- 修改已有复杂页面时保留树筛选、导入、导出、列显隐、详情抽屉、分配页面和路由跳转，只增量修改本需求范围内的交互。
 
 ### 页面最小骨架
 
@@ -169,6 +177,16 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 - `useTableSelection` 的 `single` 表示“不是恰好一条”，`multiple` 表示“零条”。
 - `useFullHeightTable` 由 `AppMain.vue` 全局启用，业务页不要重复调用。
 
+### 请求头开关
+
+| Header | 作用 | 什么时候用 |
+|---|---|---|
+| `isToken: false` | 本次请求不携带 Token | 登录、验证码等公开接口 |
+| `repeatSubmit: false` | 关闭 POST/PUT 前端短时防重 | 明确允许连续提交的接口；后端 `@RepeatSubmit` 仍独立生效 |
+| `isEncrypt: 'true'` | 开启 POST/PUT 请求体加密 | 后端标注 `@ApiEncrypt` 且 `VITE_APP_ENCRYPT=true` 的敏感接口 |
+
+本地 `request.ts` 内部按严格字符串 `'true'` 判断是否加密；新代码沿用同模块现有写法并实际验证，不直接照抄可能使用布尔值的旧示例。非 Axios 上传、富文本等请求需要公共头时复用 `globalHeaders()`。
+
 ## 现有组件
 
 | 场景 | 组件 |
@@ -186,6 +204,18 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 
 上传值保存 `ossId`，不保存二进制或临时 URL。`Editor` 的 `url` 模式保存 `oss://<ossId>`。不要复制分页、工具栏、字典、选择器或上传组件。
 
+### 通用动作入口
+
+| 场景 | 入口 |
+|---|---|
+| 打开、刷新、关闭页签 | `@/plugins/tab` 的 `openPage`、`refreshPage`、`closePage` |
+| 消息与确认框 | `@/plugins/modal` 的 `msgSuccess`、`msgError`、`confirm` |
+| OSS / ZIP 下载 | `@/plugins/download` |
+| 普通业务导出 | `@/utils/request` 的 `download` |
+| 字典读取 | `@/utils/dict` 的 `useDict` |
+| 权限函数 | `@/utils/permission` 的 `checkPermi`、`checkRole` |
+| 常用格式化 | `@/utils/ruoyi` 的 `parseTime`、`parseStrEmpty`、`addDateRange` |
+
 ## 复用边界
 
 - 请求统一走 `@/utils/request`；鉴权走 `@/utils/auth`；权限判断走 `@/utils/permission`；字典走 `useDict` / `DictTag`；下载复用现有工具。
@@ -201,6 +231,7 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 - 复用 `app-container`、`search-panel`、`table-panel`、`toolbar-shell`、`toolbar-actions`、`panel-kicker`、`data-table`。
 - 状态用语义化 `el-tag` 或 `DictTag`：成功、警告、危险、信息含义固定。
 - 单页样式加 `scoped`；颜色用现有主题 token，不散落硬编码色值。
+- 复杂页面样式优先 `@use '@/assets/styles/components/page-shell' as pageShell;`，使用已有 mixin，不复制页面壳 SCSS。
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片。
 - 保证无横向溢出、按钮不折行、弹窗与下拉层级正常、深色模式文字可读。
 
@@ -223,6 +254,8 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 | 复制已有业务页面整套逻辑 | 把历史问题扩散到新模块 | 只读集成约束，基础行为取框架组件和 hooks |
 | 新增第二套请求/权限/字典封装 | 绕过加解密、错误提示和统一权限 | 使用现有 `utils/`、`useDict`、`DictTag` |
 | 报表页硬加增删改按钮 | 与只读业务不匹配 | 按业务形态决定操作，不套完整 CRUD |
+| 组件名和路由名不一致 | `<keep-alive>` 无法命中，页签切换丢状态或串页 | 默认保持一致；动态路由由框架注入时也要保证路由名唯一 |
+| 删除日期范围 `params` | 后端 `betweenParams` 收不到 begin/end | 保留 `Query.params` 和 `useDateRangeQuery` |
 
 ## 检查
 

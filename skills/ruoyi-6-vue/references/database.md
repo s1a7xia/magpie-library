@@ -126,6 +126,7 @@ WHERE NOT EXISTS (
 ## 查询与性能
 
 - 优先 `BaseMapperPlus<Entity, Vo>` 和 `QueryBuilder`；复杂联表再沿用 MPJ/XML。
+- 单表链式查询优先识别 `mapper.lambda()`；可复用 Wrapper 用 `QueryBuilder.lambda()`；多表用 `QueryBuilder.lambdaJoin()`。
 - 分页在数据库完成；`PageQuery` 未传 `pageSize` 时默认接近全量，业务接口必须限制默认值和上限。
 - 空 ID 集合直接返回空结果，禁止退化成全表查询。
 - 模糊查询只用于允许字段；无索引大字段不做无界 `%keyword%`。
@@ -143,8 +144,9 @@ WHERE NOT EXISTS (
 ## 数据权限与安全
 
 - 功能权限和数据权限分开；列表、详情、导出、批量操作都检查数据范围。
-- 用现有 `@DataPermission`、`DataPermissionHelper`、`DataScopeType`；SQL 列名与别名一致。
+- 用现有 `@DataPermission`、`DataPermissionHelper`、`DataScopeType`；注解主要标在 Mapper，列表、详情、更新、删除都覆盖，SQL 列名与表别名一致。
 - SQL 参数绑定或 Wrapper，不拼接用户输入；排序字段做白名单校验。
+- 敏感字段在 VO 用 `@Sensitive` 控制响应，不把脱敏当作数据库安全边界；需要展示用户、部门、字典、OSS 值时优先 `@Translation`。
 - 数据库写入、DDL、迁移和清理需要明确授权；连接可用不等于允许写。
 
 ## 检查
