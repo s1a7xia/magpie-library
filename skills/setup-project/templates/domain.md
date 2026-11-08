@@ -34,9 +34,6 @@ Single-context repo (most repos):
 │   │   └── 0002-postgres-for-write-model.md
 │   └── research/
 │       ├── INDEX.md
-│       ├── inbox/
-│       │   └── RES-20261107-001/
-│       │       └── 调研简报.md
 │       ├── react-concurrent-rendering-18.md
 │       └── postgres-index-strategy-15.md
 └── src/
@@ -47,7 +44,6 @@ Single-context repo (most repos):
 - PRD: `PRD-NNNN-<title>.md` — see `PRD-FORMAT.md` (dev-skills /think)
 - ADR: `<NNNN>-<title>.md` (no `ADR-` prefix) — see `ADR-FORMAT.md` (dev-skills /grill)
 - Research: `<stack>-<topic>-<major>.md` — see `RESEARCH-FORMAT.md` (dev-skills /research)
-- WeChat research brief: `research/inbox/RES-YYYYMMDD-NNN/调研简报.md` — unverified Codex intake, not an INDEX entry
 
 Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
 

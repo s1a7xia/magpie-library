@@ -28,13 +28,6 @@ A research record is a **durable note capturing best practice for one stack × t
 
 **Execution mode.** The main agent performs the research directly: define one bounded question, collect multi-source evidence when needed, compare versions, verify decisive claims against the cited primary sources, then write the record and update the index.
 
-**WeChat research briefs.** A `调研：` brief in `docs/research/inbox/`
-is unverified input, not an existing research record. Read the brief, re-check
-its cited primary sources, and either correct or extend the evidence before
-deciding whether to promote it. Promotion means writing the normal
-`<stack>-<topic>-<major>.md` record and updating INDEX; never treat the inbox
-brief as Tier 1 evidence by itself and never move it over an immutable record.
-
 **Step 0 — Bootstrap.** Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates domain docs and reads `CONTEXT.md`, ADRs, and `docs/research/INDEX.md`.
 
 **Step 1 — State the question.** Write down the one question being answered (stack + topic + target major) in one sentence. Confirm the **stack** is a leaf unit (not a composite like `react-nextjs`) and the **topic** is narrow enough for a single one-line verdict (if its answer needs a branching matrix, split it). See [REFERENCE.md](REFERENCE.md) for the granularity test.

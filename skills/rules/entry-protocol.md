@@ -13,15 +13,12 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 | `domain.md` | Paths for CONTEXT, PRDs, ADRs, research | Use defaults in Step 3 |
 | `repo-map.md` | Multi-repo structure and tracker owner | Treat as single-repo |
 | `issue-tracker.md` | Tracker type and adapter | Ask which tracker; do not guess |
-| `ai-collaboration.md` | Multi-agent roles, handoff, write boundaries | Use `ai-collaboration` defaults when multiple agents collaborate |
 | `triage-labels.md` | Label vocabulary | Use canonical defaults |
 | `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
 | `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi6` unless the user or project explicitly selects another profile or `none` |
 | `project-state.md` | Objective, stage dashboard, blockers, next step, compile commands | Use the current request only; do not create implicitly |
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
-
-When the task involves both Codex and dsh, read `ai-collaboration.md` and apply its project-specific role refinements.
 
 ### Step 1a: Apply Standards
 

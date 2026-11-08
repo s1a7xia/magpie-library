@@ -25,20 +25,20 @@
 
 - 保留 8 个显式流程：`setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review`、`debug`。
 - 保留 2 个技术与设计技能：`ruoyi6`、`frontend-design`。
-- 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
+- 保留 5 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
 - `ruoyi6` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。旧 `plus-ui` 仅作为 Vue→React 迁移的业务事实来源。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
-当前是 **16 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
+当前是 **15 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
 
 ## 这套东西由什么组成
 
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 说明什么能做、什么必须停、何时提交、何时验收 | `instructions.md`，同步到 Codex 的 `AGENTS.md` |
-| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 16 个技能 |
+| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 15 个技能 |
 | 项目事实 | 当前目标、决策、验证证据、编译命令 | 项目内 `docs/agents/`，由 `setup-project` 创建 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 7 个 MCP，加上本机 CLI |
 
@@ -69,12 +69,11 @@ Hook 是平台事件适配层，不是第二套开发流程。它可以检查启
 它会根据仓库事实生成或更新：
 
 - `docs/agents/domain.md`、`coding-standards.md`、`project-state.md`、`project-decisions.md`、`verification.md`、`language.md`；
-- 可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`、`ai-collaboration.md`；
+- 可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`；
 - 可选的 `AGENTS.md` / `CLAUDE.md` 短指针（默认不创建，只写项目事实）；
-- 前后端实际编译命令；
-- 可选的多 Agent 协作或微信查看入口。
+- 前后端实际编译命令。
 
-默认按 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，实际版本从项目构建文件读取）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
+默认按 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，实际版本从项目构建文件读取）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。
 
 ### 1. 需求和方案：`think` -> `grill`
 
@@ -212,7 +211,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；先判型、扫描框架复用能力并确认业务契约，再按任务加载后端、前端和数据库规范 |
 | `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
 
-### 支撑与环境（6）
+### 支撑与环境（5）
 
 | 技能 | 作用 |
 |---|---|
@@ -221,7 +220,6 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | `answer-me-with-html` | `story` 收口后自动生成一次计划总览；其他阶段仅显式调用，普通回答和 `grill` 不自动加载 |
 | `agent-browser` | 浏览器自动化技能；页面验收优先使用当前 Agent 已有浏览器能力 |
 | `powershell-windows` | Windows PowerShell 的可靠写法与常见坑 |
-| `ai-collaboration` | 定义 Codex、dsh 和可选微信入口的职责边界 |
 
 ### 维护规则
 
@@ -302,7 +300,7 @@ MCP 由 Magpie 统一托管，当前登记 7 个：`context7`、`dbhub`、`gitee
 | 路径 | 说明 |
 |---|---|
 | `instructions.md` | 通用协作指令正文 |
-| `skills/` | 16 个技能及其引用、模板和脚本 |
+| `skills/` | 15 个技能及其引用、模板和脚本 |
 | `scripts/verify-library.py` | 资源库结构、链接、同步和凭证提示检查 |
 | `README.md` | 组合介绍、工作流与使用说明 |
 | `DEPENDENCIES.md` | 运行依赖、MCP、恢复与校验 |
@@ -334,7 +332,7 @@ MCP 由 Magpie 统一托管，当前登记 7 个：`context7`、`dbhub`、`gitee
 - “已登记 MCP”不等于“当前会话已连通”；需要实际调用一次才算验证。
 - `dbhub` 依赖本机 PostgreSQL 和正确的 DSN，换机后目标可能变化。
 - `agent-browser` 技能已安装，但 CLI 未在当前 PATH；页面验收优先使用当前 Agent 的浏览器能力。需要跨机器一致行为时执行 `npm i -g agent-browser && agent-browser install`，并在新会话确认。
-- 全局指令目前只分发给 Codex；16 个技能在共享目录中，但各 Agent 的逐项勾选不同。
+- 全局指令目前只分发给 Codex；15 个技能在共享目录中，但各 Agent 的逐项勾选不同。
 - 默认不安装工程 Hook 和子代理；Hook 只作为可选护栏，主代理负责判断、执行和交付。
 
 ## 永不入库

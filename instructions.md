@@ -84,7 +84,6 @@
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
 - `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
 - `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
-- `ai-collaboration`：仅在项目存在多 Agent 协作或启用了微信入口时加载。微信入口只用于从手机查看项目进度，不开发、不测试、不改项目最终状态；细节只以 `~/.dsh/im/AGENTS.md` 和 `REPORTER.md` 为准。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。
 - `rules`：共享规则包，不是任务技能；不主动路由，不把其中的规则复制到每个技能。
@@ -92,7 +91,7 @@
 ## 项目文档
 
 - `setup-project` 创建或重配 `docs/agents/`；默认不创建 `AGENTS.md` / `CLAUDE.md`，项目事实写入 `docs/agents/`。
-- 常见文件：`domain.md`（CONTEXT/PRD/ADR/research 路径）、`coding-standards.md`（约定、profile、编译命令）、`project-state.md`（目标、阶段、阻塞、下一步）、`project-decisions.md`（已确认决策）、`verification.md`（验证证据）、`language.md`、可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`、`ai-collaboration.md`。
+- 常见文件：`domain.md`（CONTEXT/PRD/ADR/research 路径）、`coding-standards.md`（约定、profile、编译命令）、`project-state.md`（目标、阶段、阻塞、下一步）、`project-decisions.md`（已确认决策）、`verification.md`（验证证据）、`language.md`、可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`。
 - 有 `docs/agents/project-state.md`、`project-decisions.md` 或 `verification.md` 时，先读与当前任务相关部分；它们记录状态、决策和证据，不把聊天当项目事实。
 - `project-state.md` 的阶段面板只在基线冻结、切片完成、批次收口、页面验收和 review 收口更新；PRD 的 `Status` 与 `Sliced into` 仍是需求状态源。
 - 验证记录包含版本/提交、命令或路径、结果、日期和来源（agent/user）；区分代理实测、用户确认和未验证项。不写凭证、完整认证头、个人数据或无关聊天。
@@ -105,8 +104,6 @@
 - 提交前记录已有暂存区（`git diff --cached --name-status`）；含本任务前已有或归属不明改动时保留暂存并停止自动提交。没有既有暂存时只暂存本任务路径，复核 diff 与文件清单一致后提交；不得用 `git add -A` 代替核对。
 - 无关暂存、混杂改动无法可靠分离、冲突/变基、敏感信息、无提交身份、受保护或默认分支、非 Git 目录或上游不明确时停止并说明；不扫入旧改动、不清空他人暂存、不强推、不绕过钩子或改写历史。
 - 不自动建 PR、合并、发布或部署；本地提交与推送不经过单独的 SCM 技能。远端 Issue/PR/MR 只在用户明确要求时通过对应平台 MCP/CLI 操作。
-- 微信助手不执行项目文档或业务 Git 收尾；仅受控收件箱归档按 `ai-collaboration` 约定。
-
 ## 历史续接与巡检
 
 - 继续旧任务复用已确认的目标、决定、保护范围和证据，只核对相关变化；历史成功不代表当前状态，记录不保存凭证。
