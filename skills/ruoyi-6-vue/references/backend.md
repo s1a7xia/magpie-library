@@ -12,7 +12,7 @@
 
 找到可复用能力后，确认方法语义、权限、事务和异常行为再使用。不要仅因为类名相似就复用，也不要为了少改现有代码而复制一份。
 
-取样顺序固定为：目标模块最近似实现 -> 公共基础模块约定 -> 后端生成模板 -> 通用 Spring / MyBatis-Plus 习惯。模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`；它是骨架，不是目标模块的事实源。
+实现写法以作者维护的 `ruoyi-system`、`ruoyi-demo` 和 `ruoyi-common-*` 为准，其次查 `ruoyi-api` 契约和生成模板。目标业务模块只用于确认业务字段、权限、接口兼容和集成约束，不作为实现范本；不要因为目标模块已有某种写法就照搬。模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`，只提供骨架。
 
 ## 分层
 
@@ -252,7 +252,7 @@ PUT    /updateSort           R<Void>
 - 树表列表：`R<List<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo)`，前端建树。
 - 分组校验：新增 `AddGroup`、修改 `EditGroup`、查询 `QueryGroup`；路径批量 ID 用 `@NotEmpty`，单个 ID 用 `@NotNull`。
 - 新增/修改/删除统一 `return toAjax(service.xxx(...))`。
-- `@Log` 标在**所有写操作**上（新增、修改、删除、导入、导出、状态变更），`businessType` 用 `BusinessType.INSERT/UPDATE/DELETE/IMPORT/EXPORT`。
+- `@Log` 用于需要记录的用户操作，新增、修改、删除、导入、导出和关键状态变更按 `ruoyi-system` / `ruoyi-demo` 中对应场景的约定处理。导出虽不修改数据，也可以作为操作审计记录；不要把它称为写操作，也不要机械地给高频内部维护或后台任务加请求操作日志。`@Log` 不替代业务状态历史、版本记录或合规审计表。
 - `@RepeatSubmit` 标在表单提交的 POST/PUT 上，按作者写法可显式写 `interval`、`timeUnit`、`message`。
 - 权限统一 `@SaCheckPermission("{module}:{business}:{action}")`，动作词沿用 `list`、`query`、`add`、`edit`、`remove`、`export`、`import`。
 
@@ -375,6 +375,6 @@ PUT    /updateSort           R<Void>
 - [ ] 没有 DAO 层，Controller 不直接调 Mapper，Service 不返回 `R`。
 - [ ] Entity/BO/VO、查询、分页、空集合和映射正确。
 - [ ] 权限字符、数据范围、日志、幂等和事务按需完整。
-- [ ] 已检查 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 和框架示例，列出实际复用入口。
+- [ ] 已检查 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 和框架示例，列出实际复用入口；目标业务模块仅用于核实业务事实和集成约束。
 - [ ] 鉴权、响应、转换使用现有封装；没有复制业务模块或另造第二套公共能力。
 - [ ] 业务未定的地方用 TODO 占位并保证接口不报错，没有把未实现当成 TODO；TODO 已写明“没定什么 / 临时怎么做 / 找谁确认”。
