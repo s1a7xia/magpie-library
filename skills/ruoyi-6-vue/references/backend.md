@@ -1,5 +1,17 @@
 # 后端开发规范
 
+## 写业务前
+
+先按 `SKILL.md` 的业务判型、复用扫描和业务契约门确认范围，再决定文件。后端重点检查：
+
+1. 现有表、字典、参数、菜单是否已经覆盖数据。
+2. `ruoyi-api` 是否已有跨模块查询、消息、配置、文件或工作流接口。
+3. `ruoyi-common-*` 是否已有校验、转换、查询、分页、Excel、缓存、锁、加解密等能力。
+4. `ruoyi-system` 和 `ruoyi-demo` 是否已有同类系统能力或框架示例。
+5. 当前业务模块是否只是需要新增字段、状态或接口，而不是新增一整套模块。
+
+找到可复用能力后，确认方法语义、权限、事务和异常行为再使用。不要仅因为类名相似就复用，也不要为了少改现有代码而复制一份。
+
 ## 分层
 
 ```text
@@ -13,6 +25,48 @@ XxxController
 - Service 做业务校验、编排、事务、缓存和并发。
 - 不新增 DAO/Repository 层。
 - 跨模块调用走 `ruoyi-api`，不注入其他模块的 ServiceImpl、Mapper 或 Entity。
+
+## 复用边界
+
+### 跨模块 API
+
+以下是 6.x 框架提供的稳定跨模块入口；调用前仍要读当前 checkout 的接口定义，确认实际方法和 DTO。
+
+| 领域 | 入口 | 典型用途 |
+|---|---|---|
+| 用户 | `ruoyi-api/.../system/api/UserService` | 按 ID 取用户、批量取昵称、按角色/部门/岗位取用户 |
+| 部门 | `DeptService` | 部门名称、负责人、部门列表 |
+| 角色 | `RoleService` | 批量角色名称 |
+| 岗位 | `PostService` | 批量岗位名称 |
+| 参数 | `ConfigService` | 字符串、数字、布尔、对象和数组配置 |
+| 消息 | `MessageService` | 单用户、多用户和广播消息 |
+| 文件 | `OssService` | 按 OSS ID 取地址或文件信息 |
+| 工作流 | `WorkflowService`、`WorkflowTaskQueryService` | 发起、办理、撤回、驳回、状态和流程变量 |
+
+业务模块只能依赖接口，不依赖实现类。需要新增跨模块能力时，先判断现有接口能否扩展；不要为了一个调用方复制系统模块的 Entity、Mapper 或 ServiceImpl。
+
+### 公共技术与系统能力
+
+| 需求 | 先看 |
+|---|---|
+| 响应、分页、异常、校验 | `ruoyi-common-core` 的 `R`、`PageResult`、`ServiceException`、`ValidatorUtils` |
+| 数据访问 | `ruoyi-common-mybatis` 的 `BaseEntity`、`BaseMapperPlus`、`PageQuery`、`QueryBuilder` |
+| 对象转换 | `MapstructUtils`；树结构用 `TreeBuildUtils` |
+| 登录身份与权限 | `LoginHelper`、`@SaCheckPermission`、`@DataPermission` |
+| 缓存、队列、锁 | `ruoyi-common-redis` 的 `CacheUtils`、`RedisUtils`、`QueueUtils` |
+| Excel、文件、加解密 | `ruoyi-common-excel`、`ruoyi-common-oss`、`ruoyi-common-encrypt` |
+| 翻译、脱敏 | `ruoyi-common-translation`、`ruoyi-common-sensitive` |
+| 消息、邮件、短信、社交、MQTT | 对应 `ruoyi-common-*` 现有客户端和配置 |
+| 定时任务、工作流、AI、搜索 | 对应 `ruoyi-modules/ruoyi-*` 现有 Bean 和调用链 |
+
+公共工具只放稳定、跨模块复用且无业务归属的能力。只服务一个业务的规则留在该业务 Service；不要为了“以后可能复用”把它提升为通用层。
+
+### 业务模块不是模板
+
+- `ruoyi-demo` 是框架示例，可复制文件结构和调用骨架。
+- `ruoyi-system` 是系统能力来源，可调用 `ruoyi-api` 暴露的接口。
+- 目标项目的其它业务模块只用于了解已有字段、权限和集成约束，不复制其分层、命名、工具类、请求封装或页面组件。
+- 如果当前业务模块已有用户选择、状态、文件或消息实现，先确认能否扩展现有接口；不能复用才补最小缺口。
 
 ## 最小完整落点
 
@@ -215,6 +269,8 @@ PUT    /updateSort            R<Void>
 - 字段脱敏在 VO 或序列化出口做，不在前端隐藏替代。
 - 写公共工具或 Service 前，先查 `ruoyi-common-core`、相关 `ruoyi-common-*`、所属模块 Service 和 `ruoyi-api`。
 - 公共方法只放稳定、跨模块能力；单模块业务规则留在业务模块。
+- 用户、部门、角色、岗位、字典、参数、文件、消息、工作流都有现有入口时，不得另建同名查询表或平行 Service。
+- 外部接入、批处理或状态流转逻辑留在业务 Service 或适配器，不塞进 Controller、Entity 或前端。
 
 ## 常见错误
 
@@ -225,6 +281,8 @@ PUT    /updateSort            R<Void>
 | 新增 `XxxDao` | 与当前分层重复 | 沿用 `BaseMapperPlus` |
 | 只加 `@SaCheckPermission` 不加菜单权限 | 菜单可见但接口或按钮不一致 | 同步 `sys_menu.perms` 和前端 `v-hasPermi` |
 | 分页不传 `pageSize` | `PageQuery` 默认接近全量 | 列表接口和页面设置有限默认值 |
+| 复制其它业务模块的 Service/Mapper | 形成第二套用户、权限或文件实现 | 先查 `ruoyi-api` 和现有公共能力，必要时扩展现有接口 |
+| 为单模块需求新增通用工具 | 公共层膨胀，调用方难收敛 | 留在业务模块；稳定跨模块后再提升 |
 
 ## 常用能力
 
@@ -247,4 +305,5 @@ PUT    /updateSort            R<Void>
 - [ ] 没有 DAO 层，Controller 不直接调 Mapper，Service 不返回 `R`。
 - [ ] Entity/BO/VO、查询、分页、空集合和映射正确。
 - [ ] 权限字符、数据范围、日志、幂等和事务按需完整。
-- [ ] 鉴权、响应、转换使用现有封装；公共能力没有重复实现。
+- [ ] 已检查 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 和框架示例，列出实际复用入口。
+- [ ] 鉴权、响应、转换使用现有封装；没有复制业务模块或另造第二套公共能力。

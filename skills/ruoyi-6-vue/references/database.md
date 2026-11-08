@@ -1,9 +1,37 @@
 # 数据库开发规范
 
+## 建表前
+
+先按 `SKILL.md` 判型、扫描现有表和字典，再确定模型。数据库层重点确认：
+
+1. 该对象是否已有系统表或业务表，是否能加字段、状态或关联而不是新建表。
+2. 业务对象的归属、可见范围和删除语义是否明确。
+3. 状态、类型是否应为 `sys_dict_*`；可变开关、阈值和周期是否应为 `sys_config`。
+4. 是否需要历史、审计、版本、幂等键、外部单号和异步处理。
+5. 查询、分页、导出和容量是否支持当前索引设计。
+
+能由代码、现有 SQL 或表结构确认的事实，AI 自查；不要向用户询问表里已经存在的字段或枚举。
+
+## 业务契约
+
+| 契约 | 落库结果 |
+|---|---|
+| 主体与归属 | 主体表、所属用户/部门/组织字段及对应索引 |
+| 可见范围 | 数据权限列；列表、详情、导出和批量操作使用同一范围 |
+| 状态与生命周期 | 状态列、默认值、合法迁移和终态；必要时保留状态历史 |
+| 唯一与幂等 | 业务唯一键、外部单号、导入批次或幂等键；优先数据库唯一约束 |
+| 删除语义 | 物理删除、`del_flag` 逻辑删除、归档或注销；引用关系与历史保留 |
+| 历史与审计 | 审计列、操作记录、版本列或归档表；明确保留期限 |
+| 并发 | `version`、条件更新或锁；定义冲突返回 |
+| 查询与容量 | 分页字段、索引、导出条件和异步边界 |
+| 集成边界 | 外部字段隔离、同步状态、失败重试和补偿记录 |
+
+普通单表不为了“以后可能拆”预建主从表或通用扩展表。没有明确删除、历史和并发要求时，不自行增加状态机、版本列或归档表。
+
 ## 建模
 
 - 默认单表。只有子数据有独立查询边界、生命周期、权限、约束或数据量时才拆子表。
-- 先确定业务身份、归属、状态、生命周期、唯一性、查询方式、权限范围和保留期限。
+- 先过业务契约，再确定业务身份、归属、状态、生命周期、唯一性、查询方式、权限范围和保留期限。
 - 用户、部门、角色、岗位、字典、参数、文件优先复用 `sys_user`、`sys_dept`、`sys_role`、`sys_post`、`sys_dict_*`、`sys_config`、`sys_oss`。
 - 状态、类型用 `sys_dict_*`；可变开关、阈值、周期用 `sys_config`；业务记录才建表。
 - 需要筛选、排序、约束的值落真实列，不藏在 JSON 中。
@@ -76,22 +104,22 @@ DDL / 增量 SQL
 
 ### 菜单、字典和参数
 
-菜单 SQL 按本地增量脚本的写法使用显式 `bigint` ID，并用 `NOT EXISTS` 防止重复：
+菜单 SQL 按本地增量脚本的写法使用显式 `bigint` ID，并用 `NOT EXISTS` 防止重复。下面只示意字段和幂等结构，ID、路径、组件和权限均须按当前项目实际值替换：
 
 ```sql
 INSERT INTO sys_menu
     (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache,
      menu_type, visible, status, perms, icon, create_dept, create_by, create_time, remark)
-SELECT 1766400000000000005, '业务名称', 0, 1, 'business', 'secops/business/index',
-       'N', 'Y', 'C', '0', '0', 'secops:business:list', 'form',
-       1761000000000000103, 1761100000000000001, CURRENT_TIMESTAMP, '业务菜单'
+SELECT <menu_id>, '业务名称', <parent_id>, <order_num>, '<path>', '<module>/<business>/index',
+       'N', 'Y', 'C', '0', '0', '<module>:<business>:list', 'form',
+       <create_dept>, <create_by>, CURRENT_TIMESTAMP, '业务菜单'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_menu
-    WHERE menu_id = 1766400000000000005 OR (parent_id = 0 AND path = 'business')
+    WHERE menu_id = <menu_id> OR (parent_id = <parent_id> AND path = '<path>')
 );
 ```
 
-把示例中的 `secops/business`、`secops:business:list` 和菜单 ID 替换为当前项目的实际模块、业务名和未占用 ID。按钮权限用 `menu_type = 'F'`，`perms` 与 Controller 注解、前端 `v-hasPermi` 完全一致。字典用 `sys_dict_type` + `sys_dict_data`，参数用 `sys_config`；不要为可枚举状态另建业务表，也不要在页面硬编码字典文本。
+按钮权限用 `menu_type = 'F'`，`perms` 与 Controller 注解、前端 `v-hasPermi` 完全一致。字典用 `sys_dict_type` + `sys_dict_data`，参数用 `sys_config`；不要为可枚举状态另建业务表，也不要在页面硬编码字典文本。当前项目的模块名、组件路径和权限前缀从已有菜单及 PRD 获取，不从示例或其它业务模块复制。
 
 当前项目存在多个增量脚本和混合历史数据，执行前先核对目标数据库、schema、方言和已执行记录；连接可用不等于允许写入。
 
@@ -122,7 +150,8 @@ WHERE NOT EXISTS (
 ## 检查
 
 - [ ] 默认单表；拆表有明确边界。
-- [ ] 现有表、字典、参数、菜单已检索。
+- [ ] 已扫描现有表、字典、参数和菜单，没有为已有能力另建平行表。
+- [ ] 归属、状态、唯一性、删除语义、历史审计、并发和集成边界有明确依据。
 - [ ] 主键、审计、逻辑删除、乐观锁、JSON、可空更新一致。
 - [ ] 唯一约束、索引、分页和空集合正确。
 - [ ] DDL、Entity、BO/VO、TS 类型、字典值一致。
