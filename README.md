@@ -27,7 +27,7 @@
 - 保留 2 个技术与设计技能：`ruoyi-6-vue`、`frontend-design`。
 - 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
-- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.x + Vue 3 需要的后端、前端和数据库规范。
+- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.x + Vue 3 需要的后端、前端、数据库和工具规范。
 - `ruoyi-6-vue` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。Soybean 仅是外部 UI 借鉴，不是目标前端。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
@@ -240,15 +240,16 @@ RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | `references/backend.md` |
 | Vue 3 / TypeScript / Element Plus / API / hooks / 页面骨架 | `references/frontend.md` |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
+| 字符串 / 集合 / 对象 / JSON / 日期 / 树 / 文件 / IP / SQL 工具选型 | `references/utils.md` |
 
-任何业务模块先读 `SKILL.md` 的业务判型、复用扫描和契约门，再按任务加载对应的后端/前端/数据库文件。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+任何业务模块先读 `SKILL.md` 的业务判型、复用扫描和契约门，再按任务加载对应的后端/前端/数据库/工具文件。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
 - **落地顺序**：业务判型 -> 框架复用扫描 -> 业务契约门 -> 最小模板，不用 CRUD 模板倒推业务。
 - **本地完整模板**：普通单表、树表和 Excel 的后端分层、Service/Mapper、前端 API、页面骨架和菜单 SQL 可直接裁剪；业务模块不作为模板。
 - **改动路径**：新业务、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
-- **按需加载**：三个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识。
+- **按需加载**：四个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识。
 
 事实优先级：当前项目源码 > 同模块现有实现 > 本技能规范 > 官方文档。不要用外部文档的旧类名或配置直接覆盖当前 checkout。
 

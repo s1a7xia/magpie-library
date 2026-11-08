@@ -13,6 +13,7 @@ description: "RuoYi-Vue-Plus 6.x + Vue 3 业务模块开发规范。先判定业
 | 写或改 Java 后端 | [backend.md](references/backend.md) |
 | 写或改 Vue 页面、API | [frontend.md](references/frontend.md) |
 | 建表、改字段、写 SQL | [database.md](references/database.md) |
+| 写后端业务，需要字符串、集合、对象转换、JSON、日期、树、文件、IP、SQL 工具 | [utils.md](references/utils.md) |
 | 新增完整 CRUD | 后端 + 前端 + 数据库 |
 | 工作流、任务、消息、AI、MQTT 等 | 先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
