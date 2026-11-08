@@ -38,8 +38,8 @@ ruoyi-modules/ruoyi-gen/             生成模板；只查模板和字段映射�
 ruoyi-modules/ruoyi-* 其它            工作流、AI、定时任务等按需能力
 ruoyi-extend/                        独立进程：monitor-admin、snailjob-server、snailai-server
 plus-ui-React/                       React 19 + TypeScript + Umi Max + Ant Design ProComponents
-script/sql/                          初始化 SQL
-docs/sql/                            业务增量 SQL
+script/sql/                          框架初始化与升级 SQL；update/ 是框架升级脚本
+项目登记的 SQL 目录                   业务增量 SQL；未登记时先确认落点，不假设固定路径
 ```
 
 写代码前先读同模块 Controller、ServiceImpl、Mapper、BO、VO 和相邻 React 页面，确认现有接口和调用方式。目录存在不等于能力已启用；以当前源码、POM、配置、Bean 和调用链为准。
@@ -108,7 +108,7 @@ docs/sql/                            业务增量 SQL
 1. 数据库：现有表、字典、参数、菜单和增量 SQL，优先扩展已有对象。
 2. 后端：`ruoyi-api`、`ruoyi-common-*`、`ruoyi-system`、`ruoyi-demo`。
 3. 前端：`plus-ui-React/src/components`、`hooks`、`utils`、`api`、`pages` 和现有页面壳。
-4. 模板：优先作者 demo；`ruoyi-gen/src/main/resources/fm/java`、`fm/react`、`fm/xml` 和 `plus-ui-React/gen` 只核对字段映射与文件落点。只读取这些 Java/React/SQL/XML 模板，不读取历史前端模板目录。
+4. 模板：优先作者 demo；`ruoyi-gen/src/main/resources/fm/java`、`fm/react`、`fm/sql`、`fm/xml` 和 `plus-ui-React/gen` 只核对字段映射与文件落点。忽略 `fm/vue` 历史模板。
 
 确认输入、返回值、权限、事务和异常行为适合当前场景后再调用。能力接近但接口不合用时，优先薄包装或扩展已有实现。不要仅凭类名或方法名记忆调用，使用前读当前源码确认签名。
 
@@ -185,7 +185,7 @@ docs/sql/                            业务增量 SQL
 | 状态与排序 | `changeStatus` / `updateSort` 入参和返回 | `Switch` / 排序控件及失败回滚 |
 | 查询范围 | `PageQuery`、`params.begin*/end*`、排序白名单 | `toPageQuery`、`useDateRangeQuery`、`withTableSort` |
 | 导入导出 | VO 注解、接口方法与文件流 | `useTableExport` / `download` / `Upload`，文件名和错误反馈 |
-| 文件与富文本 | OSS ID 字段和存储值 | `FileUpload`、`ImageUpload`、`RichTextEditor` 的 `ossId` / `oss://` 约定 |
+| 文件与富文本 | OSS ID 字段和存储值 | `FileUpload`、`ImageUpload` 保存逗号分隔 OSS ID；`RichTextEditor` 内容用 `oss://<ossId>` 标记 |
 
 只后端或只前端时，仍检查另一侧现有契约是否已存在；不存在时明确列为未完成项，不假设另一侧会自动适配。
 

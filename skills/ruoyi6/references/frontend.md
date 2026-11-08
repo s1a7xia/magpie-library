@@ -208,12 +208,12 @@ export function delXxx(id: string | number | Array<string | number>) {
 | 审批交互 | `components/workflow/*` |
 | 详情面板 | antd `Drawer` + ProComponents `ProDescriptions` |
 | 下载 | `@/utils/download` 的 `download` / `saveBlob` / `saveValidatedBlob`；`download()` 目前固定 POST，GET 导出需用 `request` + `saveValidatedBlob` 或先扩展该工具 |
-| 确认框 | `@/utils/modal` 的 `confirmModal`、`confirmAction`、`confirmTitle` |
+| 确认框 | `@/utils/modal` 的 `confirmModal`、`confirmAction`、`confirmTitle`、`confirmTitleSafe`；需要布尔结果时用 `confirmTitleSafe` |
 | 权限 | `@/utils/permission` 的 `hasPermi`、`hasRole` |
 | 查询、树、日期 | `@/utils/ruoyi` 的 `toPageQuery`、`toTableData`、`handleTree`、`filterTree`、`collectTreeKeys`、`addDateRange`、`withTableSort`、`formatDateTime*`、`toDayjs*` |
 | 字典选项 | `@/utils/dict` 的 `dictOptions` |
 
-上传值保存 `ossId`，不保存二进制或临时 URL。富文本的 OSS 约定以 `RichTextEditor` 和现有页面为准。不要复制分页、工具栏、字典、选择器或上传组件。
+`FileUpload` / `ImageUpload` 的 `value` 可接受单个 ID、逗号分隔 ID 串或 `OssVO[]`，`onChange` 输出逗号分隔 OSS ID 串；数据库字段按项目现有类型保存该串。富文本内容用 `oss://<ossId>` 标记并复用 `RichTextEditor` 的转换。不保存二进制或临时 URL，不复制分页、工具栏、字典、选择器或上传组件。
 
 ## 复用边界
 
@@ -227,7 +227,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 
 - 业务页保留 ProComponents/Ant Design 核心组件：`PageContainer`、`ProTable`、`ModalForm`、`Drawer`、`Pagination`/ProTable 分页、`DictTag`、`RowActions`。
 - 复用现有页面壳和类：`tree-table-page`、`table-panel`、`page-surface`，以及 `src/assets/styles/` 的 token。
-- 颜色优先用 `--app-*` 主题变量；不散落硬编码色值。
+- 颜色优先用 `src/assets/styles/tokens/theme.less` 的 `--app-*-react` 和 `src/layouts/BasicLayout.tsx` 注入的 `--layout-*-react` 主题变量；不散落硬编码色值。
 - 单页样式放页面局部 LESS 或现有模块样式文件，不覆盖 Ant Design 类名。
 - 状态用语义化 `Tag` 或 `DictTag`：成功、警告、危险、信息含义固定。
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片。

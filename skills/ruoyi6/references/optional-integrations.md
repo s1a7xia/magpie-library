@@ -12,7 +12,7 @@
 |---|---|---|
 | 工作流 | `ruoyi-modules/ruoyi-workflow` | 同进程，注入 `WorkflowService` 接口 |
 | 定时任务 | `ruoyi-modules/ruoyi-job` | 同进程，写任务执行器 Bean |
-| AI | `ruoyi-modules/ruoyi-ai` | 同进程，调用其 Controller 暴露的 OpenAPI 交互 |
+| AI | `ruoyi-modules/ruoyi-ai` | 同进程注册当前用户；前端复用现有 AI 页面和 OpenAPI 交互 |
 | 监控 | `ruoyi-extend/ruoyi-monitor-admin` | 独立进程，不写业务代码接入 |
 | 任务服务端 | `ruoyi-extend/ruoyi-snailjob-server` | 独立进程，任务后台管理 |
 | AI 服务端 | `ruoyi-extend/ruoyi-snailai-server` | 独立进程，AI 服务与模型管理 |
@@ -34,7 +34,7 @@
 
 关键约束：
 
-- 业务表和流程实例通过 `businessId` 关联，流程状态以工作流侧为准，业务表不要另存一套审批状态机。
+- 业务表和流程实例通过 `businessId` 关联，流程状态以工作流引擎为准。业务表如需列表筛选或页面展示，可以保留由 `ProcessEvent` 同步的状态投影字段，但不能自行驱动或伪造状态迁移。
 - `flowCode` 与流程后台实际发布的流程定义编码一致，不能凭示例硬编码。
 - 流程变量结构由流程定义决定，改动前对照实际流程配置。
 - 具体方法签名和返回结构以 `ruoyi-api` 当前源码为准。
@@ -81,7 +81,7 @@
 当前 AI 能力是 SnailAI 的客户端集成，业务侧通常只需要：
 
 - 让当前登录用户在 AI 服务中建立对应关系，沿用 `api/ai/agent` 的注册接口。
-- 前端复用现有 AI 入口和组件，不自己对接 gRPC 或模型接口。
+- 前端复用现有 AI 页面 `plus-ui-React/src/pages/ai/chat/` 和 `plus-ui-React/src/api/ai/agent/` 的注册接口，不自己对接 gRPC 或模型接口。
 - `snail-ai` 配置默认关闭，需要时再启用；`app-id`、`token` 和服务端地址由部署环境提供。
 
 业务模块不要直接写模型调用、提示词拼装或会话存储；这些属于 AI 模块和 AI 服务端的职责。
@@ -109,7 +109,7 @@
 
 - [ ] 需求确实需要该能力，而不是预留。
 - [ ] 后端只依赖 `ruoyi-api` 接口，没有注入实现类或其他模块的 Mapper、Entity。
-- [ ] 前端复用 `plus-ui-React/src/components/workflow/`、`plus-ui-React/src/api/workflow/*`、`plus-ui-React/src/api/ai/*` 等现有入口。
+- [ ] 前端复用 `plus-ui-React/src/components/workflow/`、`plus-ui-React/src/api/workflow/*`、`plus-ui-React/src/pages/ai/chat/` 和 `plus-ui-React/src/api/ai/agent/` 等现有入口。
 - [ ] 任务执行器在业务模块内，具备幂等和失败可重试。
 - [ ] 没有把 `ruoyi-extend` 的独立服务当作本地 Bean。
 - [ ] 配置项沿用现有 `snail-job`、`snail-ai` 结构，没有另起一套。

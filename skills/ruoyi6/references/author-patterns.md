@@ -23,7 +23,7 @@
 | 异步、队列 | `PriorityQueueController` 及现有消息、任务入口 | 先判断同步是否足够；需要异步时再选队列、任务或消息，不预设 MQ |
 | 敏感字段 | `TestSensitiveController`、返回对象/VO 字段上的 `@Sensitive` | 脱敏在响应出口做，不把前端隐藏当作安全边界 |
 | 字段存储加密 | `TestEncryptController`、`TestDemoEncrypt`、`@EncryptField` | 加密落库字段；与展示脱敏、传输加密不是同一件事 |
-| 接口传输加密 | `SysUserController`、`SysProfileController` 的 `@ApiEncrypt` | 保护请求体传输；前端配合 `isEncrypt: 'true'`，不能替代存储加密 |
+| 接口传输加密 | `SysUserController`、`SysProfileController` 的 `@ApiEncrypt` | 保护请求体传输；前端配合 `isEncrypt: 'true'`（字符串 `'true'` 或布尔 `true`），不能替代存储加密 |
 | 国际化、接口文档 | `TestI18nController`、Controller JavaDoc | 接口文档来自 JavaDoc，不重复写 `@Tag` / `@Operation` |
 | 搜索、消息、MQTT、工作流、AI | 对应 `ruoyi-modules/ruoyi-*`、`ruoyi-common-*` 和 `ruoyi-api` | 只有需求确实涉及才读现有调用链，不把可选能力变成业务模块前置依赖 |
 
@@ -37,7 +37,7 @@
 
 **导入批处理**：用独立 ImportVo、`ExcelBuilder.read`、校验和错误反馈；批量写入注意数据量、事务、重复导入和部分失败策略。不要直接复用 Entity 当导入对象。
 
-**文件、图片、富文本**：先查 `FileUpload`、`ImageUpload`、`RichTextEditor` 和 OSS API，表单保存 `ossId` 或 `oss://<ossId>`，不要自建上传接口或保存临时 URL。
+**文件、图片、富文本**：先查 `FileUpload`、`ImageUpload`、`RichTextEditor` 和 OSS API；`FileUpload` / `ImageUpload` 表单保存逗号分隔 OSS ID，`RichTextEditor` 内容使用 `oss://<ossId>` 标记。不要自建上传接口或保存临时 URL。
 
 **外部接入、异步、审批**：先找 `ruoyi-api` 或作者模块入口，确认进程内 Bean、独立服务、消息或 HTTP 的边界；业务模块只用来核实已有字段和集成事实。只有当前验收标准需要时才引入。外部副作用不塞进长事务，失败要有明确反馈或补偿记录。
 

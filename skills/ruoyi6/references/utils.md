@@ -63,7 +63,7 @@
 ### 文件、网络、安全与 SQL
 
 - 文件下载响应头用 `FileUtils`，OSS 文件信息走 `OssService` / `OssClient`，不要把本地路径或二进制塞进通用 JSON 接口。
-- IP 判断和网段匹配用 `NetUtils`，IP 归属和区域用 `AddressUtils` / `RegionUtils`；不要复制 CIDR 解析。
+- IP 判断和网段匹配用 `NetUtils`，IP 归属和区域用 `org.dromara.common.core.utils.ip.AddressUtils` / `RegionUtils`；不要复制 CIDR 解析。
 - 排序字段和查询关键字使用 `SqlUtil` 的现有校验；SQL 仍通过 Wrapper 或参数绑定，不拼接用户输入。
 - 加密、脱敏、缓存、Excel 等有专门公共模块，使用对应模块入口，不在业务 Service 手写同类基础算法。
 

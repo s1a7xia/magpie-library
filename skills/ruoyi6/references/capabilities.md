@@ -8,14 +8,14 @@
 
 ## 先看这四类（按本项目实际使用频率）
 
-`ruoyi-system`（作者核心模块）和 `ruoyi-demo`（官方示例）里出现最多的是这四类，普通业务模块绝大多数只需要它们：
+`ruoyi-system`（作者核心模块）和 `ruoyi-demo`（官方示例）里最常见的是这四类，普通业务模块绝大多数只需要它们：
 
-| 能力 | 作者代码中的使用量 | 什么时候用 |
+| 能力 | 先看 | 什么时候用 |
 |---|---|---|
-| `@Log` 操作日志 | system 72 次、demo 9 次 | 用户触发的增删改及关键状态变更；导入/导出按作者对应场景记录 |
-| `@Transactional` | system 19 次 | 一次请求写多张表或多处 |
-| `@RepeatSubmit` 防重 | system 41 次、demo 4 次 | 表单、按钮、导入等可重复提交入口 |
-| 分组校验 | system 45 次、demo 48 次 | 新增用 `AddGroup`、修改用 `EditGroup`、查询用 `QueryGroup` |
+| `@Log` 操作日志 | 作者 Controller 的对应场景 | 用户触发的增删改及关键状态变更；导入/导出按作者对应场景记录 |
+| `@Transactional` | 作者 Service 的多写场景 | 一次请求写多张表或多处 |
+| `@RepeatSubmit` 防重 | 作者表单写入口 | 表单、按钮、导入等可重复提交入口 |
+| 分组校验 | 作者 BO 和 Controller | 新增用 `AddGroup`、修改用 `EditGroup`、查询用 `QueryGroup` |
 
 举例说明这三个分组各自管什么：新增和修改的必填项常常不同（新增要密码、修改不要），所以 BO 字段上的 `@NotBlank(groups = AddGroup.class)` 只在新增生效；查询条件通常都是可选，`QueryGroup` 让它们不参与必填校验。`ruoyi-system` 的 `SysOssConfigController`、`ruoyi-demo` 的 `TestDemoController` 都是 `list(@Validated(QueryGroup.class) ...)` 的真实写法。
 
@@ -50,7 +50,7 @@
 |---|---|---|
 | 高频读、变化少 | `@Cacheable` / `@CacheEvict` + `CacheNames` | 与 Spring Cache 联动，缓存名统一登记 |
 | 需要手动控制读写 | `RedisUtils` | 自行管理 key 和 TTL |
-| 本地热点、可容忍短暂不一致 | `CaffeineCacheDecorator` | 本地缓存，多实例间不共享 |
+| 本地热点、可容忍短暂不一致 | `CacheNames` 缓存名的 `#local` 参数（默认 1，置 0 关闭） | 由 `PlusSpringCacheManager` 组合本地 Caffeine 与远端缓存；不要把内部装饰器当业务入口 |
 | 慢查询 | 先看索引和执行计划 | **不要用缓存掩盖索引缺失** |
 | 列表/导出数据量大 | 分页、按需字段、批量查询 | 避免 N+1 和无界查询 |
 | 写操作命中已有缓存 | 同步失效 | 只改库不改缓存会产生脏读 |
@@ -156,7 +156,7 @@
 | 跨模块 API | 有两个及以上模块要调用同一能力，且已有 `ruoyi-api` 接口无法扩展 | `ruoyi-api`，只放接口和 DTO |
 | 全局前端组件 | 至少两个真实页面会用；单页结构留在页面目录 | `plus-ui-React/src/components/common` |
 | 新 hook | 现有 hook 无法组合或薄包装解决，且只承载页面行为 | `plus-ui-React/src/hooks` |
-| 业务表 | 现有表加字段或状态无法表达，且满足单表优先原则 | `docs/sql/YYYYMMDD_业务_动作.sql` |
+| 业务表 | 现有表加字段或状态无法表达，且满足单表优先原则 | 项目登记的 SQL 目录；没有登记时先确认落点 |
 | 字典 | 值是有限枚举且需要界面选择和翻译 | `sys_dict_type` + `sys_dict_data` |
 | 参数 | 值需要运行期修改，不是枚举 | `sys_config` |
 

@@ -41,11 +41,10 @@ XxxController
 | 部门 | `DeptService` | 部门名称、负责人、部门列表 |
 | 角色 | `RoleService` | 批量角色名称 |
 | 岗位 | `PostService` | 批量岗位名称 |
-| 参数配置 | `ConfigService` | 按 key 读取运行期配置（`getConfigValue` 等）；不要注入 system 的 `ISysConfigService`；业务专用写方法不算通用接口 |
+| 参数配置 | `ConfigService` | 按 key 读取字符串、布尔、整数、长整数、小数、Map、对象或数组；不要注入 system 的 `ISysConfigService` |
 | 消息 | `MessageService` | `sendMessage` 实时推送；`publishMessage` / `publishAll` 可落库供消息盒子 |
-| 消息 | `MessageService` | 单用户、多用户和广播消息 |
 | 文件 | `OssService` | 按 OSS ID 取地址或文件信息 |
-| 工作流 | `WorkflowService`、`WorkflowTaskQueryService` | 发起、办理、撤回、驳回、状态和流程变量 |
+| 工作流 | `WorkflowService` | 发起、办理、删除实例、状态和流程变量 |
 | 工作流办理人 | `TaskAssigneeService` | 按角色、岗位、部门或用户解析流程办理人 |
 
 业务模块只能依赖接口，不依赖实现类。需要新增跨模块能力时，先判断现有接口能否扩展；不要为了一个调用方复制系统模块的 Entity、Mapper 或 ServiceImpl。
@@ -355,7 +354,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 | 翻译、脱敏 | `@Translation`、`TransConstant`、`@Sensitive`、`SensitiveStrategy` |
 | 消息 | `MessageService.sendMessage` 只实时推送；消息盒子用 `publishMessage` / `publishAll`（符合消息/通知类型时落库再推送）；低层实时推送用 `PushHelper`，不负责持久化 |
 
-加密不是全站默认：前端 `VITE_APP_ENCRYPT=true`、请求头 `isEncrypt: 'true'`（`request.ts` 按字符串判断）、方法为 POST/PUT，后端 `api-decrypt.enabled=true` 同时成立才处理请求解密。现有 `login.ts` / `system/user` 中可能使用布尔 `true`，以当前拦截器实现和实际请求结果为准，不能只凭旧示例。
+加密不是全站默认：前端 `VITE_APP_ENCRYPT=true`、请求头 `isEncrypt` 为布尔 `true` 或字符串 `'true'`、方法为 POST/PUT，后端 `api-decrypt.enabled=true` 同时成立才处理请求解密。`login.ts` 使用字符串，`system/user` 使用布尔，两种写法都有效。
 
 ### 缓存选择
 
