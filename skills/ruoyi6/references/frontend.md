@@ -2,7 +2,7 @@
 
 ## 写页面前
 
-按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和契约门，Slice / Direct 只读现有契约和调用链后实现。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
+按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和契约门，Increment / Direct 只读本次涉及一侧的现有契约和调用链后实现。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
 
 前端重点检查：
 
@@ -60,7 +60,7 @@ plus-ui-React/src/
 
 - 页面入口固定 `index.tsx`；复杂页面可拆同目录子组件。
 - `types.ts` 放 `VO`、`Form`、`Query`；`index.ts` 只放请求函数。
-- `VO` 字段必填、`Form extends BaseEntity` 且字段全部可选、`Query extends PageQuery` 且条件可选；字段名与后端 BO/VO 完全一致。前端 `BaseEntity` 不含后端才有的 `createDept`，需要该字段时在 `Form` 中显式声明。
+- `VO`、`Form` 和 `Query` 的可空性按后端 VO/BO 契约映射，不用页面习惯强行统一。`Form` 通常继承 `BaseEntity`，`Query` 通常继承 `PageQuery`；字段名与后端 BO/VO 完全一致。前端 `BaseEntity` 不含后端才有的 `createDept`，需要该字段时在 `Form` 中显式声明。
 - 单页状态留在页面，跨页面状态才进 Zustand。
 - 同模块兄弟页面只用于读字段、路由、权限和已有集成约束；写法仍从作者 demo、公共组件/hooks 和模板取样。
 
@@ -233,4 +233,4 @@ PageContainer
 - [ ] 新页面已登记 `dynamicPage.tsx`，菜单 `component` 和权限字符一致。
 - [ ] 表单校验、loading、失败恢复、编辑回显、删除刷新完整。
 - [ ] 构建通过；页面未验收时明确标注。
-- [ ] 业务未定的交互用 TODO 占位且页面可正常打开，没有留空白按钮或半截功能；TODO 已写明原因和确认人。
+- [ ] 业务未定的交互已按当前业务推荐做法完整实现，页面可正常使用；TODO 已写明“待确认什么 / 当前推荐实现 / 找谁确认”，没有留空白按钮、半截功能或静默忽略错误。

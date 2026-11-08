@@ -28,7 +28,7 @@
 - 保留 5 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
-- `ruoyi6` 先按 Direct / Slice / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
+- `ruoyi6` 先按 Direct / Increment / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
 当前是 **15 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
@@ -208,7 +208,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 
 | 技能 | 作用 |
 |---|---|
-| `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；按 Direct / Slice / New Module 分级，新模块再扫描框架复用能力并确认业务契约，按任务加载后端、前端和数据库规范 |
+| `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；按 Direct / Increment / New Module 分级，新模块再扫描框架复用能力并确认业务契约，按任务加载后端、前端和数据库规范 |
 | `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
 
 ### 支撑与环境（5）
@@ -246,7 +246,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | 业务场景到作者实现的定位 | `references/author-patterns.md` |
 | 工作流 / 定时任务 / AI / 监控等按需能力 | `references/optional-integrations.md` |
 
-`ruoyi6` 先按 Direct / Slice / New Module 判断任务规模，再通过能力地图只加载需要的文件；新模块才走完整业务判型、复用扫描和契约门。后端完整骨架只维护在 `templates.md`，前端页面/API/types 骨架只维护在 `frontend-templates.md`；`backend.md` 和 `frontend.md` 只负责规则与复用边界，避免同一知识多处漂移。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/React 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui-React + Ant Design ProComponents**。
+`ruoyi6` 先按 Direct / Increment / New Module 判断任务规模，再通过能力地图只加载需要的文件；新模块才走完整业务判型、复用扫描和契约门。后端完整骨架只维护在 `templates.md`，前端页面/API/types 骨架只维护在 `frontend-templates.md`；`backend.md` 和 `frontend.md` 只负责规则与复用边界，避免同一知识多处漂移。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/React 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui-React + Ant Design ProComponents**。
 
 业务功能参考的边界：
 
@@ -256,7 +256,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - **改动路径**：新业务、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
 - **按需加载**：每个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识，也不为可选能力预留结构。
 - **机制判型**：业务判型决定做成什么形状，机制判型决定靠什么保障；事务、幂等、缓存、异步、并发、编排、序列、展示和审计命中信号才引入，没有验收标准不预埋。
-- **整体跑通优先**：业务模块第一要务是能在框架上完整跑通（启动、接口、页面、菜单、权限）。业务口径未定时用固定格式 TODO 占位并保持可运行，不阻断其它功能测试；TODO 必须写明“没定什么、临时怎么做、找谁确认”，交付时汇总。
+- **整体跑通优先**：业务模块第一要务是能在框架上完整跑通（启动、接口、页面、菜单、权限）。业务口径未定时先按当前业务推荐做法完整实现，不阻断其它功能测试；TODO 只记录“待确认什么、当前推荐实现、找谁确认”，不能用“先不校验”或“前端不提示”绕过业务约束，交付时汇总。
 
 事实优先级：当前项目源码 > 同模块现有实现 > 本技能规范 > 官方文档。不要用外部文档的旧类名或配置直接覆盖当前 checkout。
 

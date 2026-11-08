@@ -1,6 +1,6 @@
 # 代码模板
 
-以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。这是后端代码骨架的唯一来源，`backend.md` 只讲规则和选型。片段省略 import，按目标模块现有风格补齐，不要机械复制无法解析的符号。
+以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。这是后端代码骨架的唯一来源，`backend.md` 只讲规则和选型。默认骨架是不启用数据权限的普通单表；数据权限按“可选片段”追加。片段省略 import，按目标模块现有风格补齐，不要机械复制无法解析的符号。
 
 ## Controller
 
@@ -150,7 +150,6 @@ public class XxxServiceImpl implements IXxxService {
 
     private LambdaQueryWrapper<Xxx> buildQueryWrapper(XxxBo bo) {
         return QueryBuilder.lambda(Xxx.class)
-            .eqIfPresent(Xxx::getDeptId, bo.getDeptId())
             .likeIfText(Xxx::getName, bo.getName())
             .orderByAsc(Xxx::getId)
             .build();
@@ -175,9 +174,8 @@ public class XxxServiceImpl implements IXxxService {
     }
 
     private void validEntityBeforeSave(Xxx entity) {
-        // TODO(待确认): 唯一键未定，暂不做重复校验
-        // 临时做法: 先允许重复写入，前端不提示
-        // 确认人: 业务方 / 产品
+        // 按当前契约完成业务校验；唯一键未确认时，沿用业务上最可信的唯一组合做检查，
+        // 并用 TODO 标记待业务确认，不能直接跳过重复校验。
     }
 
     @Override
@@ -321,6 +319,15 @@ public class XxxVo implements Serializable {
 
 ```java
 public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
+}
+```
+
+### 可选：数据权限片段
+
+只有业务实体确实有部门、用户或其他归属列，且需求要求按数据范围隔离时才追加。列名必须是真实字段或查询别名；覆盖范围至少包括分页、列表、按 ID 查询、批量查询、更新和删除。删除优先沿用作者模式：先通过带 `@DataPermission` 的查询校验本次 ID 是否都在当前数据范围内，再调用 Mapper 删除；不在 Mapper 上直接重写 `deleteByIds`：
+
+```java
+public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 
     @Override
     @DataPermission({
@@ -329,6 +336,15 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
     })
     default <P extends IPage<XxxVo>> P selectVoPage(IPage<Xxx> page, Wrapper<Xxx> wrapper) {
         return selectVoPage(page, wrapper, this.currentVoClass());
+    }
+
+    @Override
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    })
+    default XxxVo selectVoById(Serializable id) {
+        return selectVoById(id, this.currentVoClass());
     }
 
     @Override
@@ -356,32 +372,36 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 }
 ```
 
+`Xxx` 必须有 `deptId`、`userId`（或当前业务真实归属列），Mapper 片段中的列名必须同步替换。服务层按现有作者写法调用这些 Mapper 方法，不要只在列表接口加数据权限。删除时先调用带数据权限的 `selectByIds`/`selectVoById` 校验范围，再执行 `deleteByIds`；如果业务还要求删除前的引用检查，继续放在同一个 Service 事务中。
+
 ## 使用说明
 
 - 这套模板来自作者 `TestDemo*`，标准单表沿用同一分层和命名；有主从、状态、导入、异步、外部接入等额外形态时，按其最小充分结构扩展，不为套模板删减业务契约。
 - 上面的 `QueryBuilder` 写法演示条件辅助方法；若目标模块已有 `Wrappers.lambdaQuery()` 风格，保持现状，不整体重写。引用时按现有 import 补齐 `QueryBuilder`、`CollUtil` 和实体类型。
-- 不需要数据权限的表，去掉 Mapper 上的 `@DataPermission` 重写即可，其余保持。
+- 默认 Mapper 不包含 `@DataPermission`；只有存在真实归属列且需求要求隔离时，再追加“可选：数据权限片段”，并同步实体字段和列名。
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。
 
 ## TODO 占位
 
-业务口径没定时，用固定格式留下 TODO，保证功能能跑通、其它功能可测：
+业务口径没定时，先按当前业务推荐做法完成可运行实现，再用固定格式留下 TODO，保证功能完整、其它功能可测：
 
 ```java
-// TODO(待确认): <什么没定>
-// 临时做法: <现在的默认行为>
-// 确认人: <业务方 / 产品 / 谁>
+// TODO(待确认): 业务唯一键是否由 name + deptId 组成
+// 当前推荐实现: 按 name + deptId 做重复校验，数据库先建普通索引；
+//               唯一约束待业务确认后再补，避免错误数据进入。
+// 确认人: 业务方 / 产品
 ```
 
 ```ts
-// TODO(待确认): <什么没定>
-// 临时做法: <现在的默认行为>
-// 确认人: <业务方 / 产品 / 谁>
+// TODO(待确认): 业务是否允许同名记录
+// 当前推荐实现: 前端沿用后端当前唯一组合提示重复，不隐藏错误。
+// 确认人: 业务方 / 产品
 ```
 
 规则：
 
 - 占位后必须保证能编译、能启动、页面能打开、不阻断其它功能。
+- TODO 不是“暂不实现”的许可。能按当前业务判断的默认行为要先实现，再记录待确认点；不得写“先允许重复”“先不校验”“前端不提示”这类绕过业务约束的占位。
 - 不能用于掩盖未实现；接口没写、页面没做、数据没接不算 TODO。
 - 交付时汇总 TODO 清单，写入 `docs/agents/project-state.md` 或 PRD。

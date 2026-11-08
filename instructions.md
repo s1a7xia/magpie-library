@@ -82,7 +82,7 @@
 
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
-- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Slice / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
+- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Increment / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
 - `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。
@@ -115,3 +115,26 @@
 - 完成约定工作及已授权的必要收尾后即交付，只保留任务所需产物，不追加无关重构、测试、文档或审查。
 - 未要求测试不阻塞交付，不反复询问是否要测试；不把实现完成或已提交说成运行验证、验收或部署通过。
 - 有实质阻塞时，说明缺少的证据或选择，不伪称完成。完成后不自行扩展持续监控、额外审计或下一轮任务。
+
+## 项目看板约定（Vikunja）
+
+本地 Vikunja 是项目状态的唯一事实源，手机端（微信 AstrBot）与 Codex 读写同一份数据，不做同步。
+
+### 工具
+经 magpie hub 暴露为 `vikunja__*`：`projects_*`、`tasks_*`、`task_comments_*`、`labels_*`，以及 `find_action` / `do_action` / `filter_syntax`。
+参数易错点：`tasks_create` 用 `project` + `title`；`tasks_read/update/delete` 只用 `task`（不带 project）；`task_comments_*` 用 `task`（+ `commentid`）。
+
+### 看板
+项目「项目看板」= project id 2。置顶任务 `📌 当前状态` = task id 1，正文三段固定：`## 当前状态` / `## 下一步` / `## 阻塞`。
+
+### 状态
+label：`状态/待办`、`状态/进行中`、`状态/阻塞`、`状态/完成`。完成时同时置 `done=true`。
+
+### 读写规则
+- 接单：先 `tasks_read` 读任务，再按 `docs/` 的 PRD/契约实现，不臆造字段。
+- 进展：`task_comments_create` 追加，不改 #1 正文。
+- 收工：`tasks_update(task, done=true)`，再用 `task_comments_create` 回填 commit hash 与改动摘要。
+- 删除任务：只有人能删。
+
+### 编号
+identifier（#N）只在项目内唯一。

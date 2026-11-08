@@ -25,7 +25,7 @@
 
 业务模块依赖 `ruoyi-api` 里的 `WorkflowService` 接口，不依赖 `ruoyi-workflow` 的实现类。
 
-工作流 Bean 使用 `@ConditionalOnEnable` 按 `warm-flow.enabled=true` 条件装配。新增工作流适配器、监听器或流程组件时沿用该注解；未启用工作流时，不得让业务模块因缺失 Bean 而启动失败，也不要通过无条件扫描把工作流依赖变成默认依赖。
+`ruoyi-workflow` 内的 Bean 使用 `@ConditionalOnEnable` 按 `warm-flow.enabled=true` 条件装配，新增工作流适配器、监听器或流程组件时沿用该注解。独立业务模块不要为使用该注解引入工作流实现模块；需要可选装配时沿用项目现有 Spring 条件配置，只依赖 `ruoyi-api` 契约。未启用工作流时，不得让业务模块因缺失 Bean 而启动失败。
 
 典型调用点（参考 `TestLeaveServiceImpl`）：
 

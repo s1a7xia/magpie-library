@@ -451,7 +451,7 @@ export interface XxxQuery extends PageQuery {
 }
 ```
 
-- `VO` 字段必填；`Form` 继承 `BaseEntity` 且字段全部可选；`Query` 继承 `PageQuery` 且条件可选。前端 `BaseEntity` 不含 `createDept`，需要时在 `Form` 中显式声明。
+- `VO`、`Form`、`Query` 的可空性按后端 VO/BO 契约映射，示例里的可选标记不是通用规则。`Form` 通常继承 `BaseEntity`，`Query` 通常继承 `PageQuery`。前端 `BaseEntity` 不含 `createDept`，需要时在 `Form` 中显式声明。
 - 树表 `Query` 不继承 `PageQuery`，`VO` 增加可选 `children`。
 - 主键和关联 ID 用 `string | number`，避免雪花 ID 丢精度。
 - 字段名与后端 BO/VO 完全一致；日期范围保留 `Query.params`。
