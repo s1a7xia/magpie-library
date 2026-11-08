@@ -15,7 +15,8 @@ description: "RuoYi-Vue-Plus 6.x + Vue 3 业务模块开发规范。先判定业
 | 建表、改字段、写 SQL | [database.md](references/database.md) |
 | 写后端业务，需要字符串、集合、对象转换、JSON、日期、树、文件、IP、SQL 工具 | [utils.md](references/utils.md) |
 | 新增完整 CRUD | 后端 + 前端 + 数据库 |
-| 工作流、定时任务、AI、消息、MQTT、搜索等 | 按需；需求确实涉及才加载，先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
+| 工作流、定时任务、AI、监控 | 按需，需求确实涉及才读 [optional-integrations.md](references/optional-integrations.md) |
+| 消息、MQTT、搜索等 | 按需；先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
 作者仓库的 `.codex/skills/ruoyi-plus-ai-coding` 与 `.codex/skills/frontend-crud-coding` 是外部参考，不直接加载。它们覆盖的规则已合并进本技能；若与本技能冲突，以当前项目真实代码和本技能为准。
 
@@ -41,6 +42,8 @@ docs/sql/                    业务增量 SQL
 写代码前先读同模块的 Controller、ServiceImpl、Mapper、BO、VO 和兄弟 Vue 页面，确认现有接口和调用方式。目录存在不等于能力已启用；以当前源码、POM、配置、Bean 和调用链为准。已有业务模块可以帮助理解集成边界，但不要复制其中的分层、命名、组件或公共能力实现。
 
 复用前先分清两种边界：`ruoyi-modules/ruoyi-workflow`、`ruoyi-ai`、`ruoyi-job` 与业务代码在同一个 Spring 进程内，通过 `ruoyi-api` 接口或现有 Bean 调用；`ruoyi-extend/` 下的服务是独立进程，只能通过客户端、HTTP 或消息交互，不要试图把它当作本地 Bean 注入。业务模块默认不依赖前者，也不直接对接后者。
+
+确实需要这些能力时，按 [optional-integrations.md](references/optional-integrations.md) 接入；没有明确验收标准时不要引入。
 
 ### 取样优先级
 
