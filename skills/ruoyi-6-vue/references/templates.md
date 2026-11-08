@@ -1,0 +1,357 @@
+# 代码模板
+
+以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是本项目最权威的写法。新业务直接按这个结构改写类名和字段，不要另行设计。
+
+## Controller
+
+```java
+@Validated
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/<module>/<business>")
+public class XxxController extends BaseController {
+
+    private final IXxxService xxxService;
+
+    /**
+     * 查询Xxx列表
+     */
+    @SaCheckPermission("<module>:<business>:list")
+    @GetMapping("/list")
+    public R<PageResult<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery) {
+        return R.ok(xxxService.queryPageList(bo, pageQuery));
+    }
+
+    /**
+     * 获取Xxx详细信息
+     *
+     * @param id 主键
+     */
+    @SaCheckPermission("<module>:<business>:query")
+    @GetMapping("/{id}")
+    public R<XxxVo> getInfo(@NotNull(message = "主键不能为空")
+                            @PathVariable("id") Long id) {
+        return R.ok(xxxService.queryById(id));
+    }
+
+    /**
+     * 新增Xxx
+     */
+    @SaCheckPermission("<module>:<business>:add")
+    @Log(title = "Xxx", businessType = BusinessType.INSERT)
+    @RepeatSubmit(interval = 2, timeUnit = TimeUnit.SECONDS, message = "{repeat.submit.message}")
+    @PostMapping()
+    public R<Void> add(@Validated(AddGroup.class) @RequestBody XxxBo bo) {
+        return toAjax(xxxService.insertByBo(bo));
+    }
+
+    /**
+     * 修改Xxx
+     */
+    @SaCheckPermission("<module>:<business>:edit")
+    @Log(title = "Xxx", businessType = BusinessType.UPDATE)
+    @RepeatSubmit
+    @PutMapping()
+    public R<Void> edit(@Validated(EditGroup.class) @RequestBody XxxBo bo) {
+        return toAjax(xxxService.updateByBo(bo));
+    }
+
+    /**
+     * 删除Xxx
+     *
+     * @param ids 主键串
+     */
+    @SaCheckPermission("<module>:<business>:remove")
+    @Log(title = "Xxx", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public R<Void> remove(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long[] ids) {
+        return toAjax(xxxService.deleteWithValidByIds(Arrays.asList(ids), true));
+    }
+
+    /**
+     * 导出Xxx列表
+     */
+    @SaCheckPermission("<module>:<business>:export")
+    @Log(title = "Xxx", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    public void export(@Validated XxxBo bo, HttpServletResponse response) {
+        List<XxxVo> list = xxxService.queryList(bo);
+        ExcelBuilder.of(list, XxxVo.class).sheetName("Xxx").toResponse(response);
+    }
+
+    /**
+     * 导入Xxx
+     *
+     * @param file 导入文件
+     */
+    @Log(title = "Xxx", businessType = BusinessType.IMPORT)
+    @SaCheckPermission("<module>:<business>:import")
+    @PostMapping(value = "/importData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public R<Void> importData(@RequestPart("file") MultipartFile file) throws Exception {
+        ExcelResult<XxxImportVo> excelResult = ExcelBuilder.read(file.getInputStream(), XxxImportVo.class)
+            .validate(true)
+            .doRead();
+        List<Xxx> list = MapstructUtils.convert(excelResult.getList(), Xxx.class);
+        xxxService.saveBatch(list);
+        return R.ok(excelResult.getAnalysis());
+    }
+}
+```
+
+## Service 接口
+
+```java
+public interface IXxxService {
+
+    XxxVo queryById(Long id);
+
+    PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery);
+
+    List<XxxVo> queryList(XxxBo bo);
+
+    Boolean insertByBo(XxxBo bo);
+
+    Boolean updateByBo(XxxBo bo);
+
+    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+    Boolean saveBatch(List<Xxx> list);
+}
+```
+
+## Service 实现
+
+```java
+@RequiredArgsConstructor
+@Service
+public class XxxServiceImpl implements IXxxService {
+
+    private final XxxMapper xxxMapper;
+
+    @Override
+    public XxxVo queryById(Long id) {
+        return xxxMapper.selectVoById(id);
+    }
+
+    @Override
+    public PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<Xxx> lqw = buildQueryWrapper(bo);
+        Page<XxxVo> result = xxxMapper.selectVoPage(pageQuery.build(), lqw);
+        return PageResult.build(result.getRecords(), result.getTotal());
+    }
+
+    @Override
+    public List<XxxVo> queryList(XxxBo bo) {
+        return xxxMapper.selectVoList(buildQueryWrapper(bo));
+    }
+
+    private LambdaQueryWrapper<Xxx> buildQueryWrapper(XxxBo bo) {
+        LambdaQueryWrapper<Xxx> lqw = Wrappers.lambdaQuery();
+        lqw.eq(bo.getDeptId() != null, Xxx::getDeptId, bo.getDeptId());
+        lqw.like(StringUtils.isNotBlank(bo.getName()), Xxx::getName, bo.getName());
+        lqw.orderByAsc(Xxx::getId);
+        return lqw;
+    }
+
+    @Override
+    public Boolean insertByBo(XxxBo bo) {
+        Xxx add = MapstructUtils.convert(bo, Xxx.class);
+        validEntityBeforeSave(add);
+        boolean flag = xxxMapper.insert(add) > 0;
+        if (flag) {
+            bo.setId(add.getId());
+        }
+        return flag;
+    }
+
+    @Override
+    public Boolean updateByBo(XxxBo bo) {
+        Xxx update = MapstructUtils.convert(bo, Xxx.class);
+        validEntityBeforeSave(update);
+        return xxxMapper.updateById(update) > 0;
+    }
+
+    private void validEntityBeforeSave(Xxx entity) {
+        // 唯一约束等业务校验
+    }
+
+    @Override
+    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+        if (isValid) {
+            List<Xxx> list = xxxMapper.selectByIds(ids);
+            if (list.size() != ids.size()) {
+                throw new ServiceException("您没有删除权限!");
+            }
+        }
+        return xxxMapper.deleteByIds(ids) > 0;
+    }
+
+    @Override
+    public Boolean saveBatch(List<Xxx> list) {
+        return xxxMapper.insertBatch(list);
+    }
+}
+```
+
+## Entity
+
+```java
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("xxx")
+public class Xxx extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    @TableId(value = "id")
+    private Long id;
+
+    /**
+     * 名称
+     */
+    private String name;
+
+    /**
+     * 排序号
+     */
+    @OrderBy(asc = false, sort = 1)
+    private Integer orderNum;
+
+    /**
+     * 版本
+     */
+    @Version
+    private Long version;
+
+    /**
+     * 删除标志
+     */
+    @TableLogic
+    private Long delFlag;
+}
+```
+
+## BO
+
+```java
+@Data
+@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)
+public class XxxBo implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    @NotNull(message = "主键不能为空", groups = {EditGroup.class})
+    private Long id;
+
+    /**
+     * 名称
+     */
+    @NotBlank(message = "名称不能为空", groups = {AddGroup.class, EditGroup.class})
+    private String name;
+
+    /**
+     * 版本
+     */
+    private Long version;
+}
+```
+
+## VO
+
+```java
+@Data
+@ExcelIgnoreUnannotated
+@AutoMapper(target = Xxx.class)
+public class XxxVo implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    @ExcelProperty(value = "主键")
+    private Long id;
+
+    /**
+     * 名称
+     */
+    @ExcelProperty(value = "名称")
+    private String name;
+
+    /**
+     * 创建时间
+     */
+    @ExcelRequired
+    @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
+    @ExcelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 创建人账号
+     */
+    @Translation(type = TransConstant.USER_ID_TO_NAME, mapper = "createBy")
+    @ExcelProperty(value = "创建人账号")
+    private String createByName;
+
+    /**
+     * 版本
+     */
+    private Long version;
+}
+```
+
+## Mapper
+
+```java
+public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
+
+    @Override
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    })
+    default <P extends IPage<XxxVo>> P selectVoPage(IPage<Xxx> page, Wrapper<Xxx> wrapper) {
+        return selectVoPage(page, wrapper, this.currentVoClass());
+    }
+
+    @Override
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    })
+    default List<XxxVo> selectVoList(Wrapper<Xxx> wrapper) {
+        return selectVoList(wrapper, this.currentVoClass());
+    }
+
+    @Override
+    @DataPermission(value = {
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    }, joinStr = "AND")
+    List<Xxx> selectByIds(@Param(Constants.COLL) Collection<? extends Serializable> idList);
+
+    @Override
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    })
+    int updateById(@Param(Constants.ENTITY) Xxx entity);
+}
+```
+
+## 使用说明
+
+- 这套模板来自作者 `TestDemo*`，不要改成别的分层或命名。
+- 不需要数据权限的表，去掉 Mapper 上的 `@DataPermission` 重写即可，其余保持。
+- 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
+- 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。

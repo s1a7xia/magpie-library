@@ -233,26 +233,30 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 
 ## Controller 与接口
 
-标准路径为 `/{module}/{business}`，权限字符为 `{module}:{business}:{action}`。
+标准路径为 `/{module}/{business}`，权限字符为 `{module}:{business}:{action}`。类上按作者写法固定 `@Validated` + `@RequiredArgsConstructor` + `@RestController` + `@RequestMapping` + `extends BaseController`。
 
 ```text
-GET    /list                 R<PageResult<Vo>>
-GET    /{id}                 R<Vo>
-POST   /                     R<Void>
-PUT    /                     R<Void>
-DELETE /{ids}                R<Void>
-POST   /export               文件流
-POST   /importData           R<Void>
+GET    /list                 R<PageResult<Vo>>      @Validated(QueryGroup.class) Bo + PageQuery
+GET    /page                 自定义分页，可选
+GET    /{id}                 R<Vo>                  @PathVariable Long id
+POST   /                     R<Void>                @Validated(AddGroup.class) @RequestBody Bo
+PUT    /                     R<Void>                @Validated(EditGroup.class) @RequestBody Bo
+DELETE /{ids}                R<Void>                @PathVariable Long[] ids + @NotEmpty
+POST   /export               文件流                  ExcelBuilder.of(...).toResponse(response)
+POST   /importData           R<Void>                MultipartFile + ExcelBuilder.read(...)
 PUT    /changeStatus         R<Void>
-PUT    /updateSort            R<Void>
+PUT    /updateSort           R<Void>
 ```
 
-- 普通单表列表：`list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery)`。
-- 树表列表：`R<List<XxxVo>> list(XxxBo bo)`，前端建树。
-- 新增用 `AddGroup`，修改用 `EditGroup`，路径批量 ID 用 `@NotEmpty`。
-- 新增/修改/删除用 `toAjax(...)`；业务失败抛 `ServiceException`。
-- 写操作加 `@Log`；有重复提交风险的 POST/PUT 按需加 `@RepeatSubmit`。
-- 普通表导出常用 `POST /export`，树表常用 `GET /export`；按同模块现有接口写。
+- 列表：`list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery)`，包在 `R.ok(service.queryPageList(...))` 里，**不在 Controller 里新建 `PageResult`**。
+- 树表列表：`R<List<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo)`，前端建树。
+- 分组校验：新增 `AddGroup`、修改 `EditGroup`、查询 `QueryGroup`；路径批量 ID 用 `@NotEmpty`，单个 ID 用 `@NotNull`。
+- 新增/修改/删除统一 `return toAjax(service.xxx(...))`。
+- `@Log` 标在**所有写操作**上（新增、修改、删除、导入、导出、状态变更），`businessType` 用 `BusinessType.INSERT/UPDATE/DELETE/IMPORT/EXPORT`。
+- `@RepeatSubmit` 标在表单提交的 POST/PUT 上，按作者写法可显式写 `interval`、`timeUnit`、`message`。
+- 权限统一 `@SaCheckPermission("{module}:{business}:{action}")`，动作词沿用 `list`、`query`、`add`、`edit`、`remove`、`export`、`import`。
+
+详细模板见 [templates.md](templates.md)。
 
 分页使用 `PageQuery.build()`，但 `PageQuery` 未传 `pageSize` 时默认接近全量。业务列表必须给出有限默认值并校验上限，不能直接依赖这个默认值。
 

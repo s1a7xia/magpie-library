@@ -44,6 +44,7 @@ plus-ui/src/
 
 - 页面入口固定 `index.vue`；复杂页面可拆同目录子组件。
 - `types.ts` 放 `VO`、`Form`、`Query`；`index.ts` 只放请求函数。
+- 按作者写法：`VO` 字段必填、`Form extends BaseEntity` 且字段全部可选、`Query extends PageQuery` 且条件可选；每个字段保留中文注释，注释会进类型提示和文档。
 - 单页状态留在页面，跨页面状态才进 Pinia。
 - 先读同模块两三个兄弟页面了解现有交互，再从 `components/`、`hooks/`、`utils/` 选通用能力；不要复制业务页面的实现。
 

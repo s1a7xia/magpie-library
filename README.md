@@ -242,6 +242,7 @@ RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 | 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
 | 字符串 / 集合 / 对象 / JSON / 日期 / 树 / 文件 / IP / SQL 工具选型 | `references/utils.md` |
 | 事务 / 幂等 / 缓存 / 异步 / 并发 / 编排 / 序列 / 导出 / 审计等机制选型 | `references/capabilities.md` |
+| 按作者源码蒸馏的后端代码模板（Controller/Service/BO/VO/Entity/Mapper） | `references/templates.md` |
 | 工作流 / 定时任务 / AI / 监控等按需能力 | `references/optional-integrations.md` |
 
 任何业务模块先读 `SKILL.md` 的业务判型、复用扫描和契约门，再按任务加载对应的后端/前端/数据库/工具文件。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
@@ -252,7 +253,7 @@ RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 - **核心复用面**：业务模块默认只依赖 `ruoyi-common`、`ruoyi-system` 和自身所在分层；工作流、AI、定时任务、MQTT 等在 `ruoyi-modules/ruoyi-*` 内随主应用装配，属于按需能力，用到才接入；`ruoyi-extend/` 下的 monitor-admin、snailjob-server、snailai-server 是独立进程，只能通过客户端、HTTP 或消息交互。
 - **本地完整模板**：普通单表、树表和 Excel 的后端分层、Service/Mapper、前端 API、页面骨架和菜单 SQL 可直接裁剪；业务模块不作为模板。
 - **改动路径**：新业务、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
-- **按需加载**：六个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识，也不为可选能力预留结构。
+- **按需加载**：七个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识，也不为可选能力预留结构。
 - **机制判型**：业务判型决定做成什么形状，机制判型决定靠什么保障；事务、幂等、缓存、异步、并发、编排、序列、展示和审计命中信号才引入，没有验收标准不预埋。
 
 事实优先级：当前项目源码 > 同模块现有实现 > 本技能规范 > 官方文档。不要用外部文档的旧类名或配置直接覆盖当前 checkout。
