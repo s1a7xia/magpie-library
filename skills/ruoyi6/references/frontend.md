@@ -60,7 +60,7 @@ plus-ui-React/src/
 
 - 页面入口固定 `index.tsx`；复杂页面可拆同目录子组件。
 - `types.ts` 放 `VO`、`Form`、`Query`；`index.ts` 只放请求函数。
-- `VO` 字段必填、`Form extends BaseEntity` 且字段全部可选、`Query extends PageQuery` 且条件可选；字段名与后端 BO/VO 完全一致。
+- `VO` 字段必填、`Form extends BaseEntity` 且字段全部可选、`Query extends PageQuery` 且条件可选；字段名与后端 BO/VO 完全一致。前端 `BaseEntity` 不含后端才有的 `createDept`，需要该字段时在 `Form` 中显式声明。
 - 单页状态留在页面，跨页面状态才进 Zustand。
 - 同模块兄弟页面只用于读字段、路由、权限和已有集成约束；写法仍从作者 demo、公共组件/hooks 和模板取样。
 
@@ -93,7 +93,7 @@ PageContainer
 
 ## API 与类型
 
-- 请求统一 `import request from '@/api/request'`；导出函数返回 `Promise<R<T>>`。
+- 请求统一 `import request from '@/api/request'`；导出函数返回 `Promise<R<T>>`。导出 HTTP 方法必须与对应 Controller 一致：单表示例是 POST，树表示例是 GET；不要把 `download()` 当成所有导出的通用入口。
 - 分页读 `res.data.rows`、`res.data.total`；树表读 `res.data` 数组。
 - 查询用 `params`，新增/修改用 `data`；下载复用 `@/utils/download` 或 `useTableExport`。
 - `R`、`PageResult`、`PageQuery`、`BaseEntity` 来自 `@/api/types`。
@@ -178,7 +178,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 
 | 场景 | 入口 |
 |---|---|
-| 表格选择 | `hooks/useTableSelection`：`ids`、`selectedOne`、`single`、`multiple`、`handleSelectionChange`、`clearSelection` |
+| 表格选择 | `hooks/useTableSelection`：`ids`、`selectedOne`、`handleSelectionChange`、`clearSelection`；`single` / `multiple` 的命名与源码语义不一致，不要按字面使用，单选禁用用 `!selectedOne`，批量用 `ids.length` |
 | 表格导出 | `hooks/useTableExport`：`updateExportParams`、`exportFile` |
 | 表格滚动 | `hooks/useTableScroll`：`tableScroll` |
 | 日期范围 | `hooks/useDateRangeQuery`：`dateRange`、`applyDateRange`、`resetDateRange` |
@@ -202,14 +202,15 @@ export function delXxx(id: string | number | Array<string | number>) {
 | 字典 | `components/common/DictTag` + `useDict` + `dictOptions` |
 | 左树 | `components/common/TreePanel` |
 | 用户选择 | `components/common/UserSelect` |
-| 文件、图片、预览 | `components/common/FileUpload`、`ImageUpload`、`ImagePreview` |
+| 文件、图片、预览 | `components/common/FileUpload`、`ImageUpload`、`ImagePreview`、`useOssUploadList` |
 | 富文本、图标 | `components/common/RichTextEditor`、`IconSelect` |
+| 长文本、JSON、空状态 | `components/common/EllipsisText`、`JsonViewer`；空状态复用 ProTable / antd `Empty` |
 | 审批交互 | `components/workflow/*` |
 | 详情面板 | antd `Drawer` + ProComponents `ProDescriptions` |
-| 下载 | `@/utils/download` 的 `download` / `saveBlob` / `saveValidatedBlob` |
-| 确认框 | `@/utils/modal` 的 `confirmAction`、`confirmTitle`、`confirmTitleSafe` |
+| 下载 | `@/utils/download` 的 `download` / `saveBlob` / `saveValidatedBlob`；`download()` 目前固定 POST，GET 导出需用 `request` + `saveValidatedBlob` 或先扩展该工具 |
+| 确认框 | `@/utils/modal` 的 `confirmModal`、`confirmAction`、`confirmTitle` |
 | 权限 | `@/utils/permission` 的 `hasPermi`、`hasRole` |
-| 查询、树、日期 | `@/utils/ruoyi` 的 `toPageQuery`、`toTableData`、`handleTree`、`filterTree`、`addDateRange`、`withTableSort` |
+| 查询、树、日期 | `@/utils/ruoyi` 的 `toPageQuery`、`toTableData`、`handleTree`、`filterTree`、`collectTreeKeys`、`addDateRange`、`withTableSort`、`formatDateTime*`、`toDayjs*` |
 | 字典选项 | `@/utils/dict` 的 `dictOptions` |
 
 上传值保存 `ossId`，不保存二进制或临时 URL。富文本的 OSS 约定以 `RichTextEditor` 和现有页面为准。不要复制分页、工具栏、字典、选择器或上传组件。

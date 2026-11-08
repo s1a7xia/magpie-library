@@ -94,6 +94,8 @@ public class XxxController extends BaseController {
             .doRead();
         List<Xxx> list = MapstructUtils.convert(excelResult.getList(), Xxx.class);
         xxxService.saveBatch(list);
+        // 作者写法：R.ok 的单参数重载把字符串作为提示消息，业务数据为空。
+        // 若要把分析结果返回给页面，声明 R<String> 并使用 R.ok(msg, data) 或 R.data(data)。
         return R.ok(excelResult.getAnalysis());
     }
 }

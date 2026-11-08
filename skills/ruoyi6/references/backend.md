@@ -41,10 +41,12 @@ XxxController
 | 部门 | `DeptService` | 部门名称、负责人、部门列表 |
 | 角色 | `RoleService` | 批量角色名称 |
 | 岗位 | `PostService` | 批量岗位名称 |
+| 参数配置 | `ConfigService` | 按 key 读取运行期配置（`getConfigValue` 等）；不要注入 system 的 `ISysConfigService`；业务专用写方法不算通用接口 |
 | 消息 | `MessageService` | `sendMessage` 实时推送；`publishMessage` / `publishAll` 可落库供消息盒子 |
 | 消息 | `MessageService` | 单用户、多用户和广播消息 |
 | 文件 | `OssService` | 按 OSS ID 取地址或文件信息 |
 | 工作流 | `WorkflowService`、`WorkflowTaskQueryService` | 发起、办理、撤回、驳回、状态和流程变量 |
+| 工作流办理人 | `TaskAssigneeService` | 按角色、岗位、部门或用户解析流程办理人 |
 
 业务模块只能依赖接口，不依赖实现类。需要新增跨模块能力时，先判断现有接口能否扩展；不要为了一个调用方复制系统模块的 Entity、Mapper 或 ServiceImpl。
 
@@ -242,10 +244,10 @@ GET    /{id}                 R<Vo>                  @PathVariable Long id
 POST   /                     R<Void>                @Validated(AddGroup.class) @RequestBody Bo
 PUT    /                     R<Void>                @Validated(EditGroup.class) @RequestBody Bo
 DELETE /{ids}                R<Void>                @PathVariable Long[] ids + @NotEmpty
-POST   /export               文件流                  ExcelBuilder.of(...).toResponse(response)
+POST   /export               文件流                  单表作者示例；树表示例为 GET，前后端必须一致
 POST   /importData           R<Void>                MultipartFile + ExcelBuilder.read(...)
-PUT    /changeStatus         R<Void>
-PUT    /updateSort           R<Void>
+PUT    /changeStatus         R<Void>                按同类系统模块接口追加，不当作所有业务必备端点
+PUT    /updateSort           R<Void>                按同类系统模块接口追加，不当作所有业务必备端点
 ```
 
 - 列表：`list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery)`，包在 `R.ok(service.queryPageList(...))` 里，**不在 Controller 里新建 `PageResult`**。
@@ -318,6 +320,10 @@ PUT    /updateSort           R<Void>
 - 不新增 `@Tag`、`@Operation`、`@Parameter` 等 Swagger 注解来重复描述；现有代码也没有这样用。
 - BO/VO 字段的注释同样会进入文档，字段含义不要留空。
 - 缺 JavaDoc 的接口在文档里就是空白摘要，补注释是接口交付的一部分，不是可选项。
+
+### `R.ok` 的重载语义
+
+`R.ok(data)` 返回 `R<T>`；`R.ok(String msg)` 把字符串当作提示信息，业务数据为 `null`。当返回值本身是字符串时，必须用 `R.data(value)` 或 `R.ok(msg, data)`，不要用单参数 `R.ok(value)`。
 
 ## 常见错误
 

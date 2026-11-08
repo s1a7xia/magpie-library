@@ -10,7 +10,7 @@
 |---|---|---|
 | 普通单表 CRUD、分页、详情、增删改 | `TestDemoController`、`TestDemoServiceImpl`、`TestDemoMapper`、`TestDemoBo`、`TestDemoVo` | BO 接请求、VO 出响应、Service 转 Entity、Mapper 做分页和数据权限 |
 | 树形分类、父子节点、展开折叠 | `TestTreeController`、`TestTreeServiceImpl`、`pages/demo/tree/index.tsx`、`useTreeTableExpand`、`handleTree` | 列表返回平铺数据，前端建树；父子约束在 Service 校验 |
-| 动态参数、开关、阈值 | `SysConfigController`、`ISysConfigService` | 参数是运行期可调整配置，不另建业务表；缓存刷新走现有入口 |
+| 动态参数、开关、阈值 | `SysConfigController`、跨模块读取用 `ConfigService` | 参数是运行期可调整配置，不另建业务表；业务模块不要注入 system 的 `ISysConfigService` |
 | 有限枚举、状态展示 | `SysDictDataController`、`SysDictTypeController` | 字典类型和数据分开维护，页面用 `DictTag`，不要硬编码中文 |
 | 用户、部门、角色、岗位、文件 | `SysUserController`、`SysDeptController`、`SysRoleController`、`SysPostController`、`SysOssController` | 先查系统模块的现有页面、组件和 API，不另造选择器、上传器或平行查询表 |
 | Excel 导入 | `TestDemoController.importData`、`TestDemoImportVo`、`TestExcelController.importWithOptions`、`DefaultExcelListener` | 导入用独立 ImportVo，先校验再转换，错误结果反馈给用户 |

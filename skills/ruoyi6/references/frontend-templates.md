@@ -309,6 +309,8 @@ const openAdd = async (row?: XxxVO) => {
 
 父节点树选项从平铺数据建树，编辑时排除自身及子树。删除、移动节点前确认后端子树规则，页面不能自行假设级联删除或移动语义。
 
+树表导出方法与单表不同：作者示例 `TestTreeController.export` 使用 `GET /export`，而 `download()` 固定 POST。树表页面加导出时，先用 `request({ method: 'get', responseType: 'blob' })` 取 Blob，再用 `saveValidatedBlob` 保存；或先把 `download` 扩展成可传 method，不能直接复用固定 POST 的 `exportFile`。
+
 ## API 文件
 
 ```ts
@@ -387,7 +389,7 @@ export interface XxxQuery extends PageQuery {
 }
 ```
 
-- `VO` 字段必填；`Form` 继承 `BaseEntity` 且字段全部可选；`Query` 继承 `PageQuery` 且条件可选。
+- `VO` 字段必填；`Form` 继承 `BaseEntity` 且字段全部可选；`Query` 继承 `PageQuery` 且条件可选。前端 `BaseEntity` 不含 `createDept`，需要时在 `Form` 中显式声明。
 - 树表 `Query` 不继承 `PageQuery`，`VO` 增加可选 `children`。
 - 主键和关联 ID 用 `string | number`，避免雪花 ID 丢精度。
 - 字段名与后端 BO/VO 完全一致；日期范围保留 `Query.params`。

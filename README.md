@@ -28,7 +28,7 @@
 - 保留 5 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
-- `ruoyi6` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。旧 `plus-ui` 仅作为 Vue→React 迁移的业务事实来源。
+- `ruoyi6` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现，不读取旧版前端页面或模板。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
 当前是 **15 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。

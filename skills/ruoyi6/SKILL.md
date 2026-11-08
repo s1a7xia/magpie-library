@@ -21,7 +21,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。先判定任务与�
 | 工作流、定时任务、AI、监控 | 需求确实涉及才读 [optional-integrations.md](references/optional-integrations.md) |
 | 消息、MQTT、搜索 | 按需；先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
-技能中的外部项目只贡献组织角度和工程思路。技术事实以当前 checkout 为准：后端看根 `pom.xml`，前端看 `plus-ui-React/package.json`，不把固定提交或外部文档当成当前事实。
+技能中的外部项目只贡献组织角度和工程思路。技术事实以当前 checkout 为准：后端看根 `pom.xml`，前端看 `plus-ui-React/package.json`，不把固定提交或外部文档当成当前事实。当前基线是 RuoYi-Vue-Plus 6.1.x + Spring Boot 4.x + Java 21 + React 19 + Ant Design 6；不要套用 Spring Boot 3 / JDK 17 或旧版前端写法。
 
 绝大多数业务模块只依赖 `ruoyi-common`、`ruoyi-system` 和自身所在分层。工作流、AI、定时任务、MQTT、监控等是可选能力，不是业务模块前置依赖。
 
@@ -108,7 +108,7 @@ docs/sql/                            业务增量 SQL
 1. 数据库：现有表、字典、参数、菜单和增量 SQL，优先扩展已有对象。
 2. 后端：`ruoyi-api`、`ruoyi-common-*`、`ruoyi-system`、`ruoyi-demo`。
 3. 前端：`plus-ui-React/src/components`、`hooks`、`utils`、`api`、`pages` 和现有页面壳。
-4. 模板：优先作者 demo；`ruoyi-gen` 和 `plus-ui-React/gen` 只核对字段映射与文件落点。
+4. 模板：优先作者 demo；`ruoyi-gen/src/main/resources/fm/java`、`fm/react`、`fm/xml` 和 `plus-ui-React/gen` 只核对字段映射与文件落点。只读取这些 Java/React/SQL/XML 模板，不读取历史前端模板目录。
 
 确认输入、返回值、权限、事务和异常行为适合当前场景后再调用。能力接近但接口不合用时，优先薄包装或扩展已有实现。不要仅凭类名或方法名记忆调用，使用前读当前源码确认签名。
 
@@ -152,7 +152,7 @@ docs/sql/                            业务增量 SQL
 | 树表 React | `src/pages/demo/tree/index.tsx` |
 | 复杂页面 | `src/pages/system/user/index.tsx`、`src/pages/system/client/index.tsx` |
 | Excel、导入、导出 | `TestDemoController.importData`、`TestExcelController`、`ExportDemoVo`；React 导入参考 `system/user/components/UserImportModal.tsx` |
-| 生成器模板 | 后端 `ruoyi-gen/.../fm/react/`，前端 `plus-ui-React/gen/`；只查结构，不运行生成器 |
+| 生成器模板 | 后端 `ruoyi-gen/.../fm/java/`、`fm/xml/`，React 页面 `ruoyi-gen/.../fm/react/`，前端 `plus-ui-React/gen/`；只查结构，不运行生成器 |
 
 框架示例和公共能力才是可复制模板。目标项目已有业务模块只用于确认字段、权限和集成约束，不复制其架构或页面实现。
 
