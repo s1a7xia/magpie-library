@@ -11,7 +11,6 @@
 | 普通单表 | 本页“单表页面” |
 | 树形分类 | 本页“树表差异”，再套单表骨架 |
 | 只读报表、主从、审批 | 先用 `frontend.md` 的页面形态和现有组件，不硬套 CRUD |
-| Vue 迁 React | 先盘点旧页面契约，再按本页结构重新实现，不逐行翻译 |
 
 维护目标模块已有页面时，先读它的查询区、表格、弹窗和 API，保留已有复杂交互，只增量实现当前需求。新建页面仍按作者 demo 和公共组件搭建。
 
@@ -393,23 +392,6 @@ export interface XxxQuery extends PageQuery {
 - 主键和关联 ID 用 `string | number`，避免雪花 ID 丢精度。
 - 字段名与后端 BO/VO 完全一致；日期范围保留 `Query.params`。
 - 纯类型导入用 `import type`；若目标模块已统一使用普通导入，保持该模块风格。
-
-## Vue 迁 React 映射
-
-| 旧页面事实 | React 落点 |
-|---|---|
-| `src/views/<module>/<business>/index.vue` | `src/pages/<module>/<business>/index.tsx` |
-| 旧 API 请求 | `src/api/<module>/<business>/{index,types}.ts` |
-| 旧页面组件 | `PageContainer`、`ProTable`、`ModalForm`、`Drawer` + 现有 common 组件 |
-| 旧权限指令 | `hasPermi(userInfo, [...])`；按钮用条件渲染 |
-| 旧字典 | `useDict` + `dictOptions` + `DictTag` |
-| 旧弹窗状态 | `useBoolean` + `ModalForm` |
-| 旧分页参数 | `toPageQuery` + `toTableData` |
-| 旧树表 | `handleTree` + `useTreeTableExpand` + `ProFormTreeSelect` |
-| 旧全局状态 | Zustand selector |
-| 新增页面 | `dynamicPage.tsx` 的 `migratedPages` 登记 |
-
-迁移时保留旧页面的字段、API 路径、权限字符、菜单 component、查询/分页、CRUD、状态、导入导出、上传、详情抽屉和路由跳转。不要复制旧 UI 组件、请求封装、权限指令或全局 store。
 
 ## 交付前检查
 

@@ -26,7 +26,7 @@
 | 样式 | LESS，`src/assets/styles/` |
 | 包管理 | pnpm |
 
-版本和脚本从当前 `plus-ui-React/package.json` 读取：`dev`、`build:dev`、`build:prod`、`lint`、`fmt`。不用记忆中的 Vue、Element Plus 或 Pinia 写法覆盖当前源码。
+版本和脚本从当前 `plus-ui-React/package.json` 读取：`dev`、`build:dev`、`build:prod`、`lint`、`fmt`。不用记忆中的旧前端写法覆盖当前源码。
 
 ## 选择页面形态
 
@@ -71,9 +71,9 @@ plus-ui-React/src/
 1. 在后端菜单中保留 `component`（通常是 `@/views/<module>/<business>/index`）。
 2. 在 `dynamicPage.tsx` import 新页面，并登记对应键，例如 `module/business/index`。
 3. 若页面遵循稳定路径前缀，可评估 `migratedPathPrefixes`，但新业务默认用显式键，避免误匹配。
-4. 未登记会进入“React 页面还未迁移”占位页，即使 TSX 本身构建通过。
+4. 未登记会进入页面占位提示，即使 TSX 本身构建通过。
 
-`normalizeComponentKey` 会去掉 `@/views/` 和 `.vue`。迁移旧菜单时，不要为了 React 改后端菜单格式；以现有归一化规则为准。
+`normalizeComponentKey` 会规范菜单 `component` 键。后端菜单格式以现有归一化规则为准，不为了前端改动菜单契约。
 
 ## 页面骨架
 
@@ -158,7 +158,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 - 提交成功后关闭弹窗并 `actionRef.current?.reload()`；失败保留输入并让 `ModalForm` 恢复提交状态。
 - 删除先确认，再清选中项并 `reloadAndRest`。
 - 状态切换失败要回滚界面状态；使用 `confirmAction` 或 `Popconfirm`。
-- 权限用 `const userInfo = useUserStore(state => state.userInfo)` + `hasPermi(userInfo, ['module:business:action'])`；无 `v-hasPermi`、无 `checkPermi`。
+- 权限用 `const userInfo = useUserStore(state => state.userInfo)` + `hasPermi(userInfo, ['module:business:action'])`；不要另造页面级权限判断。
 - 页面至少处理 loading、空结果、请求失败、无权限和提交失败；不能只覆盖成功路径。
 - 表单字段、列表字段和查询字段从同一份契约派生；不要在不同组件里各自硬编码标签和枚举。
 - 树表使用 `handleTree`、`useTreeTableExpand`、`ProTable` 的 `expandable` 和 `ProFormTreeSelect`；新增子节点时从当前行带入父 ID。
@@ -227,7 +227,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 - 业务页保留 ProComponents/Ant Design 核心组件：`PageContainer`、`ProTable`、`ModalForm`、`Drawer`、`Pagination`/ProTable 分页、`DictTag`、`RowActions`。
 - 复用现有页面壳和类：`tree-table-page`、`table-panel`、`page-surface`，以及 `src/assets/styles/` 的 token。
 - 颜色优先用 `--app-*` 主题变量；不散落硬编码色值。
-- 单页样式放页面局部 LESS 或现有模块样式文件，不写 Vue `scoped`，不覆盖 Ant Design 类名。
+- 单页样式放页面局部 LESS 或现有模块样式文件，不覆盖 Ant Design 类名。
 - 状态用语义化 `Tag` 或 `DictTag`：成功、警告、危险、信息含义固定。
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片。
 - 保证无横向溢出、按钮不折行、弹窗与下拉层级正常、深色模式文字可读。
@@ -260,7 +260,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 | `import { request } from '@/utils/request'` | 路径和导出都不对 | `import request from '@/api/request'` |
 | 使用 `AxiosPromise<T>` | React 工程请求层直接返回 `R<T>` | `request<R<T>>`，函数返回 `Promise<R<T>>` |
 | 页面直接拼 `fetch`/`axios` | 绕过鉴权、加解密、错误提示 | 统一走 `@/api/request` |
-| 新建页面但没登记 `dynamicPage.tsx` | 菜单进入“页面迁移中”占位 | 在 `migratedPages` 登记键 |
+| 新建页面但没登记 `dynamicPage.tsx` | 菜单进入页面占位提示 | 在 `migratedPages` 登记键 |
 | 主键声明为 `number` | 雪花 ID 可能丢精度 | `string \| number` |
 | 只加前端 `hasPermi` | 绕过接口调用仍可能成功 | 后端 `@SaCheckPermission` 必须同步 |
 | 每个页面复制分页、树、上传组件 | 样式和行为漂移 | 复用 `components/common` 和 `hooks` |

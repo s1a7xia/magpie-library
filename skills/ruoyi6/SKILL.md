@@ -1,6 +1,6 @@
 ---
 name: ruoyi6
-description: "RuoYi-Vue-Plus 6.x 业务模块开发与 Vue→React 迁移规范。先判定任务与业务形态，扫描框架已有能力，再确定契约和最小实现；覆盖 Java 后端、React/Ant Design Pro 前端、PostgreSQL 数据建模与按需集成。用于 RuoYi 6.x + plus-ui-React 项目和全局默认技术 profile。触发：ruoyi6、RuoYi-Vue-Plus、若依Plus、plus-ui-React、React 页面、Vue 迁移 React、Java 业务代码、PostgreSQL、改字段、加接口、加页面、加权限。"
+description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。先判定任务与业务形态，扫描框架已有能力，再确定契约和最小实现；覆盖 Java 后端、React/Ant Design Pro 前端、PostgreSQL 数据建模与按需集成。用于 RuoYi 6.x + plus-ui-React 项目和全局默认技术 profile。触发：ruoyi6、RuoYi-Vue-Plus、若依Plus、plus-ui-React、React 页面、Java 业务代码、PostgreSQL、改字段、加接口、加页面、加权限。"
 ---
 
 # RuoYi-Vue-Plus 6.x 业务开发
@@ -9,7 +9,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发与 Vue→React 迁移规范�
 
 | 任务 | 必读 |
 |---|---|
-| 任何业务模块、功能或迁移 | 本页 |
+| 任何业务模块或功能 | 本页 |
 | 写或改 Java 后端 | [backend.md](references/backend.md) |
 | 写或改 React 页面、API | [frontend.md](references/frontend.md) |
 | 建表、改字段、写 SQL | [database.md](references/database.md) |
@@ -21,7 +21,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发与 Vue→React 迁移规范�
 | 工作流、定时任务、AI、监控 | 需求确实涉及才读 [optional-integrations.md](references/optional-integrations.md) |
 | 消息、MQTT、搜索 | 按需；先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
 
-技能中的外部项目只贡献组织角度和工程思路。技术事实以当前 checkout 为准：后端看根 `pom.xml`，前端看 `plus-ui-React/package.json`，不把固定提交、旧 Vue 代码或外部文档当成当前事实。
+技能中的外部项目只贡献组织角度和工程思路。技术事实以当前 checkout 为准：后端看根 `pom.xml`，前端看 `plus-ui-React/package.json`，不把固定提交或外部文档当成当前事实。
 
 绝大多数业务模块只依赖 `ruoyi-common`、`ruoyi-system` 和自身所在分层。工作流、AI、定时任务、MQTT、监控等是可选能力，不是业务模块前置依赖。
 
@@ -38,7 +38,6 @@ ruoyi-modules/ruoyi-gen/             生成模板；只查模板和字段映射�
 ruoyi-modules/ruoyi-* 其它            工作流、AI、定时任务等按需能力
 ruoyi-extend/                        独立进程：monitor-admin、snailjob-server、snailai-server
 plus-ui-React/                       React 19 + TypeScript + Umi Max + Ant Design ProComponents
-plus-ui/                             Vue 3 + Element Plus；只作为业务迁移的旧事实来源
 script/sql/                          初始化 SQL
 docs/sql/                            业务增量 SQL
 ```
@@ -64,21 +63,6 @@ docs/sql/                            业务增量 SQL
 | 增量修改现有模块 | 先读现有契约和调用链，只补本次字段、接口、交互或能力 |
 | 只补 API/types | 对齐已有后端 BO/VO 和当前 `request`/`types` 约定，不顺手改页面 |
 | 修改公共能力 | 搜全部调用方，保持签名兼容；必要时编译受影响模块，不顺手重构 |
-| Vue 页面迁 React | 先盘点旧页面契约，再按 React 现有组件、hooks 和动态路由重新实现 |
-
-### Vue→React 迁移门
-
-迁移不是逐行翻译。先盘点并保留：
-
-- 菜单路由、`component`、页面标题和页签行为；
-- 权限字符、按钮可见性和后端接口权限；
-- API 路径、HTTP 方法、查询参数、分页和排序；
-- VO / Form / Query 字段、类型、必填、默认值和字典；
-- CRUD、状态切换、导入导出、文件/图片/富文本；
-- 详情抽屉、左树筛选、主从联动、分配页面和路由跳转。
-
-React 落点必须是 `src/api/<module>/<business>/{index,types}.ts`、`src/pages/<module>/<business>/index.tsx`，并登记到 `src/pages/dynamicPage.tsx`。旧页面只负责提供业务事实，不提供 Vue 实现模板。
-
 ## 业务与机制判型
 
 ### 业务判型
@@ -131,7 +115,7 @@ React 落点必须是 `src/api/<module>/<business>/{index,types}.ts`、`src/page
 **必须留下可核对的产出**。动手前写清：
 
 ```text
-任务判型：<新建 / 增量 / 只补 API / 公共能力 / Vue 迁 React>
+任务判型：<新建 / 增量 / 只补 API / 公共能力>
 业务判型：<形态>；组合：<...>
 机制命中：事务=<要/不要，理由>；幂等=<...>；缓存=<...>；异步=<...>；并发=<...>；其他=<...>
 复用入口：<具体的类/组件/hook/接口>
@@ -184,7 +168,6 @@ React 落点必须是 `src/api/<module>/<business>/{index,types}.ts`、`src/page
 | 导入/导出 | VO 的 `@ExcelProperty`、`ExcelBuilder`、`importData`/`export`、React `useTableExport`/`download` | `TestDemoController.importData`、`TestExcelController`、`UserImportModal` | 导入模板、错误行提示、导出字段正确 |
 | 字典/参数 | `sys_dict_type`、`sys_dict_data`、`sys_config` → `useDict`/`DictTag`/`dictOptions` 或配置读取 | 相邻字典、参数 SQL | 字典值、默认值、页面显示一致 |
 | 修改公共组件/工具 | `components/common`、`hooks`、`utils` 或 `ruoyi-common-*` | 搜索全部调用方 | 至少编译受影响模块，不顺手重构 |
-| Vue 迁 React | 旧页面契约 → React API/types/页面 → `dynamicPage.tsx` | 旧 `plus-ui/src/views` 仅取业务事实；React 同类实现取写法 | 字段、路径、权限、交互一致，构建通过 |
 | 工作流、任务、消息、OSS、AI、搜索 | 对应 `ruoyi-modules/ruoyi-*`、`ruoyi-common-*`、`ruoyi-api` | 现有 Bean、配置和调用链 | 先复用，跨模块只依赖接口 |
 
 登录与静态路由看 `plus-ui-React/src/pages/login.tsx`、`config/config.ts`；动态路由和菜单映射看 `src/pages/dynamicPage.tsx`、`src/stores/permissionStore.ts`、`src/utils/menu.tsx`；布局、页签和设置看 `src/layouts/BasicLayout.tsx`、`src/stores/{appStore,tagsViewStore}.ts`；请求、鉴权、加解密、权限看 `src/api/request.ts`、`src/utils/{auth,crypto,permission}.ts`；主题和页面样式看 `src/assets/styles/`。
@@ -239,7 +222,7 @@ React 落点必须是 `src/api/<module>/<business>/{index,types}.ts`、`src/page
 4. 写 DDL 和字典、参数、菜单 SQL；未指定新数据库选型时默认 PostgreSQL，并沿用当前脚本位置和方言。
 5. 写 Entity、BO、VO、Mapper、Service 接口、ServiceImpl、Controller；列表分页，树表返回列表。
 6. 写 `types.ts`、`api/index.ts`、`pages/<module>/<business>/index.tsx`；先查询、表格、分页，再弹窗、校验、提交。
-7. 迁移或新建页面时登记 `dynamicPage.tsx`；核对菜单 `component`、权限字符和路由行为。
+7. 新建页面时登记 `dynamicPage.tsx`；核对菜单 `component`、权限字符和路由行为。
 8. 接菜单和权限：目录 `M`、页面菜单 `C`、按钮 `F`；权限字符与后端注解、前端 `hasPermi` 一致。
 9. 过前后端联动门，核对字段、路径、权限、查询、导入导出和文件契约。
 10. 后端编译，前端构建；代码、菜单和权限配置完整后标 `Dev Complete`。页面可见改动交给用户发起 `page-acceptance`。
@@ -261,8 +244,8 @@ React 落点必须是 `src/api/<module>/<business>/{index,types}.ts`、`src/page
 - [ ] 分页、空集合、唯一性、事务、数据权限和权限字符已处理。
 - [ ] 复用了现有组件、hooks、工具、跨模块 API 和公共能力；没有照抄业务模块或另造第二套实现。
 - [ ] 已核对前后端路径、响应、字段、权限、查询、导入导出和文件契约。
-- [ ] 新 React 页面已登记 `dynamicPage.tsx`；Vue 迁移已保留菜单、权限、API、类型和关键交互。
+- [ ] 新 React 页面已登记 `dynamicPage.tsx`，菜单、权限、API 和类型保持一致。
 - [ ] 后端已编译，前端已构建；未做页面验收时明确写“开发完成、未验收”。
-- [ ] 没把生成器、外部框架文档或旧 Vue 实现当作当前代码事实。
+- [ ] 没把生成器或外部框架文档当作当前代码事实。
 
 输出：加载的规范、参考的源码路径、复用项、实际构建、**TODO 清单**、未完成项。

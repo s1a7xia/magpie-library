@@ -92,7 +92,7 @@ The re-research hint is written at the end of the verdict or in a note below the
 
 - **Single-stack topics are listed too** (listed when ≥1 stack has researched it). Value: when a future new stack researches the same topic, the existing baseline is immediately visible.
 - **Topics with 0 stacks researched do not appear** (no record to index).
-- `Stacks` column format: `<stack>@<major>`, multiple stacks space-separated: `react@18 vue3@3`.
+- `Stacks` column format: `<stack>@<major>`, multiple stacks space-separated: `react@18 antd@5`.
 
 ## 更新规则
 

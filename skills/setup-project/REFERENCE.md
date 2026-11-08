@@ -163,7 +163,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 
 **Stack detection (feeds the engineering-principles tailoring, Section E):**
 
-- Frontend: framework deps in `package.json` (react/vue/svelte/next/…), `src/components|app|pages` directories
+- Frontend: framework deps in `package.json` (react/next/umi/…), `src/components|app|pages` directories
 - Backend: server entrypoints, `api/`/`server/` directories, backend framework deps
 - Database: ORM config (drizzle/prisma/knex/typeorm/…), `migrations/` directories, schema files
 - Multi-tenant signals: auth middleware, tenant/org IDs in schemas, "multi-tenant" in the README
