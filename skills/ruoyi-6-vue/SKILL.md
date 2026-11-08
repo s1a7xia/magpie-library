@@ -233,7 +233,7 @@ docs/sql/                    业务增量 SQL
 2. 过机制判型，确认事务、幂等、缓存、异步、并发、编排、序列、展示和审计的处理方式，命中项读 [capabilities.md](references/capabilities.md)。
 3. 过业务契约门，确定字段、状态、唯一性、删除、权限、查询和集成边界。
 4. 选择最小模板，确定表名、模块、业务名、主键、数据库/Java/TS 类型和权限前缀。
-5. 写 DDL 和字典、参数、菜单 SQL；确认数据库方言和现有脚本位置。
+5. 写 DDL 和字典、参数、菜单 SQL；先读取项目实际数据库配置，未指定新选型时默认 PostgreSQL，并确认现有脚本位置与方言。
 6. 写 Entity、BO、VO、Mapper、Service 接口、ServiceImpl、Controller；列表分页，树表返回列表。
 7. 写 `types.ts`、`api/index.ts`、`index.vue`；先查询、表格、分页，再弹窗、校验、提交。
 8. 接菜单和权限：新增目录/菜单用 `C`，按钮用 `F`；权限字符与后端注解、前端指令一致。
