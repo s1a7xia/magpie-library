@@ -235,6 +235,18 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片。
 - 保证无横向溢出、按钮不折行、弹窗与下拉层级正常、深色模式文字可读。
 
+## 图表
+
+项目已装 `echarts`，报表和大屏直接用它，不要再引入别的图表库，也不要在多个页面各写一份初始化逻辑。
+
+- 至少做：`echarts.init` → `setOption` → `ResizeObserver` 调整尺寸 → 卸载时 `disconnect` 和 `dispose`。
+- 监听数据变化用 `watch` + `nextTick` 后再 `setOption`，不在渲染期反复重建实例。
+- 图表要有 `aria` 和可读的 `aria-label`，并把关键数据用可访问的形式同时列出来。
+- 需要下钻时用组件事件把选中项交给父页面，不在组件内部直接跳路由。
+- 多页面复用同一类图表时抽成组件；单页一次性图表留在页面同目录。
+
+参考 `views/secops/vulnerability/InsightChart.vue` 的实现方式（实例生命周期、`ResizeObserver`、点击下钻事件）。
+
 ## 构建与验收
 
 - 使用项目登记的 pnpm 脚本：`pnpm dev`、`pnpm build:dev`、`pnpm build:prod`、`pnpm lint`、`pnpm fmt`。

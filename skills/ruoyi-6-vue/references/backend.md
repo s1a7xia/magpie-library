@@ -304,6 +304,17 @@ PUT    /updateSort            R<Void>
 - 私有方法只在业务规则、算法或字段映射不直观时加注释；覆写框架方法且语义已明确时，不强行重复注释。
 - 只补注释时不改实现、不重排 import、不格式化整个文件；公共 API 改动优先保证调用方兼容，确有签名变化时同步所有调用点并编译受影响模块。
 
+### 接口文档由 JavaDoc 生成
+
+本项目的 OpenAPI 文档来自 JavaDoc，不是手写 `@Tag` / `@Operation`：`ruoyi-common-doc` 的 `JavadocOperationCustomizer` 用方法 JavaDoc 的首句作为接口摘要、完整内容作为描述，`ClassTagOperationCustomizer` 处理类级别标签。
+
+因此：
+
+- Controller 类和公开接口方法必须有 JavaDoc，首句写成一句话说清“这个接口做什么”，后面再补参数、权限或特殊说明。
+- 不新增 `@Tag`、`@Operation`、`@Parameter` 等 Swagger 注解来重复描述；现有代码也没有这样用。
+- BO/VO 字段的注释同样会进入文档，字段含义不要留空。
+- 缺 JavaDoc 的接口在文档里就是空白摘要，补注释是接口交付的一部分，不是可选项。
+
 ## 常见错误
 
 | 写法 | 问题 | 正确做法 |
