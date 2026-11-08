@@ -1,6 +1,6 @@
 # 代码模板
 
-以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是本项目最权威的写法。新业务直接按这个结构改写类名和字段，不要另行设计。
+以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。
 
 ## Controller
 
@@ -353,7 +353,7 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 
 ## 使用说明
 
-- 这套模板来自作者 `TestDemo*`，不要改成别的分层或命名。
+- 这套模板来自作者 `TestDemo*`，标准单表沿用同一分层和命名；有主从、状态、导入、异步、外部接入等额外形态时，按其最小充分结构扩展，不为套模板删减业务契约。
 - 不需要数据权限的表，去掉 Mapper 上的 `@DataPermission` 重写即可，其余保持。
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。

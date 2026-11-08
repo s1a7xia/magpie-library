@@ -1,6 +1,6 @@
 # 前端页面模板
 
-本文件按作者 `plus-ui/src/views/demo/demo/index.vue`、`plus-ui/src/views/demo/tree/index.vue` 和对应 `api/demo/*/{index,types}.ts` 蒸馏，供写完整业务页面时按需加载。
+本文件按作者 `plus-ui/src/views/demo/demo/index.vue`、`plus-ui/src/views/demo/tree/index.vue` 和对应 `api/demo/*/{index,types}.ts` 蒸馏，供标准单表和树表页面按需加载。
 
 模板只提供页面壳、hooks 组合、请求和类型骨架。字段、权限、状态、查询条件和业务流程以当前需求及目标模块的真实实现为准，不把 demo 字段直接带进业务。
 
@@ -271,7 +271,7 @@ onMounted(() => {
 </script>
 ```
 
-实际页面按字段契约替换搜索项、表格列、弹窗字段和校验；按钮、列和操作按权限与业务状态保留，不为了凑模板增加无用操作。
+实际页面按字段契约替换搜索项、表格列、弹窗字段和校验；按钮、列和操作按权限与业务状态保留，不为了凑模板增加无用操作。主从、状态流转、导入批处理、审批和外部接入页面先按 [author-patterns.md](author-patterns.md) 定位作者实现，再组合这里的页面壳。
 
 ## 树表差异
 

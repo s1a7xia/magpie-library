@@ -12,7 +12,7 @@
 
 找到可复用能力后，确认方法语义、权限、事务和异常行为再使用。不要仅因为类名相似就复用，也不要为了少改现有代码而复制一份。
 
-实现写法以作者维护的 `ruoyi-system`、`ruoyi-demo` 和 `ruoyi-common-*` 为准，其次查 `ruoyi-api` 契约和生成模板。目标业务模块只用于确认业务字段、权限、接口兼容和集成约束，不作为实现范本；不要因为目标模块已有某种写法就照搬。模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`，只提供骨架。
+实现写法以作者维护的 `ruoyi-system`、`ruoyi-demo` 和 `ruoyi-common-*` 为准，其次查 `ruoyi-api` 契约和生成模板。目标业务模块只用于确认业务字段、权限、接口兼容和集成约束，不作为实现范本；不要因为目标模块已有某种写法就照搬。模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`，只提供骨架。需要从业务场景定位作者实现时，先查 [author-patterns.md](author-patterns.md)。
 
 ## 分层
 
@@ -363,7 +363,7 @@ PUT    /updateSort           R<Void>
 - 导入使用独立 `ImportVo`，不复用数据库 Entity；建议 `@ExcelIgnoreUnannotated`、`ExcelDictConvert` / `ExcelEnumConvert`、Validator 校验。
 - 默认 `failFast=true`；需要收集全部错误行时用 `.failFast(false)` 和自定义 `ExcelListener` / `DefaultExcelListener`。
 - 导出按需使用 `@CellMerge`、`@ExcelRequired`、`@ExcelNotation`、`DropDownOptions`、`.merge()`、`.options(...)`、`.zip(...)`、模板导出和 `ExcelBuilder.writer()` 多 sheet。
-- 本地示例优先读 `TestExcelController`、`ExportExcelServiceImpl`、`ExportDemoListener`、`TestDemoImportVo`，不要复制整篇 Fesod 文档。
+- 本地示例优先读 `TestDemoController.importData`、`TestExcelController.importWithOptions`、`ExportExcelServiceImpl`、`ExportDemoListener`、`TestDemoImportVo`，不要复制整篇 Fesod 文档。
 
 ### 接口放行与国际化
 
