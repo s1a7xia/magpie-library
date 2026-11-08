@@ -144,6 +144,25 @@ Fill the `Sliced by` field in the PRD's `## Traceability` section:
 
 If parent Issue exists, update its body to include child issues list.
 
+### Step 10: Render the Plan Overview
+
+After the PRD is `Sliced` and the parent Issue and project state are current, call
+`answer-me-with-html` once. Read the PRD and `Sliced into` list as the source of truth. Render to
+`docs/baseline/PRD-NNNN-<slug>.html` with:
+
+- goal and scope;
+- requirements (`R#`) and acceptance criteria (`AC#`);
+- every slice with `Covers`, HITL/AFK and `blocked-by`;
+- dependency graph and coverage totals;
+- any unassigned criteria, blockers or gaps.
+
+The page is a view, not a second contract. If rendering fails, leave the PRD, slices and tracker
+state unchanged; report the missing page and continue to Step 11.
+
+### Step 11: Stop
+
+Stop after the overview. Do not start implementation.
+
 ## Horizontal vs Vertical Slices
 
 **WRONG (Horizontal):**

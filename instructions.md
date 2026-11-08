@@ -50,6 +50,7 @@
 - 只有状态为 `Grilled` 的 PRD 才能进入 `story`。它把基线拆成可独立验收的纵向切片，并记录 `Covers`、`blocked-by`、HITL/AFK 和验收标准。
 - 拆片前做基线一致性检查：PRD 已冻结、无未决项、每条需求至少有一条可观察的验收标准、验收标准可追溯、范围不矛盾、依赖无环。不通过就回 `grill`。
 - 默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue；远端失败不回滚本地切片清单。
+- `story` 写入 `Sliced into`、把 PRD 状态设为 `Sliced` 并同步父 Issue 后，自动调用一次 `answer-me-with-html` 生成 `docs/baseline/PRD-NNNN-<slug>.html` 计划总览；页面只是视图，PRD 才是事实源。渲染失败不回滚切片，报告缺口后仍算完成。
 - `story` 完成后停下，不自动进入开发；由用户决定是否开始一批切片。
 
 ### 3. 开发：`implement`
@@ -82,7 +83,7 @@
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
 - `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
-- `answer-me-with-html`：仅在用户明确调用 `/answer-me-with-html`，或明确要求生成 HTML 可视化页面、基线页或解释视频时加载；普通回答、`grill`、`review` 和基线冻结都不自动触发。
+- `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `ai-collaboration`：仅在项目存在多 Agent 协作或启用了微信入口时加载。微信入口只用于从手机查看项目进度，不开发、不测试、不改项目最终状态；细节只以 `~/.dsh/im/AGENTS.md` 和 `REPORTER.md` 为准。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。

@@ -54,10 +54,10 @@ Reaching `Status: Grilled` **freezes the baseline**. From that moment the PRD's 
 
 **Changes after freezing go through the PRD, not around it.** Record every change in a `## Change Log` table — one row per change: `date | what changed | why and who asked | affected slices`. Keep `Status: Grilled` for additive changes (new field, extra validation, an added state). If the goal itself or the scope changes materially, send the PRD back to `Draft` and re-run `think` → `grill`.
 
-**Do not render a baseline page automatically.** `grill` completes when the PRD, terminology and
-ADRs are frozen. If the user later explicitly asks for a visual baseline, load
-[answer-me-with-html](../answer-me-with-html/SKILL.md) and render
-`docs/baseline/PRD-NNNN-<slug>.html`. The PRD remains authoritative; the page is an optional view.
+**Do not render an HTML page.** `grill` completes when the PRD, terminology and ADRs are frozen.
+The plan overview is rendered once by `story` after slicing. If the user explicitly asks for a
+visual baseline before then, load [answer-me-with-html](../answer-me-with-html/SKILL.md) and render
+`docs/baseline/PRD-NNNN-<slug>.html`. The PRD remains authoritative; the page is only a view.
 
 ## Gotchas
 
@@ -75,7 +75,7 @@ ADRs are frozen. If the user later explicitly asks for a visual baseline, load
 | PRD not updated after interview | Update `docs/prd/PRD-NNNN-<title>.md` and set `Status` to `Grilled` before declaring complete |
 | Declared complete without the exhaustiveness gate | Run the 5-point gate first |
 | Parent Issue body stale after grill changed scope | Sync the parent Issue (if `## Issue` field present) — reflect sharpened terms, scope, ADRs; don't change title or close |
-| Rendered a baseline page without an explicit request | Keep HTML opt-in; finish `grill` with the frozen PRD and call `answer-me-with-html` only when the user asks |
+| Rendered an HTML page during grill | Finish with the frozen PRD; `story` owns the automatic plan overview, while an early visual baseline requires an explicit user request |
 
 ## Output
 

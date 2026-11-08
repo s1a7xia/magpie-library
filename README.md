@@ -103,7 +103,7 @@ Hook 是平台事件适配层，不是第二套开发流程。它可以检查启
 
 拆片前必须先做基线一致性检查：PRD 已冻结、无未决项、每条需求至少有一条可观察的验收标准、验收标准能追溯到需求、范围不矛盾、依赖无环。不通过就回 `grill`，不拿自相矛盾的基线拆任务。
 
-默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue。`story` 完成后停下，不自动进入开发。
+默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue。PRD 状态变为 `Sliced`、父 Issue 同步后，`story` 自动调用一次 `answer-me-with-html`，生成 `docs/baseline/PRD-NNNN-<slug>.html` 计划总览。页面是计划视图，PRD 才是事实源；渲染失败不回滚切片。`story` 完成后停下，不自动进入开发。
 
 ### 3. 开发：`implement`
 
@@ -180,7 +180,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | “按通用资源库配置这个项目” | `setup-project` |
 | “这个需求先帮我想想方案” | `think`，完成后自动进入 `grill` |
 | “把这个方案往死里拷问” | 直接 `grill` |
-| “把这个方案生成一个 HTML 说明页” | `answer-me-with-html` |
+| “把这个方案生成一个 HTML 说明页” | `answer-me-with-html`（显式调用） |
 | “调研一下这个版本的最佳实践” | `research` |
 | “把冻结的基线拆成任务” | `story` |
 | “按这批切片开始实现” | `implement` |
@@ -218,7 +218,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 |---|---|
 | `research` | 联网查权威资料，形成可追溯的技术调研记录 |
 | `rules` | 共享入口协议、反模式和工程原则，不是独立任务技能 |
-| `answer-me-with-html` | 仅在用户明确要求时生成单页 HTML；普通回答和 `grill` 不自动加载 |
+| `answer-me-with-html` | `story` 收口后自动生成一次计划总览；其他阶段仅显式调用，普通回答和 `grill` 不自动加载 |
 | `agent-browser` | 浏览器自动化技能；页面验收优先使用当前 Agent 已有浏览器能力 |
 | `powershell-windows` | Windows PowerShell 的可靠写法与常见坑 |
 | `ai-collaboration` | 定义 Codex、dsh 和可选微信入口的职责边界 |
@@ -228,7 +228,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - 新增技能前先确认三件事：有独立触发词、有独立产物、不能作为现有技能的参考文件。缺一项就扩展原技能，不新建。
 - 技能正文只写本阶段方法；全局约束、编译口径、提交边界不重复抄写。
 - 删除或合并低频技能优先于继续添加；共享模式下的技能越少，路由和上下文成本越低。
-- `answer-me-with-html` 是外部上游技能，本地已将触发方式改为显式调用。升级该技能后必须重新核对 frontmatter 和 “Explicit-only rule”，防止更新覆盖本地限制。
+- `answer-me-with-html` 是外部上游技能，本地触发规则是“`story` 收口自动一次，其他阶段显式调用”。升级该技能后必须重新核对 frontmatter 和 “Story-completion or explicit invocation”，防止更新覆盖本地限制。
 - 每次改完运行 `python scripts/verify-library.py`，检查技能清单、frontmatter、全量 Markdown 相对链接、同步和凭证提示。
 
 ## RuoYi 6.x React 技术层
@@ -274,7 +274,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 | `docs/agents/verification.md` | 带版本、命令、结果和来源的验证证据 |
 | `docs/prd/` | PRD、验收标准和变更记录 |
 | `docs/adr/` | 重要的架构与实现取舍 |
-| `docs/baseline/` | 用户明确要求时才生成的可视 HTML 基线页 |
+| `docs/baseline/` | `story` 收口生成的可视计划总览；用户显式要求时也可生成其他基线页 |
 | `docs/research/` | 可复用的技术调研记录和索引 |
 | `CONTEXT.md` | 业务术语表，不写实现细节 |
 
