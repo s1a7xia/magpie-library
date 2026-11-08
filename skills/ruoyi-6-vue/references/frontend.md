@@ -37,12 +37,40 @@ p-2 app-container
 
 ## API 与类型
 
-- 请求统一 `import { request } from '@/utils/request'`，返回 `AxiosPromise<T>`。
+- 请求统一 `import request from '@/utils/request'`，返回 `AxiosPromise<T>`。
 - 分页读 `res.data.rows`、`res.data.total`；树表读 `res.data` 数组。
 - 查询用 `params`，新增/修改用 `data`；下载复用现有 `download`。
 - `VO` 表示返回，`Form` 表示提交，`Query` 继承分页查询。
 - 主键和关联 ID 用 `string | number`。
 - 不使用 `any` 掩盖字段不一致；纯类型导入用 `import type`。
+
+### API 模板
+
+```ts
+import request from '@/utils/request';
+import type { AxiosPromise } from '@/utils/api-types';
+import type { PageResult } from '@/api/types';
+import type { XxxForm, XxxQuery, XxxVo } from './types';
+
+const base = '/<module>/<business>';
+
+export const listXxx = (query?: XxxQuery): AxiosPromise<PageResult<XxxVo>> =>
+  request({ url: base + '/list', method: 'get', params: query });
+
+export const getXxx = (id: string | number): AxiosPromise<XxxVo> =>
+  request({ url: base + '/' + id, method: 'get' });
+
+export const addXxx = (data: XxxForm) =>
+  request({ url: base, method: 'post', data });
+
+export const updateXxx = (data: XxxForm) =>
+  request({ url: base, method: 'put', data });
+
+export const delXxx = (id: string | number | Array<string | number>) =>
+  request({ url: base + '/' + id, method: 'delete' });
+```
+
+`types.ts` 至少分开 `XxxVo`、`XxxForm`、`XxxQuery`；字段名与 BO/VO 完全一致，主键、关联 ID 和雪花 ID 不使用 `number` 单类型。
 
 ## 页面行为
 
@@ -52,6 +80,49 @@ p-2 app-container
 - 状态切换失败要回滚界面状态。
 - 权限用 `v-hasPermi`；延迟渲染节点用 `checkPermi` + `v-if`。
 - `v-hasPermi` 只移除无权 DOM，不替代后端接口权限和数据权限。
+
+### 页面最小骨架
+
+业务列表页沿用本地 `views/demo/demo/index.vue` 的页面壳，核心组合如下：
+
+```vue
+<template>
+  <div class="p-2 app-container">
+    <el-card class="search-panel">
+      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="queryParams.name" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleQuery">搜索</el-button>
+          <el-button @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card class="table-panel">
+      <template #header>
+        <div class="toolbar-shell">
+          <el-button v-hasPermi="['<module>:<business>:add']" type="primary" @click="handleAdd">新增</el-button>
+          <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList" />
+        </div>
+      </template>
+      <el-table v-loading="loading" class="data-table" :data="xxxList">
+        <el-table-column label="名称" prop="name" />
+      </el-table>
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
+    </el-card>
+  </div>
+</template>
+```
+
+脚本侧优先复用 `useLoading`、`useFormDialog`、`useSearchReset`、`useSearchToggle`、`useTableSelection`；编辑用 `getXxx(id)` 回填后 `showDialog`，新增用 `openDialog`。
 
 ## 现有 hooks
 
@@ -93,10 +164,20 @@ p-2 app-container
 
 ## 构建与验收
 
-- 使用 pnpm：`pnpm dev`、`pnpm build`、`pnpm lint`、`pnpm fmt`。
+- 使用项目登记的 pnpm 脚本：`pnpm dev`、`pnpm build:dev`、`pnpm build:prod`、`pnpm lint`、`pnpm fmt`。
 - 修改前端后至少执行实际构建；独立类型检查不替代构建。
 - 修改路由、组件 name、请求封装、全局 store 或布局时检查所有受影响页面。
 - 开发阶段只做代码和构建检查；页面可见改动由用户发起 `page-acceptance` 在真实浏览器验收。
+
+## 常见错误
+
+| 写法 | 问题 | 正确做法 |
+|---|---|---|
+| `import { request } from '@/utils/request'` | 本地实际是默认导出，构建会报错 | `import request from '@/utils/request'` |
+| 页面直接拼 `fetch`/`axios` | 绕过鉴权、加解密、错误提示 | 统一走 `@/utils/request` |
+| 主键声明为 `number` | 雪花 ID 可能丢精度 | `string \| number` |
+| 只加前端 `v-hasPermi` | 绕过接口调用仍可能成功 | 后端 `@SaCheckPermission` 必须同步 |
+| 每个页面复制分页、工具栏、上传组件 | 样式和行为漂移 | 复用 `components/` 和 `hooks/` |
 
 ## 检查
 

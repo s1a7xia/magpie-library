@@ -1,6 +1,6 @@
-# Magpie 工程组合拳（RuoYi 6.0 Vue 版）
+# Magpie 工程组合拳（RuoYi 6.x Vue 版）
 
-这是一套以 **RuoYi-Vue-Plus 6.0.0 + Vue 3 + Element Plus** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。RuoYi 技术事实固定到 `codex/p0-integration` 提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`，不跟随该分支后续 HEAD。
+这是一套以 **RuoYi-Vue-Plus 6.x + Vue 3 + Element Plus** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。版本和源码事实以项目实际的根 `pom.xml`、`plus-ui/package.json` 和当前 checkout 为准，不把某个补丁版本或提交号写死。
 
 它解决的不是“让 AI 多写一点代码”，而是让每次开发都遵循同一条可追溯的路径：
 
@@ -27,8 +27,8 @@
 - 保留 2 个技术与设计技能：`ruoyi-6-vue`、`frontend-design`。
 - 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
-- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.0.0 + Vue 需要的后端、前端、数据库、页面设计和官方文档地图。
-- 在 `ruoyi-6-vue` 内按需增加 Warm-Flow、SnailJob 等业务参考；普通业务 CRUD 不预读这些领域知识。Soybean 仅是外部 UI 借鉴，不是目标前端。
+- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.x + Vue 3 需要的后端、前端和数据库规范。
+- `ruoyi-6-vue` 以本地 `TestDemo*` 和 demo 页面为参考，普通业务 CRUD 不预读工作流、调度等低频领域知识。Soybean 仅是外部 UI 借鉴，不是目标前端。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
 当前是 **16 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
@@ -58,6 +58,10 @@
 | **Slice** | 已有冻结基线，只推进一个或少量已拆切片 | `implement` |
 | **Baseline** | 新需求、多方案、跨模块、验收口径不清 | `think` → `grill` → `story` → `implement` |
 
+### Hook 护栏（可选）
+
+Hook 是平台事件适配层，不是第二套开发流程。它可以检查启动上下文、拦截危险命令、记录工具结果和提醒交付缺口，但不得自动串联技能、替代页面验收或伪造测试证据。默认不安装；需要时由项目显式登记，具体事件和边界见 `skills/rules/hook-guardrails.md`。
+
 ### 0. 首次进入项目：`setup-project`
 
 在新项目或协作方式发生明显变化时，明确要求“按通用资源库配置这个项目”。这是项目初始化与重配置入口，不是每个日常开发任务的前置门槛。
@@ -70,7 +74,7 @@
 - 前后端实际编译命令；
 - 可选的多 Agent 协作或微信查看入口。
 
-默认按 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.0.0 + Vue，固定基线提交 `61b9ee20`）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
+默认按 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.x + Vue 3，实际版本从项目构建文件读取）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
 
 ### 1. 需求和方案：`think` -> `grill`
 
@@ -137,7 +141,7 @@ implement -> Dev Complete -> 用户发起 page-acceptance -> Accepted -> 用户�
 - 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径。
 - 验证、修复、重测最多三轮，超限停止并报告。
 
-RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi-6-vue-browser.md`。
+RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi-6-vue-browser.md`。
 
 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
@@ -205,7 +209,7 @@ RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 
 | 技能 | 作用 |
 |---|---|
-| `ruoyi-6-vue` | RuoYi-Vue-Plus 6.0.0 + Vue 单一技术入口；按任务加载后端、前端、数据库、页面设计和官方文档地图 |
+| `ruoyi-6-vue` | RuoYi-Vue-Plus 6.x + Vue 3 单一技术入口；按任务加载后端、前端和数据库规范 |
 | `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
 
 ### 支撑与环境（6）
@@ -226,47 +230,26 @@ RuoYi 6.0 Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 - 删除或合并低频技能优先于继续添加；共享模式下的技能越少，路由和上下文成本越低。
 - 每次改完运行 `python scripts/verify-library.py`，检查技能清单、frontmatter、全量 Markdown 相对链接、同步和凭证提示。
 
-## RuoYi 6.0 Vue 技术层
+## RuoYi 6.x Vue 技术层
 
 `ruoyi-6-vue` 不按后端、前端、数据库拆成多个技能，而是单一入口按需加载：
 
 | 任务 | 读取 |
 |---|---|
-| 任何 RuoYi 业务改动 | `references/common.md` |
+| 任何 RuoYi 业务改动 | `SKILL.md` |
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | `references/backend.md` |
-| 模块边界、跨模块契约、请求链路、启动配置 | `references/architecture.md` |
-| Vue 3 / TypeScript / Element Plus | `references/frontend.md` |
-| 请求封装、动态路由、Pinia、layout、hooks、标准 CRUD 骨架 | `references/frontend-shell.md` |
+| Vue 3 / TypeScript / Element Plus / API / hooks / 页面骨架 | `references/frontend.md` |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
-| 可见页面、布局、样式、仪表盘 | `references/ui-design.md` |
-| Warm-Flow 流程定义、发起流程、待办/已办、审批与业务集成 | `references/workflow.md` |
-| SnailJob、定时任务、分布式调度、失败重试、任务日志 | `references/snail-job.md` |
-| Excel 导入/导出、模板、字典转换、大批量导出 | `references/excel.md` |
-| 文件上传/下载、OSS、附件字段、预览和存储配置 | `references/file-oss.md` |
-| WebSocket/SSE、站内消息、实时通知、消息推送 | `references/messaging.md` |
-| 菜单/按钮权限、数据范围、字段脱敏 | `references/access-control.md` |
-| AI / Snail AI / MCP Server/Client / 智能体集成 | `references/ai-mcp.md` |
-| MQTT 客户端、设备接入、主题订阅与发布 | `references/mqtt.md` |
-| Elasticsearch / Easy-ES、全文检索、索引同步 | `references/search.md` |
-| 社交登录 / JustAuth / OAuth 回调与账号绑定 | `references/social-login.md` |
-| 邮件、短信、验证码、外部通知通道 | `references/mail-sms.md` |
-| Redis 缓存、分布式锁、防重复、限流、队列 | `references/cache-lock.md` |
-| API 加解密、字段加密、密钥与密文迁移 | `references/encryption.md` |
-| LiteFlow 业务规则编排、复杂链路 | `references/orchestration.md` |
-| 操作日志、登录日志、审计、Actuator、接口文档 | `references/observability.md` |
-| 多语言、消息资源、翻译字段 | `references/i18n.md` |
-| 动态数据源、主从库、多库访问、跨库事务 | `references/dynamic-datasource.md` |
-| 需要查官方规范或功能说明 | `references/docs-map.md` |
 
-普通业务 CRUD 只加载 `common` 和对应的后端/前端/数据库文件；工作流、SnailJob 和所有低频集成能力都是条件参考，不因模块存在而预读。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.0.0 + plus-ui 6.0.0 + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+普通业务 CRUD 只加载对应的后端/前端/数据库文件；工作流、SnailJob、消息、OSS、AI、MQTT 等能力先读同模块现有实现，不预读也不另造通用层。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
-- **已覆盖的业务能力**：Excel、文件/OSS、实时消息、权限/数据范围、Warm-Flow、SnailJob、AI/MCP、MQTT、Elasticsearch/Easy-ES、社交登录、短信/邮件、Redis 缓存/锁/幂等/限流、API/字段加密、LiteFlow、可观测性、国际化和动态数据源。
-- **按需加载**：上述能力都放在 `references/`，只在任务真正涉及对应领域时读取；普通 CRUD 的默认加载量没有增加。
-- **多租户**：固定基线提交 `61b9ee20` 未启用多租户，业务表不新增 `tenant_id`；Warm-Flow 自带租户列不代表业务租户能力。
+- **本地完整模板**：单表 CRUD 的后端分层、Service/Mapper、前端 API、页面骨架和菜单 SQL 直接给可裁剪模板。
+- **改动路径**：新增 CRUD、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
+- **按需加载**：三个 reference 只在对应任务读取；普通 CRUD 的默认加载量保持精简。
 
-事实优先级：`codex/p0-integration` 的固定提交 `61b9ee20` 源码 > 基于该提交核对过的约束 > 官方文档地图（正文默认 3.5.x，只借鉴结构）> 通用框架习惯。不要用文档站的 3.5.x 类名或配置直接覆盖 6.0.0 项目。
+事实优先级：当前项目源码 > 同模块现有实现 > 本技能规范 > 官方文档。不要用外部文档的旧类名或配置直接覆盖当前 checkout。
 
 ## 文档怎么分工
 
@@ -343,7 +326,7 @@ MCP 由 Magpie 统一托管，当前登记 7 个：`context7`、`dbhub`、`gitee
 - `dbhub` 依赖本机 PostgreSQL 和正确的 DSN，换机后目标可能变化。
 - `agent-browser` 技能已安装，但 CLI 未在当前 PATH；页面验收优先使用当前 Agent 的浏览器能力。需要跨机器一致行为时执行 `npm i -g agent-browser && agent-browser install`，并在新会话确认。
 - 全局指令目前只分发给 Codex；16 个技能在共享目录中，但各 Agent 的逐项勾选不同。
-- 不启用工程编排 Hook 和子代理；主代理负责判断、执行和交付。
+- 默认不安装工程 Hook 和子代理；Hook 只作为可选护栏，主代理负责判断、执行和交付。
 
 ## 永不入库
 

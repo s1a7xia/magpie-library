@@ -27,6 +27,25 @@ update_time  timestamp
 - 可空性、默认值、唯一约束按业务明确；唯一性优先数据库约束。
 - 表和字段写注释，术语与页面、字典、Java 字段一致。
 
+## 字段变更链路
+
+新增或修改字段时，至少同步以下位置；缺任何一环都可能出现“库里有值、接口没有、页面不显示”：
+
+```text
+DDL / 增量 SQL
+  -> Entity（@TableField、类型、逻辑删除/版本）
+  -> BO（新增/编辑校验分组）
+  -> VO（列表展示、Excel、翻译、脱敏）
+  -> Mapper 查询条件/排序
+  -> plus-ui types.ts（Vo/Form/Query）
+  -> 页面搜索、表格列、表单项、字典
+```
+
+- 新增必填字段先确认已有数据如何补值，不能直接给生产表加无默认值的 `NOT NULL`。
+- 可空字段更新要清空时显式 `.set(field, null)`；不要依赖全局更新策略。
+- 字段改名要同时检查 SQL、Java 属性、JSON 字段、TS 类型、菜单/字典和导入模板。
+- 修改映射或 DTO 后编译后端，让 MapStruct 重新生成。
+
 ## 索引
 
 - 主键、业务唯一键、常用筛选和排序列建索引。
@@ -48,12 +67,33 @@ update_time  timestamp
 
 - 初始化脚本在 `script/sql/`；方言目录为 `postgres/`、`oracle/`、`sqlserver/`。
 - 各方言覆盖不完全一致；新增前先看目标目录已有文件，例如 AI 初始化只在 PostgreSQL 目录提供。
-- 业务增量放 `docs/sql/`，沿用现有命名。
+- 业务增量放 `docs/sql/`，沿用现有 `日期_业务_动作.sql` 命名和分段注释。
 - 新增脚本至少覆盖项目实际使用的方言。
 - 初始化脚本要可重复执行或有明确幂等策略，避免重复主键、字典和菜单。
 - 生产变更优先增量脚本，不重跑全量初始化。
 - DDL 写清主键、非空、默认值、注释、索引和约束。
 - 菜单/字典/参数 SQL 写清 ID、父级、排序、权限字符、状态和删除标志。
+
+### 菜单、字典和参数
+
+菜单 SQL 按本地增量脚本的写法使用显式 `bigint` ID，并用 `NOT EXISTS` 防止重复：
+
+```sql
+INSERT INTO sys_menu
+    (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache,
+     menu_type, visible, status, perms, icon, create_dept, create_by, create_time, remark)
+SELECT 1766400000000000005, '业务名称', 0, 1, 'business', 'secops/business/index',
+       'N', 'Y', 'C', '0', '0', 'secops:business:list', 'form',
+       1761000000000000103, 1761100000000000001, CURRENT_TIMESTAMP, '业务菜单'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_menu
+    WHERE menu_id = 1766400000000000005 OR (parent_id = 0 AND path = 'business')
+);
+```
+
+把示例中的 `secops/business`、`secops:business:list` 和菜单 ID 替换为当前项目的实际模块、业务名和未占用 ID。按钮权限用 `menu_type = 'F'`，`perms` 与 Controller 注解、前端 `v-hasPermi` 完全一致。字典用 `sys_dict_type` + `sys_dict_data`，参数用 `sys_config`；不要为可枚举状态另建业务表，也不要在页面硬编码字典文本。
+
+当前项目存在多个增量脚本和混合历史数据，执行前先核对目标数据库、schema、方言和已执行记录；连接可用不等于允许写入。
 
 ## 查询与性能
 

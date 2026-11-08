@@ -14,7 +14,8 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 - 默认不创建、不修改 `AGENTS.md` / `CLAUDE.md`。
 - 如果文件已存在或用户明确要求，只写项目事实和指向 `docs/agents/` 的短指针。
 - 项目专属原则（文件大小、依赖检查路径、验证命令）写入 `docs/agents/coding-standards.md`。
-- 默认技术 profile 是 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.0.0 + Vue，固定基线提交 `61b9ee20c3452febe1d03c6e013c0b4de11237f1`）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
+- 默认技术 profile 是 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.x + Vue 3；实际版本从当前项目根 `pom.xml` 和 `plus-ui/package.json` 读取）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
+- Hook 默认不安装。项目明确启用时，只登记项目级适配器和职责，不修改机器级 Hook 索引；事件边界见 [Hook 护栏](../rules/hook-guardrails.md)。
 
 ## 产出
 

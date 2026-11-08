@@ -14,6 +14,78 @@ XxxController
 - 不新增 DAO/Repository 层。
 - 跨模块调用走 `ruoyi-api`，不注入其他模块的 ServiceImpl、Mapper 或 Entity。
 
+## 最小完整落点
+
+新增一个普通单表业务时，按以下文件闭环，不要只写 Controller：
+
+```text
+ruoyi-modules/ruoyi-<module>/src/main/java/.../
+├─ controller/XxxController.java
+├─ service/IXxxService.java
+├─ service/impl/XxxServiceImpl.java
+├─ mapper/XxxMapper.java
+├─ domain/Xxx.java
+├─ domain/bo/XxxBo.java
+└─ domain/vo/XxxVo.java
+
+plus-ui/src/
+├─ api/<module>/<business>/types.ts
+├─ api/<module>/<business>/index.ts
+└─ views/<module>/<business>/index.vue
+```
+
+字段、查询条件、导入导出和权限至少同时出现在上述链路中。先读 `TestDemo*` 的完整实现，再按业务命名替换。
+
+## Controller 模板
+
+```java
+@Validated
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/<module>/<business>")
+public class XxxController extends BaseController {
+
+    private final IXxxService xxxService;
+
+    @SaCheckPermission("<module>:<business>:list")
+    @GetMapping("/list")
+    public R<PageResult<XxxVo>> list(@Validated(QueryGroup.class) XxxBo bo, PageQuery pageQuery) {
+        return R.ok(xxxService.queryPageList(bo, pageQuery));
+    }
+
+    @SaCheckPermission("<module>:<business>:query")
+    @GetMapping("/{id}")
+    public R<XxxVo> getInfo(@NotNull @PathVariable Long id) {
+        return R.ok(xxxService.queryById(id));
+    }
+
+    @SaCheckPermission("<module>:<business>:add")
+    @Log(title = "<业务名>", businessType = BusinessType.INSERT)
+    @RepeatSubmit
+    @PostMapping
+    public R<Void> add(@Validated(AddGroup.class) @RequestBody XxxBo bo) {
+        return toAjax(xxxService.insertByBo(bo));
+    }
+
+    @SaCheckPermission("<module>:<business>:edit")
+    @Log(title = "<业务名>", businessType = BusinessType.UPDATE)
+    @RepeatSubmit
+    @PutMapping
+    public R<Void> edit(@Validated(EditGroup.class) @RequestBody XxxBo bo) {
+        return toAjax(xxxService.updateByBo(bo));
+    }
+
+    @SaCheckPermission("<module>:<business>:remove")
+    @Log(title = "<业务名>", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public R<Void> remove(@NotEmpty @PathVariable Long[] ids) {
+        return toAjax(xxxService.deleteWithValidByIds(Arrays.asList(ids), true));
+    }
+}
+```
+
+导入、导出、状态变更和排序按现有同类接口追加，不把文件流塞进普通 JSON 响应。
+
 ## 命名
 
 ```text
@@ -36,6 +108,63 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 - BO 用 `@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)`；新增/修改用 `AddGroup` / `EditGroup`。
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
 - 修改映射后实际编译，让 MapStruct 生成实现。
+
+## Service 与 Mapper 模板
+
+```java
+@RequiredArgsConstructor
+@Service
+public class XxxServiceImpl implements IXxxService {
+
+    private final XxxMapper xxxMapper;
+
+    @Override
+    public XxxVo queryById(Long id) {
+        return xxxMapper.selectVoById(id);
+    }
+
+    @Override
+    public PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery) {
+        Page<XxxVo> page = xxxMapper.selectVoPage(pageQuery.build(), buildQueryWrapper(bo));
+        return PageResult.build(page.getRecords(), page.getTotal());
+    }
+
+    @Override
+    public Boolean insertByBo(XxxBo bo) {
+        Xxx entity = MapstructUtils.convert(bo, Xxx.class);
+        validEntityBeforeSave(entity);
+        return xxxMapper.insert(entity) > 0;
+    }
+
+    @Override
+    public Boolean updateByBo(XxxBo bo) {
+        Xxx entity = MapstructUtils.convert(bo, Xxx.class);
+        validEntityBeforeSave(entity);
+        return xxxMapper.updateById(entity) > 0;
+    }
+
+    private LambdaQueryWrapper<Xxx> buildQueryWrapper(XxxBo bo) {
+        LambdaQueryWrapper<Xxx> lqw = Wrappers.lambdaQuery();
+        lqw.like(StringUtils.isNotBlank(bo.getName()), Xxx::getName, bo.getName());
+        return lqw;
+    }
+}
+```
+
+Mapper 继承 `BaseMapperPlus<Xxx, XxxVo>`；需要行级隔离时沿用 `@DataPermission`，列名必须与表字段和查询别名一致：
+
+```java
+public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
+    @Override
+    @DataPermission({
+        @DataColumn(key = "deptName", value = "dept_id"),
+        @DataColumn(key = "userName", value = "user_id")
+    })
+    default <P extends IPage<XxxVo>> P selectVoPage(IPage<Xxx> page, Wrapper<Xxx> wrapper) {
+        return selectVoPage(page, wrapper, this.currentVoClass());
+    }
+}
+```
 
 ## Controller 与接口
 
@@ -78,6 +207,7 @@ PUT    /updateSort            R<Void>
 - 当前用户、部门、账号用 `LoginHelper`；后台任务和异步线程显式确定身份，不强依赖登录态。
 - 可空字段要清空时用 `.set(..., null)`，不依赖 `NOT_NULL` 更新策略。
 - `DataPermissionHelper.ignore` 只包最小范围并写明原因。
+- 批量写入和删除要检查影响行数；空 ID 集合直接返回，不生成无条件 SQL。
 
 ## 权限与复用
 
@@ -85,6 +215,16 @@ PUT    /updateSort            R<Void>
 - 字段脱敏在 VO 或序列化出口做，不在前端隐藏替代。
 - 写公共工具或 Service 前，先查 `ruoyi-common-core`、相关 `ruoyi-common-*`、所属模块 Service 和 `ruoyi-api`。
 - 公共方法只放稳定、跨模块能力；单模块业务规则留在业务模块。
+
+## 常见错误
+
+| 写法 | 问题 | 正确做法 |
+|---|---|---|
+| Controller 注入 Mapper 并直接查询 | 绕过业务校验、事务和数据权限 | Controller 只调 Service |
+| Service 返回 `R<T>` | 响应层泄漏到业务层 | 返回 `PageResult`、`VO`、`List` 或 `Boolean` |
+| 新增 `XxxDao` | 与当前分层重复 | 沿用 `BaseMapperPlus` |
+| 只加 `@SaCheckPermission` 不加菜单权限 | 菜单可见但接口或按钮不一致 | 同步 `sys_menu.perms` 和前端 `v-hasPermi` |
+| 分页不传 `pageSize` | `PageQuery` 默认接近全量 | 列表接口和页面设置有限默认值 |
 
 ## 常用能力
 

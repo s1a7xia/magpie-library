@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Orchestrate a batch of already-approved slices from /story: load the RuoYi 6.0 Vue profile and frontend-design, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
+description: "Orchestrate a batch of already-approved slices from /story: load the RuoYi 6.x Vue profile and frontend-design, implement, compile, commit/push each slice, then stop for user page testing. Use only on explicit /implement; do not trigger from ordinary 实现/开发."
 ---
 
 # Implement: Workflow Orchestration
