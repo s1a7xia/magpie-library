@@ -122,7 +122,7 @@ export const delXxx = (id: string | number | Array<string | number>) =>
 
 ### 页面最小骨架
 
-业务列表页沿用本地 `views/demo/demo/index.vue` 的页面壳，核心组合如下：
+业务列表页沿用本地 `views/demo/demo/index.vue` 的页面壳。下面是结构摘要；完整单表模板、脚本 CRUD、树表差异和 API/types 见 [frontend-templates.md](frontend-templates.md)：
 
 ```vue
 <template>

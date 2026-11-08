@@ -16,6 +16,7 @@ description: "RuoYi-Vue-Plus 6.x + Vue 3 业务模块开发规范。先判定业
 | 写后端业务，需要字符串、集合、对象转换、JSON、日期、树、文件、IP、SQL 工具 | [utils.md](references/utils.md) |
 | 写业务前的机制选型：事务、幂等、缓存、异步、并发、编排、序列、导出、审计 | [capabilities.md](references/capabilities.md) |
 | 写完整业务模块，需要按作者源码改写的后端代码骨架 | [templates.md](references/templates.md) |
+| 写完整 Vue 页面，需要单表/树表页面骨架和 CRUD 行为 | [frontend-templates.md](references/frontend-templates.md) |
 | 新增完整 CRUD | 后端 + 前端 + 数据库 |
 | 工作流、定时任务、AI、监控 | 按需，需求确实涉及才读 [optional-integrations.md](references/optional-integrations.md) |
 | 消息、MQTT、搜索等 | 按需；先查 `ruoyi-api` 和现有模块入口，不另造通用层 |
@@ -149,7 +150,7 @@ docs/sql/                    业务增量 SQL
 - 导入导出：`TestExcelController` + `ExportDemoVo` + demo 页面导出入口。
 - 其它形态：先复用对应模块能力，只补业务自己的 Controller、Service、DTO 和页面。
 
-模板只提供文件落点和调用方式，不是业务事实源。不要因为模板有某个字段、按钮或接口，就把它带进当前需求。
+模板只提供文件落点和调用方式，不是业务事实源。不要因为模板有某个字段、按钮或接口，就把它带进当前需求。前端完整页面骨架见 [frontend-templates.md](references/frontend-templates.md)，树表和只读页按其形态取相应部分。
 
 后端模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`；前端模板位于 `plus-ui/gen/`。查找顺序是“同模块真实实现 -> 公共能力 -> 模板”；没有同类真实实现时才用模板生成骨架。只借鉴模板的字段、权限、导出、状态/排序和日期范围结构，最终代码必须符合当前项目的 hooks、组件和页面壳。
 
