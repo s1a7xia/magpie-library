@@ -16,7 +16,7 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 | `ai-collaboration.md` | Multi-agent roles, handoff, write boundaries | Use `ai-collaboration` defaults when multiple agents collaborate |
 | `triage-labels.md` | Label vocabulary | Use canonical defaults |
 | `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
-| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi-6-vue` unless the user or project explicitly selects another profile or `none` |
+| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi6` unless the user or project explicitly selects another profile or `none` |
 | `project-state.md` | Objective, stage dashboard, blockers, next step, compile commands | Use the current request only; do not create implicitly |
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
@@ -25,7 +25,7 @@ When the task involves both Codex and dsh, read `ai-collaboration.md` and apply 
 
 ### Step 1a: Apply Standards
 
-Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi-6-vue` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
+Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi6` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
 
 Read the selected profile's `SKILL.md` and its task-relevant original rules from the installed skills directory; apply only to its declared repository/module/file scope. A profile is supplementary: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
 

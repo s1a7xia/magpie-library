@@ -204,7 +204,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
 - **Project engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E). These are written to `docs/agents/coding-standards.md`.
-- **Technical profile**: default to `ruoyi-6-vue` (RuoYi-Vue-Plus) with no framework-signature probe and no "is this RuoYi?" question (see Section F). Exclude it only when the user identifies the project as non-RuoYi; use another installed profile only when the user names it. Read the checkout only to fill the exact version, governed paths and real commands
+- **Technical profile**: default to `ruoyi6` (RuoYi-Vue-Plus) with no framework-signature probe and no "is this RuoYi?" question (see Section F). Exclude it only when the user identifies the project as non-RuoYi; use another installed profile only when the user names it. Read the checkout only to fill the exact version, governed paths and real commands
 
 ## Step 4: Ask for Overrides
 
@@ -280,7 +280,7 @@ Write the result into `## Project engineering principles` and `## Verification q
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. A project `AGENTS.md`/`CLAUDE.md` pointer is optional and only used when the file already exists or the user explicitly asks for one. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi-6-vue` (RuoYi-Vue-Plus 6.x + Vue 3; read the exact versions from the project's parent POM and `plus-ui/package.json`) applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
+**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi6` (RuoYi-Vue-Plus 6.x + React; read the exact versions from the project's parent POM and `plus-ui-React/package.json`) applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
 
 For the default or a user-named profile, read the checkout only to establish registration facts — the exact version, governed module paths and real verification commands. Do not use those facts to re-decide whether the default applies. For RuoYi-Vue-Plus, take the exact version from the parent POM and the frontend package file; never infer either from a guess.
 
@@ -298,7 +298,7 @@ Example registration for that confirmed stack (render in the project's documenta
 ```text
 Scope: Java business modules, plus-ui API/views, and SQL scripts
 Stack and version: RuoYi-Vue-Plus 6.X — verify exact version in the parent POM
-Technical profile: ruoyi-6-vue
+Technical profile: ruoyi6
 Additional standards: project-relative team standard paths, or none
 Source of API truth: current module source, neighboring implementations, and verified demo/framework paths
 Verification: actual Maven and frontend commands, with working directories

@@ -55,8 +55,8 @@
 ### 3. 开发：`implement`
 
 - `implement` 只在用户明确调用时进入，一次处理一批已确认的切片。`goal` 只能从 `implement` 起步，不从 think/story 自动进入。
-- 默认技术 profile 是 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.x + Vue 3，具体版本以当前项目根 `pom.xml` 和 `plus-ui/package.json` 为准）；项目 `coding-standards.md` 或 `AGENTS.md` 明确选择其他 profile 或 `none` 时，以项目配置为准。
-- 涉及前端视图文件（`.vue`、`.tsx`、`.css`、`.scss`、组件、布局）时自动加载 `frontend-design`；只改数据层或纯后端时不加载。
+- 默认技术 profile 是 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，具体版本以当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 为准）；项目 `coding-standards.md` 或 `AGENTS.md` 明确选择其他 profile 或 `none` 时，以项目配置为准。
+- 涉及前端视图文件（`.tsx`、`.ts`、`.css`、`.less`、组件、布局）时自动加载 `frontend-design`；只改数据层或纯后端时不加载。
 - 每个切片：按验收标准做最小充分改动；只编译受影响的一侧并核对 diff；更新 PRD 中本切片状态；在当前同一分支提交并推送一次，提交信息带切片说明；标记为 `Dev Complete`。
 - 开发阶段不打开浏览器，不执行页面验收，不运行全量测试。无人值守执行到这一层就停，不依赖登录态、验证码或人工测试环境。
 - 整批完成后做覆盖门：每条需求和验收标准都有 `Dev Complete` 切片承接；更新 `docs/agents/project-state.md` 和 `verification.md`；输出切片、提交、推送和编译证据，提示可以开始页面验收。
@@ -66,7 +66,7 @@
 - 页面验收是独立、由用户主动发起的阶段：`implement → Dev Complete → 用户发起 page-acceptance → Accepted → 用户发起 review`。
 - 只通过真实前端 UI 操作，不写脚本直接请求后端 API；先检查首屏、控制台和网络，再走一条主路径加一个边界。
 - 增删改查优先完成 Create → Read → Update → Delete 闭环，并清理测试数据；元素引用在路由、弹窗、下拉框、表格刷新后立即失效，必须重新取可交互元素快照。
-- 不抓取完整组件 DOM；不把读取源码当作视觉验收。RuoYi 6.x Vue 的会话复用、快照刷新和五步冒烟见 `page-acceptance/references/ruoyi-6-vue-browser.md`。
+- 不抓取完整组件 DOM；不把读取源码当作视觉验收。RuoYi 6.x React 的会话复用、快照刷新和五步冒烟见 `page-acceptance/references/ruoyi6-browser.md`。
 - 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径；验证、修复、重测最多三轮，超限停止并报告。
 - 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
@@ -81,7 +81,7 @@
 
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：业务页在既有组件系统内提升质感；登录页、工作台、大屏等独立展示页可做完整视觉设计。
-- `ruoyi-6-vue`：RuoYi-Vue-Plus 6.x + Vue 3 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
+- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；按任务只加载后端、前端、数据库、页面设计或本地参考实现。
 - `answer-me-with-html`：基线冻结后自动生成可视基线页；复杂结论需要单页解释时也可使用。
 - `ai-collaboration`：仅在项目存在多 Agent 协作或启用了微信入口时加载。微信入口只用于从手机查看项目进度，不开发、不测试、不改项目最终状态；细节只以 `~/.dsh/im/AGENTS.md` 和 `REPORTER.md` 为准。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。

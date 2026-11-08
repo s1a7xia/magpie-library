@@ -101,7 +101,7 @@ winget install rtk-ai.rtk
 | `research` | codex |
 | `review` | codex |
 | `rules` | codex |
-| `ruoyi-6-vue` | codex |
+| `ruoyi6` | codex |
 | `setup-project` | codex |
 | `story` | codex |
 | `think` | codex |

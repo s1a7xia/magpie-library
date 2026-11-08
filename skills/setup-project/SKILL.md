@@ -14,7 +14,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 - 默认不创建、不修改 `AGENTS.md` / `CLAUDE.md`。
 - 如果文件已存在或用户明确要求，只写项目事实和指向 `docs/agents/` 的短指针。
 - 项目专属原则（文件大小、依赖检查路径、验证命令）写入 `docs/agents/coding-standards.md`。
-- 默认技术 profile 是 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.x + Vue 3；实际版本从当前项目根 `pom.xml` 和 `plus-ui/package.json` 读取）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
+- 默认技术 profile 是 `ruoyi6`（RuoYi-Vue-Plus 6.x + React；实际版本从当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 读取）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
 - Hook 默认不安装。项目明确启用时，只登记项目级适配器和职责，不修改机器级 Hook 索引；事件边界见 [Hook 护栏](../rules/hook-guardrails.md)。
 
 ## 产出
@@ -52,7 +52,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 - C. Domain Docs：默认根 `CONTEXT.md`、`docs/prd/`、`docs/adr/`、`docs/research/`；多仓时写 `repo-map.md`。
 - D. Documentation Language：默认跟随用户当前语言。
 - E. Project Engineering Principles：只写项目实际需要的范围、文件大小、依赖检查路径和快速命令；不复制通用原则全文。
-- F. Coding Standards：默认 `ruoyi-6-vue`；非 RuoYi 项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
+- F. Coding Standards：默认 `ruoyi6`；非 RuoYi 项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
 - G. Project Handoff / Compile Commands：写实际后端、前端命令和工作目录；默认只编译受影响一侧，跳过测试、lint 和独立类型检查。
 - H. WeChat Entry：可选，默认关闭。开启时只在 `docs/agents/ai-collaboration.md` 保留项目事实和微信查看入口；`~/.dsh/im/PROJECTS.md` 由用户维护，不由本技能写入。不开启时项目独立运行。
 - I. Project AGENTS.md / CLAUDE.md：默认跳过；仅在文件已存在或用户明确要求时更新短指针。
@@ -77,7 +77,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 | 单仓/多仓判断错误 | Step 2 检查 workspace、子项目和同级仓库 |
 | 创建了不需要的 AGENTS.md | 默认跳过；只写项目事实或短指针 |
 | 把全局工作流复制进项目文件 | 全局指令是唯一来源；项目只写事实 |
-| 技术 profile 靠探测框架签名决定 | 默认 `ruoyi-6-vue`；非 RuoYi 由用户明确说明后记录 `none` 或替代 profile |
+| 技术 profile 靠探测框架签名决定 | 默认 `ruoyi6`；非 RuoYi 由用户明确说明后记录 `none` 或替代 profile |
 | 编译命令是猜的 | 从 `pom.xml`、`package.json`、CI 和实际目录读取 |
 | 多仓没有主跟踪仓库 | 写 `repo-map.md`，明确哪个仓库拥有主 Issue/PRD |
 | 微信入口写入机器级索引 | 只输出注册条目，`~/.dsh/im/PROJECTS.md` 由用户维护 |
@@ -94,7 +94,7 @@ Setup complete.
 Configuration:
 - Project structure: <single / monorepo / multi-repo>
 - Issue tracker: <local / GitHub / GitLab / Gitee / other>
-- Coding standards: <ruoyi-6-vue / none / other>
+- Coding standards: <ruoyi6 / none / other>
 - Triage labels: <defaults / customised>
 - Domain docs: <single-context / multi-context>
 - Documentation language: <Chinese / English / other>

@@ -41,16 +41,16 @@
 
 ### 前端
 
-复用 `components/Process/` 下的现有组件，不自己实现审批交互：
+复用 `plus-ui-React/src/components/workflow/` 下的现有组件，不自己实现审批交互：
 
 | 场景 | 组件 |
 |---|---|
-| 提交审批 | `submitVerify` |
-| 审批操作按钮 | `approvalButton` |
-| 审批记录 | `approvalRecord` |
-| 流程图 | `flowChart` / `flowChartImg` |
+| 提交审批 | `SubmitVerify` |
+| 审批操作按钮 | `ApprovalButton` |
+| 审批记录 | `ApprovalRecord` |
+| 流程图 | `FlowChart` / `FlowChartImage` |
 
-页面用 `api/workflow/*` 的现有请求；流程定义下拉从定义查询接口获取。参考 `views/workflow/leave/leaveEdit.vue` 的组装方式。
+页面用 `plus-ui-React/src/api/workflow/*` 的现有请求；流程定义下拉从定义查询接口获取。参考 `plus-ui-React/src/pages/workflow/leave/leaveEdit.tsx` 的组装方式。
 
 ## 定时任务
 
@@ -109,7 +109,7 @@
 
 - [ ] 需求确实需要该能力，而不是预留。
 - [ ] 后端只依赖 `ruoyi-api` 接口，没有注入实现类或其他模块的 Mapper、Entity。
-- [ ] 前端复用 `components/Process/`、`api/workflow/*`、`api/ai/*` 等现有入口。
+- [ ] 前端复用 `plus-ui-React/src/components/workflow/`、`plus-ui-React/src/api/workflow/*`、`plus-ui-React/src/api/ai/*` 等现有入口。
 - [ ] 任务执行器在业务模块内，具备幂等和失败可重试。
 - [ ] 没有把 `ruoyi-extend` 的独立服务当作本地 Bean。
 - [ ] 配置项沿用现有 `snail-job`、`snail-ai` 结构，没有另起一套。

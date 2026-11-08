@@ -93,10 +93,10 @@ ruoyi-modules/ruoyi-<module>/src/main/java/.../
 ├─ domain/bo/XxxBo.java
 └─ domain/vo/XxxVo.java
 
-plus-ui/src/
+plus-ui-React/src/
 ├─ api/<module>/<business>/types.ts
 ├─ api/<module>/<business>/index.ts
-└─ views/<module>/<business>/index.vue
+└─ pages/<module>/<business>/index.tsx
 ```
 
 字段、查询条件、导入导出和权限至少同时出现在上述链路中。先读 `TestDemo*` 的完整实现，再按业务命名替换。
@@ -328,7 +328,7 @@ PUT    /updateSort           R<Void>
 | 新增 `XxxDao` | 与当前分层重复 | 沿用 `BaseMapperPlus` |
 | 公共 API 直接改签名 | 其它模块编译或运行行为被破坏 | 先查全部调用点；优先扩展，不改已发布签名 |
 | 只补注释却重排全文件 | diff 噪声掩盖真实改动 | 不做无关格式化，只改注释 |
-| 只加 `@SaCheckPermission` 不加菜单权限 | 菜单可见但接口或按钮不一致 | 同步 `sys_menu.perms` 和前端 `v-hasPermi` |
+| 只加 `@SaCheckPermission` 不加菜单权限 | 菜单可见但接口或按钮不一致 | 同步 `sys_menu.perms` 和前端 `hasPermi(userInfo, [...])` |
 | 分页不传 `pageSize` | `PageQuery.DEFAULT_PAGE_SIZE` 为 `Integer.MAX_VALUE` | 列表接口和页面显式设置有限默认值并校验上限 |
 | 复制其它业务模块的 Service/Mapper | 形成第二套用户、权限或文件实现 | 先查 `ruoyi-api` 和现有公共能力，必要时扩展现有接口 |
 | 为单模块需求新增通用工具 | 公共层膨胀，调用方难收敛 | 留在业务模块；稳定跨模块后再提升 |

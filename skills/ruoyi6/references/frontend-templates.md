@@ -1,0 +1,423 @@
+# React 页面模板
+
+本文件按 `plus-ui-React/src/pages/demo/demo/index.tsx`、`src/pages/demo/tree/index.tsx`、对应 API/types 和 `gen/*.ftl` 蒸馏，供标准单表和树表页面按需加载。
+
+模板只提供页面壳、hooks 组合、请求和类型骨架。字段、权限、状态、查询条件和业务流程以当前需求和已确认契约为准；目标模块只用于核对字段、路由、权限和集成事实，不把 demo 字段或业务页面写法直接带进新需求。
+
+## 选择模板
+
+| 场景 | 模板 |
+|---|---|
+| 普通单表 | 本页“单表页面” |
+| 树形分类 | 本页“树表差异”，再套单表骨架 |
+| 只读报表、主从、审批 | 先用 `frontend.md` 的页面形态和现有组件，不硬套 CRUD |
+| Vue 迁 React | 先盘点旧页面契约，再按本页结构重新实现，不逐行翻译 |
+
+维护目标模块已有页面时，先读它的查询区、表格、弹窗和 API，保留已有复杂交互，只增量实现当前需求。新建页面仍按作者 demo 和公共组件搭建。
+
+## 单表页面
+
+```tsx
+import { DeleteOutlined, DownloadOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  ModalForm,
+  PageContainer,
+  ProFormDigit,
+  ProFormText,
+  ProTable,
+  type ActionType,
+  type ProColumns
+} from '@ant-design/pro-components';
+import { useBoolean } from 'ahooks';
+import { Button, Form, message, Popconfirm } from 'antd';
+import { useRef, useState } from 'react';
+import type { XxxForm, XxxQuery, XxxVO } from '@/api/<module>/<business>/types';
+import { addXxx, delXxx, getXxx, listXxx, updateXxx } from '@/api/<module>/<business>';
+import RowActions from '@/components/common/RowActions';
+import { useTableExport } from '@/hooks/useTableExport';
+import { useTableScroll } from '@/hooks/useTableScroll';
+import { useTableSelection } from '@/hooks/useTableSelection';
+import { useUserStore } from '@/stores/userStore';
+import { hasPermi } from '@/utils/permission';
+import { toPageQuery, toTableData } from '@/utils/ruoyi';
+
+const defaultXxxForm: XxxForm = {};
+
+export default function XxxPage() {
+  const actionRef = useRef<ActionType | undefined>(undefined);
+  const { tableScroll } = useTableScroll(760);
+  const [form] = Form.useForm<XxxForm>();
+  const userInfo = useUserStore(state => state.userInfo);
+  const { ids, selectedOne, handleSelectionChange, clearSelection } = useTableSelection<XxxVO>(row => row.id);
+  const [modalOpen, { setTrue: openModal, setFalse: closeModal }] = useBoolean(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const { updateExportParams, exportFile } = useTableExport();
+
+  const canAdd = hasPermi(userInfo, ['<module>:<business>:add']);
+  const canEdit = hasPermi(userInfo, ['<module>:<business>:edit']);
+  const canRemove = hasPermi(userInfo, ['<module>:<business>:remove']);
+  const canExport = hasPermi(userInfo, ['<module>:<business>:export']);
+
+  const openAdd = () => {
+    form.resetFields();
+    form.setFieldsValue(defaultXxxForm);
+    setModalTitle('添加Xxx');
+    openModal();
+  };
+
+  const openEdit = async (row?: XxxVO) => {
+    const target = row || selectedOne;
+    if (!target?.id) return;
+    const res = await getXxx(target.id);
+    form.resetFields();
+    form.setFieldsValue(res.data);
+    setModalTitle('修改Xxx');
+    openModal();
+  };
+
+  const submitForm = async (values: XxxForm) => {
+    values.id ? await updateXxx(values) : await addXxx(values);
+    message.success('操作成功');
+    form.resetFields();
+    actionRef.current?.reload();
+    return true;
+  };
+
+  const remove = async (row?: XxxVO) => {
+    await delXxx(row?.id || ids);
+    message.success('删除成功');
+    clearSelection();
+    actionRef.current?.reloadAndRest?.();
+  };
+
+  const columns: ProColumns<XxxVO>[] = [
+    { title: '名称', dataIndex: 'name' },
+    {
+      title: '操作',
+      valueType: 'option',
+      width: 92,
+      fixed: 'right',
+      render: (_, row) => (
+        <RowActions
+          actions={[
+            canEdit && { key: 'edit', label: '修改', icon: <EditOutlined />, onClick: () => openEdit(row) },
+            canRemove && {
+              key: 'delete',
+              label: '删除',
+              icon: <DeleteOutlined />,
+              danger: true,
+              confirm: `是否确认删除Xxx编号为"${row.id}"的数据项？`,
+              onClick: () => remove(row)
+            }
+          ]}
+        />
+      )
+    }
+  ];
+
+  return (
+    <PageContainer title="Xxx">
+      <ProTable<XxxVO, XxxQuery>
+        actionRef={actionRef}
+        rowKey="id"
+        columns={columns}
+        scroll={tableScroll}
+        search={{ labelWidth: 90 }}
+        pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+        rowSelection={{ selectedRowKeys: ids, onChange: handleSelectionChange }}
+        request={async params => {
+          const query = toPageQuery(params);
+          updateExportParams(query);
+          const res = await listXxx(query);
+          return toTableData(res);
+        }}
+        toolbar={{ title: 'Xxx列表' }}
+        toolBarRender={() => [
+          canAdd && (
+            <Button key="add" type="primary" icon={<PlusOutlined />} onClick={openAdd}>
+              新增
+            </Button>
+          ),
+          canEdit && (
+            <Button key="edit" disabled={!selectedOne} icon={<EditOutlined />} onClick={() => openEdit()}>
+              修改
+            </Button>
+          ),
+          canRemove && (
+            <Popconfirm
+              key="delete"
+              title={`是否确认删除Xxx编号为"${ids}"的数据项？`}
+              onConfirm={() => remove()}
+            >
+              <Button danger disabled={!ids.length} icon={<DeleteOutlined />}>
+                删除
+              </Button>
+            </Popconfirm>
+          ),
+          canExport && (
+            <Button
+              key="export"
+              icon={<DownloadOutlined />}
+              onClick={() => exportFile('/<module>/<business>/export', () => `xxx_${Date.now()}.xlsx`)}
+            >
+              导出
+            </Button>
+          )
+        ]}
+      />
+
+      <ModalForm<XxxForm>
+        title={modalTitle}
+        open={modalOpen}
+        width={560}
+        form={form}
+        layout="vertical"
+        initialValues={defaultXxxForm}
+        modalProps={{ destroyOnHidden: true, onCancel: closeModal }}
+        onOpenChange={open => !open && closeModal()}
+        onFinish={submitForm}
+      >
+        <ProFormText name="id" hidden />
+        <ProFormText name="name" label="名称" rules={[{ required: true, message: '名称不能为空' }]} />
+        <ProFormDigit name="orderNum" label="排序" min={0} />
+      </ModalForm>
+    </PageContainer>
+  );
+}
+```
+
+实际页面按字段契约替换搜索项、表格列、弹窗字段和校验。按钮、列和操作按权限与业务状态保留，不为了凑模板增加无用操作。
+
+## 日期范围
+
+```tsx
+import { useDateRangeQuery } from '@/hooks/useDateRangeQuery';
+
+const { applyDateRange: applyCreateTimeDateRange } = useDateRangeQuery();
+
+// columns 里增加只用于搜索的列
+{
+  title: '创建时间',
+  dataIndex: 'createTimeRange',
+  valueType: 'dateTimeRange',
+  hideInTable: true
+}
+
+request={async params => {
+  const { createTimeRange, ...tableParams } = params;
+  const query = applyCreateTimeDateRange(toPageQuery(tableParams), createTimeRange);
+  updateExportParams(query);
+  const res = await listXxx(query);
+  return toTableData(res);
+}}
+```
+
+日期范围必须写入 `query.params.begin*/end*`，不要平铺成普通字段。
+
+## 字典与状态
+
+```tsx
+import { Switch } from 'antd';
+import DictTag from '@/components/common/DictTag';
+import { useDict } from '@/hooks/useDict';
+import { dictOptions } from '@/utils/dict';
+
+const dicts = useDict('sys_normal_disable');
+
+// 查询/表单
+fieldProps: { options: dictOptions(dicts.sys_normal_disable) }
+
+// 列表展示
+render: (_, row) => <DictTag options={dicts.sys_normal_disable} value={row.status} />
+
+// 可编辑状态
+<Switch checked={row.status === '0'} onChange={checked => handleStatusChange(row, checked)} />
+```
+
+状态变更先确认、再调用接口；失败时恢复原值并刷新。不要把字典中文硬编码在页面。
+
+## 树表差异
+
+树表 API 返回 `R<XxxVO[]>`，`Query` 不继承 `PageQuery`，页面用 `handleTree` 建树，`ProTable` 关闭分页并配置 `expandable`。
+
+```tsx
+import { SortAscendingOutlined } from '@ant-design/icons';
+import { ProFormTreeSelect } from '@ant-design/pro-components';
+import { useMemo, useState } from 'react';
+import { useTreeTableExpand } from '@/hooks/useTreeTableExpand';
+import { filterTree, handleTree } from '@/utils/ruoyi';
+
+const [treeOptions, setTreeOptions] = useState<XxxVO[]>([]);
+const [tableRows, setTableRows] = useState<XxxVO[]>([]);
+const { expandAll, expandedRowKeys, onExpandedRowsChange, syncExpandedRows, toggleExpandAll } =
+  useTreeTableExpand<XxxVO>(row => row.id);
+
+const loadTreeOptions = async (excludeId?: string | number) => {
+  const res = await listXxx();
+  const rows = handleTree<XxxVO>(res.data || [], 'id', 'parentId');
+  setTreeOptions(excludeId ? filterTree(rows, node => node.id !== excludeId) : rows);
+};
+
+const openAdd = async (row?: XxxVO) => {
+  await loadTreeOptions();
+  form.resetFields();
+  form.setFieldsValue({ ...defaultXxxForm, parentId: row?.id || 0 });
+  setModalTitle('添加Xxx');
+  openModal();
+};
+
+<ProTable<XxxVO, XxxQuery>
+  actionRef={actionRef}
+  rowKey="id"
+  columns={columns}
+  scroll={tableScroll}
+  pagination={false}
+  search={{ labelWidth: 90 }}
+  expandable={{
+    expandedRowKeys,
+    onExpandedRowsChange
+  }}
+  request={async params => {
+    const res = await listXxx({ name: params.name });
+    const rows = handleTree<XxxVO>(res.data || [], 'id', 'parentId');
+    setTableRows(rows);
+    syncExpandedRows(rows, expandAll);
+    return { data: rows, total: rows.length, success: true };
+  }}
+  toolbar={{ title: 'Xxx列表' }}
+  toolBarRender={() => [
+    canAdd && (
+      <Button key="add" type="primary" icon={<PlusOutlined />} onClick={() => openAdd()}>
+        新增
+      </Button>
+    ),
+    <Button key="expand" icon={<SortAscendingOutlined />} onClick={() => toggleExpandAll(tableRows)}>
+      展开/折叠
+    </Button>
+  ]}
+/>;
+
+<ProFormTreeSelect
+  name="parentId"
+  label="上级节点"
+  fieldProps={{
+    allowClear: true,
+    treeDefaultExpandAll: true,
+    treeData: treeSelectData
+  }}
+/>;
+```
+
+父节点树选项从平铺数据建树，编辑时排除自身及子树。删除、移动节点前确认后端子树规则，页面不能自行假设级联删除或移动语义。
+
+## API 文件
+
+```ts
+import type { PageResult, R } from '@/api/types';
+import request from '@/api/request';
+import type { XxxForm, XxxQuery, XxxVO } from './types';
+
+export function listXxx(query?: XxxQuery) {
+  return request<R<PageResult<XxxVO>>>({
+    url: '/<module>/<business>/list',
+    method: 'get',
+    params: query
+  });
+}
+
+export function getXxx(id: string | number) {
+  return request<R<XxxVO>>({
+    url: '/<module>/<business>/' + id,
+    method: 'get'
+  });
+}
+
+export function addXxx(data: XxxForm) {
+  return request<R>({
+    url: '/<module>/<business>',
+    method: 'post',
+    data
+  });
+}
+
+export function updateXxx(data: XxxForm) {
+  return request<R>({
+    url: '/<module>/<business>',
+    method: 'put',
+    data
+  });
+}
+
+export function delXxx(id: string | number | Array<string | number>) {
+  return request<R>({
+    url: '/<module>/<business>/' + id,
+    method: 'delete'
+  });
+}
+```
+
+树表列表的返回类型改为 `request<R<XxxVO[]>>`，且不带分页参数。
+
+## 类型文件
+
+```ts
+import type { BaseEntity, PageQuery } from '@/api/types';
+
+export interface XxxVO {
+  /** 主键 */
+  id: string | number;
+
+  /** 名称 */
+  name: string;
+}
+
+export interface XxxForm extends BaseEntity {
+  /** 主键 */
+  id?: string | number;
+
+  /** 名称 */
+  name?: string;
+
+  /** 上级节点 */
+  parentId?: string | number;
+}
+
+export interface XxxQuery extends PageQuery {
+  /** 名称 */
+  name?: string;
+}
+```
+
+- `VO` 字段必填；`Form` 继承 `BaseEntity` 且字段全部可选；`Query` 继承 `PageQuery` 且条件可选。
+- 树表 `Query` 不继承 `PageQuery`，`VO` 增加可选 `children`。
+- 主键和关联 ID 用 `string | number`，避免雪花 ID 丢精度。
+- 字段名与后端 BO/VO 完全一致；日期范围保留 `Query.params`。
+- 纯类型导入用 `import type`；若目标模块已统一使用普通导入，保持该模块风格。
+
+## Vue 迁 React 映射
+
+| 旧页面事实 | React 落点 |
+|---|---|
+| `src/views/<module>/<business>/index.vue` | `src/pages/<module>/<business>/index.tsx` |
+| 旧 API 请求 | `src/api/<module>/<business>/{index,types}.ts` |
+| 旧页面组件 | `PageContainer`、`ProTable`、`ModalForm`、`Drawer` + 现有 common 组件 |
+| 旧权限指令 | `hasPermi(userInfo, [...])`；按钮用条件渲染 |
+| 旧字典 | `useDict` + `dictOptions` + `DictTag` |
+| 旧弹窗状态 | `useBoolean` + `ModalForm` |
+| 旧分页参数 | `toPageQuery` + `toTableData` |
+| 旧树表 | `handleTree` + `useTreeTableExpand` + `ProFormTreeSelect` |
+| 旧全局状态 | Zustand selector |
+| 新增页面 | `dynamicPage.tsx` 的 `migratedPages` 登记 |
+
+迁移时保留旧页面的字段、API 路径、权限字符、菜单 component、查询/分页、CRUD、状态、导入导出、上传、详情抽屉和路由跳转。不要复制旧 UI 组件、请求封装、权限指令或全局 store。
+
+## 交付前检查
+
+- [ ] 页面使用 `PageContainer`、`ProTable` 和 `ModalForm` 的现有页面壳。
+- [ ] 查询、表格、弹窗和表单字段来自同一份业务契约。
+- [ ] 使用了现有 `useTableSelection`、`useTableExport`、`useTableScroll`、`useDateRangeQuery`、`useDict`、`useTreeTableExpand`。
+- [ ] 编辑先拉详情再回填，新增先重置；提交失败保留输入并恢复提交状态。
+- [ ] 删除有确认和刷新；树表新增子节点携带 `parentId`。
+- [ ] 权限字符在菜单 SQL、后端注解和 `hasPermi` 三处一致。
+- [ ] 页面已登记到 `dynamicPage.tsx`。
+- [ ] 页面可见改动只标记 `Dev Complete`，由用户发起 `page-acceptance`，不把构建通过说成验收通过。

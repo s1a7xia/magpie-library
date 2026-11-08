@@ -68,7 +68,7 @@ DDL / 增量 SQL
   -> BO（新增/编辑校验分组）
   -> VO（列表展示、Excel、翻译、脱敏）
   -> Mapper 查询条件/排序
-  -> plus-ui types.ts（Vo/Form/Query）
+  -> plus-ui-React types.ts（VO/Form/Query）
   -> 页面搜索、表格列、表单项、字典
 ```
 
@@ -122,7 +122,7 @@ WHERE NOT EXISTS (
 );
 ```
 
-按钮权限用 `menu_type = 'F'`，`perms` 与 Controller 注解、前端 `v-hasPermi` 完全一致。字典用 `sys_dict_type` + `sys_dict_data`，参数用 `sys_config`；不要为可枚举状态另建业务表，也不要在页面硬编码字典文本。当前项目的模块名、组件路径和权限前缀从已有菜单及 PRD 获取，不从示例或其它业务模块复制。
+按钮权限用 `menu_type = 'F'`，`perms` 与 Controller 注解、前端 `hasPermi(userInfo, [...])` 完全一致。字典用 `sys_dict_type` + `sys_dict_data`，参数用 `sys_config`；不要为可枚举状态另建业务表，也不要在页面硬编码字典文本。当前项目的模块名、组件路径和权限前缀从已有菜单及 PRD 获取，不从示例或其它业务模块复制。
 
 当前项目存在多个增量脚本和混合历史数据，执行前先核对目标数据库、schema、方言和已执行记录；连接可用不等于允许写入。
 

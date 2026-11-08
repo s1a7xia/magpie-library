@@ -154,8 +154,8 @@
 | 公共工具方法 | 至少两个模块会用到，且语义稳定；单业务规则留在业务 Service | `ruoyi-common-core` |
 | 新的 `ruoyi-common-*` 模块 | 有独立依赖、配置和装配条件，且现有模块塞不进 | 新建模块，同时更新 `ruoyi-common/pom.xml` 和 `ruoyi-admin` |
 | 跨模块 API | 有两个及以上模块要调用同一能力，且已有 `ruoyi-api` 接口无法扩展 | `ruoyi-api`，只放接口和 DTO |
-| 全局前端组件 | 至少两个真实页面会用；单页结构留在页面目录 | `plus-ui/src/components` |
-| 新 hook | 现有 hook 无法组合或薄包装解决，且只承载页面行为 | `plus-ui/src/hooks` |
+| 全局前端组件 | 至少两个真实页面会用；单页结构留在页面目录 | `plus-ui-React/src/components/common` |
+| 新 hook | 现有 hook 无法组合或薄包装解决，且只承载页面行为 | `plus-ui-React/src/hooks` |
 | 业务表 | 现有表加字段或状态无法表达，且满足单表优先原则 | `docs/sql/YYYYMMDD_业务_动作.sql` |
 | 字典 | 值是有限枚举且需要界面选择和翻译 | `sys_dict_type` + `sys_dict_data` |
 | 参数 | 值需要运行期修改，不是枚举 | `sys_config` |

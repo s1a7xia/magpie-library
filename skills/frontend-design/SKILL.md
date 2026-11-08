@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: "Intentional UI design for new, redesigned, or plain-looking pages. Use for Vue/Element Plus CRUD pages, admin consoles, dashboards, login pages, styling and layout changes. Enhance existing components instead of replacing them; use full visual direction only for standalone pages. Triggers: 美化、太丑、不好看、高级感、视觉优化、UI 设计、页面风格、页面改版."
+description: "Intentional UI design for new, redesigned, or plain-looking pages. Use for React/Ant Design CRUD pages, admin consoles, dashboards, login pages, styling and layout changes. Enhance existing components instead of replacing them; use full visual direction only for standalone pages. Triggers: 美化、太丑、不好看、高级感、视觉优化、UI 设计、页面风格、页面改版."
 license: Complete terms in LICENSE.txt
 ---
 
@@ -15,9 +15,9 @@ license: Complete terms in LICENSE.txt
 | 业务 CRUD 页：列表、表单、详情、弹窗、配置、审批 | **Enhance** | 页面已经属于某个产品，有既有组件库、主题和交互习惯 |
 | 登录页、工作台首页、态势大屏、独立展示页 | **Design** | 页面是一次性进入、要传达品牌或数据的独立表面 |
 
-业务页不要套用独立站的“工作室视觉”。那会把表格、表单和弹窗装饰化，破坏用户已经熟悉的行为。独立展示页也不要被 Element Plus 组件限制，可以按完整视觉方向设计。
+业务页不要套用独立站的“工作室视觉”。那会把表格、表单和弹窗装饰化，破坏用户已经熟悉的行为。独立展示页也不要被 Ant Design 组件限制，可以按完整视觉方向设计。
 
-如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 6.x + Vue 3 项目读 [前端规范和样式边界](../ruoyi-6-vue/references/frontend.md#样式与设计)，本技能负责设计方法，项目规范负责收敛边界。
+如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 6.x + React 项目读 [前端规范和样式边界](../ruoyi6/references/frontend.md#样式与设计)，本技能负责设计方法，项目规范负责收敛边界。
 
 ## Enhance mode
 
@@ -90,7 +90,6 @@ Verify each item on the rendered page, not on the source. These four failures mo
 - **Ant Design Pro**：页头、筛选区、表格、分页的节奏，状态徽标和空状态写法。
 - **Arco Design Pro**：高密度后台布局、详情抽屉、表单分组与留白。
 - **shadcn/ui 的 dashboard 示例**：克制的中性色、统一的间距刻度、可访问的交互状态。
-- **vue-element-plus-admin / element-plus-admin**：Element Plus 生态里成熟的后台壳层、表格和表单组合方式。
 
 借鉴的是结构和判断，不是颜色、字体或某个具体组件。最终仍以当前项目的组件库、主题和 UI 规范为准。
 

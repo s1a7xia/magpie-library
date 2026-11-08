@@ -1,6 +1,6 @@
-# Magpie 工程组合拳（RuoYi 6.x Vue 版）
+# Magpie 工程组合拳（RuoYi 6.x React 版）
 
-这是一套以 **RuoYi-Vue-Plus 6.x + Vue 3 + Element Plus** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。版本和源码事实以项目实际的根 `pom.xml`、`plus-ui/package.json` 和当前 checkout 为准，不把某个补丁版本或提交号写死。
+这是一套以 **RuoYi-Vue-Plus 6.x + React + Ant Design ProComponents** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。版本和源码事实以项目实际的根 `pom.xml`、`plus-ui-React/package.json` 和当前 checkout 为准，不把某个补丁版本或提交号写死。
 
 它解决的不是“让 AI 多写一点代码”，而是让每次开发都遵循同一条可追溯的路径：
 
@@ -24,11 +24,11 @@
 相比上一版 20 个技能：
 
 - 保留 8 个显式流程：`setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review`、`debug`。
-- 保留 2 个技术与设计技能：`ruoyi-6-vue`、`frontend-design`。
+- 保留 2 个技术与设计技能：`ruoyi6`、`frontend-design`。
 - 保留 6 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`、`ai-collaboration`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到全局指令、`setup-project`、任务契约和平台 MCP/CLI。
-- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi-6-vue`，只保留 6.x + Vue 3 需要的后端、前端、数据库和工具规范。
-- `ruoyi-6-vue` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。Soybean 仅是外部 UI 借鉴，不是目标前端。
+- 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
+- `ruoyi6` 先做业务判型、框架能力扫描和业务契约门，再选择 `TestDemo*`、树表或 Excel 等最小模板；现有业务模块只用于了解集成约束，不作为模板。旧 `plus-ui` 仅作为 Vue→React 迁移的业务事实来源。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
 当前是 **16 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
@@ -74,7 +74,7 @@ Hook 是平台事件适配层，不是第二套开发流程。它可以检查启
 - 前后端实际编译命令；
 - 可选的多 Agent 协作或微信查看入口。
 
-默认按 `ruoyi-6-vue`（RuoYi-Vue-Plus 6.x + Vue 3，实际版本从项目构建文件读取）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
+默认按 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，实际版本从项目构建文件读取）配置，不额外询问、不做框架探测。遇到非 RuoYi 项目时，在初始化时把 `Technical profile: none` 或选定的替代 profile 和理由写入项目配置；后续项目配置覆盖全局默认。微信入口是可选能力，不启用时项目仍可独立运行。
 
 ### 1. 需求和方案：`think` -> `grill`
 
@@ -113,7 +113,7 @@ Hook 是平台事件适配层，不是第二套开发流程。它可以检查启
 每个切片：
 
 1. 按验收标准做最小充分改动；
-2. 默认加载 `ruoyi-6-vue`；涉及前端视图时自动加载 `frontend-design`；
+2. 默认加载 `ruoyi6`；涉及前端视图时自动加载 `frontend-design`；
 3. 只编译受影响的一侧，并核对 diff；
 4. 更新 PRD 中本切片状态；
 5. 在**当前同一分支**提交并推送一次，提交信息带切片说明；
@@ -141,7 +141,7 @@ implement -> Dev Complete -> 用户发起 page-acceptance -> Accepted -> 用户�
 - 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径。
 - 验证、修复、重测最多三轮，超限停止并报告。
 
-RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi-6-vue-browser.md`。
+RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi6-browser.md`。
 
 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
@@ -209,7 +209,7 @@ RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 
 | 技能 | 作用 |
 |---|---|
-| `ruoyi-6-vue` | RuoYi-Vue-Plus 6.x + Vue 3 单一技术入口；先判型、扫描框架复用能力并确认业务契约，再按任务加载后端、前端和数据库规范 |
+| `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；先判型、扫描框架复用能力并确认业务契约，再按任务加载后端、前端和数据库规范 |
 | `frontend-design` | 业务页在既有组件系统内提升质感；独立展示页可做完整视觉设计 |
 
 ### 支撑与环境（6）
@@ -230,28 +230,28 @@ RuoYi 6.x Vue 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `
 - 删除或合并低频技能优先于继续添加；共享模式下的技能越少，路由和上下文成本越低。
 - 每次改完运行 `python scripts/verify-library.py`，检查技能清单、frontmatter、全量 Markdown 相对链接、同步和凭证提示。
 
-## RuoYi 6.x Vue 技术层
+## RuoYi 6.x React 技术层
 
-`ruoyi-6-vue` 不按后端、前端、数据库拆成多个技能，而是单一入口按需加载：
+`ruoyi6` 不按后端、前端、数据库拆成多个技能，而是单一入口按需加载：
 
 | 任务 | 读取 |
 |---|---|
 | 任何 RuoYi 业务改动 | `SKILL.md` |
 | Java / Spring Boot / MyBatis-Plus / Sa-Token | `references/backend.md` |
-| Vue 3 / TypeScript / Element Plus / API / hooks / 页面骨架 | `references/frontend.md` |
+| React / TypeScript / Ant Design / ProComponents / API / hooks / 页面骨架 | `references/frontend.md` |
 | 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
 | 字符串 / 集合 / 对象 / JSON / 日期 / 树 / 文件 / IP / SQL 工具选型 | `references/utils.md` |
 | 事务 / 幂等 / 缓存 / 异步 / 并发 / 编排 / 序列 / 导出 / 审计等机制选型 | `references/capabilities.md` |
 | 按作者源码蒸馏的后端代码模板（Controller/Service/BO/VO/Entity/Mapper） | `references/templates.md` |
 | 工作流 / 定时任务 / AI / 监控等按需能力 | `references/optional-integrations.md` |
 
-任何业务模块先读 `SKILL.md` 的业务判型、复用扫描和契约门，再按任务加载对应的后端/前端/数据库/工具文件。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/Vue 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui + Element Plus**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
+任何业务模块先读 `SKILL.md` 的业务判型、复用扫描和契约门，再按任务加载对应的后端/前端/数据库/工具文件。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/React 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui-React + Ant Design ProComponents**；Soybean 只作为外部信息结构和交互思路的借鉴，不是可切换前端，也不进入默认 Load Map。
 
 业务功能参考的边界：
 
 - **落地顺序**：业务判型 -> 框架复用扫描 -> 业务契约门 -> 最小模板，不用 CRUD 模板倒推业务。
 - **核心复用面**：业务模块默认只依赖 `ruoyi-common`、`ruoyi-system` 和自身所在分层；工作流、AI、定时任务、MQTT 等在 `ruoyi-modules/ruoyi-*` 内随主应用装配，属于按需能力，用到才接入；`ruoyi-extend/` 下的 monitor-admin、snailjob-server、snailai-server 是独立进程，只能通过客户端、HTTP 或消息交互。
-- **本地完整模板**：普通单表、树表和 Excel 的后端分层、Service/Mapper、前端 API、页面骨架和菜单 SQL 可直接裁剪；业务模块不作为模板。
+- **本地完整模板**：普通单表、树表和 Excel 的后端分层、Service/Mapper、React API、页面骨架和菜单 SQL 可直接裁剪；业务模块不作为模板。
 - **改动路径**：新业务、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
 - **按需加载**：七个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识，也不为可选能力预留结构。
 - **机制判型**：业务判型决定做成什么形状，机制判型决定靠什么保障；事务、幂等、缓存、异步、并发、编排、序列、展示和审计命中信号才引入，没有验收标准不预埋。

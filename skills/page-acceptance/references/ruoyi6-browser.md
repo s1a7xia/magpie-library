@@ -1,6 +1,6 @@
-# RuoYi 6.x Vue 页面验收速查
+# RuoYi 6.x React 页面验收速查
 
-这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.x + Vue 3 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；Axios 拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
+这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.x + React 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；请求拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
 
 ## 1. 会话与登录态
 
@@ -11,8 +11,8 @@ agent-browser skills get core
 agent-browser --session ruoyi get url
 ```
 
-- 如果未打开或停在 `/login`，用项目实际前端地址打开，例如 `http://localhost:80` 或 `http://localhost:5173`。
-- `snapshot -i` 只取可交互元素标号；不要抓完整 HTML/DOM。Element Plus 嵌套很深，全量 DOM 会迅速撑爆上下文。
+- 如果未打开或停在 `/login`，用项目实际前端地址打开。
+- `snapshot -i` 只取可交互元素标号；不要抓完整 HTML/DOM。Ant Design 组件嵌套很深，全量 DOM 会迅速撑爆上下文。
 - 用项目配置的测试账号登录；凭据从项目环境或用户输入读取，不写入技能、报告、提交或截图。
 - 验证码开关的实际位置和默认值以当前后端配置为准；如果登录被验证码拦住，暂停并请开发者确认是否按项目约定关闭开关，不要尝试破解验证码。
 - 登录成功后保存状态（路径按项目约定，例如 `.ruoyi-auth.json`），后续复用同一 `--session ruoyi`。
@@ -22,17 +22,17 @@ agent-browser --session ruoyi get url
 以下动作发生后，旧的 `@e` 标号立即失效，必须重新执行 `agent-browser --session ruoyi snapshot -i`：
 
 - 路由跳转；
-- 打开或关闭 `el-dialog` / `el-drawer`；
-- 展开或收起 `el-select`、`el-tree-select`、`el-date-picker`；
+- 打开或关闭 Ant Design `Modal` / `Drawer`；
+- 展开或收起 `Select`、`TreeSelect`、`DatePicker`；
 - 表格刷新、分页、搜索、重置；
-- 二次确认框出现或消失。
+- `Popconfirm`、`Modal.confirm` 等二次确认框出现或消失。
 
-Element Plus 下拉/树选择/日期选择的操作顺序固定为：`click` 展开 → `snapshot -i` → `click` 具体选项。不要凭旧标号连续点击。
+Ant Design 下拉/树选择/日期选择的操作顺序固定为：`click` 展开 → `snapshot -i` → `click` 具体选项。不要凭旧标号连续点击。
 
 ## 3. 首屏健康度
 
-1. `snapshot -i` 确认搜索栏、表格、分页和主要按钮已渲染。
-2. `agent-browser --session ruoyi errors` 检查 Vue 渲染错误、未捕获异常和组件警告。
+1. `snapshot -i` 确认搜索区、`ProTable`、分页和主要按钮已渲染。
+2. `agent-browser --session ruoyi errors` 检查 React 渲染错误、未捕获异常和浏览器警告。
 3. `agent-browser --session ruoyi network` 检查本次页面依赖的请求：401（未登录/令牌失效）、403（Sa-Token 权限字符不匹配）、500（后端 SQL/接口异常）。
 4. 记录 URL、角色、路由、视口和实际看到的结果；不要只写“页面正常”。
 
@@ -42,14 +42,14 @@ Element Plus 下拉/树选择/日期选择的操作顺序固定为：`click` 展
 
 ### Step 1 — Create
 
-- 点击“新增” → `snapshot -i` 识别弹窗表单项。
+- 点击“新增” → 重新 `snapshot -i` 识别 `ModalForm` / `Modal` 内的表单项。
 - 填写必填项，使用可检索的测试标识（例如 `AI_TEST_01`）。
-- `el-select` / `el-tree-select` / `el-date-picker` 按“展开 → 快照 → 选项”操作。
+- `Select` / `TreeSelect` / `DatePicker` 按“展开 → 快照 → 选项”操作。
 - 点击“确定” → 检查 `errors` 和 `network` → 重新 `snapshot -i`，确认弹窗关闭且列表出现测试记录。
 
 ### Step 2 — Read
 
-- 在搜索栏输入 `AI_TEST_01` → 点击“搜索” → 重新 `snapshot -i`，确认表格过滤正确。
+- 在搜索区输入 `AI_TEST_01` → 点击“搜索” → 重新 `snapshot -i`，确认表格过滤正确。
 - 点击“重置” → 重新 `snapshot -i`，确认列表恢复。
 
 ### Step 3 — Update
@@ -60,7 +60,7 @@ Element Plus 下拉/树选择/日期选择的操作顺序固定为：`click` 展
 
 ### Step 4 — Delete / cleanup
 
-- 点击该行“删除” → 重新 `snapshot -i` 识别 `el-message-box` 二次确认。
+- 点击该行“删除” → 重新 `snapshot -i` 识别 `Popconfirm` 或 `Modal.confirm`。
 - 点击确认 → 检查接口与提示 → 重新快照确认记录消失。
 - 中途失败也要尽量清理测试数据；无法清理时在报告中明确留下什么。
 
@@ -71,10 +71,10 @@ Element Plus 下拉/树选择/日期选择的操作顺序固定为：`click` 展
 - 窄视口下无意外横向滚动；
 - 按钮文字不折行；
 - 深色模式正文、次要文字、边框、禁用态可读；
-- `el-dialog`、`el-select` 下拉、日期面板、`el-tooltip`、`el-drawer` 无 z-index 遮挡；
+- `.ant-modal`、`.ant-select-dropdown`、`.ant-picker-dropdown`、`.ant-tooltip`、`.ant-drawer` 无 z-index 遮挡；
 - 空状态、加载态、无权限态至少检查一个与本次改动相关的边界。
 
-RuoYi 业务页的视觉边界见 [前端规范和样式边界](../../ruoyi-6-vue/references/frontend.md#样式与设计)。
+RuoYi 业务页的视觉边界见 [前端规范和样式边界](../../ruoyi6/references/frontend.md#样式与设计)。
 
 ## 6. 失败闭环
 
