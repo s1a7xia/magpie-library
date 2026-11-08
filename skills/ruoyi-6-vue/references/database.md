@@ -45,15 +45,18 @@
 ```text
 create_dept  bigint
 create_by    bigint
-create_time  timestamp
+create_time  datetime（MySQL）/ timestamp（PostgreSQL）
 update_by    bigint
-update_time  timestamp
+update_time  datetime（MySQL）/ timestamp（PostgreSQL）
 ```
 
 - `status`、`del_flag`、`version`、`remark` 按需添加，不假设基类自带。
 - 金额用 `decimal` 明确精度；不要用浮点数。
 - 可空性、默认值、唯一约束按业务明确；唯一性优先数据库约束。
 - 表和字段写注释，术语与页面、字典、Java 字段一致。
+- 时间类型按方言取现有脚本的写法：MySQL 用 `datetime`，PostgreSQL 用 `timestamp`；不要跨方言互抄。
+- 状态、标志类字段沿用框架的 `char(1)`，取值 `0`/`1` 或字典值，不用 `boolean`、`tinyint` 另立一套。
+- 字符串长度按语义定，不统一给 `varchar(255)`：账号和名称类 30、邮箱 50、手机号 11、编码与权限标识 100、备注 500、长文本用 `text`。
 
 ## 字段变更链路
 
