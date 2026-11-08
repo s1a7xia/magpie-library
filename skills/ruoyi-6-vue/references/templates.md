@@ -173,7 +173,9 @@ public class XxxServiceImpl implements IXxxService {
     }
 
     private void validEntityBeforeSave(Xxx entity) {
-        // 唯一约束等业务校验
+        // TODO(待确认): 唯一键未定，暂不做重复校验
+        // 临时做法: 先允许重复写入，前端不提示
+        // 确认人: 业务方 / 产品
     }
 
     @Override
@@ -355,3 +357,25 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 - 不需要数据权限的表，去掉 Mapper 上的 `@DataPermission` 重写即可，其余保持。
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。
+
+## TODO 占位
+
+业务口径没定时，用固定格式留下 TODO，保证功能能跑通、其它功能可测：
+
+```java
+// TODO(待确认): <什么没定>
+// 临时做法: <现在的默认行为>
+// 确认人: <业务方 / 产品 / 谁>
+```
+
+```ts
+// TODO(待确认): <什么没定>
+// 临时做法: <现在的默认行为>
+// 确认人: <业务方 / 产品 / 谁>
+```
+
+规则：
+
+- 占位后必须保证能编译、能启动、页面能打开、不阻断其它功能。
+- 不能用于掩盖未实现；接口没写、页面没做、数据没接不算 TODO。
+- 交付时汇总 TODO 清单，写入 `docs/agents/project-state.md` 或 PRD。
