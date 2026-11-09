@@ -1,12 +1,11 @@
 ---
 name: answer-me-with-html
-argument-hint: "[config [key value] | clean | update]"
 description: >-
-  Generate a one-page visual HTML explainer automatically once when a /story slicing run
-  completes with Status: Sliced, or when the user explicitly invokes /answer-me-with-html,
-  asks to turn an answer, PRD, decision or baseline into an HTML or visual page, asks for an
-  explainer video, or asks to change this skill's settings. Do not load or use this skill during
-  ordinary answers, reviews, grill, implement, baseline freezing, or complex explanations.
+  Generate a one-page visual HTML explainer when the user explicitly invokes
+  /answer-me-with-html, asks to turn an answer, PRD, decision or baseline into an HTML or visual
+  page, asks for an explainer video, or asks to change this skill's settings. Do not load or use
+  this skill automatically after story, during ordinary answers, reviews, grill, implement,
+  baseline freezing, or complex explanations.
 ---
 
 # Answer me with HTML: answer a complex question with one HTML page
@@ -21,21 +20,15 @@ Arguments for this call: `$ARGUMENTS`
 
 When the arguments start with `config`, `clean` or `update`, or the user asks to change a setting, clean up pages or update this skill: read `${CLAUDE_SKILL_DIR}/references/settings.md` and follow it. That turn produces no page.
 
-## 1. Story-completion or explicit invocation
+## 1. Explicit invocation only
 
-This skill has exactly two automatic entry points:
-
-1. **Story completion**: after `story` has written the approved slice list to the PRD,
-   set `Status: Sliced`, and completed tracking and project-state updates, render one plan
-   overview. This is the only workflow that may load this skill without a separate user request.
-2. **Explicit request**: the user invokes `/answer-me-with-html`, asks for an HTML page,
-   visual explainer, visual plan, or explainer video, or asks to change this skill's settings.
+Load this skill only when the user invokes `/answer-me-with-html`, asks for an HTML page,
+visual explainer, visual plan or explainer video, or asks to change this skill's settings.
 
 Do not load it for an ordinary answer, a complex explanation, a plan, a review, a diagnosis,
-`grill`, `implement`, or a frozen baseline. Do not attach a page unless one of the two entry
-points above applies.
+`grill`, `implement`, or a frozen baseline. Never load it automatically after `story`.
 
-When rendering the story overview, read the PRD and `Sliced into` list as the source of truth.
+When rendering a plan overview requested after story, read the PRD and `Sliced into` list as the source of truth.
 The page is only a view. Keep these in sync:
 
 - goal and scope;

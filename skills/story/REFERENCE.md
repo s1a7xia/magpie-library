@@ -144,10 +144,11 @@ Fill the `Sliced by` field in the PRD's `## Traceability` section:
 
 If parent Issue exists, update its body to include child issues list.
 
-### Step 10: Render the Plan Overview
+### Step 10: Optional Plan Overview
 
-After the PRD is `Sliced` and the parent Issue and project state are current, call
-`answer-me-with-html` once. Read the PRD and `Sliced into` list as the source of truth. Render to
+Only when the user explicitly requested an HTML plan overview, call `answer-me-with-html` after the
+PRD is `Sliced` and the parent Issue and project state are current. Read the PRD and `Sliced into`
+list as the source of truth. Render to
 `docs/baseline/PRD-NNNN-<slug>.html` with:
 
 - goal and scope;
@@ -161,7 +162,7 @@ state unchanged; report the missing page and continue to Step 11.
 
 ### Step 11: Stop
 
-Stop after the overview. Do not start implementation.
+Stop after the slice list and optional overview. Do not start implementation.
 
 ## Horizontal vs Vertical Slices
 

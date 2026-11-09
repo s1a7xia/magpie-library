@@ -12,9 +12,9 @@ Break a frozen, grilled baseline into independently actionable issues using vert
 ## Outcome Contract
 
 - **Outcome**: Set of Issues, each executable independently, covering the full plan
-- **Done when**: All slices written with dependencies mapped, PRD `Status: Sliced`, coverage complete, and one plan overview rendered
-- **Evidence**: Created Issues or local slices with acceptance criteria, PRD with `Sliced into`, and the rendered overview page
-- **Output**: Issue count list, PRD updated, overview page path, next step to a user-invoked implement workflow or direct implementation
+- **Done when**: All slices written with dependencies mapped, PRD `Status: Sliced`, and coverage complete
+- **Evidence**: Created Issues or local slices with acceptance criteria, and PRD with `Sliced into`
+- **Output**: Issue count list, PRD updated, optional overview page, next step to a user-invoked implement workflow or direct implementation
 
 ## Prerequisites
 
@@ -59,7 +59,7 @@ If any check fails, stop before creating issues, name the offending sections or 
 
 **Step 9**: If a remote parent Issue exists, update it with the child list. Do not change its title or close it. If `docs/agents/project-state.md` exists, set its `Workflow status → Slices` to `Passed` and `Development` to `Pending`, with the slice count and coverage total.
 
-**Step 10**: Render one plan overview with `answer-me-with-html`. Use the approved PRD and `Sliced into` list as the source of truth. Include the goal, scope, `R#`/`AC#` traceability, every slice with `Covers`, HITL/AFK and `blocked-by`, the dependency graph, coverage totals and any gaps. Write it to `docs/baseline/PRD-NNNN-<slug>.html`. A render failure does not roll back the PRD, slices or tracker updates; report the missing page and continue. This is the only automatic call to `answer-me-with-html`.
+**Step 10**: If the user explicitly asked for an HTML plan overview, render one with `answer-me-with-html`; otherwise skip it. Use the approved PRD and `Sliced into` list as the source of truth, including traceability, `Covers`, dependencies, coverage and gaps. Write it to `docs/baseline/PRD-NNNN-<slug>.html`. A render failure does not roll back the PRD, slices or tracker updates.
 
 **Step 11**: Stop. Output the slice list and page path, then ask whether to start a batch with `implement`. Do not start implementation on your own.
 
@@ -83,7 +83,7 @@ See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single
 | A remote failure lost the slice plan | Step 8: the local list survives; report and retry, never rebuild from memory |
 | Implementation started automatically after slicing | Step 11: stop and ask; `implement` is user-invoked |
 | PRD or parent issue left stale | Step 6/9: update `Sliced into` and sync the parent Issue |
-| HTML overview became a second source of truth | Step 10: render it from the PRD; the PRD and `Sliced into` remain authoritative |
+| HTML overview was rendered without being requested | Step 10: render only on explicit request; the PRD and `Sliced into` remain authoritative |
 | Overview failure rolled back the slice plan | Step 10: keep the PRD and tracker state; report the missing page |
 | Forced a wide refactor (rename shared column, retype shared symbol) into tracer bullets | Vertical Slice Rules: slice it expand → migrate batches → contract |
 
@@ -110,7 +110,7 @@ Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 
 **Tracker:** <created N issues in order | local only (default) | failed: <reason>, local list intact>
 **Updated:** docs/prd/PRD-NNNN-<title>.md — `Sliced into` filled, Status → Sliced
-**Overview:** docs/baseline/PRD-NNNN-<slug>.html — <rendered | failed: reason; PRD remains authoritative>
+**Overview:** docs/baseline/PRD-NNNN-<slug>.html — <rendered | skipped (not requested) | failed: reason; PRD remains authoritative>
 
 **Next:** Start a batch with `implement` for these slices? Implementation stops after each batch for page testing.
 ```

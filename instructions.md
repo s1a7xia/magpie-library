@@ -42,7 +42,7 @@
 - 需求确实模糊、存在多个实质不同方案时使用 `think`；`think` 完成后自动进入 `grill`，也可以直接手动启动 `grill`。
 - `think` 和 `grill` 每次只问一个必须由人拍板的问题，并给出推荐答案；能从代码、表结构、文档回答的事实由 AI 自查，不反问用户。
 - `research` 可以显式独立发起，也可以由 `think`、`implement`、`debug` 隐式触发。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`；值得复用的结论写入 `docs/research/`。
-- `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR。默认不生成 HTML 基线页；只有用户明确要求生成视觉基线页时，才调用 `answer-me-with-html`。
+- `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR。不要自动生成 HTML；只有用户明确要求时才调用 `answer-me-with-html`。
 - 基线冻结后，需求和验收标准是合同；后续变化写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。
 
 ### 2. 拆任务：`story`
@@ -50,7 +50,7 @@
 - 只有状态为 `Grilled` 的 PRD 才能进入 `story`。它把基线拆成可独立验收的纵向切片，并记录 `Covers`、`blocked-by`、HITL/AFK 和验收标准。
 - 拆片前做基线一致性检查：PRD 已冻结、无未决项、每条需求至少有一条可观察的验收标准、验收标准可追溯、范围不矛盾、依赖无环。不通过就回 `grill`。
 - 默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue；远端失败不回滚本地切片清单。
-- `story` 写入 `Sliced into`、把 PRD 状态设为 `Sliced` 并同步父 Issue 后，自动调用一次 `answer-me-with-html` 生成 `docs/baseline/PRD-NNNN-<slug>.html` 计划总览；页面只是视图，PRD 才是事实源。渲染失败不回滚切片，报告缺口后仍算完成。
+- `story` 写入 `Sliced into`、把 PRD 状态设为 `Sliced` 并同步父 Issue 后即完成。只有用户明确要求时才生成 HTML 计划总览；页面只是视图，PRD 才是事实源。
 - `story` 完成后停下，不自动进入开发；由用户决定是否开始一批切片。
 
 ### 3. 开发：`implement`
@@ -84,7 +84,7 @@
 - `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
 - `frontend-design`：显式深度视觉设计技能，可由用户直接调用，也可在明确的美化/整页改版诉求下从 `ruoyi6` 路由进入；它叠加在 `ruoyi6` 的前端基线上，不替代当前组件、主题和行为边界。普通页面、`research`、`debug` 和 `page-acceptance` 不加载该技能。
 - `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Increment / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
-- `answer-me-with-html`：只在 `story` 完成切片并写入 `Sliced` 后自动生成一次计划总览；其他阶段仅在用户明确调用或明确要求 HTML/视觉页面、基线页或解释视频时加载。普通回答、`grill`、`review`、`implement` 和基线冻结不自动触发。
+- `answer-me-with-html`：只在用户明确调用，或明确要求 HTML/视觉页面、基线页、计划总览或解释视频时加载。普通回答、`story`、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。
 - `rules`：共享规则包，不是任务技能；不主动路由，不把其中的规则复制到每个技能。

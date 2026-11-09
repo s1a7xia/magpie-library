@@ -75,7 +75,7 @@ visual baseline before then, load [answer-me-with-html](../answer-me-with-html/S
 | PRD not updated after interview | Update `docs/prd/PRD-NNNN-<title>.md` and set `Status` to `Grilled` before declaring complete |
 | Declared complete without the exhaustiveness gate | Run the 5-point gate first |
 | Parent Issue body stale after grill changed scope | Sync the parent Issue (if `## Issue` field present) — reflect sharpened terms, scope, ADRs; don't change title or close |
-| Rendered an HTML page during grill | Finish with the frozen PRD; `story` owns the automatic plan overview, while an early visual baseline requires an explicit user request |
+| Rendered an HTML page during grill | Finish with the frozen PRD; load `answer-me-with-html` only on an explicit request |
 
 ## Output
 
