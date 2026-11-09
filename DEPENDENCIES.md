@@ -312,6 +312,57 @@ agent-browser --version
 | 页面验收通过但项目仍显示 `Dev Complete` | 验证结论是否落盘 | 更新 PRD/切片状态和 `docs/agents/verification.md` |
 | `review` 被当成页面验收 | 当前阶段是否真的走过浏览器 | 回到 `page-acceptance`；代码审查不能替代渲染验证 |
 | 推送后远端不一致 | 本地 `HEAD`、`origin/main`、远端引用 | 先 fetch 核对，不强制推送，不改写历史 |
+| Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 输出上限被顶满，不是上下文问题；用 `magpie model output` 给未上报上限的成员设 `128k` |
+
+### 8.1 `Incomplete response returned, reason: max_output_tokens`（输出上限截断）
+
+**不是上下文超限**。这是模型这一轮生成的**输出预算**（`max_tokens`）在写工具调用/长回答时用尽，上游返回 `finish_reason=length`，本地网关把响应标成 `status: incomplete / reason: max_output_tokens`，Codex 原样报出。该会话 `input_tokens` 往往远小于模型 `context_window`（例：2026-11-09 失败轮 `input_tokens=109901`，窗口 1048576），所以先排除“上下文太长”。
+
+**证据怎么取（顺序）：**
+
+1. 失败会话的 rollout：`~/.codex/sessions/<YYYY>/<MM>/<DD>/rollout-*.jsonl`
+   - `event_msg` → `task_complete` 的 `error.message` 就是这句话；紧邻的 `function_call` 参数常在某一列被切断（`EOF while parsing a string`）。
+   - 同轮 `token_usage_record`：确认 `input_tokens` 远小于 `context_window`（排除上下文问题）。
+2. Magpie 应用日志：`~/AppData/Local/magpie/logs/app.log`
+   - `gateway: …'s call to <group> on our-free-model failed: …`（含 499/502、`Upstream SSE ended without a completion marker` 等）。
+3. Magpie 设置：`~/.config/magpie/settings.json` 的 `modelOutputs`（`magpie model output` 的落盘处），以及 `~/.config/magpie/our-free-model/settings.json` 的 `defaultMaxTokens`（本机为 `131072`）。
+
+**机制（本地代码，非猜测）：**
+
+- 组模型（如 `group/ds4.1-high`）在 `~/.config/magpie/providers.json` 定义为轮询/轮转组，成员是多个 `our-free-model/…deepseek-v4.1-flash`。
+- 免费通道插件把 Responses 请求转成 Chat Completions，生成上限压成
+  `max_tokens = min(模型容量, 关卡上限, 插件默认)`：见
+  `~/.config/magpie/plugins/node_modules/magpie-our-free-model/vendor/ofm/src/effort.js` 的 `budgetFor()`（`capacity = Math.min(model.maxOutput, requested, fallback)`），
+  以及 `adapter.js` 的 `ceiling = Math.min(entry.maxOutput, state.settings.defaultMaxTokens ?? 32768)`。
+- 上游返回 `length` 时固定标成 incomplete：见 `vendor/ofm/src/forward.js`
+  `incompleteDetails = outcome => outcome.truncated === true ? { reason: 'max_output_tokens' } : undefined`。
+- 被输出上限切断的回合有一次自动续写：`vendor/ofm/src/recovery.js` 的 `continuationMessages()`（受 `our-free-model/settings.json` 的 `streamRecovery` 与 `defaultMaxTokens` 影响）。
+
+**根因（为什么又出现）与修法：**
+
+- 根因是**成员未上报自己的输出上限**：供应商没报 `max_tokens` 时，Magpie 按默认 **4096** 处理该模型。轮询落到这种成员时，长工具调用/长回答就被切在 4096，报出同一句话（`output_tokens` 往往恰好 4096，是判据）。
+- 修法：用命令给**未上报上限**的成员设上限——`magpie model output <provider/model> 128k`（撤销用 `--reset`）。该命令写到 `~/.config/magpie/settings.json` 的 `modelOutputs`；手工编辑这一项也有效，但**不要写 `providers.json` 里的 `outputs`**，那里写的会被丢弃、无效。
+- **不要盲目给全组成员都设**：vendor 已自带上限的成员（`magpie model output` 已显示 `100k`/`128k` 的）无需覆盖。2026-11-06 实例：`loomy`、`qoder/dfmodel`、`qodercn/dfmodel`、`codearts` 未上报、被当 4096，已用命令设为 `128k`；`raccoon` 自带 `100k`、`buddy` 自带 `128k`，**无需覆盖**（本文件上一版曾误写为“应补进 `modelOutputs`”，已更正）。
+- 改后需下一轮长工具调用才能确认不再复现。先查哪些成员真的缺上限：`magpie model output <provider/model>`（显示 `what the vendor's list and models.dev say` 即 vendor 自带，显示 `what you said it answers with` 即你设过）。快速批量核对：`magpie model specs` 列出所有已设 spec 的模型。
+
+**快速命令（PowerShell）：**
+
+```powershell
+# 1) 最近失败原因
+Get-ChildItem ~/.codex/sessions -Recurse -Filter rollout-*.jsonl |
+  Sort-Object LastWriteTime -Descending | Select-Object -First 5 |
+  ForEach-Object { Select-String -LiteralPath $_.FullName -Pattern 'Incomplete response returned' -List }
+
+# 2) 当前组的成员
+(Get-Content ~/.config/magpie/providers.json -Raw | ConvertFrom-Json).groups |
+  Where-Object id -eq 'ds4.1-high' | Select-Object -ExpandProperty members
+
+# 3) 已设上限的模型（同: settings.json 的 modelOutputs）
+magpie model specs
+
+# 4) 某个成员的上限：显示 vendor 自带 还是 你自己设的
+magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
+```
 
 ## 9. 已知缺口
 
