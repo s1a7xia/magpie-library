@@ -312,7 +312,7 @@ agent-browser --version
 | 页面验收通过但项目仍显示 `Dev Complete` | 验证结论是否落盘 | 更新 PRD/切片状态和 `docs/agents/verification.md` |
 | `review` 被当成页面验收 | 当前阶段是否真的走过浏览器 | 回到 `page-acceptance`；代码审查不能替代渲染验证 |
 | 推送后远端不一致 | 本地 `HEAD`、`origin/main`、远端引用 | 先 fetch 核对，不强制推送，不改写历史 |
-| Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 输出上限被顶满，不是上下文问题；用 `magpie model output` 给未上报上限的成员设 `128k` |
+| Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 两种根因，先用 `output_tokens` 区分：≈4096 是输出上限未覆盖；很小且工具参数 JSON 不完整是模型退化 |
 
 ### 8.1 `Incomplete response returned, reason: max_output_tokens`（输出上限截断）
 
@@ -338,12 +338,19 @@ agent-browser --version
   `incompleteDetails = outcome => outcome.truncated === true ? { reason: 'max_output_tokens' } : undefined`。
 - 被输出上限切断的回合有一次自动续写：`vendor/ofm/src/recovery.js` 的 `continuationMessages()`（受 `our-free-model/settings.json` 的 `streamRecovery` 与 `defaultMaxTokens` 影响）。
 
-**根因（为什么又出现）与修法：**
+**根因（两种，先用 `output_tokens` 区分）与修法：**
 
-- 根因是**成员未上报自己的输出上限**：供应商没报 `max_tokens` 时，Magpie 按默认 **4096** 处理该模型。轮询落到这种成员时，长工具调用/长回答就被切在 4096，报出同一句话（`output_tokens` 往往恰好 4096，是判据）。
-- 修法：用命令给**未上报上限**的成员设上限——`magpie model output <provider/model> 128k`（撤销用 `--reset`）。该命令写到 `~/.config/magpie/settings.json` 的 `modelOutputs`；手工编辑这一项也有效，但**不要写 `providers.json` 里的 `outputs`**，那里写的会被丢弃、无效。
-- **不要盲目给全组成员都设**：vendor 已自带上限的成员（`magpie model output` 已显示 `100k`/`128k` 的）无需覆盖。2026-11-06 实例：`loomy`、`qoder/dfmodel`、`qodercn/dfmodel`、`codearts` 未上报、被当 4096，已用命令设为 `128k`；`raccoon` 自带 `100k`、`buddy` 自带 `128k`，**无需覆盖**（本文件上一版曾误写为“应补进 `modelOutputs`”，已更正）。
-- 改后需下一轮长工具调用才能确认不再复现。先查哪些成员真的缺上限：`magpie model output <provider/model>`（显示 `what the vendor's list and models.dev say` 即 vendor 自带，显示 `what you said it answers with` 即你设过）。快速批量核对：`magpie model specs` 列出所有已设 spec 的模型。
+同一句话其实对应**两种不同**的截断，看失败轮的 `output_tokens` 就能分开（本项目 deja 索引中两种都出现过）：
+
+1. **`output_tokens` ≈ 4096（大截断）** —— **该成员未上报自己的输出上限**。供应商没报 `max_tokens` 时 Magpie 按默认 **4096** 处理该模型；轮询落到这种成员时，长工具调用/长回答被切在 4096（`reasoning_output_tokens` 往往占满）。
+   - 修法：用命令给**确实未上报上限**的成员设上限——`magpie model output <provider/model> 128k`（撤销用 `--reset`）。该命令写到 `~/.config/magpie/settings.json` 的 `modelOutputs`；手工编辑这一项也有效，但**不要写 `providers.json` 里的 `outputs`**，那里写的会被丢弃、无效。
+   - **不要盲目给全组成员都设**：vendor 已自带上限的成员（`magpie model output` 已显示 `100k`/`128k` 的）无需覆盖。2026-11-06 实例：`loomy`、`qoder/dfmodel`、`qodercn/dfmodel`、`codearts` 未上报、被当 4096，已用命令设为 `128k`；`raccoon` 自带 `100k`、`buddy` 自带 `128k`，**无需覆盖**（本文件更早一版曾误写为“应补进 `modelOutputs`”，已更正）。
+   - 先查哪些成员真的缺上限：`magpie model output <provider/model>`（显示 `what the vendor's list and models.dev say` 即 vendor 自带，显示 `what you said it answers with` 即你设过）。批量核对：`magpie model specs` 列出所有已设 spec 的模型。
+
+2. **`output_tokens` 很小（几十到几百），且失败轮的工具调用 args 是坏 JSON** —— **模型自身退化，不是缺上限**。免费 DeepSeek 在写某个工具调用参数时播出了内部标记（`<|DSML|…>` 之类的控制串），随后 args 在字符串中途断掉，宿主报 `failed to parse function arguments: EOF while parsing a string`。这条 args 永远解析不了，被上游标记为“截断”后归成同一个 `max_output_tokens`。
+   - 判据（三条同时成立即这种）：`output_tokens` 远小于 4096；`token_usage_record` 同轮 `function_call` 的 args 结尾是半截字符串（或含 `<|DSML|`）；紧邻的 `function_call_output` 是 `failed to parse function arguments: EOF while parsing a string`。
+   - 这不是可配的上限，`magpie model output` 改不动。可行的缓解：直接重发该轮（多数情况下下一次采样不再吐出该标记）；或把会话临时切到同组里更稳的成员/付费模型。
+   - 例：2026-11-09 `group/ds4.1-high` 两轮，`output_tokens` 分别 228、678，args 结尾 `"powershell</|DSML|: 4000}` / `--glob openai.yaml", "powershell</|DSML|: 4000}`，宿主均报 args 解析失败。
 
 **快速命令（PowerShell）：**
 
