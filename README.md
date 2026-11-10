@@ -304,9 +304,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - `rtk 1.1.0`
 - Chrome 和 Edge
 
-MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-web-search`、`ssh`、`vikunja`。
-
-`vikunja` 仅记录为本机已登记 MCP，暂不纳入 skills 工作流。
+MCP 由 Magpie 统一托管，当前登记 8 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-web-search`、`ssh`。
 
 版本、Agent 分发矩阵、凭据位置、换机恢复、校验和故障处理见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
