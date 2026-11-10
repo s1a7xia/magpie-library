@@ -66,6 +66,16 @@
 
 Hook 是平台事件适配层，不是第二套开发流程。它可以检查启动上下文、拦截危险命令、记录工具结果和提醒交付缺口，但不得自动串联技能、替代页面验收或伪造测试证据。默认不安装；需要时由项目显式登记，具体事件和边界见 `skills/rules/hook-guardrails.md`。
 
+### 自动工作区收尾（默认启用）
+
+Codex 这类 Agent 没有传统 IDE 的 Git 面板，未跟踪文件、旧改动和漏更新文档很容易在会话之间堆积。因此每个任务、切片或显式阶段在第一次写入前记录工作区基线，结束时自动比较并收尾；这不是 Hook，也不新增技能：
+
+- 本轮的代码和文档：核对 diff、更新适用文档、精确暂存、提交并核验推送；
+- 本轮生成的临时日志、备份和调试文件：自动清理，验收证据除外；
+- 阶段开始前已有或归属不明的改动：只保护并报告，不清理、不回滚、不扫入本轮提交；
+- 文档 freshness：按 `skills/rules/workflow-contract.md` 的矩阵检查 PRD、`project-state.md`、`verification.md`、ADR、research 和 `CONTEXT.md`，不适用时写明 `Docs: no change — <reason>`；
+- 最终回复：带 `Workspace: clean / committed / blocked / uncommitted by request / read-only` 回执，无法安全分离时不得宣称完成。
+
 ### 0. 首次进入项目：`setup-project`
 
 在新项目或协作方式发生明显变化时，明确要求“按通用资源库配置这个项目”。这是项目初始化与重配置入口，不是每个日常开发任务的前置门槛。
@@ -162,7 +172,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 
 ### 6. 收尾
 
-`Accepted` 仍不等于 `Done`。只有项目约定的收尾条件满足后才是 `Done`，包括用户显式发起的完整审查通过、文档同步和 Git 状态核验；未做 review 时保留 `Accepted`。
+`Accepted` 仍不等于 `Done`。只有项目约定的收尾条件满足后才是 `Done`，包括用户显式发起的完整审查通过、文档同步和 Git 状态核验；未做 review 时保留 `Accepted`。每个阶段结束都执行自动工作区收尾并给出回执，不能因为会话里看不到 Git 面板就留下未跟踪文件或过期文档。
 
 ## 状态机
 

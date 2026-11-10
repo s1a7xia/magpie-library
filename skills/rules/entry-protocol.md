@@ -38,6 +38,12 @@ For a RuoYi-Vue-Plus 6.x + React project whose profile is `ruoyi6`, load it for 
 - **Design and compliance:** apply constraints in think/grill, carry contracts into story acceptance criteria, use conventions in implement/debug, and check violations in review. Explicit project decisions/exceptions win with cited scope.
 - **Extended rules:** [standards-gate-details.md](references/standards-gate-details.md).
 
+### Step 1b: Record the Workspace Baseline
+
+Before the first write in a task that may change files, record the actual repository root, branch, `HEAD`, upstream and current `git status --short -uall`, plus staged, unstaged and untracked path lists. Treat every pre-existing path as protected user or concurrent-session work: never stash, reset, clean, overwrite or include it in this task's commit. For a multi-repo task, repeat this for each repository named by `repo-map.md`. Read-only tasks state that they make no writes instead of taking a baseline.
+
+At task or stage close-out, compare against that baseline, update applicable project documents, precisely commit and push only task-owned changes, then report the [workspace receipt](workflow-contract.md#64-工作区回执). If task-owned changes cannot be separated from pre-existing or untracked work, stop the commit and report the paths; do not silently leave the worktree dirty.
+
 #### Tracker Conventions
 
 Use one collaboration workflow across GitHub, GitLab, Gitee and local trackers; only the transport adapter changes. Resolve the repository and `docs/agents/issue-tracker.md` first. From an Issue, read it and its comments/labels and use its acceptance criteria; a direct request does not force an Issue/PRD. Preserve returned identifiers/URLs; verify remote writes before updating local traceability; missing auth is an unpublished-work gap, not permission to switch trackers. Local Markdown tracking is the default; when a remote tracker is configured, use the platform MCP or CLI directly and keep remote writes explicitly authorized.
