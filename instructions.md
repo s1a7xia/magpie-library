@@ -114,7 +114,7 @@
 - 无关暂存、混杂改动无法可靠分离、冲突/变基、敏感信息、无提交身份、受保护或默认分支、非 Git 目录或上游不明确时停止并说明；不扫入旧改动、不清空他人暂存、不强推、不绕过钩子或改写历史。
 - 每次任务、切片或显式阶段收尾前，重新检查当前工作区并与基线比较：本轮的代码和文档必须提交，本轮明确生成的临时日志/备份/调试文件自动清理，阶段开始前已有的改动只报告，归属不明时停止提交。提交后确认没有本轮未暂存或未跟踪残留。
 - 提交前核对文档 freshness：PRD 状态/切片/Change Log、`project-state.md` 的阶段与下一步、`verification.md` 的证据、ADR 或 `project-decisions.md` 的持久决策、`docs/research/` 与 `INDEX.md`、`CONTEXT.md` 术语，以及必要的项目配置。适用范围就更新；不适用时写明 `Docs: no change — <reason>`，不能沉默留给下一位 Agent。
-- 最终回复必须带真实工作区回执：`Workspace: clean`、`Workspace: committed <hash>; pre-existing dirt remains: <paths or none>`、`Workspace: blocked; task-owned changes could not be separated: <paths>`、`Workspace: uncommitted by request — <paths>` 或 `Workspace: read-only — no writes`。有推送时附 `Push: <branch> -> <remote>; HEAD verified`。本轮应有改动仍未提交、文档未核对或无法安全分离时，不得宣称完成。
+- 本轮应有改动仍未提交、文档未核对或无法安全分离时，不得宣称完成；交付时只说明必要的未提交路径或阻塞，不附加固定格式的工作区回执。
 - 不自动建 PR、合并、发布或部署；本地提交与推送不经过单独的 SCM 技能。远端 Issue/PR/MR 只在用户明确要求时通过对应平台 MCP/CLI 操作。
 ## 历史续接与巡检
 

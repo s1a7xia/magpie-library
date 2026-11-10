@@ -74,7 +74,7 @@ Codex 这类 Agent 没有传统 IDE 的 Git 面板，未跟踪文件、旧改动
 - 本轮生成的临时日志、备份和调试文件：自动清理，验收证据除外；
 - 阶段开始前已有或归属不明的改动：只保护并报告，不清理、不回滚、不扫入本轮提交；
 - 文档 freshness：按 `skills/rules/workflow-contract.md` 的矩阵检查 PRD、`project-state.md`、`verification.md`、ADR、research 和 `CONTEXT.md`，不适用时写明 `Docs: no change — <reason>`；
-- 最终回复：带 `Workspace: clean / committed / blocked / uncommitted by request / read-only` 回执，无法安全分离时不得宣称完成。
+- 最终回复：只在存在未提交改动或无法安全分离时说明具体路径与阻塞，不附加固定格式的工作区回执。
 
 ### 0. 首次进入项目：`setup-project`
 
