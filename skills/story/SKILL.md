@@ -18,7 +18,7 @@ Break a frozen, grilled baseline into independently actionable issues using vert
 
 ## Prerequisites
 
-- **A frozen baseline is mandatory.** The input PRD must exist at `docs/prd/PRD-NNNN-<title>.md` with `Status: Grilled`. If there is no PRD, or its status is `Draft`, stop and tell the user to run `think` → `grill` first (grill runs automatically after think). There is no "minimal PRD" shortcut here: a baseline that was never grilled is not a baseline.
+- **A frozen baseline is mandatory.** The input PRD must exist at `docs/prd/PRD-NNNN-<title>.md` with `Status: Grilled`. If there is no PRD, or its status is `Draft`, stop and tell the user to run `think` → `grill` first (both `think` and `grill` are explicitly user-invoked). There is no "minimal PRD" shortcut here: a baseline that was never grilled is not a baseline.
 - Apply the [Skill Entry Protocol](../rules/entry-protocol.md) to locate domain docs and issue tracker config
 - `docs/agents/issue-tracker.md` — read for issue creation convention; missing config means local-only output, not a guess at a tracker
 - `docs/agents/triage-labels.md` — read for label mapping
@@ -43,7 +43,7 @@ If any check fails, stop before creating issues, name the offending sections or 
 
 **Step 1**: Verify the baseline. Locate the PRD, confirm `Status: Grilled`, and run the **Baseline Consistency Gate**. Anything else stops here with the instruction to run `think` → `grill` first.
 
-**Step 2**: Read the frozen baseline. Extract Goal, Requirements, Acceptance Criteria and Out of Scope. Do not add, soften or reinterpret requirements.
+**Step 2**: Read the frozen baseline, including the latest `## Change Log`. Extract Goal, Requirements, Acceptance Criteria and Out of Scope. Do not add, soften or reinterpret requirements. For a post-freeze additive change, preserve unaffected slice states and evidence; only add or re-slice the criteria that changed.
 
 **Step 3**: Explore the codebase as needed to size the slices — current modules, existing patterns, ADRs, domain glossary.
 
@@ -75,6 +75,8 @@ See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single
 |---|---|
 | Slicing started without a grilled PRD | Step 1: require `Status: Grilled`; no minimal-PRD shortcut — send the user to `think` → `grill` |
 | Requirements were rewritten while slicing | Step 2: the PRD is the contract; changes go through the PRD `## Change Log`, not through this skill |
+| A post-freeze change was implemented by extending a completed batch | Step 2: record it in `Change Log`, invalidate only affected acceptance evidence, then re-run `story` for the changed criteria before `implement` |
+| Unaffected slices were reopened for an additive change | Step 2: preserve their state and evidence; only affected slices return to `Dev Complete` |
 | Horizontal slicing (all schema, then all API) | Use vertical slices through all layers |
 | Slices too thick | Prefer many thin slices over few thick ones |
 | A PRD requirement had no accepting slice | Baseline Consistency Gate / Step 5: assign every acceptance criterion to a slice before approval |
@@ -112,5 +114,7 @@ Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 **Updated:** docs/prd/PRD-NNNN-<title>.md — `Sliced into` filled, Status → Sliced
 **Overview:** docs/baseline/PRD-NNNN-<slug>.html — <rendered | skipped (not requested) | failed: reason; PRD remains authoritative>
 
-**Next:** Start a batch with `implement` for these slices? Implementation stops after each batch for page testing.
+Stage complete; stop here.
+
+**Next (user-initiated):** `/implement` for this batch. Implementation stops after the batch at `Dev Complete`; the next separate stage is the first full-scope `/page-acceptance`, followed by `/review`.
 ```

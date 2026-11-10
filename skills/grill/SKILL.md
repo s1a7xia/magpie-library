@@ -44,7 +44,7 @@ Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates the 
 | Situation | Action |
 |---|---|
 | Goal statement itself needs to change, or fundamental approach invalidated | Send back to `/think` — too big for grill |
-| Only terminology sharpened, scope confirmed, approach validated with refinements | Proceed to `/story` |
+| Only terminology sharpened, scope confirmed, approach validated with refinements | Stop and recommend `/story`; do not start it automatically |
 
 For the challenge types (terminology conflict, fuzzy language, scope boundary, edge case, code cross-check), the file layout (single vs multi-context via `CONTEXT-MAP.md`), and a worked example, see [REFERENCE.md](REFERENCE.md).
 
@@ -52,7 +52,7 @@ For the challenge types (terminology conflict, fuzzy language, scope boundary, e
 
 Reaching `Status: Grilled` **freezes the baseline**. From that moment the PRD's Goal, Requirements, Acceptance Criteria and Out of Scope are a contract: `story` and `implement` read it, they never edit it.
 
-**Changes after freezing go through the PRD, not around it.** Record every change in a `## Change Log` table — one row per change: `date | what changed | why and who asked | affected slices`. Keep `Status: Grilled` for additive changes (new field, extra validation, an added state). If the goal itself or the scope changes materially, send the PRD back to `Draft` and re-run `think` → `grill`.
+**Changes after freezing go through the PRD, not around it.** Record every change in a `## Change Log` table — one row per change: `date | what changed | why and who asked | affected slices`. If the goal and scope stay unchanged, set the PRD back to `Grilled`, mark affected slices `Dev Complete`, invalidate their old acceptance evidence, and re-run `story` only to add or re-slice work for the new or changed `R#` / `AC#`. Do not force unrelated slices through implementation and acceptance again. If the goal itself or the scope changes materially, send the PRD back to `Draft` and re-run `think` → `grill`.
 
 **Do not render an HTML page.** `grill` completes when the PRD, terminology and ADRs are frozen.
 The plan overview is rendered once by `story` after slicing. If the user explicitly asks for a
@@ -95,5 +95,7 @@ Updated:
 Exhaustiveness gate: passed
 Parent Issue: #<num> synced | local PRD only | skipped (none)
 
-Next: Review the frozen PRD; then /story to slice the baseline.
+Stage complete; stop here.
+
+Next (user-initiated): /story to slice the frozen baseline.
 ```

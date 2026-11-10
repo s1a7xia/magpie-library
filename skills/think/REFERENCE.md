@@ -49,7 +49,7 @@ Write findings to PRD:
 
 ## Step 2: Offer to Create a PRD
 
-After auto-context collection (Step 1), ask the user if they want to persist the plan as a PRD file. **Do not create the PRD automatically.** By this point you have enough context to explain what the PRD would contain.
+After context collection (Step 1), ask the user if they want to persist the plan as a PRD file. **Do not create the PRD automatically.** By this point you have enough context to explain what the PRD would contain.
 
 Step 2 is sequenced after Step 1 so the user can make an informed decision based on actual findings, not just the initial request.
 
@@ -59,12 +59,12 @@ Step 2 is sequenced after Step 1 so the user can make an informed decision based
 I'll help you think through this. Would you like me to create a PRD file at `docs/prd/PRD-NNNN-<title>.md` as we work through the design?
 
 - **Yes** — I'll create and update a PRD file throughout our discussion
-- **No** — I'll work through the plan conversationally and provide a summary at the end
+- **No** — I'll stop at an approved design summary; the Baseline path cannot continue to grill/story without a PRD
 ```
 
 **If Yes:** first run the [PRD Conflict Check](#prd-conflict-check-before-assigning-nnnn) (below) to catch topic collisions against existing `PRD-NNNN-*.md` (resume vs create-new). Only after the check passes, scan `docs/prd/` for existing `PRD-NNNN-*.md` files, assign the next NNNN (max + 1, starting from 0000), and create the PRD at `docs/prd/PRD-NNNN-<title>.md`.
 
-**If No:** skip PRD creation. Still follow the brainstorming process (Steps 3-10 — Step 10a parent-issue creation is skipped; new domain terms go to the approved design summary instead of a PRD), but keep notes in your working context and produce a design summary at the end.
+**If No:** skip PRD creation and stop the Baseline path after the approved design summary. New domain terms go into that summary. Do not name `/grill` as a next step and do not claim a frozen baseline. If the request independently qualifies as Direct, state that path explicitly; otherwise report that the requirement needs a PRD before implementation can proceed through the Baseline workflow.
 
 **PRD Location:** `docs/prd/PRD-NNNN-<title>.md`
 
@@ -300,7 +300,7 @@ Does this look correct? If confirmed, I will:
 2. Finalize the PRD
 3. Create a parent Issue only if a remote tracker is configured and you want remote tracking
 
-→ Then proceed to Step 10 (Finalize PRD; optional parent Issue)
+→ Then proceed to Step 10 (Finalize PRD) when a PRD exists; a declined PRD ends here.
 ```
 
 ## Step 10: Finalize PRD (Optional Parent Issue)
@@ -398,7 +398,9 @@ Keep this lightweight — record only genuinely new or ambiguous terms (don't du
 After the PRD is finalized and domain terms are recorded, output the approved plan:
 
 ```markdown
-Plan approved. Next: Run /grill to challenge and refine this approach.
+Plan approved. Stage complete; stop here.
+
+Next (user-initiated): /grill to challenge and refine this approach.
 
 **Approved design summary:**
 - **Building**: What this is (1 paragraph)
@@ -406,7 +408,7 @@ Plan approved. Next: Run /grill to challenge and refine this approach.
 - **Approach**: Chosen option + rationale
 - **Key decisions**: 3-5 items with rationale
 - **Unknowns**: Only explicitly deferred items with reason and owner
-- **Parent Issue**: #<num> created | local PRD only | (no PRD, skipped)
+- **Parent Issue**: #<num> created | local PRD only
 ```
 
 ## Complexity Classification Detail

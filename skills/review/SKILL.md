@@ -1,105 +1,33 @@
 ---
 name: review
-description: "Three-perspective code review performed by the main agent. Use only for an explicit full review: 完整审查, 三视角审查, 发布前完整把关, or a direct /review invocation. Ordinary 审查一下/check/验收 is a main-agent light review and must not start this flow."
+description: "Three-perspective code review by the main agent. Use only for explicit /review, 完整审查, 三视角审查 or 发布前完整把关. Ordinary 审查一下/check is a light review, not this workflow."
 ---
 
-# Review: Three-Perspective Review
+# Review
 
-🥷 Complete all finish work before merge or release.
+用户显式发起的完整审查。主代理从验证证据、代码正确性、影响范围三个角度检查同一批改动，输出一份按严重程度排序的报告。共享上下文读一次；仅在文件变化、证据不足或恢复会话时重读，不用重复读取模拟独立审查。
 
-Performs three independent review perspectives — Test Review, Code Review, Impact Review — by re-reading all shared context from disk for each perspective. Merges the results into a single comprehensive review. Issue sync and release follow-through require current-turn explicit authorization.
+## 执行
 
-## Outcome Contract
+1. 按 [入口协议](../rules/entry-protocol.md) 读取相关项目事实与规范。审查范围涉及 RuoYi-Vue-Plus 6.x + React 的后端 Java、PostgreSQL/SQL、React UI、API/types、权限或字段契约时，加载 `ruoyi6` 及其与本次风险相关的 reference。先声明审查范围：优先用 PRD/verification 中本批起止提交和切片提交清单，再纳入属于本次范围的未提交改动。单分支开发不能默认用 `main..HEAD`；范围不明时查提交记录，仍无法确定才询问。详见 [范围与检查参考](REFERENCE.md)。
+2. 核对首次页面验收证据是否覆盖当前行为，并核对本批提交范围。pre-review 的 `Accepted` 只证明验收时的代码；review 中改变已验收行为后，该证据会失效。
+3. 检查三个角度：验证证据是否真实且适用；代码是否满足需求与框架约定；调用方、数据、权限和跨切片交互是否受破坏。只检查本次范围相关风险；默认不新增或运行测试、lint、独立类型检查，不重复已有效的构建。
+4. 合并重复发现。每条问题给出位置、触发条件、实际后果和修复建议；证据不足标为待确认。不同角度结论冲突时先核实事实，只有必须由人决定的业务取舍才提问。不强制三份报告或批准提问。
+5. 一轮 review 内按既定三角度顺序检查完整范围。确认缺陷在已授权范围内立即登记并进入 [debug](../debug/SKILL.md) 修复；用户明确只读审查时只报告。修复后继续检查剩余角度和剩余范围，不因单个修复提前结束整轮 review。风格、重构或设计建议不自动实施；修复超出已授权范围时停止受影响工作。
+6. 整轮 review 结束后按 [生命周期规则](../think/PRD-FORMAT.md#prd-生命周期状态) 汇总。review 前必须已有首次全范围页面验收：没有它，不能把本批视为已验收，也不能以修复点验收替代首次验收。不是每个 review 修复都需要再次打开浏览器：只有修复改变了页面可观察行为、交互、数据反馈、权限表现或视觉结果，才使受影响验收证据失效；受影响切片退回 `Dev Complete`，旧验收证据失效，提示用户发起一次只覆盖修复点及连带路径的 `/page-acceptance`。纯内部重构、事务边界、日志、代码可维护性或其他不改变已验收行为的修复，保留原首次验收证据，记录其覆盖边界即可。整轮没有任何修复时，首次验收继续有效，可直接收尾。不自动启动页面验收。
+7. 整轮通过且无需修复点验收时执行收尾写回：受影响切片及父 PRD → `Done`；`docs/agents/project-state.md` 的 `Review` 和 `Close-out` 写为实际结果；`docs/agents/verification.md` 记录 review 的起止提交、检查范围、结论和日期。若本轮改变了已验收行为，则受影响范围保持/退回 `Dev Complete`，由用户在修复点 `/page-acceptance` 通过后写回 `Done`，review 不再重复。其他条件未满足时保留 `Accepted`，不得只输出“Done eligible”而不写状态。用户明确只读审查时不改文件，只报告满足条件及待用户授权执行的写回。写回后即停，不自动扩大检查范围或发布。
+   页面验收不负责打包，也不负责重建开发环境；行为修复在本轮内合并完成后，只需为已运行的开发进程重载一次，再做一次修复点验收，不要每个修复重启一次。
 
-- **Outcome**: Merged three-perspective review report — test quality, implementation quality, and impact analysis — with contradictions highlighted for human adjudication
-- **Done when**: All three perspective reports produced, merged report presented, local file updates completed or listed as follow-up, remote actions completed only if explicitly authorized
-- **Evidence**: Authorized test/lint/typecheck/build output, code diff analysis, updated files
-- **Output**: Structured merged report with per-perspective sections, contradiction block (if any), and unified recommendation
+## 交付
 
-## Prerequisites
+报告审查提交范围、按严重程度排序的发现、修复情况、实际检查/未验证项、状态与下一步。
 
-- Code is complete (by `implement` or directly)
-- Reviewable changes exist — uncommitted (staged or unstaged) **or** already committed on the current branch (e.g., per-seam commits from `/implement`)
+结束输出必须明确：
+- 整轮审查完成，期间无需修复且验收证据有效：`Next: review complete; status written back to Done.`
+- 整轮审查完成，期间已进入 debug 但未改变已验收行为：状态写回 `Done`，并列明修复项和为何不影响页面验收。
+- 整轮审查完成，期间已进入 debug 并改变已验收行为：受影响范围保持 `Dev Complete`；`Next (user-initiated): /page-acceptance`，只验证修复点及连带路径。页面验收通过后，本轮 review 已覆盖最终代码，写回 `Done`。
+- 整轮审查尚未完成或仍需业务决策：`Next (user-initiated): <继续检查/决策>`。
 
-## Process Summary
+无问题就直说未发现问题，同时说明审查覆盖边界。只同步直接相关文档，提交与推送遵循全局约定；不自动发布 Issue、建 PR、合并或部署。
 
-**Step 1 — Collect context**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md). Read the diff — staged + unstaged if the working tree is dirty, otherwise the branch range since the default branch (or the PR diff) when the work is already committed (see [REFERENCE.md Chapter 1](REFERENCE.md)). Read README, package.json, Makefile, CI configs. If the diff contains an Issue reference, read the PRD path from the Issue body's `Meta → PRD` field and load it. Gather available shared context paths (PRD, Story, Issues, CONTEXT.md, ADRs). Check the PRD's `Covers` chain and acceptance-criterion coverage before judging the implementation.
-
-**Step 2 — Produce three review perspectives**: Re-read the shared context from disk and complete Test Review, Code Review and Impact Review in sequence. Do not reuse another perspective's cached conclusions.
-
-**Step 3 — Merge reports**: Concatenate the three reports. Do not auto-resolve contradictions — flag them explicitly for human adjudication. See [Report Merge Rules](#report-merge-rules).
-
-**Step 4 — Present merged report**: Show the full merged report to the user with per-perspective sections, verification status, contradiction block, and unified recommendation.
-
-**Step 5 — Authorization gate**: Present the report and ask **one** question — approve the recommendation, or request changes. Merge/release and other actions are not part of the approval: they are requested (and authorized) separately per Chapter 6. Local doc updates are allowed when necessary; remote actions require current-turn explicit authorization.
-
-**Step 6 — Execute authorized actions**: Perform only actions the user explicitly requested in the current turn — local file updates, issue sync, release follow-through. A passing review does not bypass page acceptance: a slice that has not passed the user-initiated `page-acceptance` stays `Dev Complete`. A slice already `Accepted` may be marked `— Done` after review passes. Set the PRD to `Done` only when every slice is `— Done` and the project's other close-out conditions hold. When `project-state.md` exists, update its `Workflow status → Review` and `Close-out` rows with the actual result. See [Authorization Boundaries](#authorization-boundaries).
-
-See [REFERENCE.md](REFERENCE.md) for detailed checklists and report templates.
-
-## Three Review Perspectives
-
-Each perspective is completed independently, re-reading all shared context from disk (PRD, Story, Issues, CONTEXT.md, ADRs, diff). Do not let one perspective's conclusion substitute for another's evidence.
-
-| Perspective | Focus Area |
-|---|---|
-| **Test Review** | Test quality, boundary coverage, test design reasonableness, naming, isolation, mock usage |
-| **Code Review** | Implementation quality, security, performance, code conventions, error handling, readability, engineering principles local to the diff ([rules/engineering-principles.md](../rules/engineering-principles.md)) |
-| **Impact Review** | Change scope, regression risk, compatibility, architecture health (local to this change), principles with cross-module consequence (DIP, OCP, new coupling), tech debt introduced, release strategy (feature flags, canary, rollback plan). Records global architecture concerns for a separate review |
-
-### Perspective Independence
-
-Each perspective is independent: re-read shared context from disk and do not reuse cached conclusions. See the common checklist in [REFERENCE.md](REFERENCE.md), plus each chapter's perspective-specific addition.
-
-## Report Merge Rules
-
-Present the three perspective reports as distinct sections. If two or more reach conflicting conclusions on the same item, extract them into a `Contradictions` block — present both sides, **never auto-resolve** (the human adjudicates). Derive a single recommendation; if perspectives disagree, the recommendation is "Request Changes" and the disagreement goes in Contradictions. See [REFERENCE.md Chapter 5](REFERENCE.md) for the merge steps, contradiction format, and merged-report template.
-
-## Authorization Boundaries
-
-Default review is local inspection only. Local doc/PRD/CONTEXT/ADR updates are allowed **only when the review verified the underlying change**. Issue close/status/label changes and all release actions require explicit user authorization **in the current turn**. See [REFERENCE.md Chapter 6](REFERENCE.md) for the full boundary table.
-
-## Hard Rules
-
-- **Security first**: Block immediately on any security issue. The Code Review perspective runs the full Security Checklist in REFERENCE.md before approving any diff. Security-sensitive changes must include rollback path, audit trail, and regression test (anti-pattern #18).
-- **Test coverage**: New code should have tests whenever the project profile or current request authorizes writing or running tests; otherwise record the gap as a risk. Review never writes tests on its own.
-- **Evidence first**: Every conclusion needs evidence. Run only authorized checks and never claim one passed without running it (anti-pattern #6). An unauthorized check is reported as not run.
-- **Verify the artifact, not just the source**: "tests pass, code looks right" is not done. Report each layer's status separately — source tests, build/package, CI, runtime — a missing layer is an explicit gap, not passing evidence (anti-pattern #17).
-- **Missing dependency**: a skill this review names but that is not installed is not an implicit dependency. Complete the review with the steps here and record the uncovered capability instead of stalling, inventing a result, or asking for a skill the project never had.
-
-## Integration Review
-
-When all vertical slices of a PRD are complete, perform extra checks beyond single-slice review (cross-slice data flow, shared state consistency, full PRD acceptance criteria coverage, integration test coverage, dependency order). See [REFERENCE.md](REFERENCE.md) for details. State explicitly: "Integration Review — checking <N> slices for PRD <name>."
-
-## Gotchas
-
-| What happened | Rule |
-|---|---|
-| Perspective reused cached context | Independence rule: re-read all shared context from disk for each perspective |
-| Contradictions silently resolved in merge | Report Merge Rules: extract to Contradictions block, present both sides |
-| Said "should work" without verification | Hard Rules: run verification commands |
-| Assumed project commands | Step 1: extract from config |
-| Didn't check security issues | Hard Rules: Security first — Code Review perspective runs Security Checklist |
-| Impact Review drifts into global architecture review | Impact Review scope: local impact only. Record global concerns for a separate architecture review |
-| PRD not updated after review | Step 6: update local files when authorized |
-| Issues closed without authorization | Authorization Boundaries: close/status/label requires current-turn authorization |
-| Perspective skipped re-reading shared context | Independence rule: never cache file reads from another perspective |
-| Principle violation reported as a blocker, or with no stated consequence | Ch3 Engineering Principles gates: name the concrete consequence or drop the finding; severity defaults to `minor`, and a principle tag never creates a blocker |
-
-## Output
-
-```
-Review complete.
-
-── Test Review ──      <Test Review report>
-── Code Review ──      <Code Review report>
-── Impact Review ──    <Impact Review report>
-── Contradictions ──   <both sides, or "No contradictions">
-── Verification ──     Tests / Lint / Typecheck / Build: <pass/fail>
-── Findings ──         new terms, new decisions, updated files, synced issues
-Recommendation: Approve / Request Changes / Comments
-
-Next: User decides — merge/release, or fix issues and re-review.
-```
-
-The full merged-report template (with all fields and next-step branches) is in [REFERENCE.md Chapter 5](REFERENCE.md).
+详细检查按需读 [REFERENCE.md](REFERENCE.md)，不为普通轻审加载本技能。

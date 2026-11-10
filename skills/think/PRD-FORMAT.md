@@ -42,18 +42,22 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 | 状态 | 进入条件 | 设置者 |
 |------|---------|--------|
 | **Draft** | PRD 文件创建，`Open Questions` 尚未全部解决 | `/think` |
-| **Grilled** | 所有 Open Questions 已解决，Assumptions 已验证，Exhaustiveness Gate 通过 | `/grill` |
+| **Grilled** | 所有 Open Questions 已解决，Assumptions 已验证，Exhaustiveness Gate 通过；或冻结后目标/范围不变、`Change Log` 已登记、需补拆新增或变更的 `R#` / `AC#` | `/grill`；增量变更由 `/grill` 或用户显式改回 |
 | **Sliced** | PRD 已拆分为 Issues，Traceability 的 `Sliced into` 列表已填充 | `/story` |
 | **In Progress** | 至少一个 Child Issue 开始实现 | 实现工作流首次执行 |
 | **Dev Complete** | 所有切片代码写完、编译通过、已提交推送，但**未做页面测试** | `implement` 批次结束 |
 | **Accepted** | 用户发起的页面测试通过，确认缺陷已修复并复测，验收证据已落盘 | `page-acceptance` 通过 |
-| **Done** | `Accepted` 已完成，所有 Child Issues 关闭，代码已合并；用户要求的完整 review 已通过 | `/review` 或人工 |
+| **Done** | 当前行为已有有效 `Accepted` 证据，用户显式发起的完整 review 通过，项目收尾条件满足 | `/review`；若有行为修复，则在修复点 `page-acceptance` 通过后写回 |
 | **Deprecated** | PRD 被放弃或替代（从任意前置状态可达） | 人工标记 |
 
 **状态与代码的关系**: `Done` 判定以代码和验收证据为准——不依赖 Issue 关闭状态或口头确认，而是验证：
-- 对应功能代码已合并到主分支
+- 对应功能代码已按当前同一分支的提交与推送约定完成；不要求另建分支或远端 Issue
 - 声明的页面测试范围已通过，Acceptance Criteria 已按实际验证结果勾选（用户明确要求但未运行的测试必须标为未验证，不能写成通过）
 - 无 `[TEMPORARY]` / `TODO(prd-NNNN)` 残留标记
+
+**验收与修复回流**：证据记录被验证的代码版本、范围与环境。后续实现或 debug 改变已验收行为时，受影响切片从 `Accepted` / `Done` 退回 `Dev Complete`（编译未通过则为 `In Progress`），标明旧验收及 review 结论失效范围与待复测路径；父 PRD 同步退回，未受影响切片保留状态。仅文档提交或不影响已验证行为的无关改动，不因 HEAD 改变而要求重测。
+
+标准顺序是 `implement → 首次全范围 page-acceptance → review（内嵌 debug）→ 修复点 page-acceptance → Done`。review 开始前必须有首次页面验收；不能用修复点验收替代首次验收。review 一轮内完成发现、修复和剩余范围检查，整轮结束后才由用户发起修复点验收，只覆盖修复点及连带路径。修复改变已验收行为时，旧验收先失效并退回 `Dev Complete`；修复点验收通过后恢复 `Accepted`，本轮 review 已覆盖最终代码即可恢复 `Done`。若整轮 review 没有修复，首次验收继续有效。验收证据保留历史并标注被哪次验证替代，不伪称旧代码上的检查覆盖新行为。
 
 **Status 字段格式**（放在 PRD 模板中 `# <Feature Name>` 之后的第一行）:
 
@@ -116,7 +120,7 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 
 ## Change Log
 
-Baseline changes after `Grilled` go here — one row per change. Additive changes (a new field, an extra validation, an added state) keep `Status: Grilled`. If the goal or scope itself changes, set the PRD back to `Draft` and re-run `think` → `grill`.
+Baseline changes after `Grilled` go here — one row per change. Additive changes (a new field, an extra validation, an added state) keep the baseline valid: set the PRD back to `Grilled`, mark affected slices `Dev Complete`, invalidate their old acceptance evidence, then re-run `story` for the new or changed `R#` / `AC#`; unaffected slices keep their state and evidence. If the goal or scope itself changes materially, set the PRD back to `Draft` and re-run `think` → `grill`.
 
 | Date | Change | Why / who asked | Affected slices |
 |---|---|---|---|

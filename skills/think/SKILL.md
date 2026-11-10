@@ -11,12 +11,14 @@ Transform rough ideas into decision-complete plans. Ask one question at a time, 
 
 If a question can be answered by exploring the codebase or a quick research pass, do that instead of asking.
 
+This stage is one of the two automatic research entry points. The other is `implement`'s novel-business gate; do not trigger research from later stages without an explicit user request.
+
 ## Outcome Contract
 
-- **Outcome**: Decision-complete plan. Optionally persisted as a PRD with clear requirements, acceptance criteria, technical approach, and implementation plan
-- **Done when**: User approves plan and (optionally) PRD is created for `/grill`
-- **Evidence**: Updated `docs/prd/PRD-NNNN-<title>.md` (if user opts to create PRD), or approved design summary
-- **Output**: Approved design summary with next step to `/grill`
+- **Outcome**: Decision-complete plan. The Baseline path is persisted as a PRD with clear requirements, acceptance criteria, technical approach, and implementation plan
+- **Done when**: User approves the plan and the PRD is created for `/grill`. A declined PRD still ends with an approved design summary, but stops the Baseline path and does not produce an input for `grill` or `story`
+- **Evidence**: Updated `docs/prd/PRD-NNNN-<title>.md` for the Baseline path; only an approved design summary when the user declines a PRD
+- **Output**: Approved design summary and, only when a PRD exists, a user-initiated next step to `/grill`; stop without loading or running `/grill`
 
 ## Core Principles
 
@@ -33,13 +35,13 @@ If a question can be answered by exploring the codebase or a quick research pass
 
 **Step 1 — Auto-collect context.** Explore the codebase (affected modules, existing patterns, constraints) and docs (prior PRDs, README, ADRs) before asking anything. Write findings into the PRD's `What I already know` and `Technical Notes`.
 
-**Step 2 — Offer to create a PRD.** Ask whether to persist the plan as `docs/prd/PRD-NNNN-<title>.md`. By now you have enough context to explain what the PRD would contain — the user decides with findings in hand. Don't create one automatically. If declined, work conversationally and produce a summary at the end. When creating: run the **PRD Conflict Check** (see REFERENCE.md §PRD Conflict Check) — compare the topic against existing PRDs by title slug and Goal; if a candidate collides, ask whether to resume it (reuse its NNNN) or create a new one with a distinct title. Only then assign next NNNN (max + 1, starting from 0000).
+**Step 2 — Offer to create a PRD.** Ask whether to persist the plan as `docs/prd/PRD-NNNN-<title>.md`. By now you have enough context to explain what the PRD would contain — the user decides with findings in hand. Don't create one automatically. Declining a PRD ends the Baseline path: produce the approved design summary only, then stop; do not offer `/grill`, do not claim a frozen baseline, and only continue as Direct if the task independently meets Direct's low-risk scope. When creating: run the **PRD Conflict Check** (see REFERENCE.md §PRD Conflict Check) — compare the topic against existing PRDs by title slug and Goal; if a candidate collides, ask whether to resume it (reuse its NNNN) or create a new one with a distinct title. Only then assign next NNNN (max + 1, starting from 0000).
 
 **Step 3 — Classify complexity.** Simple / Moderate / Complex (see REFERENCE.md). Depth of brainstorming scales with complexity.
 
 **Step 4 — Gate your questions.** Only ask **Blocking** (can't continue without input) or **Preference** (multiple valid choices) questions. Derivable questions → inspect the code/research instead. Meta questions ("should I search?") → never ask, just act. If the user packs multiple requests, enumerate and address each one (anti-pattern #20).
 
-**Step 5 — Research-first for technical choices.** When choosing an approach/library/framework:
+**Step 5 — Research-first for technical choices.** When choosing an approach/library/framework, research is allowed automatically inside this stage:
 
 1. **Query the research INDEX first.** Read `docs/research/INDEX.md` for matching stack + topic + major records:
    - **Hit (verified)** → read TL;DR only; reuse verdict. Don't read full record by default.
@@ -61,7 +63,7 @@ If a question can be answered by exploring the codebase or a quick research pass
 1. **Create the parent Issue only when a remote tracker is configured and the user wants remote tracking.** Local Markdown is the default; record `## Issue` as `N/A — local PRD only` and keep the PRD as the tracking artifact. If a tracker is configured, create the parent Issue so `/grill` and `/story` can attach child issues.
 2. **Record new domain terms** found during brainstorming for `/grill` to refine
 3. **Finalize the PRD** — set Status to `Draft`, fill `Created by`, set `Last updated`, ensure all sections are populated
-4. Output the approved design summary with next step to `/grill`
+4. Output the approved design summary and stop; name `/grill` as the user-initiated next step
 
 See [REFERENCE.md](REFERENCE.md) for complexity classification detail, question-gate rules, and worked message formats. The PRD template and field rules live in [PRD-FORMAT.md](PRD-FORMAT.md) — that file is the single source.
 
@@ -75,6 +77,7 @@ See [REFERENCE.md](REFERENCE.md) for complexity classification detail, question-
 | Re-searched a topic a prior task already captured | Step 5: query `docs/research/INDEX.md` first; reuse the TL;DR on a hit |
 | Cited a blog/tutorial as the basis for a technical choice | Step 5: research against authoritative sources (official docs/source/spec) only |
 | Asked meta questions like "should I search?" | Step 4: never ask, take action |
+| User declined a PRD but the Baseline path continued to grill/story | Step 2: no PRD means no frozen baseline; stop at a design summary, then use Direct only if it independently qualifies |
 | Drifted without updating PRD | Update PRD after every answer |
 | Attached a rider sub-ask to a question ("顺便确认/请一并说明") | One decision per message — a second decision becomes the next single question (Step 7 rules) |
 | Stayed on initial request without considering edges | Step 6: expansion scan before converging |
@@ -87,7 +90,9 @@ See [REFERENCE.md](REFERENCE.md) for complexity classification detail, question-
 When plan is approved and the PRD is finalized, output:
 
 ```
-Plan approved. Next: Run /grill to challenge and refine this approach.
+Plan approved. Stage complete; stop here.
+
+Next (user-initiated): `/grill` to challenge and refine this approach. Do not start it automatically.
 
 **Approved design summary:**
 - **Building**: What this is (1 paragraph)
@@ -95,7 +100,7 @@ Plan approved. Next: Run /grill to challenge and refine this approach.
 - **Approach**: Chosen option + rationale
 - **Key decisions**: 3-5 items with rationale
 - **Unknowns**: Only explicitly deferred items with reason and owner
-- **Parent Issue**: #<num> created | local PRD only | (no PRD, skipped)
+- **Parent Issue**: #<num> created | local PRD only
 ```
 
-Stop after output. Implementation only starts on request.
+For a declined PRD, output the same design summary under `No PRD — Baseline path stopped` and omit the `/grill` next step. Stop after output. Implementation only starts on request.

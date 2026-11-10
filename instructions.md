@@ -45,11 +45,12 @@
 - `think` 和 `grill` 每次只问一个必须由人拍板的问题，并给出推荐答案；能从代码、表结构、文档回答的事实由 AI 自查，不反问用户。
 - `research` 只在两种情况下自动触发：`think` 为技术选择取证；`implement` 遇到当前项目实现、`ruoyi6` 能力地图/参考实现和 `docs/research/` 都未覆盖的全新业务场景。其它阶段（包括 `grill`、`story`、`debug`、`review`、`page-acceptance`）以及普通 CRUD、版本确认和排错，只能由用户显式发起。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`；值得复用的结论写入 `docs/research/`。
 - `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR。不要自动生成 HTML；只有用户明确要求时才调用 `answer-me-with-html`。
-- 基线冻结后，需求和验收标准是合同；后续变化写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。
+- 基线冻结后，需求和验收标准是合同；后续变化先写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。目标与范围不变时，不重跑 `think`，把 PRD 状态改回 `Grilled`，重新发起 `story` 为新增或变更的 `R#` / `AC#` 补切片；受影响切片退回 `Dev Complete`，旧验收证据失效。只有目标或范围本身实质改变，才退回 `Draft` 并重新走 `think` → `grill`。
 
 ### 2. 拆任务：`story`
 
 - 只有状态为 `Grilled` 的 PRD 才能进入 `story`。它把基线拆成可独立验收的纵向切片，并记录 `Covers`、`blocked-by`、HITL/AFK 和验收标准。
+- `story` 也承接冻结后的增量变更：读取最新 `Change Log`，只新增或重拆受影响的验收标准，保留未受影响切片的有效状态与证据。
 - 拆片前做基线一致性检查：PRD 已冻结、无未决项、每条需求至少有一条可观察的验收标准、验收标准可追溯、范围不矛盾、依赖无环。不通过就回 `grill`。
 - 默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue；远端失败不回滚本地切片清单。
 - `story` 写入 `Sliced into`、把 PRD 状态设为 `Sliced` 并同步父 Issue 后即完成。只有用户明确要求时才生成 HTML 计划总览；页面只是视图，PRD 才是事实源。
@@ -68,13 +69,13 @@
 
 ### 4. 页面验收：`page-acceptance`
 
-- 页面验收是独立、由用户主动发起的阶段。标准顺序是 `implement → Dev Complete → 首次全范围 page-acceptance → Accepted → review（内嵌 debug）→ 修复点 page-acceptance（仅行为变化时）→ Done`。阶段完成时只提示下一步，不自动调用下一技能。
+- 页面验收是独立、由用户主动发起的阶段。标准顺序是 `implement → Dev Complete → 首次全范围 page-acceptance → Accepted → review（内嵌 debug）→ 修复点 page-acceptance（仅行为变化时）→ Done`。首次验收只写到 `Accepted`；review 已覆盖最终代码时的修复点验收通过后，由页面验收写回 `Done` 和收尾状态。阶段完成时只提示下一步，不自动调用下一技能。
 - 页面验收连接已运行的开发环境，不为验收重复打包，也不重建容器或新增进程管理脚本。服务按 `docs/agents/project-state.md` 登记的启动命令运行，技能不写死路径或端口；前端改动刷新即可；Java/配置改动由环境所有者用同一命令重启一次开发进程，不可达时记为 `blocked` 请用户启动，不能每个修复重启一次。
 - 只通过真实前端 UI 操作，不写脚本直接请求后端 API；先检查首屏、控制台和网络，再走一条主路径加一个边界。
 - 增删改查优先完成 Create → Read → Update → Delete 闭环，并清理测试数据；元素引用在路由、弹窗、下拉框、表格刷新后立即失效，必须重新取可交互元素快照。
 - 不抓取完整组件 DOM；不把读取源码当作视觉验收。RuoYi 6.x React 的会话复用、快照刷新和五步冒烟见 `page-acceptance/references/ruoyi6-browser.md`。
 - 失败时结合控制台、网络和代码定位根因，确认的范围内缺陷自动进入 `debug`；修复后回到本次验收，只重测受影响路径。验证、修复、重测最多三轮，超限停止并报告。
-- 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
+- 验收通过后才写回状态：首次验收把范围从 `Dev Complete` 改为 `Accepted`；review 已完成且本次只验证修复点及连带路径时，通过后改为 `Done` 并完成收尾写回。两种都把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
 ### 5. 审查与排错：`review` / `debug`
 
@@ -83,6 +84,7 @@
 - 计划外的报错、崩溃、回归自动使用 `debug`；先复现和定位根因，再改动。修复后只重测受影响路径，不默认全批回归。
 - `research` 和 `debug` 不触发 `frontend-design`、页面美化或视觉改版。`research` 只回答事实和方案问题；`debug` 只恢复预期行为，视觉缺陷先按现有设计基线修复，不顺手重做页面。
 - review 开始前必须已有首次全范围页面验收，不能用修复点验收替代首次验收。整轮 review 结束后才决定是否进入修复点验收：review 没有修复时，首次验收仍有效，可直接 `Done`；有修复但只涉及内部重构、事务边界、日志或可维护性且不改变页面可观察行为时，保留原验收证据并记录覆盖边界；只有修复改变页面可观察行为、交互、数据反馈、权限表现或视觉结果时，受影响切片及父 PRD 才退回 `Dev Complete`，旧证据失效，提示用户发起一次只覆盖修复点及连带路径的 `/page-acceptance`。通过后恢复 `Accepted`；本轮 review 已覆盖最终代码，故可直接 `Done`。无关改动或文档提交不使验收失效。
+- review 收尾是状态写回门，不是口头结论：整轮通过且无需修复点验收时，把受影响切片及父 PRD 写成 `Done`，更新 `project-state.md` 的 `Review` / `Close-out`，并在 `verification.md` 记录 review 的提交范围、检查范围、结果和日期。若本轮改变已验收行为，受影响范围保持 `Dev Complete`，等修复点页面验收通过后由 `page-acceptance` 写回 `Done`。条件未满足时保留 `Accepted`，不得宣称 `Done`。
 
 ### 6. 按需技能
 
