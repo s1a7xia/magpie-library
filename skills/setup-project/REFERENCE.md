@@ -28,7 +28,7 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 | Config file | Detection check | Drift signal | Action |
 |---|---|---|---|
 | `issue-tracker.md` | `git remote -v` → does the remote match the tracker type in the file? | Remote changed (GitHub→GitLab, or no remote→local) | Present change, confirm, rewrite `issue-tracker.md` |
-| `coding-standards.md` | Read existing standards, selected profile, stack/version, source paths and verification commands | Profile/version changed, source moved, command no longer exists, or the project now follows an installed profile that was never registered | Present the affected fields; preserve hand-written standards and explicit exceptions. If a profile is now applicable, ask the Section F question and register it |
+| `coding-standards.md` | Read existing standards, selected profile, stack/version, source paths, verification commands and local run reference | Profile/version changed, source moved, command/port no longer exists, or the project now follows an installed profile that was never registered | Present the affected fields; preserve hand-written standards and explicit exceptions. If a profile is now applicable, ask the Section F question and register it |
 | `triage-labels.md` | Check actual labels on 1-2 recent issues → do they still match the file? | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
 | `language.md` | Read existing value. Ask: "Is `<language>` still the right doc language for the team?" | Language preference changed | Confirm, rewrite `language.md`. If changed, trigger **Conformance Sweep** (Language Audit) |
@@ -167,7 +167,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - Backend: server entrypoints, `api/`/`server/` directories, backend framework deps
 - Database: ORM config (drizzle/prisma/knex/typeorm/…), `migrations/` directories, schema files
 - Multi-tenant signals: auth middleware, tenant/org IDs in schemas, "multi-tenant" in the README
-- Verification commands: package.json `scripts`, Makefile, justfile, CI workflows — candidates for the change quick reference
+- Verification and run commands: package.json `scripts`, Makefile, justfile, CI workflows, application config and existing run notes — candidates for the change quick reference and local run reference
 
 ## Step 2: Detect Project Structure
 
@@ -201,7 +201,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Triage labels**: defaults (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix)
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
-- **Project engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E). These are written to `docs/agents/coding-standards.md`.
+- **Project engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no), candidate quick-reference commands and verified local start commands/ports, from the Step 1 stack detection (see Section E). These are written to `docs/agents/coding-standards.md` and `project-state.md`.
 - **Technical profile**: default to `ruoyi6` (RuoYi-Vue-Plus) with no framework-signature probe and no "is this RuoYi?" question (see Section F). Exclude it only when the user identifies the project as non-RuoYi; use another installed profile only when the user names it. Read the checkout only to fill the exact version, governed paths and real commands
 
 ## Step 4: Ask for Overrides
@@ -270,9 +270,10 @@ Present the detected tailoring as a draft; the user confirms or edits:
 - **File-size bound** — principle 2's line limit (suggest 500 when the repo shows no other convention)
 - **Dependency-check locations** — principle 7's where-to-check-first paths (from workspace detection)
 - **Change quick reference** — baseline and per-change-type commands, filled from package.json scripts / Makefile / CI config. Never invent commands; a row with no real command is dropped, not guessed.
+- **Local run reference** — backend/frontend start command, working directory and local URL/port, filled from scripts, application config or verified run notes. Never invent a command or port; use `待确认` when absent.
 - **Language** — the section is rendered in the Section D language (headings and prose translated; commands, paths, and identifiers stay as-is)
 
-Write the result into `## Project engineering principles` and `## Verification quick reference` in `docs/agents/coding-standards.md`, using [templates/engineering-principles.md](templates/engineering-principles.md) as source material. If the project already carries a hand-written engineering-principles section in `AGENTS.md`/`CLAUDE.md`, ask adopt/merge/replace; do not duplicate it into the new file.
+Write the result into `## Project engineering principles` and `## Verification quick reference` in `docs/agents/coding-standards.md`, using [templates/engineering-principles.md](templates/engineering-principles.md) as source material. Record the start/port facts in `## Local run reference` from [templates/coding-standards.md](templates/coding-standards.md) and mirror the commands into `project-state.md`. If the project already carries a hand-written engineering-principles section in `AGENTS.md`/`CLAUDE.md`, ask adopt/merge/replace; do not duplicate it into the new file.
 
 ### Section F — Coding Standards and Technical Profile
 
@@ -300,9 +301,20 @@ Technical profile: ruoyi6
 Additional standards: project-relative team standard paths, or none
 Source of API truth: current module source, neighboring implementations, and verified demo/framework paths
 Verification: actual Maven and frontend commands, with working directories
+Local run: actual backend/frontend start commands, working directories, URLs and ports
 ```
 
 On re-run, update only changed registrations. A requested tracker change does not authorize overwriting unrelated coding standards. The [Standards Gate](../rules/entry-protocol.md#standards-gate) defines loading, verification evidence and completion conditions for consumers. Register checks with their applicable stage/scope and actual commands; planning is not required to compile code that has not changed.
+
+### Section G — Project Handoff: Compile and Run Commands
+
+Register the real backend and frontend compile commands, start commands, working directories and local URLs/ports in `docs/agents/project-state.md` under `## Compile and run`, and mirror the run facts in `docs/agents/coding-standards.md` under `## Local run reference`.
+
+Derive them from build files, package scripts, application config or verified run notes. A locally built jar, a dev server command and a verified application process are all valid. If a command or port cannot be verified, write `待确认` and do not guess. Registration does not start the service: `setup-project`, `implement` and `page-acceptance` do not launch, stop or repeatedly restart it.
+
+### Section H — Project AGENTS.md / CLAUDE.md
+
+Skip by default. Update only when the file already exists or the user explicitly asks for one, and only in place: add a short `## Project context` pointer to `docs/agents/` and the selected technical profile. Do not copy the global working rules, workflow, compile policy, page-acceptance policy or Git rules into the project file.
 
 ## Step 5: Confirm
 
@@ -363,7 +375,7 @@ Each generated file is seeded from a template, customised based on the user's ch
 | `docs/agents/language.md` | [templates/language.md](templates/language.md) | Always (fill in the team's chosen language) |
 | `docs/agents/coding-standards.md` | [templates/coding-standards.md](templates/coding-standards.md) | Project conventions or a technical profile are configured |
 | `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only |
-| `docs/agents/project-state.md` | [templates/project-state.md](templates/project-state.md) | Always (current objective, workflow-stage dashboard, active work, blockers, next step, actual compile commands) |
+| `docs/agents/project-state.md` | [templates/project-state.md](templates/project-state.md) | Always (current objective, workflow-stage dashboard, active work, blockers, next step, actual compile/run commands and ports) |
 | `docs/agents/project-decisions.md` | [templates/project-decisions.md](templates/project-decisions.md) | Always (confirmed cross-task decisions; no placeholders — write only confirmed facts, or leave the section empty) |
 | `docs/agents/verification.md` | [templates/verification.md](templates/verification.md) | Always (versioned evidence; write only facts actually observed, marked `agent` or `user`) |
 

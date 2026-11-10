@@ -115,7 +115,7 @@ instructions.agents = ["codex"]
 
 ## 4. MCP 清单
 
-当前登记 8 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
+当前登记 9 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
@@ -126,6 +126,7 @@ instructions.agents = ["codex"]
 | `gitee` | HTTP `https://api.gitee.com/mcp` | codex, dsh | Gitee Issue/PR；Bearer Token 在 `library.json` |
 | `github` | HTTP `https://api.githubcopilot.com/mcp/` | codex, dsh | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可作为 CLI 兜底 |
 | `magpie-image` | stdio `magpie.exe mcp image` | codex | 图片生成与识图；依赖本机 Magpie 可执行文件和模型配置 |
+| `magpie-memory` | stdio `magpie.exe mcp memory` | claude, codex, dsh, qoder, workbuddy | 跨 Agent 共享的项目记忆；依赖本机 Magpie 可执行文件 |
 | `magpie-web-search` | stdio `magpie.exe mcp search` | codex, dsh | 联网搜索；`research` 的首选搜索入口 |
 | `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | codex | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |
 | `vikunja` | HTTP `http://127.0.0.1:3456/api/v2/mcp` | codex | 本地 Vikunja 服务；当前保留为已登记 MCP，暂不参与 skills 工作流。Token 在 `library.json` |
@@ -233,7 +234,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 还需要另外完成：
 
 1. 在 Magpie 中创建或恢复 `library.json`；
-2. 重新登记 8 个 MCP 和认证信息；
+2. 重新登记 9 个 MCP 和认证信息；
 3. 重新配置模型供应商；
 4. 重新勾选技能分发给哪些 Agent；
 5. 执行 `magpie library sync`；

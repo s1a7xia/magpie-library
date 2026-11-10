@@ -16,12 +16,24 @@ description: "Test a rendered change in the real UI: render, visual finish, inte
 
 ## When this stage runs
 
-- **Started by the user, after development.** A batch of slices is finished and pushed; the user says "开始页面测试" or names the pages. Do not start on your own, and never inside `implement`.
+- **Started by the user, after development.** A batch of slices is finished and pushed; the user says "开始页面测试" or names the pages. The normal sequence is `implement → first full-scope acceptance → review → repair-scope acceptance → Done`. Do not start on your own, and never inside `implement`.
 - **Unattended runs skip it.** A goal running without the user does not open a browser, does not need a login session or captcha. It stops with the slices marked `Dev Complete` and says page testing is pending.
-- **Fixes are re-tested narrowly.** When a defect is fixed, re-run only the affected page and path — not the whole batch. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
-- **Passing this stage produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing full review when one was requested.
+- **Fixes are re-tested narrowly.** There are two distinct passes: the first acceptance covers the declared full page scope after development; the second runs after a full review has changed code, and covers only the repaired points and their connected paths. Do not replace the first pass with a repair-only pass. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
+- **Passing this stage produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing user-initiated full review. Without it, remain `Accepted`. After a first-pass acceptance, the next stage is review; after a repair-scope acceptance, review is already complete for that round unless the review stopped before checking the final code. Not every review fix needs a new browser pass: if the fix changes no page-observable behavior, interaction, data feedback, permission outcome or visual result, the original acceptance evidence remains valid.
 
 For RuoYi-Vue-Plus 6.x + React, use [the RuoYi browser quick reference](references/ruoyi6-browser.md) for session reuse, snapshot refresh, the five-step CRUD smoke path, and the error loop. Read [REFERENCE.md](REFERENCE.md) only when the page needs detailed evidence templates, multi-role/permission testing, or a failure-classification workflow beyond this file.
+
+## Environment contract
+
+Page acceptance drives an environment that is already running; it is not a build or deployment step.
+
+- Acceptance never packages or rebuilds: no `mvn package` round per fix, no container rebuild, no deploying just to look at a page. It connects to the environment the project already runs.
+- The run mode is the project's registered command. A locally launched application process is the norm: use the command recorded in the project's standards, such as `java -jar` for a packaged backend and the project's frontend dev script. Keep the app out of a container locally so code and config stay directly editable; reserve containers for deployment-shaped environments.
+- If the frontend or backend is not reachable, report the check as `blocked`, name the missing service, and ask the user to start it or run the project's registered command once. Do not improvise a different run mode.
+- Frontend-only changes use the dev server's HMR or a page reload. Java, backend configuration or mapper changes may need **one** reload of the already-running development process; SQL-only changes need none.
+- In a review round, finish the behavior-affecting fixes first, reload once, then run one repair-scope acceptance. Do not reload or restart once per fix, and do not have `debug` package or restart the service.
+- Do not add `spring-boot-devtools` or another hot-reload dependency just for acceptance; it changes the project's runtime and is a separate decision.
+- Restarting the backend is the environment owner's action, not part of acceptance. Do not build, package, start containers or create process-management wrappers during acceptance. Ask the user to stop the already-running process and start it again with the project's registered command once; if it is not reachable, report `blocked`.
 
 ## Step 0 — Declare the scope
 
@@ -61,6 +73,7 @@ For a new or restyled page, a layout change, or any claim about "looks better", 
 - Button labels stay on one line.
 - Dark-mode text, secondary text, borders and disabled states remain legible.
 - Dialogs, dropdowns, date pickers, tooltips and drawers have no z-index collision.
+- For an ordinary RuoYi business page, verify the default baseline was implemented during development: clear hierarchy, spacing, semantic status colours, loading/empty/error states, table/form alignment and no accidental overflow. `frontend-design` is not required for this baseline and cannot excuse skipping it.
 
 If the project has a UI standard (for RuoYi-Vue-Plus: [前端规范和样式边界](../ruoyi6/references/frontend.md#样式与设计)), use it as the acceptance reference. If the change is a deliberate design direction, compare the screenshot with the stated intent rather than with personal taste. Keep at least one screenshot for every visual claim.
 
@@ -110,14 +123,14 @@ Name the untested items. A passing main path does not imply passing boundaries, 
 
 Persist the result in the same turn; a browser-only report leaves the project status stale.
 
-- **`accepted`** — set the tested PRD or slice from `Dev Complete` to `Accepted`. Tick only the acceptance criteria actually exercised. Append the URL/route, account role, main path, boundary, console/network result, evidence paths and date to `docs/agents/verification.md`, marked as verified by the agent. Do not mark `Done` and do not close Issues without separate authorization.
+- **`accepted`** — set the tested PRD or slice from `Dev Complete` to `Accepted`. Tick only the acceptance criteria actually exercised. On the first pass, record the full declared page scope; on a post-review repair pass, record the invalidated scope and the repaired points. Append the verified implementation commit (and any relevant uncommitted changes), URL/route, account role, main path, boundary, console/network result, evidence paths and date to `docs/agents/verification.md`, marked as verified by the agent. Do not mark `Done` and do not close Issues without separate authorization.
 - **`accepted with caveats`** — keep the tested scope at `Accepted` only when the caveats are outside its acceptance criteria. Record each unexercised role, boundary or page as an explicit remaining gap; otherwise keep it at `Dev Complete`.
-- **`not accepted` or `blocked`** — keep the status at `Dev Complete`. Record the failing step, symptom and evidence. Enter `debug` for the confirmed defect, then re-test only the affected path.
+- **`not accepted` or `blocked`** — keep the status at `Dev Complete`. Record the failing step, symptom and evidence. A confirmed in-scope defect enters `debug` as part of this acceptance pass; after the fix, re-test only the affected path and return to this verdict step. If the failure is found in the second post-review pass, return to the same repair-scope loop; do not restart the full page scope.
 - **No PRD or slice exists** — still write the evidence to `docs/agents/verification.md` when that file is configured; otherwise report it and name the missing record instead of inventing a status.
 
 When `docs/agents/project-state.md` exists, update its **Workflow status → Page acceptance** row in the same turn: `Passed`, `Blocked`, or `In Progress`, with the tested routes and a one-line next step. Do not rewrite the rest of the dashboard.
 
-After a defect fix passes re-testing, update the same verdict record — do not append a contradictory second "accepted" entry.
+After a defect fix passes re-testing, record the new tested code version and affected paths, superseding the invalidated verdict while preserving its history. Follow the [lifecycle rules](../think/PRD-FORMAT.md#prd-生命周期状态); unrelated valid evidence remains applicable. Recompute the parent PRD status from all slices; one passing slice cannot accept the whole batch.
 
 Commit and push the verdict update with the affected slice's repository state. If the evidence belongs to a batch already pushed, use one documentation commit for this testing round; do not rewrite history or create a feature branch.
 
@@ -139,7 +152,7 @@ Commit and push the verdict update with the affected slice's repository state. I
 | Full HTML pulled to "understand" the page | Interactive-element snapshot only |
 | Direct API call used to prove the feature | Drive the UI; the request layer is under test |
 | Test record left behind | Use an identifiable marker and delete it, or report the leftover |
-| Feature "works" but looks broken | Screenshot and check layout, spacing, overflow, alignment |
+| Feature "works" but looks broken | Screenshot and check layout, spacing, overflow, alignment; an ordinary business page must already carry the RuoYi frontend baseline, not wait for `frontend-design` |
 | Only the happy path run | Add one boundary chosen for this change |
 | Second page silently assumed fine | Every claim names which page and role it covers |
 
@@ -159,6 +172,8 @@ Console/Net: <errors, 4xx/5xx, or clean>
 Evidence:    <screenshot paths, request observations>
 
 Failures:    <fixed and re-run: step, cause, fix> or <open: step, symptom, blocker>
+Debug:       <entered for confirmed in-scope defects | not needed>
+Next:        <First pass accepted -> user-initiated /review | repair pass accepted -> Done eligible if review covered final code | review fix changed no page-observable behavior -> original acceptance remains valid | finish current debug retest | resolve blocker>
 Not run:     <items outside the declared scope>
 Verdict:     accepted | accepted with caveats | not accepted | blocked
 ```

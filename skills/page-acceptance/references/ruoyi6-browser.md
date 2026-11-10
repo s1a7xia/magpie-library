@@ -2,6 +2,29 @@
 
 这是 `page-acceptance` 的 RuoYi-Vue-Plus 6.x + React 补充，不替代主技能的分层判定。所有操作必须通过真实前端 UI；请求拦截器负责鉴权与加解密，禁止用 `curl`、Python、Node 脚本直接请求 API 来“证明功能”。
 
+## 0. 运行环境
+
+验收连接项目已登记、已经运行的开发环境，不负责构建或部署：
+
+- 不为验收重复打包：不每个修复跑一遍 `mvn package`，不重建镜像，不为了看页面去部署。
+- 启动方式以项目登记的命令为准，本地直接跑应用进程即可。本机当前验证过的后端启动方式是：
+
+  ```powershell
+  java -jar ruoyi-admin\target\ruoyi-admin.jar --spring.profiles.active=dev
+  ```
+
+  后端监听 `8080`。前端在 `plus-ui-React` 目录启动：
+
+  ```powershell
+  pnpm dev
+  ```
+
+  前端监听 `80`，请求代理到 `http://localhost:8080`。上述命令是当前项目的本地示例；换项目时以 `docs/agents/project-state.md` 的 `Compile and run` 为准。本地不建议把应用放进容器，代码和配置改起来不直接；Docker 留给部署形态的环境。
+- 前端或后端不可达时记为 `blocked`，说明缺哪个服务，让用户启动或按项目登记命令启动一次，不擅自更换启动方式。
+- 只改 React/TSX/CSS 用 HMR 或刷新页面；改 Java、后端配置或 Mapper 时由环境所有者为**已运行的开发进程**重载一次；只改 SQL 不重启。
+- 一轮 review 的行为修复先合并完成，再重载一次并做一次修复点验收；禁止每个修复重启一次。
+- 后端重启由环境所有者完成，不属于页面验收。验收过程不打包 jar、不起容器、不写进程管理包装脚本；需要重载时，请用户停止当前进程后用上面的 `java -jar` 命令重启一次。服务不可达就记 `blocked`。
+
 ## 1. 会话与登录态
 
 优先复用已存在的 `agent-browser` 会话：

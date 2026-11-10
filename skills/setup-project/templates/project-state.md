@@ -1,12 +1,16 @@
 # Project State
 
-## Compile checks
+## Compile and run
 
-默认只编译受影响的前后端，不选择交付档位。记录实际命令和工作目录；没有的命令标为待确认。
+默认只编译受影响的前后端，不选择交付档位。记录实际命令、工作目录和监听端口；没有的命令标为待确认，不猜端口。
 
 - Backend: <actual compile command and directory, or not applicable>
 - Frontend: <actual build command and directory, or not applicable>
+- Backend run: <actual start command and directory, or not applicable>
+- Frontend run: <actual dev command and directory, or not applicable>
+- URLs and ports: <verified local base URLs and ports, or not applicable>
 - 不自动运行测试、lint 或独立类型检查；UI 可见改动仍按 `page-acceptance` 走页面验收；构建内置编译检查保留。
+- 启动命令供环境所有者启动或重启一次使用；初始化、开发和页面验收都不自行启动、停止或反复重启服务。
 
 ## Workflow status
 

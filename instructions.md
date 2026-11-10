@@ -29,6 +29,8 @@
 
 `setup-project` 是项目初始化/重配入口。日常实现、修复、继续开发和收尾按下面路径选择，不机械串联所有技能。
 
+**阶段调用边界（强制）**：`setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review` 都需用户明确发起。阶段完成时必须停止，并用一句话提示下一步以及要显式调用的技能，不得自行加载或执行下一阶段。唯一例外是 `page-acceptance` / `review` 中发现的已确认范围内缺陷：可在当前阶段内进入 `debug`。页面验收可从失败步骤继续局部复测；review 则先完成本轮剩余检查，结束后仅在修复改变页面可观察行为时，才提示用户发起一次只覆盖修复点及连带路径的页面验收。
+
 | 路径 | 适用 | 执行方式 |
 |---|---|---|
 | **Direct** | 错字、样式微调、单文件小修等明确低风险改动 | 主代理直接实现并核对 diff，不建 PRD |
@@ -39,9 +41,9 @@
 
 ### 1. 需求与方案：`think` → `grill`
 
-- 需求确实模糊、存在多个实质不同方案时使用 `think`；`think` 完成后自动进入 `grill`，也可以直接手动启动 `grill`。
+- 需求确实模糊、存在多个实质不同方案时使用 `think`；`think` 完成并写入 PRD 后停止，提示下一步为 `grill`，不自动加载或执行 `grill`；`grill` 同样由用户明确发起。
 - `think` 和 `grill` 每次只问一个必须由人拍板的问题，并给出推荐答案；能从代码、表结构、文档回答的事实由 AI 自查，不反问用户。
-- `research` 可以显式独立发起，也可以由 `think`、`implement`、`debug` 隐式触发。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`；值得复用的结论写入 `docs/research/`。
+- `research` 只在两种情况下自动触发：`think` 为技术选择取证；`implement` 遇到当前项目实现、`ruoyi6` 能力地图/参考实现和 `docs/research/` 都未覆盖的全新业务场景。其它阶段（包括 `grill`、`story`、`debug`、`review`、`page-acceptance`）以及普通 CRUD、版本确认和排错，只能由用户显式发起。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`；值得复用的结论写入 `docs/research/`。
 - `grill` 结束时必须落盘：PRD 状态改为 `Grilled`；术语同步到 `CONTEXT.md`；满足条件的关键取舍写入 ADR。不要自动生成 HTML；只有用户明确要求时才调用 `answer-me-with-html`。
 - 基线冻结后，需求和验收标准是合同；后续变化写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。
 
@@ -57,33 +59,36 @@
 
 - `implement` 只在用户明确调用时进入，一次处理一批已确认的切片。`goal` 只能从 `implement` 起步，不从 think/story 自动进入。
 - 默认技术 profile 是 `ruoyi6`（RuoYi-Vue-Plus 6.x + React，具体版本以当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 为准）；项目 `coding-standards.md` 或 `AGENTS.md` 明确选择其他 profile 或 `none` 时，以项目配置为准。
+- 只要修改 RuoYi-Vue-Plus 6.x + React 项目的后端 Java、PostgreSQL/SQL、React 页面、API/types、权限或字段契约，就加载 `ruoyi6`，不区分 `implement`、Direct、`debug` 还是 `review`。纯文档、只读规划或只读诊断且不修改 RuoYi 代码时可不加载；项目明确 `Technical profile: none` 时不加载。
 - 涉及 RuoYi 前端页面或样式时，`ruoyi6` 的前端基线始终是默认质量层；用户明确要求页面美化、深度视觉设计或整页改版时，可以再叠加 `frontend-design`。两条路径不是互斥关系，文件扩展名本身不触发 `frontend-design`。
+- `implement` 自动调研前必须先做本地复用扫描。只有业务基线已经明确、缺口属于技术实现未知，并且项目现有实现、`ruoyi6` 能力地图/参考实现和 `docs/research/` 中均无覆盖时，才围绕一个具体问题做有界调研；拿到结论后回到当前切片继续实现，不自动进入 `think`/`grill`。若缺的是实现期新发现的业务口径、状态语义、权限边界或验收口径，按当前业务最安全、最推荐的默认做法完整实现接口、页面、数据和反馈，并在代码及 `docs/agents/project-state.md` 或 PRD 留下 TODO（待确认什么、当前推荐实现、后续是否需要调整、找谁确认），不得用空白按钮、半实现或跳过校验代替实现；只有不可逆数据变更、权限扩大或安全风险不能安全设默认值时，才停止受影响动作或切片并报告。若调研证明冻结基线本身错误，停止受影响切片并报告上游基线需要用户处理，不自动调用 `grill`。
 - 每个切片：按验收标准做最小充分改动；只编译受影响的一侧并核对 diff；更新 PRD 中本切片状态；在当前同一分支提交并推送一次，提交信息带切片说明；标记为 `Dev Complete`。
 - 开发阶段不打开浏览器，不执行页面验收，不运行全量测试。无人值守执行到这一层就停，不依赖登录态、验证码或人工测试环境。
 - 整批完成后做覆盖门：每条需求和验收标准都有 `Dev Complete` 切片承接；更新 `docs/agents/project-state.md` 和 `verification.md`；输出切片、提交、推送和编译证据，提示可以开始页面验收。
 
 ### 4. 页面验收：`page-acceptance`
 
-- 页面验收是独立、由用户主动发起的阶段：`implement → Dev Complete → 用户发起 page-acceptance → Accepted → 用户发起 review`。
+- 页面验收是独立、由用户主动发起的阶段。标准顺序是 `implement → Dev Complete → 首次全范围 page-acceptance → Accepted → review（内嵌 debug）→ 修复点 page-acceptance（仅行为变化时）→ Done`。阶段完成时只提示下一步，不自动调用下一技能。
+- 页面验收连接已运行的开发环境，不为验收重复打包，也不重建容器或新增进程管理脚本。服务按 `docs/agents/project-state.md` 登记的启动命令运行，技能不写死路径或端口；前端改动刷新即可；Java/配置改动由环境所有者用同一命令重启一次开发进程，不可达时记为 `blocked` 请用户启动，不能每个修复重启一次。
 - 只通过真实前端 UI 操作，不写脚本直接请求后端 API；先检查首屏、控制台和网络，再走一条主路径加一个边界。
 - 增删改查优先完成 Create → Read → Update → Delete 闭环，并清理测试数据；元素引用在路由、弹窗、下拉框、表格刷新后立即失效，必须重新取可交互元素快照。
 - 不抓取完整组件 DOM；不把读取源码当作视觉验收。RuoYi 6.x React 的会话复用、快照刷新和五步冒烟见 `page-acceptance/references/ruoyi6-browser.md`。
-- 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径；验证、修复、重测最多三轮，超限停止并报告。
+- 失败时结合控制台、网络和代码定位根因，确认的范围内缺陷自动进入 `debug`；修复后回到本次验收，只重测受影响路径。验证、修复、重测最多三轮，超限停止并报告。
 - 验收通过后才把范围从 `Dev Complete` 改为 `Accepted`，并把 URL、角色、路径、边界、控制台/网络结果和证据写入 `docs/agents/verification.md`。
 
 ### 5. 审查与排错：`review` / `debug`
 
 - 普通“审查一下/check/把关”由主代理轻审；只有用户明确调用 `review` 才做三视角完整审查。
-- `review` 在页面验收通过后执行，不能替代页面验收；确认的缺陷自动进入 `debug`，设计、风格或可维护性建议只列出，由用户决定是否处理。
+- `review` 在页面验收通过后执行，不能替代页面验收；确认的缺陷自动进入 `debug`，修复后继续本轮剩余审查，不因单个修复提前收口。设计、风格或可维护性建议只列出，由用户决定是否处理。
 - 计划外的报错、崩溃、回归自动使用 `debug`；先复现和定位根因，再改动。修复后只重测受影响路径，不默认全批回归。
 - `research` 和 `debug` 不触发 `frontend-design`、页面美化或视觉改版。`research` 只回答事实和方案问题；`debug` 只恢复预期行为，视觉缺陷先按现有设计基线修复，不顺手重做页面。
-- `review` 通过且页面已 `Accepted` 后，才可按项目约定进入 `Done`；不要因为代码审查通过就跳过页面验收。
+- review 开始前必须已有首次全范围页面验收，不能用修复点验收替代首次验收。整轮 review 结束后才决定是否进入修复点验收：review 没有修复时，首次验收仍有效，可直接 `Done`；有修复但只涉及内部重构、事务边界、日志或可维护性且不改变页面可观察行为时，保留原验收证据并记录覆盖边界；只有修复改变页面可观察行为、交互、数据反馈、权限表现或视觉结果时，受影响切片及父 PRD 才退回 `Dev Complete`，旧证据失效，提示用户发起一次只覆盖修复点及连带路径的 `/page-acceptance`。通过后恢复 `Accepted`；本轮 review 已覆盖最终代码，故可直接 `Done`。无关改动或文档提交不使验收失效。
 
 ### 6. 按需技能
 
-- `research`：技术版本、框架行为或官方最佳实践影响方案时使用；可独立发起，也可由 think/implement/debug 隐式触发。
-- `frontend-design`：显式深度视觉设计技能，可由用户直接调用，也可在明确的美化/整页改版诉求下从 `ruoyi6` 路由进入；它叠加在 `ruoyi6` 的前端基线上，不替代当前组件、主题和行为边界。普通页面、`research`、`debug` 和 `page-acceptance` 不加载该技能。
-- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Increment / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。
+- `research`：只回答技术事实与实现方案。自动入口仅有 `think` 中的技术选择取证，以及 `implement` 中现有能力均未覆盖的全新业务场景；其余时间只在用户显式调用时使用。
+- `frontend-design`：显式深度视觉设计技能，可由用户直接调用，也可在明确的美化/整页改版诉求下从 `ruoyi6` 路由进入；它叠加在 `ruoyi6` 的前端基线上，不替代当前组件、主题和行为边界。普通页面、`research`、`debug` 不自动加载；`page-acceptance` 只按既有验收标准检查，不因发现视觉问题自动启动设计改版，用户明确要求设计增强时除外。
+- `ruoyi6`：RuoYi-Vue-Plus 6.x + React 的技术 profile；先按 Direct / Increment / New Module 分级，再按能力地图只加载后端、前端、数据库、代码模板或本地参考实现。任何 RuoYi 代码或契约改动都加载，覆盖 Direct、`implement`、`debug` 和 `review`；纯文档、只读规划或诊断且不改代码时可不加载。
 - `answer-me-with-html`：只在用户明确调用，或明确要求 HTML/视觉页面、基线页、计划总览或解释视频时加载。普通回答、`story`、`grill`、`review`、`implement` 和基线冻结不自动触发。
 - `agent-browser`：页面验收优先使用当前 Agent 已有的浏览器能力；需要统一 CLI 行为时再用它。
 - `powershell-windows`：Windows PowerShell 的可靠写法与常见坑。
@@ -92,7 +97,7 @@
 ## 项目文档
 
 - `setup-project` 创建或重配 `docs/agents/`；默认不创建 `AGENTS.md` / `CLAUDE.md`，项目事实写入 `docs/agents/`。
-- 常见文件：`domain.md`（CONTEXT/PRD/ADR/research 路径）、`coding-standards.md`（约定、profile、编译命令）、`project-state.md`（目标、阶段、阻塞、下一步）、`project-decisions.md`（已确认决策）、`verification.md`（验证证据）、`language.md`、可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`。
+- 常见文件：`domain.md`（CONTEXT/PRD/ADR/research 路径）、`coding-standards.md`（约定、profile、编译与启动命令）、`project-state.md`（目标、阶段、阻塞、下一步、启动命令与端口）、`project-decisions.md`（已确认决策）、`verification.md`（验证证据）、`language.md`、可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`。
 - 有 `docs/agents/project-state.md`、`project-decisions.md` 或 `verification.md` 时，先读与当前任务相关部分；它们记录状态、决策和证据，不把聊天当项目事实。
 - `project-state.md` 的阶段面板只在基线冻结、切片完成、批次收口、页面验收和 review 收口更新；PRD 的 `Status` 与 `Sliced into` 仍是需求状态源。
 - 验证记录包含版本/提交、命令或路径、结果、日期和来源（agent/user）；区分代理实测、用户确认和未验证项。不写凭证、完整认证头、个人数据或无关聊天。

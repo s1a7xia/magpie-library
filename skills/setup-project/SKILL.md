@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: "Initialize or reconfigure a repository's engineering setup: project state, domain docs, compile commands, coding profile, and optional issue tracker. Use when the user says 按通用资源库配置这个项目 or asks to refresh project collaboration. Not required for every task."
+description: "Initialize or reconfigure a repository's engineering setup: project state, domain docs, compile and run commands, coding profile, and optional issue tracker. Use when the user says 按通用资源库配置这个项目 or asks to refresh project collaboration. Not required for every task."
 ---
 
 # Setup Project
@@ -22,8 +22,8 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 | 文件 | 内容 |
 |---|---|
 | `docs/agents/domain.md` | `CONTEXT.md`、PRD、ADR、research 的实际路径 |
-| `docs/agents/coding-standards.md` | 项目约定、技术 profile、源码证据、实际编译命令 |
-| `docs/agents/project-state.md` | 当前目标、阶段面板、阻塞、下一步、前后端编译命令 |
+| `docs/agents/coding-standards.md` | 项目约定、技术 profile、源码证据、实际编译与启动命令 |
+| `docs/agents/project-state.md` | 当前目标、阶段面板、阻塞、下一步、前后端编译命令、启动命令与端口 |
 | `docs/agents/project-decisions.md` | 已确认、跨任务有效的决策 |
 | `docs/agents/verification.md` | 带版本/提交、命令、结果、日期的验证证据 |
 | `docs/agents/language.md` | 文档语言 |
@@ -40,9 +40,9 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 **Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。
 
-**Step 2 — Detect.** 识别项目结构、实际前端位置、后端模块、数据库脚本、测试/构建命令、Issue 跟踪现状。无法从仓库确认的多仓关系才问用户。
+**Step 2 — Detect.** 识别项目结构、实际前端位置、后端模块、数据库脚本、测试/构建/启动命令、监听端口、Issue 跟踪现状。无法从仓库确认的多仓关系才问用户。
 
-**Step 3 — Present.** 先展示检测到的默认配置：结构、Issue 跟踪、领域文档、语言、技术 profile、编译命令。更新时展示与当前配置的差异。
+**Step 3 — Present.** 先展示检测到的默认配置：结构、Issue 跟踪、领域文档、语言、技术 profile、编译命令、启动命令和端口。更新时展示与当前配置的差异。
 
 **Step 4 — Ask overrides.** 一次性展示完整草案，只问“是否需要调整”；用户要改时按 A–H 逐项处理，每次只问一个决定：
 
@@ -52,12 +52,12 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 - D. Documentation Language：默认跟随用户当前语言。
 - E. Project Engineering Principles：只写项目实际需要的范围、文件大小、依赖检查路径和快速命令；不复制通用原则全文。
 - F. Coding Standards：默认 `ruoyi6`；非 RuoYi 项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
-- G. Project Handoff / Compile Commands：写实际后端、前端命令和工作目录；默认只编译受影响一侧，跳过测试、lint 和独立类型检查。
+- G. Project Handoff / Compile & Run Commands：写实际后端、前端编译命令、启动命令、工作目录和监听端口。启动命令只登记、不在初始化时启动服务；从构建文件、脚本和已有运行说明读取，无法确认时标为待确认，不猜端口。默认只编译受影响一侧，跳过测试、lint 和独立类型检查。
 - H. Project AGENTS.md / CLAUDE.md：默认跳过；仅在文件已存在或用户明确要求时更新短指针。
 
 **Step 5 — Confirm.** 写出前展示完整文件草案；更新时只展示变化文件。不要用占位符生成真实项目配置。
 
-**Step 6 — Write.** 先写 `docs/agents/`，最后按需更新 `AGENTS.md`/`CLAUDE.md`。`project-state.md` 使用实际目标、阶段和编译命令；没有活动批次时把未开始阶段写 `N/A`，不要留模板文字。`project-decisions.md`、`verification.md` 没有内容时写“暂无记录”，不要留空模板。写 `domain.md` 前扫描真实 PRD/ADR/research 文件名。
+**Step 6 — Write.** 先写 `docs/agents/`，最后按需更新 `AGENTS.md`/`CLAUDE.md`。`project-state.md` 使用实际目标、阶段、编译命令、启动命令和端口；没有活动批次时把未开始阶段写 `N/A`，不要留模板文字。`project-decisions.md`、`verification.md` 没有内容时写“暂无记录”，不要留空模板。写 `domain.md` 前扫描真实 PRD/ADR/research 文件名。
 
 **Step 7 — Done.** 列出已配置文件和下一步。建议从 `/think` 或 `/research` 开始；`implement` 只在明确调用时进入。
 
@@ -76,7 +76,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 | 创建了不需要的 AGENTS.md | 默认跳过；只写项目事实或短指针 |
 | 把全局工作流复制进项目文件 | 全局指令是唯一来源；项目只写事实 |
 | 技术 profile 靠探测框架签名决定 | 默认 `ruoyi6`；非 RuoYi 由用户明确说明后记录 `none` 或替代 profile |
-| 编译命令是猜的 | 从 `pom.xml`、`package.json`、CI 和实际目录读取 |
+| 编译或启动命令是猜的 | 从 `pom.xml`、`package.json`、CI、脚本和已有运行说明读取；端口从配置读取 |
 | 多仓没有主跟踪仓库 | 写 `repo-map.md`，明确哪个仓库拥有主 Issue/PRD |
 | 生成文件留模板占位符 | 用实际事实或“暂无记录”，不把模板当配置 |
 | 重跑覆盖手写内容 | 先读、展示 diff、只改确认部分 |
@@ -108,7 +108,9 @@ Updated files:
 - docs/agents/repo-map.md (multi-repo only)
 - AGENTS.md / CLAUDE.md (only when already existed or explicitly requested)
 
-Next: /think for a new feature, /research for a technical question, or /implement only when slices are approved.
+Stage complete; stop here.
+
+Next (user-initiated): `/think` for a new feature, `/research` for a technical question, or `/implement` only when slices are already approved.
 ```
 
 **重跑：** 只列变化文件、漂移检查结果和下一步。`implement`、`page-acceptance` 不因初始化完成而自动开始。

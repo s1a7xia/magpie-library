@@ -31,6 +31,16 @@ Drop inapplicable rows. For a RuoYi profile, inspect the POM, Maven wrapper, pro
 
 The installed Skill Entry Protocol's Standards Gate governs prerequisite loading and completion. Keep the actual paths of configuration, profile and original rules read in the task evidence. A stage/scope exclusion needs a reason; an unavailable dependency or a failed required check remains unresolved.
 
+## Local run reference
+
+Record how the existing development environment is started; this is project fact, not a build or deployment instruction.
+
+| Service | Start command and working directory | URL / port | Restart needed for |
+|---|---|---|---|
+| `<backend / frontend>` | `<actual command from scripts or verified run notes>` | `<verified local URL and port>` | `<Java/config/mapper changes, or frontend changes via HMR>` |
+
+Use the registered command. If a command or port cannot be verified, write `待确认` and do not guess.
+
 ## Project decisions and exceptions
 
 Record explicit exceptions with scope, rationale, and the relevant ADR or user decision. Read existing standards before merging this configuration. Link detailed rules to their maintained source instead of copying them into every workflow skill.
