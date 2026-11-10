@@ -38,11 +38,11 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 ## Process
 
-**Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。
+**Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。重跑时额外扫描已有指令和项目文档中的过期技能/profile 引用：`engineering-workflow`、`ruoyi-plus-dev`、`project-context`、`prompt-engineering`、`scm-collaboration`、已删除的 Vue 长期前端规范，以及与实际 `Technical profile` 不一致的流程说明。发现漂移只报告并纳入差异草案，确认后再改；不静默保留过期引用。
 
 **Step 2 — Detect.** 识别项目结构、实际前端位置、后端模块、数据库脚本、测试/构建/启动命令、监听端口、Issue 跟踪现状。无法从仓库确认的多仓关系才问用户。
 
-**Step 3 — Present.** 先展示检测到的默认配置：结构、Issue 跟踪、领域文档、语言、技术 profile、编译命令、启动命令和端口。更新时展示与当前配置的差异。
+**Step 3 — Present.** 先展示检测到的默认配置：结构、Issue 跟踪、领域文档、语言、技术 profile、编译命令、启动命令和端口。更新时展示与当前配置的差异，并列出过期技能/profile 引用及其所在文件。
 
 **Step 4 — Ask overrides.** 一次性展示完整草案，只问“是否需要调整”；用户要改时按 A–H 逐项处理，每次只问一个决定：
 
@@ -65,6 +65,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 - 重跑时先读现有配置，比较实际结构，不重写未变化文件。
 - 发现 PRD/ADR/research 命名、语言或格式漂移时先报告，确认后再改；不自动翻译或批量重命名。
+- 重跑结束必须报告过期引用检查结果：每个文件、命中的旧技能/profile 名或 Vue 长期规范，以及“已修复 / 待用户确认 / 无需变更”。不能把引用检查藏在探索步骤里而不出现在交付结果中。
 - 项目配置变化后，提示重新运行受影响的阶段；不自动启动实现或页面验收。
 
 ## Gotchas
@@ -80,6 +81,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 | 多仓没有主跟踪仓库 | 写 `repo-map.md`，明确哪个仓库拥有主 Issue/PRD |
 | 生成文件留模板占位符 | 用实际事实或“暂无记录”，不把模板当配置 |
 | 重跑覆盖手写内容 | 先读、展示 diff、只改确认部分 |
+| 旧技能名或 Vue 长期规范仍留在 `AGENTS.md` / `docs/agents/` | Step 1 扫描过期引用，展示差异；确认后改成当前技能名、React profile 和 `docs/agents/` 指针 |
 
 ## Output
 
@@ -113,4 +115,4 @@ Stage complete; stop here.
 Next (user-initiated): `/think` for a new feature, `/research` for a technical question, or `/implement` only when slices are already approved.
 ```
 
-**重跑：** 只列变化文件、漂移检查结果和下一步。`implement`、`page-acceptance` 不因初始化完成而自动开始。
+**重跑：** 只列变化文件、漂移检查结果、过期引用检查结果和下一步。过期引用逐项写清文件、命中项和处理状态（已修复 / 待用户确认 / 无需变更）。`implement`、`page-acceptance` 不因初始化完成而自动开始。

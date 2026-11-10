@@ -2,6 +2,8 @@
 
 Shared bootstrap for all skills. Read only what the current task needs; do not load every referenced file.
 
+Stage entry, required artifacts, stop conditions and failure routing are defined once in [workflow-contract.md](workflow-contract.md); follow it without copying the stage table into each skill.
+
 ## Protocol
 
 ### Step 1: Read Project Config
@@ -16,7 +18,7 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 | `triage-labels.md` | Label vocabulary | Use canonical defaults |
 | `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
 | `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi6` unless the user or project explicitly selects another profile or `none` |
-| `project-state.md` | Objective, stage dashboard, blockers, next step, compile commands | Use the current request only; do not create implicitly |
+| `project-state.md` | Objective, stage dashboard, blockers, next step, compile/run commands and ports | Use the current request only; do not create implicitly |
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
 
@@ -25,6 +27,8 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi6` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
 
 Read the selected profile's `SKILL.md` and its task-relevant original rules from the installed skills directory; apply only to its declared repository/module/file scope. A profile is supplementary: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
+
+For a RuoYi-Vue-Plus 6.x + React project whose profile is `ruoyi6`, load it for any code or contract change to backend Java, PostgreSQL/SQL, React pages, API/types, permissions or field contracts — including direct implementation, `debug` and `review`, not only `implement`. Pure documentation, read-only planning or diagnosis that changes no RuoYi code may skip loading it. If the project explicitly selects `Technical profile: none`, do not load it.
 
 #### Standards Gate
 
@@ -73,10 +77,11 @@ If consuming another skill's output, verify:
 | Signal | Action |
 |---|---|
 | Legacy minimal PRD from `/story` | Do not implement; recreate through `think` → `grill` |
-| `Open Questions` or `TODO` markers | Read-only planning may note; implementation and unqualified pass are blocked until `grill` resolves |
-| Empty `Grilled by` | Same: planning may note; coding/acceptance blocked until `grill` completes |
+| `Open Questions`, `[TEMPORARY]` or PRD-level unresolved `TODO` (including `TODO(prd-NNNN)`) | Upstream baseline decision unresolved; read-only planning may note. Block affected implementation/acceptance and report that the user must complete upstream `grill`; do not auto-invoke it |
+| Empty `Grilled by` | Same: upstream baseline not validated; block affected coding/acceptance and report the gap; do not auto-invoke `grill` |
+| `TODO(待确认)` implementation note | Non-blocking confirmation, not a baseline gap. It never masks incomplete API, page, data, validation or feedback; continue the current slice when the recommended default is fully implemented |
 
-Record these in the skill output. They block coding and acceptance claims, not read-only diagnosis.
+Record these in the skill output. Baseline gaps block coding and acceptance claims; a fully implemented `TODO(待确认)` does not block testing or `Dev Complete`, but must be reported and carried into the PRD/project state.
 
 ## Standalone vs Composable
 

@@ -116,5 +116,5 @@ Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 
 Stage complete; stop here.
 
-**Next (user-initiated):** `/implement` for this batch. Implementation stops after the batch at `Dev Complete`; the next separate stage is the first full-scope `/page-acceptance`, followed by `/review`.
+**Next (user-initiated):** `/implement` for this batch. Implementation stops after the batch at `Dev Complete` and selects the next gate by observable impact: page-observable work goes to first full-scope `/page-acceptance` then `/review`; non-UI work records `Page acceptance: N/A` and goes to `/review`.
 ```

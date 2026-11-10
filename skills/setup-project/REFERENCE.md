@@ -36,9 +36,12 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
 | AGENTS.md/CLAUDE.md (optional) | Does a project file already exist? Does it contain copied global rules instead of a short pointer to `docs/agents/`? | File exists, or the user explicitly asked for one | Keep only project-specific facts and a short `## Project context` pointer; remove duplicated global workflow |
+| Stale skill/profile references | Scan `AGENTS.md`, `CLAUDE.md`, `docs/agents/*.md` and project rules for retired skills (`engineering-workflow`, `ruoyi-plus-dev`, `project-context`, `prompt-engineering`, `scm-collaboration`), Vue-as-future-frontend instructions, and profile names that do not match the selected `ruoyi6`/`none`/alternative profile | Retired name, mismatched frontend stack, or workflow instruction that contradicts the current global workflow | List every affected file and exact stale term; present a diff; after confirmation replace only the stale references with current skill/profile names and `docs/agents/` pointers. Do not silently rewrite hand-written project rules |
 | `docs/agents/coding-standards.md` Project engineering principles | Re-run stack detection and script scan — do scope, file-size bound, dependency paths and quick-reference commands still match? | Stack dimension added/removed, verification scripts renamed/added, section missing | Present diff, confirm, update in place |
 
 **If no drift detected in any section**, tell the user: "All config is current — no changes needed." and stop.
+
+Stale-reference detection is part of drift detection. Do not report "no changes needed" while `AGENTS.md`, `CLAUDE.md` or any `docs/agents/*.md` still names a retired skill, the old profile, or Vue as the future frontend. Report the exact file and matching term, present the replacement diff, and wait for confirmation before editing hand-written project rules. Include the result in the re-run output even when no stale reference is found.
 
 ## Re-run Behavior
 

@@ -220,6 +220,8 @@ Do NOT review implementation quality, security, performance, or release impact �
 
 #### Test Coverage
 
+These checks apply only when test work is in the authorized scope. When tests were not requested, record `Tests: not run — outside current request`; do not turn the default no-test policy into a review defect.
+
 - [ ] Every acceptance criterion from the PRD/Issue has at least one test
 - [ ] New public functions/methods have corresponding tests
 - [ ] Bug fixes include regression tests
@@ -259,17 +261,18 @@ Do NOT review implementation quality, security, performance, or release impact �
 Compilation and source tests are not evidence about a rendered surface (anti-pattern #17). When the diff changes something visible in the UI — page, table, form, dialog, dashboard, permission-gated control, styling or layout — the review must report the runtime layer as its own status, separate from source tests:
 
 - [ ] A page-acceptance check was run for the changed surface, or the report states explicitly that it was not run and why
+- [ ] The check covers the complete declared UI scope; a repair-only pass is not used as the first full-scope acceptance. A mixed batch classifies page-observable and non-page-observable scope separately
 - [ ] The claim covers render, interaction, data and permission layers, not just "code looks right"
 - [ ] Any visual claim is backed by a rendered screenshot, not by reading the source
 - [ ] A missing runtime check is reported as a gap, not treated as passing
 
-The check itself is performed with [page-acceptance](../page-acceptance/SKILL.md); review does not re-drive the browser, but it must withhold an unqualified pass for a UI-visible change whose runtime layer was never observed.
+The check itself is performed with [page-acceptance](../page-acceptance/SKILL.md); review does not re-drive the browser, but it must withhold an unqualified pass for a UI-visible change whose runtime layer was never observed. A non-page-observable batch records `Page acceptance: N/A — <reason>` and may proceed with affected-side compile evidence; this does not permit an unqualified pass for any page-visible part of that batch.
 
 ### Output Template
 
 Use the [shared Output Scaffold](#output-scaffold-shared-shape) with status field **Coverage assessment**: `<assessment of overall test coverage>`.
 
-**Test Review blockers** (specific to this perspective): missing tests for critical acceptance criteria, tests that mask real bugs.
+**Test Review blockers** (specific to this perspective, only when test work is authorized): missing tests for critical acceptance criteria, tests that mask real bugs. For a default no-test delivery, report `Tests: not run — outside current request` instead of raising this blocker.
 
 ### Extra Context Re-Read
 
@@ -593,11 +596,12 @@ These updates are allowed **only when the review has verified the underlying cha
 **PRD Child Issues Status Sync:** When the review verifies a task is complete:
 1. From the Issue being reviewed, read `Meta → PRD` to locate the PRD
 2. Find the slice in the PRD's `Sliced into` list
-3. Never turn `Dev Complete` into `— Done`: page acceptance is a separate user-initiated gate
+3. For page-observable work, never turn `Dev Complete` into `— Done` before page acceptance. For non-page-observable work, review may close `Dev Complete` directly with `Page acceptance: N/A — <reason>` once the applicable compile and review evidence exists; do not fabricate an `Accepted` state
 4. After review passes for an accepted slice, update its marker: `— Accepted` → `— Done`
 5. Check if ALL slices are marked `— Done`:
    - If yes: update PRD `Status` from `Accepted` to `Done`
-   - If no: keep the status at `Accepted` or `Dev Complete` according to the page-acceptance evidence
+   - If every slice is non-page-observable: update PRD `Status` directly from `Dev Complete` to `Done`
+   - If no: keep the status at `Accepted` or `Dev Complete` according to the applicable acceptance evidence
 
 Perform these updates as part of the review when applicable. List what was updated in the report.
 

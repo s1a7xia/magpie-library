@@ -10,12 +10,14 @@ description: "Three-perspective code review by the main agent. Use only for expl
 ## 执行
 
 1. 按 [入口协议](../rules/entry-protocol.md) 读取相关项目事实与规范。审查范围涉及 RuoYi-Vue-Plus 6.x + React 的后端 Java、PostgreSQL/SQL、React UI、API/types、权限或字段契约时，加载 `ruoyi6` 及其与本次风险相关的 reference。先声明审查范围：优先用 PRD/verification 中本批起止提交和切片提交清单，再纳入属于本次范围的未提交改动。单分支开发不能默认用 `main..HEAD`；范围不明时查提交记录，仍无法确定才询问。详见 [范围与检查参考](REFERENCE.md)。
-2. 核对首次页面验收证据是否覆盖当前行为，并核对本批提交范围。pre-review 的 `Accepted` 只证明验收时的代码；review 中改变已验收行为后，该证据会失效。
+2. 核对本批提交范围，并按**可观察影响**判断验收证据：
+   - 本批有页面可观察行为（渲染、交互、显示数据、权限表现或视觉结果）时，必须有覆盖当前行为的首次全范围页面验收。pre-review 的 `Accepted` 只证明验收时的代码；review 中改变已验收行为后，该证据会失效。
+   - 本批只改后端内部逻辑、后台任务、SQL、日志、配置或其他不经过页面的行为时，页面验收记为 `N/A — <reason>`，使用受影响侧编译和现有证据审查，不要求浏览器验证。混合范围分别判断，不能让非 UI 范围拖累 UI 门槛，也不能用非 UI 证据证明页面可用。
 3. 检查三个角度：验证证据是否真实且适用；代码是否满足需求与框架约定；调用方、数据、权限和跨切片交互是否受破坏。只检查本次范围相关风险；默认不新增或运行测试、lint、独立类型检查，不重复已有效的构建。
 4. 合并重复发现。每条问题给出位置、触发条件、实际后果和修复建议；证据不足标为待确认。不同角度结论冲突时先核实事实，只有必须由人决定的业务取舍才提问。不强制三份报告或批准提问。
 5. 一轮 review 内按既定三角度顺序检查完整范围。确认缺陷在已授权范围内立即登记并进入 [debug](../debug/SKILL.md) 修复；用户明确只读审查时只报告。修复后继续检查剩余角度和剩余范围，不因单个修复提前结束整轮 review。风格、重构或设计建议不自动实施；修复超出已授权范围时停止受影响工作。
-6. 整轮 review 结束后按 [生命周期规则](../think/PRD-FORMAT.md#prd-生命周期状态) 汇总。review 前必须已有首次全范围页面验收：没有它，不能把本批视为已验收，也不能以修复点验收替代首次验收。不是每个 review 修复都需要再次打开浏览器：只有修复改变了页面可观察行为、交互、数据反馈、权限表现或视觉结果，才使受影响验收证据失效；受影响切片退回 `Dev Complete`，旧验收证据失效，提示用户发起一次只覆盖修复点及连带路径的 `/page-acceptance`。纯内部重构、事务边界、日志、代码可维护性或其他不改变已验收行为的修复，保留原首次验收证据，记录其覆盖边界即可。整轮没有任何修复时，首次验收继续有效，可直接收尾。不自动启动页面验收。
-7. 整轮通过且无需修复点验收时执行收尾写回：受影响切片及父 PRD → `Done`；`docs/agents/project-state.md` 的 `Review` 和 `Close-out` 写为实际结果；`docs/agents/verification.md` 记录 review 的起止提交、检查范围、结论和日期。若本轮改变了已验收行为，则受影响范围保持/退回 `Dev Complete`，由用户在修复点 `/page-acceptance` 通过后写回 `Done`，review 不再重复。其他条件未满足时保留 `Accepted`，不得只输出“Done eligible”而不写状态。用户明确只读审查时不改文件，只报告满足条件及待用户授权执行的写回。写回后即停，不自动扩大检查范围或发布。
+6. 整轮 review 结束后按 [生命周期规则](../think/PRD-FORMAT.md#prd-生命周期状态) 汇总。有页面可观察行为的范围，review 前必须已有首次全范围页面验收；没有它，不能把该范围视为已验收，也不能以修复点验收替代首次验收。不是每个 review 修复都需要再次打开浏览器：只有修复改变了页面可观察行为、交互、数据反馈、权限表现或视觉结果，才使受影响验收证据失效；受影响切片退回 `Dev Complete`，旧验收证据失效，提示用户发起一次只覆盖修复点及连带路径的 `/page-acceptance`。纯内部重构、事务边界、日志、代码可维护性或其他不改变已验收行为的修复，保留原首次验收证据，记录其覆盖边界即可。非 UI 批次的页面验收保持 `N/A`，不得据此宣称页面可用。整轮没有任何修复时，有效验收继续适用，可直接收尾。不自动启动页面验收。
+7. 整轮通过且无需修复点验收时执行收尾写回：受影响切片及父 PRD → `Done`；`docs/agents/project-state.md` 的 `Page acceptance`、`Review` 和 `Close-out` 写为实际结果；`docs/agents/verification.md` 记录 review 的起止提交、检查范围、结论和日期。非 UI 批次没有页面阶段时，`Page acceptance` 写 `N/A — <reason>`，并允许从 `Dev Complete` 直接写 `Done`；不得伪造 `Accepted`。若本轮改变了 UI 已验收行为，则受影响范围保持/退回 `Dev Complete`，由用户在修复点 `/page-acceptance` 通过后写回 `Done`，review 不再重复。其他条件未满足时，UI 批次保留 `Accepted`，非 UI 批次保留 `Dev Complete`，不得只输出“Done eligible”而不写状态。用户明确只读审查时不改文件，只报告满足条件及待用户授权执行的写回。写回后即停，不自动扩大检查范围或发布。
    页面验收不负责打包，也不负责重建开发环境；行为修复在本轮内合并完成后，只需为已运行的开发进程重载一次，再做一次修复点验收，不要每个修复重启一次。
 
 ## 交付
@@ -23,7 +25,7 @@ description: "Three-perspective code review by the main agent. Use only for expl
 报告审查提交范围、按严重程度排序的发现、修复情况、实际检查/未验证项、状态与下一步。
 
 结束输出必须明确：
-- 整轮审查完成，期间无需修复且验收证据有效：`Next: review complete; status written back to Done.`
+- 整轮审查完成，期间无需修复且验收证据有效（或页面验收适用 `N/A`）：`Next: review complete; status written back to Done.`
 - 整轮审查完成，期间已进入 debug 但未改变已验收行为：状态写回 `Done`，并列明修复项和为何不影响页面验收。
 - 整轮审查完成，期间已进入 debug 并改变已验收行为：受影响范围保持 `Dev Complete`；`Next (user-initiated): /page-acceptance`，只验证修复点及连带路径。页面验收通过后，本轮 review 已覆盖最终代码，写回 `Done`。
 - 整轮审查尚未完成或仍需业务决策：`Next (user-initiated): <继续检查/决策>`。
