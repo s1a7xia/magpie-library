@@ -2,7 +2,7 @@
 
 本文记录这套组合拳在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-09。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-11。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
@@ -24,7 +24,7 @@
 
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
-| Magpie | `0.1.3255` | 必需 | 指令、技能、MCP 的统一分发与托管 |
+| Magpie | `0.1.3488` | 必需 | 指令、技能、MCP 的统一分发与托管 |
 | Codex | 随桌面端安装 | 必需 | 当前主要开发 Agent |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
@@ -116,7 +116,7 @@ instructions.agents = ["codex"]
 
 ## 4. MCP 清单
 
-当前登记 8 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
+当前登记 9 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
@@ -127,6 +127,7 @@ instructions.agents = ["codex"]
 | `gitee` | HTTP `https://api.gitee.com/mcp` | codex, dsh | Gitee Issue/PR；Bearer Token 在 `library.json` |
 | `github` | HTTP `https://api.githubcopilot.com/mcp/` | codex, dsh | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可作为 CLI 兜底 |
 | `magpie-image` | stdio `magpie.exe mcp image` | codex | 图片生成与识图；依赖本机 Magpie 可执行文件和模型配置 |
+| `magpie-vision` | stdio `magpie mcp vision` | codex | 独立图像识别入口；依赖 Magpie 和模型配置 |
 | `magpie-memory` | stdio `magpie.exe mcp memory` | claude, codex, dsh, qoder, workbuddy | 跨 Agent 共享的项目记忆；依赖本机 Magpie 可执行文件 |
 | `magpie-web-search` | stdio `magpie.exe mcp search` | codex, dsh | 联网搜索；`research` 的首选搜索入口 |
 | `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | codex | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |

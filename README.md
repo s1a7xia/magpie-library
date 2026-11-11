@@ -304,11 +304,15 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 
 文档记录必须区分 Agent 实测、用户确认和未验证项。原始聊天历史不是项目事实，凭证、完整认证头和私密数据不进入文档、提交或截图。
 
+## 环境清单
+
+当前 MCP、社区/内置插件、结构化记忆、deja 历史召回和备份边界见 [ENVIRONMENT.md](ENVIRONMENT.md)，可机器读取的脱敏清单见 [environment.snapshot.json](config/environment.snapshot.json)。公开清单不包含密钥或私人记忆正文。
+
 ## 依赖摘要
 
 当前基线使用：
 
-- Magpie `0.1.3255`
+- Magpie `0.1.3488`
 - Codex
 - Node.js `v24.17.0`、npm `11.13.0`
 - Python `3.13.14`
@@ -317,7 +321,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - `rtk 1.1.0`
 - Chrome 和 Edge
 
-MCP 由 Magpie 统一托管，当前登记 8 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-web-search`、`ssh`。
+MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-vision`、`magpie-memory`、`magpie-web-search`、`ssh`。
 
 版本、Agent 分发矩阵、凭据位置、换机恢复、校验和故障处理见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 

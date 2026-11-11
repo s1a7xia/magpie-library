@@ -1,0 +1,260 @@
+{
+  "recordedDate": "2026-11-11",
+  "source": "local config and read-only CLI; registration is not connectivity verification",
+  "magpieVersion": "0.1.3488",
+  "sharedSkills": true,
+  "mcpHub": true,
+  "instructionsAgents": [
+    "codex"
+  ],
+  "skills": [
+    {
+      "name": "agent-browser",
+      "agents": [
+        "claude",
+        "codex",
+        "dsh",
+        "qoder",
+        "workbuddy"
+      ]
+    },
+    {
+      "name": "answer-me-with-html",
+      "agents": [
+        "claude",
+        "codex",
+        "dsh",
+        "qoder",
+        "workbuddy"
+      ]
+    },
+    {
+      "name": "database-design",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "debug",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "frontend-design",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "grill",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "implement",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "page-acceptance",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "powershell-windows",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "research",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "review",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "rules",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "ruoyi6",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "setup-project",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "story",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
+      "name": "think",
+      "agents": [
+        "codex"
+      ]
+    }
+  ],
+  "mcp": [
+    {
+      "name": "context7",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "库与框架文档",
+      "transport": "http",
+      "endpoint": "https://mcp.context7.com/mcp"
+    },
+    {
+      "name": "dbhub",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "PostgreSQL 只读取证/获授权数据库操作",
+      "transport": "stdio",
+      "command": "npx -y @bytebase/dbhub@1.5.0 --transport stdio <private connection arguments>"
+    },
+    {
+      "name": "gitee",
+      "agents": [
+        "codex",
+        "dsh"
+      ],
+      "purpose": "Gitee 代码与 Issue/PR",
+      "transport": "http",
+      "endpoint": "https://api.gitee.com/mcp"
+    },
+    {
+      "name": "github",
+      "agents": [
+        "codex",
+        "dsh"
+      ],
+      "purpose": "GitHub 代码与 Issue/PR",
+      "transport": "http",
+      "endpoint": "https://api.githubcopilot.com/mcp/"
+    },
+    {
+      "name": "magpie-image",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "图片生成",
+      "transport": "stdio",
+      "command": "magpie mcp image"
+    },
+    {
+      "name": "magpie-memory",
+      "agents": [
+        "claude",
+        "codex",
+        "dsh",
+        "qoder",
+        "workbuddy"
+      ],
+      "purpose": "跨 Agent 共享结构化记忆",
+      "transport": "stdio",
+      "command": "magpie mcp memory"
+    },
+    {
+      "name": "magpie-vision",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "图像识别",
+      "transport": "stdio",
+      "command": "magpie mcp vision"
+    },
+    {
+      "name": "magpie-web-search",
+      "agents": [
+        "codex",
+        "dsh"
+      ],
+      "purpose": "联网搜索",
+      "transport": "stdio",
+      "command": "magpie mcp search"
+    },
+    {
+      "name": "ssh",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "已登记 SSH 目标操作",
+      "transport": "stdio",
+      "command": "npx -y @hypnosis/ssh-mcp-server"
+    }
+  ],
+  "communityPlugins": [
+    {
+      "source": "github:mu-zi-lee/magpie-our-free-model",
+      "version": "0.9.4",
+      "enabled": true,
+      "purpose": "community model provider; credentials excluded"
+    },
+    {
+      "source": "@vshulcz/magpie-deja",
+      "upstream": "https://github.com/vshulcz/deja-vu/tree/main/extensions/magpie",
+      "version": "0.24.0",
+      "installation": "local directory; upstream package is not proof of local byte equivalence",
+      "enabled": true,
+      "options": {
+        "allowUnscoped": false,
+        "maxBytes": 4000,
+        "recallRemote": false,
+        "requestTimeoutMs": 800
+      }
+    }
+  ],
+  "builtinsEnabled": [
+    "gateway",
+    "groups",
+    "library",
+    "middleware",
+    "otel",
+    "redact",
+    "rotation",
+    "routing",
+    "search",
+    "sessions",
+    "tools",
+    "usage",
+    "warmups"
+  ],
+  "builtinsDisabled": [
+    "budget"
+  ],
+  "memory": {
+    "structuredStore": "~/.config/magpie/memory.json",
+    "entryCountAtSnapshot": 13,
+    "distillEnabled": true,
+    "dreamEnabled": true,
+    "lastDistillErrorPresent": true,
+    "lastDreamErrorPresent": true,
+    "dejaRecallRuntimeVerified": false
+  },
+  "backup": {
+    "intervalHours": 24,
+    "keep": 3,
+    "includeSignIns": true,
+    "secretPassphraseExcluded": true
+  }
+}
