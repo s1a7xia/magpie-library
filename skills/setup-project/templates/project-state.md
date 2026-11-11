@@ -2,14 +2,14 @@
 
 ## Compile and run
 
-默认只编译受影响的前后端，不选择交付档位。记录实际命令、工作目录和监听端口；没有的命令标为待确认，不猜端口。
+默认只核对相关代码与差异；构建和其他运行检查须当前请求授权。此处登记实际命令、工作目录和监听端口，不构成执行授权；未知标为待确认，不猜端口。
 
 - Backend: <actual compile command and directory, or not applicable>
 - Frontend: <actual build command and directory, or not applicable>
 - Backend run: <actual start command and directory, or not applicable>
 - Frontend run: <actual dev command and directory, or not applicable>
 - URLs and ports: <verified local base URLs and ports, or not applicable>
-- 不自动运行测试、lint 或独立类型检查；UI 可见改动仍按 `page-acceptance` 走页面验收；构建内置编译检查保留。
+- 不自动运行测试、lint 或独立类型检查；先建议手动 review，UI 可见改动再由用户手动 page-acceptance；已授权构建的内置检查保留。
 - 启动命令供环境所有者启动或重启一次使用；初始化、开发和页面验收都不自行启动、停止或反复重启服务。
 
 ## Workflow status
@@ -22,9 +22,9 @@
 |---|---|---|
 | Baseline | Pending | <PRD path; Grilled or reason> |
 | Slices | Pending | <slice count; uncovered criteria or none> |
-| Development | Pending | <batch state; compile evidence> |
-| Page acceptance | Pending | <routes; accepted / blocked / not started> |
+| Development | Pending | <implementation; actual checks or not run; Git state> |
 | Review | Pending | <requested / passed / not requested> |
+| Page acceptance | Pending | <routes; accepted / blocked / not started / N/A> |
 | Close-out | Pending | <remaining docs, commit or release action> |
 
 **Status values:** `Pending`, `In Progress`, `Passed`, `Blocked`, `N/A`.

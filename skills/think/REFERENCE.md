@@ -110,7 +110,7 @@ Determine depth of brainstorming for Simple/Moderate/Complex tasks:
 
 | Complexity | Criteria | Behavior |
 |---|---|---|
-| **Simple** | Clear goal, 1-2 files, clear scope | Ask 1 confirmation question, then finalize a lightweight PRD or recommend direct implementation; test-first only when authorized and an installed workflow supports it |
+| **Simple** | Clear goal, 1-2 files, clear scope | Resolve only material ambiguity; otherwise finalize a lightweight PRD or recommend direct implementation without a routine confirmation question; test-first only when authorized and an installed workflow supports it |
 | **Moderate** | Multiple files, some ambiguity | Light brainstorming — resolve only MVP-critical blocking/preference nodes, however many (or few) that turns out to be |
 | **Complex** | Unclear goal, architecture choices, multiple approaches | Full brainstorming |
 

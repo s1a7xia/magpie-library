@@ -14,17 +14,17 @@ Read `docs/agents/` when present. Missing files degrade to defaults; do not crea
 |---|---|---|
 | `domain.md` | Paths for CONTEXT, PRDs, ADRs, research | Use defaults in Step 3 |
 | `repo-map.md` | Multi-repo structure and tracker owner | Treat as single-repo |
-| `issue-tracker.md` | Tracker type and adapter | Ask which tracker; do not guess |
+| `issue-tracker.md` | Tracker type and adapter | Use local Markdown; do not infer a remote tracker |
 | `triage-labels.md` | Label vocabulary | Use canonical defaults |
 | `language.md` | Human-facing output language | Use the user's input language; ask when unsure |
-| `coding-standards.md` | Conventions, profile, source paths, verification | Use global `ruoyi6` unless the user or project explicitly selects another profile or `none` |
+| `coding-standards.md` | Conventions, profile, source paths, verification | Infer from the actual stack; use `ruoyi6` only for an applicable RuoYi project |
 | `project-state.md` | Objective, stage dashboard, blockers, next step, compile/run commands and ports | Use the current request only; do not create implicitly |
 | `project-decisions.md` | Durable confirmed decisions and scope | Use current code and user instructions |
 | `verification.md` | Versioned evidence and known gaps | Do not treat old evidence as proof for changed code |
 
 ### Step 1a: Apply Standards
 
-Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then the global `ruoyi6` default. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
+Resolve the profile in this order: current user instruction, explicit project `coding-standards.md` or `AGENTS.md` selection (including `Technical profile: none`), then infer the applicable installed profile from the repository; do not apply `ruoyi6` to an unrelated stack. A project-level `none` is an explicit opt-out, not a missing value. Do not probe framework signatures to override a selected profile.
 
 Read the selected profile's `SKILL.md` and its task-relevant original rules from the installed skills directory; apply only to its declared repository/module/file scope. A profile is supplementary: it does not restart this protocol, authorize code during planning, replace artifact formats, skip workflow gates, or auto-chain skills.
 
@@ -33,7 +33,7 @@ For a RuoYi-Vue-Plus 6.x + React project whose profile is `ruoyi6`, load it for 
 #### Standards Gate
 
 - **Before affected work:** read the applicable standards/profile entry point and relevant originals; record their actual paths. A missing/unreadable required rule blocks affected code and compliance approval; read-only diagnosis may continue. A prior session's summary is not evidence.
-- **Verification:** only checks authorized by the current request, project standards, or active stage. Authorized checks must pass on final changes with command, working directory, exit status and relevant output. If none are authorized, review the diff, label the work unverified, and never claim test, acceptance or runtime success. A failed authorized check is unresolved, not waived.
+- **Verification:** only checks authorized by the current request or explicitly required by higher-priority instructions. Project command lists, profiles and stage recommendations do not grant execution permission; honor the global no-check default. Authorized checks must pass on final changes with command, working directory, exit status and relevant output. If none are authorized, review the diff, label the work unverified, and never claim test, acceptance or runtime success. A failed authorized check is unresolved, not waived.
 - **Stage boundaries:** planning does not compile prospective code; a read-only review may use current verifiable evidence instead of rerunning unchanged checks; an intermediate phase (notes, spike, probe) is not a delivered implementation. A check is N/A only with an explicit stage/scope reason.
 - **Design and compliance:** apply constraints in think/grill, carry contracts into story acceptance criteria, use conventions in implement/debug, and check violations in review. Explicit project decisions/exceptions win with cited scope.
 - **Extended rules:** [standards-gate-details.md](references/standards-gate-details.md).
@@ -42,7 +42,7 @@ For a RuoYi-Vue-Plus 6.x + React project whose profile is `ruoyi6`, load it for 
 
 Before the first write in a task that may change files, record the actual repository root, branch, `HEAD`, upstream and current `git status --short -uall`, plus staged, unstaged and untracked path lists. Treat every pre-existing path as protected user or concurrent-session work: never stash, reset, clean, overwrite or include it in this task's commit. For a multi-repo task, repeat this for each repository named by `repo-map.md`. Read-only tasks state that they make no writes instead of taking a baseline.
 
-At task or stage close-out, compare against that baseline, update applicable project documents, precisely commit and push only task-owned changes, then verify the resulting workspace state without emitting a fixed-format receipt. If task-owned changes cannot be separated from pre-existing or untracked work, stop the commit and report the paths; do not silently leave the worktree dirty.
+At task or stage close-out, compare against that baseline, update applicable project documents, precisely commit and push only task-owned changes when the user or project has authorized those actions, then verify the resulting workspace state without emitting a fixed-format receipt. If task-owned changes cannot be separated from pre-existing or untracked work, stop the commit and report the paths; preserve task-owned edits when Git is not authorized or blocked, and report that separately from implementation completion.
 
 #### Tracker Conventions
 
@@ -50,7 +50,7 @@ Use one collaboration workflow across GitHub, GitLab, Gitee and local trackers; 
 
 ### Project State
 
-`project-state.md` is an operational handoff, not requirements. Read only relevant sections; PRD `Status` and `Sliced into` remain the requirement source. Precedence: current request > project instructions > state file. Do not turn transient notes or hypotheses into decisions. Verification needs version/commit, command/path, result, date, and agent/user source. The file is created and refreshed by `setup-project`; maintain it only at the stage transitions defined in the global instructions.
+`project-state.md` is an operational handoff, not requirements. Read only relevant sections; PRD `Status` and `Sliced into` remain the requirement source. Precedence: current request > project instructions > state file. Do not turn transient notes or hypotheses into decisions. Verification needs version/commit, command/path, result, date, and agent/user source. The file is created and refreshed by `setup-project`; maintain it only at the stage transitions configured by project instructions and workflow-contract.md.
 
 ### Step 2: Multi-Repo Scope
 
@@ -83,7 +83,7 @@ If consuming another skill's output, verify:
 | Signal | Action |
 |---|---|
 | Legacy minimal PRD from `/story` | Do not implement; recreate through `think` → `grill` |
-| `Open Questions`, `[TEMPORARY]` or PRD-level unresolved `TODO` (including `TODO(prd-NNNN)`) | Upstream baseline decision unresolved; read-only planning may note. Block affected implementation/acceptance and report that the user must complete upstream `grill`; do not auto-invoke it |
+| Actual unresolved baseline decisions in `Open Questions`, `[TEMPORARY]` or PRD-level `TODO` (including `TODO(prd-NNNN)`); empty/resolved sections, quoted examples and SQL `?` placeholders do not count | Upstream baseline decision unresolved; read-only planning may note. Block affected implementation/acceptance and report that the user must complete upstream `grill`; do not auto-invoke it |
 | Empty `Grilled by` | Same: upstream baseline not validated; block affected coding/acceptance and report the gap; do not auto-invoke `grill` |
 | `TODO(待确认)` implementation note | Non-blocking confirmation, not a baseline gap. It never masks incomplete API, page, data, validation or feedback; continue the current slice when the recommended default is fully implemented |
 

@@ -10,8 +10,8 @@
 
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
-| 全局协作指令 | 授权边界、编译口径、页面验收时机、提交规则 | 正文在 `instructions.md`，生成副本不在本仓库 |
-| 15 个技能 | 各阶段的方法、模板和检查门槛 | 在 `skills/` |
+| 全局协作指令 | 通用协作、权限和已有改动保护；工作流与收尾策略在项目 AGENTS.md | 正文在 `instructions.md`，生成副本不在本仓库 |
+| 16 个技能 | 各阶段的方法、模板和检查门槛 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -39,7 +39,7 @@
 | `gh` | `2.103.2` | 可选 | GitHub CLI 兜底；MCP 不可用时的只读排查 |
 | `glab` | `1.128.0` | 可选 | GitLab 任务和 MR；当前明确不启用 `glab mcp serve` |
 | `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用 |
-| `agent-browser` | 技能已安装 / CLI 未在 PATH | 可选 | 浏览器自动化；未安装 CLI 时页面验收使用当前 Agent 已有浏览器能力 |
+| `agent-browser` | 0.41.2（2026-11-11 核对，已在 PATH） | 可选 | 浏览器自动化；未安装 CLI 时页面验收使用当前 Agent 已有浏览器能力 |
 | Google Chrome | 已安装 | 页面验收时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
 | Microsoft Edge | 已安装 | 页面验收后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 
@@ -72,11 +72,11 @@ winget install rtk-ai.rtk
 
 - `sharedSkills = true`
 - `mcpHub = true`
-- 技能数：15
+- 技能数：16
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Agent 共享目录：`C:\Users\<user>\.agents\skills\`
 
-本机 `~\.agents\skills` 下 15 项均是指向资源库的 Junction，不是独立副本。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
+本机 `~\.agents\skills` 下 16 项均是指向资源库的 Junction，不是独立副本。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -92,6 +92,7 @@ winget install rtk-ai.rtk
 | `agent-browser` | claude, codex, dsh, qoder, workbuddy |
 | `answer-me-with-html` | claude, codex, dsh, qoder, workbuddy |
 | `debug` | codex |
+| `database-design` | codex |
 | `frontend-design` | codex |
 | `grill` | codex |
 | `implement` | codex |
@@ -150,7 +151,7 @@ instructions.agents = ["codex"]
 | `github` / `gitee` | 读取当前仓库或一个已知 Issue；不做写入测试 |
 | `dbhub` | 连接目标库并只读查询版本或一张已知表 |
 | `ssh` | 连接已登记目标并运行只读命令 |
-| `magpie-image` | 生成一张小图或识别一张本地测试图 |
+| `magpie-image` | 仅在当前请求授权时识别本地测试图；不为连通性检查自动生成付费图片 |
 
 不要用“写入成功”作为首次连通性检查。写入必须另有明确授权，并先确认目标环境。
 
@@ -170,7 +171,7 @@ instructions.agents = ["codex"]
 | `~/.codex/config.toml` | Codex 模型、MCP 等运行配置 |
 | `~/.codex/AGENTS.md` | Magpie 生成的全局指令副本 |
 | `~/.codex/ssh-profiles.json` | SSH MCP 的目标配置 |
-| `~/.agents/skills/` | 15 个技能的共享 Junction |
+| `~/.agents/skills/` | 16 个技能的共享 Junction |
 | 项目内 `.ruoyi-auth.json`、浏览器状态 | 页面验收登录态；本地生成，不入库 |
 
 原则：
@@ -274,7 +275,7 @@ Get-Content "$env:USERPROFILE\.codex\AGENTS.md" -TotalCount 20
 预期：
 
 - `magpie ls` 能看到 Codex；
-- `~/.agents/skills` 有 15 项，并指向资源库；
+- `~/.agents/skills` 有 16 项，并指向资源库；
 - `~/.codex/AGENTS.md` 含 `<!-- magpie:begin` 到 `<!-- magpie:end -->` 的指令块。
 
 ### 7.3 MCP
@@ -292,7 +293,7 @@ magpie tools
 agent-browser --version
 ```
 
-当前机器没有该命令，预期失败，不代表整套资源库损坏。技能目录存在，但 CLI 不在 PATH；页面验收优先使用当前 Agent 已有的浏览器工具。需要跨机器统一行为时再安装 `agent-browser`，并在新会话中确认。
+2026-11-11 本机已核对 `agent-browser 0.41.2` 且在 PATH。换机需重新确认；CLI 可选，优先遵守项目/用户指定工具并复用现有宿主会话，目录存在不能证明命令可用。
 
 ## 8. 常见故障
 
@@ -375,7 +376,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 
 1. **全局规则只分发 Codex**：其他 Agent 需要单独确认是否能承载相同约束。
 2. **逐 Agent 技能启用不统一**：多数流程技能只勾选 Codex；共享目录存在不等于所有 Agent 已启用。
-3. **`agent-browser` CLI 未安装**：技能目录存在，但 CLI 不在 PATH；页面验收暂依赖当前 Agent 的浏览器能力，跨机器一致性尚未补齐。
+3. **浏览器跨机器差异**：本机已安装 `agent-browser 0.41.2`；新机器仍需检查工具/会话可用性，不强制 CLI 替代宿主能力。
 4. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
 5. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
 6. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。
@@ -389,10 +390,10 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `magpie --version` 正常；
 - [ ] `magpie library sync` 成功；
 - [ ] `verify-library.py` 零错误；
-- [ ] `~/.agents/skills` 有 15 项；
+- [ ] `~/.agents/skills` 有 16 项；
 - [ ] Codex 新会话能读取全局规则；
 - [ ] `setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review` 能被正确路由；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
-- [ ] 目标项目能编译受影响的前后端；
+- [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
 - [ ] 页面验收有可用浏览器、账号和目标 URL；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

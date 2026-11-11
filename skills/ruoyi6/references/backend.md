@@ -71,7 +71,7 @@ XxxController
 
 ### 公共基础模块改动
 
-修改 `ruoyi-common-*` 或供多个模块使用的公共 API 时，先搜索接口、实现类和全部调用点，默认保持公开方法签名、泛型、返回值和异常语义兼容。新增能力优先扩展已有入口或薄包装，确实需要改签名时同步所有调用方并重新编译受影响模块；只改注释或文档时，不重排 import、不格式化整个文件、不改代码逻辑。
+修改 `ruoyi-common-*` 或供多个模块使用的公共 API 时，先搜索接口、实现类和全部调用点，默认保持公开方法签名、泛型、返回值和异常语义兼容。新增能力优先扩展已有入口或薄包装，确实需要改签名时同步所有调用方；当前请求授权构建时重新编译受影响模块，否则记录运行未验证；只改注释或文档时，不重排 import、不格式化整个文件、不改代码逻辑。
 
 ### 业务模块不是模板
 
@@ -128,12 +128,20 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 
 ## Entity / BO / VO
 
-- Entity 继承 `BaseEntity`。基类只有 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。
+- Entity 基类按当前模块和隔离契约选择；作者普通示例继承 `BaseEntity`，其审计属性为 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。不机械改成 `TenantEntity` 或给每表增加 `tenant_id`；以当前基类、填充器、租户/数据权限拦截器核对真实列。
 - 主键用 `@TableId`；逻辑删除、乐观锁、排序分别按需用 `@TableLogic`、`@Version`、`@OrderBy`。
 - JSON 字段用 `@TableName(autoResultMap = true)` + `@TableField(typeHandler = JacksonTypeHandler.class)`，Entity/BO/VO 类型同构。
 - BO 用 `@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)`；新增/修改用 `AddGroup` / `EditGroup`。
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
-- 修改映射后实际编译，让 MapStruct 生成实现。
+- 映射变更按下节核对；未经当前请求授权不编译。
+
+### 映射与验证边界
+
+BO/VO/Entity 或 `@AutoMapper` 变化先核对转换方向、目标类型、字段名/类型、忽略字段及真实调用；泛型 `MapstructUtils.convert(...)` 调用能编译，不证明对应转换已注册或运行转换正确。
+
+当前请求授权构建时，按项目真实 POM 的注解处理器配置选择受影响模块最小编译目标。正常 `compile` 即可触发 MapStruct/MapStruct Plus 生成，不强制 `test-compile`，不手改生成文件；核对生成映射与注册关系时确认产物对应当前源码，旧 `target/` 不能充当本轮证据。编译通过只证明已覆盖的编译链路，不替代实际转换行为证据；未授权编译/运行时分别记录未验证，不自动补跑。
+
+`@Translation` 是运行期翻译机制，不是 MapStruct 编译生成步骤。展示字段异常时分别追踪来源值、转换映射和运行期翻译处理，不能一概归因于“没重新编译”。
 
 ## Service 与 Mapper 职责
 
@@ -202,7 +210,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 
 - `@DataPermission` 主要标在 Mapper 层；列表、详情、更新、删除都要覆盖，不能只给列表加。
 - 方法级注解优先于类级；XML / MPJ 联表使用表别名时，`@DataColumn` 的 `value` 必须写 `别名.列名`。
-- 需要临时绕过时，`DataPermissionHelper.ignore(...)` 或 `@InterceptorIgnore(dataPermission = "true")` 只包最小范围，并说明原因。
+- 不把权限码格式正确当作权限闭环。列表、详情、增改删、导出及关联 ID 都按实际对象范围核对；安全默认不得扩大跨用户、跨部门或跨租户权限。新增绕过/扩大范围须有已批准契约或用户决定，不能用 TODO 放行。已批准且确有必要时，`DataPermissionHelper.ignore(...)` 或 `@InterceptorIgnore(dataPermission = "true")` 只包最小范围，并说明原因。
 - 功能权限只控制“能否调用”，数据权限控制“能看到/操作哪些数据”，两者不能互相替代。
 - 新增时由服务端确定归属，或校验用户选择的归属范围；修改归属另查转移权限。关联 ID 和子记录还要校验可访问性及所属主记录，不能只信任页面选项或 `@DataPermission` 对原记录的过滤。
 
@@ -231,7 +239,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 
 - 新增或修改类、接口、BO/VO 字段、Mapper 默认方法和 Service/Controller 的公共方法时，按同包现有风格补简短 JavaDoc，说明做什么和关键参数语义；不复述显而易见的实现，不给 `void` 写 `@return`。
 - 私有方法只在业务规则、算法或字段映射不直观时加注释；覆写框架方法且语义已明确时，不强行重复注释。
-- 只补注释时不改实现、不重排 import、不格式化整个文件；公共 API 改动优先保证调用方兼容，确有签名变化时同步所有调用点并编译受影响模块。
+- 只补注释时不改实现、不重排 import、不格式化整个文件；公共 API 改动优先保证调用方兼容，确有签名变化时同步所有调用点；仅当前请求授权构建时编译受影响模块，否则记录未验证。
 
 ### 接口文档由 JavaDoc 生成
 
@@ -307,4 +315,4 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 - [ ] 权限字符、数据范围、日志、幂等和事务按需完整。
 - [ ] 已检查 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 和框架示例，列出实际复用入口；目标业务模块仅用于核实业务事实和集成约束。
 - [ ] 鉴权、响应、转换使用现有封装；没有复制业务模块或另造第二套公共能力。
-- [ ] 业务未定项已按当前业务推荐做法完整实现，并留下“待确认什么 / 当前推荐实现 / 找谁确认”的 TODO；没有把未实现当成 TODO，也没有用“先不校验”绕过业务约束。
+- [ ] 业务未定项已按当前业务推荐做法完整实现，并留下“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”的 TODO；没有把未实现当成 TODO，也没有用“先不校验”绕过业务约束。

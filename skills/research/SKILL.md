@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Research a technical stack/version question against authoritative sources and persist a reusable, versioned best-practice record. Use before stack/version decisions or when the user says 调研、最佳实践、技术选型、官方文档、权威资料. Not for product or open-ended brainstorming."
+description: "Research a technical question against authoritative sources and persist a reusable, versioned record. Use when explicitly requested, or inside think for a technical choice. Triggers: 调研、最佳实践、技术选型、官方文档、权威资料. Not for product brainstorming, routine debugging, or ordinary implementation."
 ---
 
 # Research: Authoritative Technical Investigation, Persisted
@@ -10,6 +10,14 @@ description: "Research a technical stack/version question against authoritative 
 This skill answers technical questions with evidence; it does not design or beautify pages. Do not load `frontend-design` from research. If the user asks for a visual or product-design decision, route it separately as an explicit design task.
 
 A research record is a **durable note capturing best practice for one stack × topic × major-version**, sourced exclusively from authoritative sources. It lives in `docs/research/` so the next skill — notably `/think` Step 5 — can query `INDEX.md` and reuse the TL;DR instead of re-searching. This sits beside `/grill` (domain glossary `CONTEXT.md`): grill curates *project domain language*; research curates *external technical best practice*.
+
+## Invocation Boundary
+
+- **Explicit:** run whenever the user asks for research.
+- **Automatic:** only from `think` for a technical choice. `think` must settle external facts before `grill` freezes the baseline; a gap discovered later does not justify inline research.
+- **Never automatic:** `grill`, `story`, `implement`, `debug`, `review`, `page-acceptance`, routine CRUD, version confirmation, or ordinary implementation.
+- **Not a business decision tool:** do not use external research to decide missing business rules, state semantics, permission boundaries or acceptance criteria. When a later stage needs an external fact it cannot obtain locally, report the gap with `Next: /research` instead of searching inline. `implement` keeps working from the frozen baseline: apply its safest/recommended-default plus `TODO(待确认)` policy for non-blocking business details rather than routing to `grill`.
+- **Caller owns the handoff:** after research, return to the invoking stage. Do not auto-chain into `think`, `grill` or `implement`. Research invoked explicitly from a post-baseline stage returns its verdict to that stage only.
 
 ## Outcome Contract
 
@@ -30,7 +38,7 @@ A research record is a **durable note capturing best practice for one stack × t
 
 **Execution mode.** The main agent performs the research directly: define one bounded question, collect multi-source evidence when needed, compare versions, verify decisive claims against the cited primary sources, then write the record and update the index.
 
-**Step 0 — Bootstrap.** Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates domain docs and reads `CONTEXT.md`, ADRs, and `docs/research/INDEX.md`.
+**Step 0 — Bootstrap and record caller.** Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates domain docs and reads `CONTEXT.md`, ADRs, and `docs/research/INDEX.md`. Record whether this run was explicitly requested or invoked by `think`; that determines where the verdict returns.
 
 **Step 1 — State the question.** Write down the one question being answered (stack + topic + target major) in one sentence. Confirm the **stack** is a leaf unit (not a composite like `react-nextjs`) and the **topic** is narrow enough for a single one-line verdict (if its answer needs a branching matrix, split it). See [REFERENCE.md](REFERENCE.md) for the granularity test.
 
@@ -84,8 +92,9 @@ Stale sweep (if INDEX existed):
 - <stack>-<topic>-<oldmajor>.md → Status=stale, Version=<old> → <current-major> (suggest /research ...)
 
 Next:
-- If this research informs a decision: /think (it will query INDEX and reuse the TL;DR)
-- If the project adopts the conclusion: /grill to record an ADR referencing this record
+- Explicit/direct run: report the verdict and stop. Recommend /think only if the user wants to turn it into a baseline; do not start it.
+- From think: continue the current think Step 5 with this verdict.
+- Explicit run from a post-baseline stage: return the verdict to that stage only. If the evidence invalidates the frozen baseline, stop the affected slice and report that the user must decide on upstream correction; do not auto-enter think/grill.
 ```
 
 **PRD/ADR Traceability:** If a PRD or ADR consumes this research, it should reference the record path. PRDs cite it in `## Research References`; ADRs cite it in `## References`. The research record is the *evidence layer*; PRD/ADR are the *decision layer* — they reference, never copy.

@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: "Explicit deep visual design layered on the project's existing UI baseline. Use when the user requests page beautification, a full visual direction, a substantial redesign, login pages, dashboards or large screens. For RuoYi pages, load it on top of the ruoyi6 frontend baseline, never as a replacement for component and behavior boundaries."
+description: "Explicit deep visual design layered on the project's existing UI baseline. Use when the user requests page beautification, a full visual direction, a substantial redesign, or an explicit visual design for login pages, dashboards or large screens; page type alone does not trigger it. For RuoYi pages, load it on top of the ruoyi6 frontend baseline, never as a replacement for component and behavior boundaries."
 license: Complete terms in LICENSE.txt
 ---
 

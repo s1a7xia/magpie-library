@@ -1,279 +1,53 @@
-# Debug: Detailed Reference
+# Debug — 证据、系统定位与可选模式
 
-## Stage 0: Context Setup
+## 上下文与快速定位
 
-Apply the [Skill Entry Protocol](../rules/entry-protocol.md) to locate domain docs and identify multi-repo scope. Read `CONTEXT.md` for domain vocabulary that helps form accurate hypotheses.
-
-**Quality check (degradation handling):**
-
-| Signal | Meaning | Action |
-|--------|---------|--------|
-| `docs/agents/domain.md` missing | `/setup-project` may not have been run | Use default paths. Proceed silently. Suggest `/setup-project` after fix if domain docs would help. |
-| `CONTEXT.md` missing | No domain glossary | Form hypotheses using code-level terminology only |
-| `repo-map.md` missing but bug mentions multiple repos | May be multi-repo setup | Ask user: "Is this a multi-repo project? If so, which repos might be involved?" Suggest `/setup-project` to record repo map. |
+按 [入口协议](../rules/entry-protocol.md) 加载相关配置/profile 与当前代码，不因有 Java/React/SQL 就强制 RuoYi。缺领域文档时可从调用链诊断并说明限制，不自动初始化项目。
 
-## Stage 1: Root Cause Analysis (Quick Location)
+先记录实际症状、期望结果、发生条件、最近变化和原始错误。形成 1–2 个能解释相关症状的假设，用已有日志、堆栈和代码数据流核实；不能只凭报错位置改症状。证据足够则直接最小修复，不强制进入完整六阶段或增加日志。
 
-**Goal:** Quickly locate root cause, output one-sentence root cause statement.
+RuoYi 菜单、字典、参数或权限出现“库里已改、页面未生效”时，按 [缓存与生效诊断](../ruoyi6/references/capabilities.md#缓存与生效诊断) 取证；不是通用 debug 的强制步骤，也不授权清缓存、踢用户或重启。
 
-**Actions:**
-1. Understand symptom: User-described error/anomaly/failure
-2. Quick hypothesis: Form 1-2 hypotheses based on experience
-3. Quick validation: Validate hypothesis via logs, breakpoints, or tests
-4. Output root cause: One-sentence root cause statement
+## 六阶段（仅复杂缺陷需要）
 
-**Success signals:**
-- You can predict next error
-- You understand propagation path from root cause to symptom
-- You can write test that fails on old code
+### Phase 1 — 选择反馈信号
 
-**Quality gate:** Before acting on hypothesis, list all observable symptoms (not just first user-reported). Hypothesis must explain each symptom; if only covers some, it's symptom-level guess, not root cause.
+优先用户提供的准确步骤、已有失败结果、当前日志和项目已有复现目标。读取代码可建立可证伪假设，不要求先运行。只有获当前请求授权才运行已有测试、HTTP/CLI 或浏览器复现；新增回归测试须另有编写测试授权。数据写入、生产探针、压力/模糊测试、容器与新框架不随 debug 自动获批。
 
-**Escalation condition:** If quick validation fails — both hypotheses refuted, or no hypothesis explains all symptoms — escalate to Stage 2 full 6-phase loop. Do not keep guessing in Stage 1.
+信号要区分当前缺陷与附近另一错误。间歇性问题先核对时间线、版本和并发边界，不默认执行 100 次压力或随机循环。跨环境只比较相关配置，脱敏后记录；不导出全量环境变量或凭证。
 
-## Stage 2: 6-Phase Loop (Systematic Fix)
+### Phase 2 — 确认症状
 
-### Phase 1 — Build Feedback Loop
+有运行授权和可用环境时复现并保留准确结果。否则继续静态诊断，区分“用户报告”“日志证据”“静态推断”和“代理实测”。若关键证据无法从现有材料获得，给最小复现指南：步骤、预期/实际、所需日志；只停依赖该证据的部分。不把不能运行误称无缺陷，也不把静态修复称运行已恢复。
 
-**This is the skill.** Everything else is mechanical. With fast, deterministic, agent-runnable bug pass/fail signal, you'll find cause — bisection, hypothesis testing, instrumentation just consume that signal. Without it, staring at code won't help.
+### Phase 3 — 可证伪假设
 
-**Spend disproportionate effort here. Be aggressive. Be creative. Refuse to give up.**
+按现有证据排序少量假设，写出各自预测与反证条件；不用固定凑够数量或每轮让用户批准。新增证据改变假设才换方向，已被反证的路径不重复尝试。
 
-**How to build one — try in order:**
-1. **Failing test** at any seam reaching bug — unit, integration, e2e
-2. **Curl / HTTP script** against running dev server
-3. **CLI invocation** with fixture input, diff stdout against known-good snapshot
-4. **Headless browser script** (Playwright / Puppeteer) — drive UI, assert DOM/console/network
-5. **Replay captured trace**. Save real network request/payload/event log to disk; replay through code path in isolation
-6. **One-time harness**. Spin minimal system subset, exercise bug code path with one function call
-7. **Property / fuzz loop**. If bug is "sometimes wrong output", run 1000 random inputs, look for failure pattern
-8. **Bisection harness**. If bug appears between two known states (commit, dataset, version), automate "boot state X, check, repeat" so you can `git bisect run` it
-9. **Differential loop**. Run same input through old-version vs new-version (or two configs) and diff output
-10. **HITL bash script**. Last resort. If human must click, write a small bash script that: prints clear step instructions, waits for human input, captures the output (exit code, stdout, stderr), and loops automatically. This keeps the feedback loop structured even when human interaction is required. Example structure:
-    ```bash
-    #!/usr/bin/env bash
-    # hitl-repro.sh — structured human-in-the-loop repro
-    set -euo pipefail
-    for i in $(seq 1 10); do
-      echo "=== Run $i ==="
-      echo "Perform the action, then press ENTER when done."
-      read -r
-      echo "Capturing state..."
-      # Add your state-capture commands here
-      echo "Exit code: $?"
-    done
-    ```
+### Phase 4 — 必要探针
 
-**Iterate on the loop itself.** Treat loop as product. Once you have loop, ask:
-- Can I make it faster? (cache setup, skip irrelevant init, narrow test scope)
-- Can I make signal clearer? (assert specific symptoms, not "didn't crash")
-- Can I make it more deterministic? (fix time, seed RNG, isolate fs, freeze network)
+已有证据不足时，按授权添加最少临时日志或断点，探针对应具体预测，一次只改变一个关键变量。日志脱敏，异步问题记录序列/时间；只需要时持久化到本任务临时文件，记下归属，不能记录令牌/隐私。只读诊断不修改源码加日志。
 
-Build right loop, bug 90% fixed.
+连续 3 个已被反证的假设仍无法定位时停止试错，交付已排除项、原始错误、未知与下一条所需证据；不自动委派或转入 research。
 
-**Non-deterministic bugs:**
-Goal isn't clean repro but **higher repro rate**. Trigger loop 100×, parallelize, add stress, narrow time window, inject sleeps. 50%-flake bug is debuggable; 1% isn't — keep raising rate until debuggable.
+### Phase 5 — 最小修复与回归保护
 
-**Environment-dependent bugs ("works on my machine"):**
-Goal is finding the environment variable that differs. Don't stare at code — diff the environments:
-1. Compare runtime versions: `node --version`, `python --version`, `go version`, etc. across environments
-2. Compare dependency lockfiles (`package-lock.json` hashes, `requirements.txt`, `go.sum`)
-3. Check OS-specific behavior: path separators (`\` vs `/`), case sensitivity, line endings (CRLF vs LF), file permissions
-4. Compare environment variables and config files that differ between environments
-5. Check locale/timezone-dependent behavior (date formatting, string sorting, decimal separators)
-6. If possible, containerize one environment and diff behavior, or use Docker/devcontainer to match the failing environment
+修复实际根因，检查相关调用与边界，不顺手改 UI 设计或不相关架构。只有当前请求明确授权新增/修改测试时才建立针对性回归测试，使用现有正确接缝；仅获运行授权则只跑已有目标。无合适接缝时报告缺口，不造框架。旧代码失败/新代码通过只能在实际观察后声明。
 
-**When you truly cannot build loop:**
-Stop and state explicitly. List what you tried. Request user provide: (a) access to environment reproducing it, (b) captured artifacts (HAR file, log dump, core dump, timestamped screen recording), or (c) permission to add temporary production instrumentation. **Don't proceed without loop** — reading and acting on error output is mandatory (anti-pattern #12).
+### Phase 6 — 收尾与交接
 
-Don't enter Phase 2 until you believe a loop.
+核对最终 diff、相关调用关系，记录已执行与未执行检查。只删除本任务明确创建的探针和临时文件，不能递归删除整个既有 `DEBUG/`。需要保留的复现证据先脱敏并按用户/项目要求归档。更新适用状态与失效证据，Git 按既有授权；返回 review/page-acceptance 调用点，不自动启动新产品阶段。
 
-### Phase 2 — Reproduce
+## 可选：Bisect
 
-Run loop. See bug appear.
+“以前正常”先用相关 `git log`/diff 缩小范围，不自动运行二分或测试。运行二分需有实际可重复且已授权的检查、可证明的 good/bad 提交；最新 tag 不代表 good。
 
-Confirm:
-- [ ] Loop produces user-reported failure mode — not different failure nearby. Wrong bug = wrong fix.
-- [ ] Failure reproducible across multiple runs (or, for non-deterministic bugs, at sufficient rate to be debuggable)
-- [ ] You captured exact symptom (error message, wrong output, slow timing) so later phases can verify fix actually solved it
+确需二分且 Git/worktree 操作获授权时，始终在独立临时 detached worktree 执行，绝不 checkout/reset 用户当前工作区，清洁工作区也一样。无法隔离则报告，不要求 stash/clean。记录 worktree 绝对路径、good/bad、检查命令；结束在临时 worktree `git bisect reset`，按归属和路径核对后清理自己创建的 checkout。不删除已有或其他会话 worktree。
 
-**HITL reproduction — a standard branch, not a fallback.** When the loop can't be run autonomously (human must click, env is manual, production-only trigger), reproduction is still a structured checkpoint: stop, output a reproduction guide, and wait for the user's report. Do not skip Phase 2 or slip silently into hypothesizing. The guide should be explicit about expected vs actual behavior and suggest multiple runs for timing/race bugs:
+## 可选：Scope scan
 
-```markdown
-**Reproduce (please run):**
-1. Steps: [precise click/input sequence or command]
-2. Expected: [what should happen]   Actual: [what you observe instead — paste exact error/stack]
-3. Runs: repeat 1-2 times if the failure is intermittent; report whether it happens every time
-4. Extra context if relevant: [version, env vars, OS, what changed recently]
-```
+修复后只读检查直接调用方、共享实现及同一受影响数据流。用户要求查同类时再扩大到相关模块，排除生成物/依赖/构建目录，不强制全库扫描。报告相似项是否同因；不相关缺陷仅报告，除非用户授权，不批量修复。
 
-Once you receive the report, treat it as the Phase 1 loop output: a captured symptom for later verification, exact failure mode confirmed. When the human cannot reproduce it on demand, that finding itself (lower repro rate) feeds back into Phase 1 to raise the rate before any hypothesis.
+## 交付证据
 
-Don't proceed until you reproduce bug.
-
-### Phase 3 — Hypothesize
-
-Generate **3-5 ranked hypotheses** before testing any. Single hypothesis generation anchors on first reasonable idea.
-
-Each hypothesis must be **falsifiable**: State its prediction.
-> Format: "If <X> is cause, then <change Y> will make bug disappear / <change Z> will make it worse."
-
-If you can't state prediction, hypothesis is vibe — discard or sharpen.
-
-**Present ranked list to user before testing.** They often have domain knowledge to immediately re-rank ("we just deployed change affecting #3"), or know what they already excluded. Cheap checkpoint, big time-saver. Don't block — if user AFK, continue with your ranking.
-
-### Phase 4 — Instrument
-
-Each probe must map to Phase 3's specific prediction. **Change one variable at a time.**
-
-Tool preference:
-1. **Debugger / REPL inspection** if environment supports. One breakpoint > ten logs.
-2. **Targeted logging** at boundaries distinguishing hypotheses.
-3. Never "log everything and grep."
-
-**Hypothesis-exhaustion exit.** If **3 falsified hypotheses** pass through Phase 3→4 without identifying the cause, stop looping: emit the Handoff output (see SKILL.md §Output (Handoff)) — tested hypotheses with results, evidence, excluded causes, unknowns, suggested next direction — and set Status to `blocked`. The handoff is designed for a fresh session with clean context; don't keep grinding in this one.
-
-**Persist probes to a session log, not just stdout.** Streaming to stdout forces a full loop re-run every time you want to inspect evidence, and throws away ordering. Instead, write each probe to `DEBUG/<session>-<n>.log` (one line per probe) so you can `grep`/`tail` the file after the loop finishes, across runs, without re-running. Each probe line carries **monotonic sequence + timestamp + async/fiber context** — for race conditions the *order* of the lines is itself root-cause evidence. This is a pure convention (zero runtime, no debug server); the log is a disposable artifact, not project output. Every feature of a Cursor-style centralized debug log (aggregation, ordering, replay) is captured by the file; the server is not.
-
-**Perf branch.** For performance regression, logs often wrong. Instead: establish baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
-
-**Mark each debug log** with unique prefix, e.g., `[DEBUG-a4f2]`. Cleanup becomes single grep at end. Unmarked logs survive; marked logs die. The `DEBUG/` directory is covered by the same cleanup — see Phase 6.
-
-### Phase 5 — Fix + Regression Test
-
-**Write regression test before fix** — but only when **correct seam** exists.
-
-Correct seam tests **real bug pattern** at call site. If only available seam too shallow (single-caller test when bug needs multiple callers, unit test can't replicate triggering bug chain), regression test there gives false confidence.
-
-**If correct seam doesn't exist, that's itself a finding.** Note it. Codebase architecture prevents bug being locked. Flag for next phase.
-
-If correct seam exists:
-1. Convert minimal repro to failing test at that seam
-2. See it fail
-3. Apply fix
-4. See it pass
-5. Run Phase 1 feedback loop on original (non-minimal) scenario
-
-**Regression test scope:**
-
-The regression test in `/debug` is a **targeted verification** — a single test that proves the specific bug is fixed (fails on old code, passes on fix).
-
-- **Scope**: one bug, one test.
-- **Scenario design**: not needed — the bug already defines the scenario.
-- **Execution**: one agent handles diagnosis and fix; no separate test-design phase.
-
-Keep the regression guard targeted. If the fix grows beyond it (e.g., it requires new features or changes acceptance criteria), stop and propose a separate implementation workflow; the user must explicitly request the switch.
-
-### Phase 6 — Cleanup + Retrospective
-
-Required before done:
-- [ ] Original repro no longer reproduces (re-run Phase 1 loop)
-- [ ] Regression test passes (or seam doesn't exist, noted)
-- [ ] All `[DEBUG-...]` instrumentation removed (`grep` prefix)
-- [ ] `DEBUG/` session-log directory deleted (probe persistence from Phase 4)
-- [ ] One-time prototypes deleted (or moved to clearly marked debug location)
-- [ ] Proven hypothesis stated in commit / PR message — so next debugger learns
-
-**Then ask: what would prevent this bug?** If answer involves architecture change (no good test seam, tangled callers, hidden coupling), report the architecture concern with details for a separate review. Suggest after fix, not before — you have more info now.
-
-## Optional Modes
-
-### Bisect Mode
-
-Triggered by: "used to work", "broke after update", or user recalls specific good commit/version.
-
-0. First protect user's worktree: run `git status --short --branch -uall`. If modified/staged/untracked files exist, don't bisect in current checkout. Create temporary detached worktree from same HEAD, run bisect there, then `git bisect reset` and delete temp worktree when done. If temp worktree impossible, stop and request explicit cleanup/stash approval.
-1. Find candidate good tag: `git tag --sort=-version:refname | head -10` or ask user last known good commit.
-2. Before starting bisect, define non-interactive pass/fail test command. Bisect without reproducible check has no value.
-3. Run: `git bisect start && git bisect bad HEAD && git bisect good <tag-or-hash>`
-4. At each step bisect checks out one commit. Run test command. Mark: `git bisect good` or `git bisect bad`.
-5. Let bisect drive. Don't skip or re-order commits unless explicitly asked.
-6. When bisect names culprit commit, only read that diff. Identify specific line introducing regression.
-7. When done, run `git bisect reset`.
-
-Read large file once and reference from notes, not re-read at each bisect step.
-
-### Scope Scan Mode
-
-Triggered after root cause pattern fixed, before declaring bug done, or user says "check if this exists elsewhere".
-
-1. Extract pattern signature: specific function name, regex, API call, CSS selector, lock acquisition, validation skip, or input boundary producing bug.
-2. `grep -rn <pattern>` across repo (exclude generated dirs, build output, vendored deps). For class-of-bug patterns (e.g., "any handler missing lock"), grep surrounding shape, not just literal text.
-3. List each match. For each, answer in writing: same bug here? Choose fix / leave (explain why safe) / unsure (ask user). Don't silently skip matches.
-4. Don't claim "fixed" until scope report in Outcome block.
-
-Common triggers:
-- Fix visual bug on one page: check every other page using same component, layout, or media-query breakpoint
-- Fix race in one handler: check every handler acquiring same lock or touching same shared state
-- Fix validation skip at one entry point: check every entry point reaching same downstream sink
-- Fix regex/parser for one input shape: check every caller of same regex/parser
-
-If scope scan exposes unrelated bugs, list but don't fix in this PR unless user agrees; scope creep is its own anti-pattern.
-
-## Quality Gates
-
-### Phase 1 Gate
-
-List all observable symptoms before hypothesizing:
-- User-reported error
-- Console warnings (if any)
-- Performance degradation (if any)
-- Side effects in other features (if any)
-
-Hypothesis must explain ALL symptoms, not just primary one.
-
-### Phase 3 Gate
-
-Before testing hypotheses, verify each is falsifiable:
-- Can you state what specific change would disprove it?
-- Can you measure the prediction?
-
-If not, sharpen hypothesis before proceeding.
-
-### Phase 5 Gate
-
-Before declaring fix done:
-- [ ] Original repro scenario passes
-- [ ] Regression test at correct seam passes
-- [ ] No new tests failing
-- [ ] Fix is minimal (no unrelated changes)
-
-## Example: Debug Loop Construction
-
-**Bad approach:**
-```
-User: "Feature X crashes when I click button"
-Agent: "Let me add logs to figure out why"
-[Adds 20 log lines everywhere]
-[Runs through UI manually]
-"This will take a while to debug..."
-```
-
-**Good approach:**
-```
-User: "Feature X crashes when I click button"
-Agent: "Let me build a repro loop I can run deterministically."
-
-[Writes Playwright script that clicks button and captures error]
-[Runs script 10x, confirms 100% crash rate]
-"Repro built: 100% crash rate with [error message]. Now I'll form hypotheses."
-
-Hypothesis 1: Null state when button clicked
-Hypothesis 2: Race condition in event handler
-Hypothesis 3: Missing error boundary
-
-[Test Hypothesis 1: Add log for state, run script]
-→ State not null, exclude.
-
-[Test Hypothesis 2: Add delay before click, run script]
-→ Still crashes, exclude.
-
-[Test Hypothesis 3: Check if error boundary exists]
-→ Missing boundary, this is root cause.
-
-[Fix: Add error boundary]
-[Regression test: test error boundary catches errors]
-[Run original repro: passes]
-
-Done.
-```
+根因位置与机制、修改范围、证据来源、授权检查结果、静态/运行边界、未验证回归风险。没有运行证据时可交付代码修复，但只能写“已修复代码，运行未验证”，不能声称原复现已通过。

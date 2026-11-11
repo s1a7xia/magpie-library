@@ -7,14 +7,14 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 为当前仓库建立后续技能需要读取的项目事实。它是初始化/重配入口，不是每次开发的前置门槛；已有 `docs/agents/` 时可重复运行，只更新变化部分。
 
-## Global-first 默认
+## 项目驱动、全局通用
 
-全局 Magpie 指令是工作原则、工作流、编译口径、页面验收时机和 Git 规则的唯一来源。项目只保存**项目事实**，不复制全局流程。
+全局 Magpie 指令只保留通用协作原则。工作流启用、技术 profile、编译验收和文档/Git 策略归项目 AGENTS.md；阶段方法引用 rules/workflow-contract.md，不复制整套流程。
 
 - 默认不创建、不修改 `AGENTS.md` / `CLAUDE.md`。
-- 如果文件已存在或用户明确要求，只写项目事实和指向 `docs/agents/` 的短指针。
+- 如果文件已存在或用户明确要求，保留项目工作流配置、项目事实及指向 `docs/agents/` 的短指针，不删除用户批准的路由和收尾授权。
 - 项目专属原则（文件大小、依赖检查路径、验证命令）写入 `docs/agents/coding-standards.md`。
-- 默认技术 profile 是 `ruoyi6`（RuoYi-Vue-Plus 6.x + React；实际版本从当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 读取）。不通过框架签名探测、不单独问“是不是 RuoYi”；用户明确说非 RuoYi 时，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
+- 按用户/项目配置或实际技术栈选择 profile；RuoYi 项目使用 `ruoyi6`（RuoYi-Vue-Plus 6.x + React；实际版本从当前项目根 `pom.xml` 和 `plus-ui-React/package.json` 读取）。不对无关项目强加 RuoYi；非 RuoYi 项目，记录 `Technical profile: none` 或用户指定的替代 profile 及理由。
 - Hook 默认不安装。项目明确启用时，只登记项目级适配器和职责，不修改机器级 Hook 索引；事件边界见 [Hook 护栏](../rules/hook-guardrails.md)。
 
 ## 产出
@@ -38,7 +38,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 ## Process
 
-**Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。已有配置时先读全，不覆盖用户手写内容。重跑时额外扫描已有指令和项目文档中的过期技能/profile 引用：`engineering-workflow`、`ruoyi-plus-dev`、`project-context`、`prompt-engineering`、`scm-collaboration`、已删除的 Vue 长期前端规范，以及与实际 `Technical profile` 不一致的流程说明。发现漂移只报告并纳入差异草案，确认后再改；不静默保留过期引用。
+**Step 1 — Explore.** 检测仓库根、remote、已有 `AGENTS.md`/`CLAUDE.md`、已有 `docs/agents/`、单仓/单包/多仓结构、前后端目录、构建文件和现有文档。完整初始化或审计时读取适用配置；只改少量字段时仅读取相关配置和直接依赖，不覆盖用户手写内容。在本轮检查范围内扫描过期技能/profile 引用：`engineering-workflow`、`ruoyi-plus-dev`、`project-context`、`prompt-engineering`、`scm-collaboration`、已删除的 Vue 长期前端规范，以及与实际 `Technical profile` 不一致的流程说明。发现漂移只报告并纳入差异草案，确认后再改；不静默保留过期引用。
 
 **Step 2 — Detect.** 识别项目结构、实际前端位置、后端模块、数据库脚本、测试/构建/启动命令、监听端口、Issue 跟踪现状。无法从仓库确认的多仓关系才问用户。
 
@@ -51,8 +51,8 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 - C. Domain Docs：默认根 `CONTEXT.md`、`docs/prd/`、`docs/adr/`、`docs/research/`；多仓时写 `repo-map.md`。
 - D. Documentation Language：默认跟随用户当前语言。
 - E. Project Engineering Principles：只写项目实际需要的范围、文件大小、依赖检查路径和快速命令；不复制通用原则全文。
-- F. Coding Standards：默认 `ruoyi6`；非 RuoYi 项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
-- G. Project Handoff / Compile & Run Commands：写实际后端、前端编译命令、启动命令、工作目录和监听端口。启动命令只登记、不在初始化时启动服务；从构建文件、脚本和已有运行说明读取，无法确认时标为待确认，不猜端口。默认只编译受影响一侧，跳过测试、lint 和独立类型检查。
+- F. Coding Standards：按项目实际技术栈选择；RuoYi 使用 `ruoyi6`，其他项目记录 `none` 或替代 profile 及理由。把 profile 的硬约束摘到项目配置，避免未加载 profile 时完全看不见。
+- G. Project Handoff / Compile & Run Commands：写实际后端、前端编译命令、启动命令、工作目录和监听端口。启动命令只登记、不在初始化时启动服务；从构建文件、脚本和已有运行说明读取，无法确认时标为待确认，不猜端口。此处只登记命令，不授权执行；默认只核对差异，当前请求明确要求检查时才运行对应最小目标。
 - H. Project AGENTS.md / CLAUDE.md：默认跳过；仅在文件已存在或用户明确要求时更新短指针。
 
 **Step 5 — Confirm.** 写出前展示完整文件草案；更新时只展示变化文件。不要用占位符生成真实项目配置。
@@ -65,7 +65,7 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 
 - 重跑时先读现有配置，比较实际结构，不重写未变化文件。
 - 发现 PRD/ADR/research 命名、语言或格式漂移时先报告，确认后再改；不自动翻译或批量重命名。
-- 重跑结束必须报告过期引用检查结果：每个文件、命中的旧技能/profile 名或 Vue 长期规范，以及“已修复 / 待用户确认 / 无需变更”。不能把引用检查藏在探索步骤里而不出现在交付结果中。
+- 重跑结束报告本轮实际检查范围及其中的过期引用结果：每个文件、命中的旧技能/profile 名或 Vue 长期规范，以及“已修复 / 待用户确认 / 无需变更”。不把局部检查说成全量无漂移。不能把引用检查藏在探索步骤里而不出现在交付结果中。
 - 项目配置变化后，提示重新运行受影响的阶段；不自动启动实现或页面验收。
 
 ## Gotchas
@@ -75,8 +75,8 @@ description: "Initialize or reconfigure a repository's engineering setup: projec
 | 没看 remote 就假设 GitHub | Step 1 先运行 `git remote -v` |
 | 单仓/多仓判断错误 | Step 2 检查 workspace、子项目和同级仓库 |
 | 创建了不需要的 AGENTS.md | 默认跳过；只写项目事实或短指针 |
-| 把全局工作流复制进项目文件 | 全局指令是唯一来源；项目只写事实 |
-| 技术 profile 靠探测框架签名决定 | 默认 `ruoyi6`；非 RuoYi 由用户明确说明后记录 `none` 或替代 profile |
+| 把全局工作流复制进项目文件 | 全局只写通用原则；项目保存已批准的工作流配置，技能保存方法 |
+| 技术 profile 靠探测框架签名决定 | 按项目配置或实际栈选择；非 RuoYi 记录 `none` 或替代 profile |
 | 编译或启动命令是猜的 | 从 `pom.xml`、`package.json`、CI、脚本和已有运行说明读取；端口从配置读取 |
 | 多仓没有主跟踪仓库 | 写 `repo-map.md`，明确哪个仓库拥有主 Issue/PRD |
 | 生成文件留模板占位符 | 用实际事实或“暂无记录”，不把模板当配置 |

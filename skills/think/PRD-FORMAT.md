@@ -2,7 +2,7 @@
 
 ## 用途
 
-PRD 文件格式模板。由 `think` 或 `story`（无 PRD 时）生成和维护。
+PRD 文件格式模板。由 `think` 创建；后续阶段仅维护各自状态和追溯。`story` 不在无 PRD 时生成替代基线。
 
 ## 文件位置
 
@@ -43,21 +43,21 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 |------|---------|--------|
 | **Draft** | PRD 文件创建，`Open Questions` 尚未全部解决 | `/think` |
 | **Grilled** | 所有 Open Questions 已解决，Assumptions 已验证，Exhaustiveness Gate 通过；或冻结后目标/范围不变、`Change Log` 已登记、需补拆新增或变更的 `R#` / `AC#` | `/grill`；增量变更由 `/grill` 或用户显式改回 |
-| **Sliced** | PRD 已拆分为 Issues，Traceability 的 `Sliced into` 列表已填充 | `/story` |
-| **In Progress** | 至少一个 Child Issue 开始实现 | 实现工作流首次执行 |
-| **Dev Complete** | 所有切片代码写完、编译通过、已提交推送；有页面可观察行为的范围**未做页面验收**，非 UI 批次页面验收为 `N/A` | `implement` 批次结束 |
+| **Sliced** | PRD 已拆分为稳定本地切片或远端 Issues，Traceability 的 `Sliced into` 列表已填充 | `/story` |
+| **In Progress** | 至少一个已批准的本地/远端切片开始实现 | 实现工作流首次执行 |
+| **Dev Complete** | 所有切片所需行为完整实现，无已知代码缺陷；检查和 Git 各记实际状态，不以未授权构建/提交阻断本地实现；有页面可观察行为的范围**未做页面验收**，非 UI 批次页面验收为 `N/A` | `implement` 批次结束 |
 | **Accepted** | 有页面可观察行为的范围已通过用户发起的页面验收；非 UI 批次不经过此状态，页面验收记录 `N/A` 后由 review 从 `Dev Complete` 直接收尾 | `page-acceptance` 通过 |
-| **Done** | 当前行为已有有效 `Accepted` 证据，用户显式发起的完整 review 通过，项目收尾条件满足 | `/review`；若有行为修复，则在修复点 `page-acceptance` 通过后写回 |
+| **Done** | UI 当前行为已有有效 `Accepted` 证据（非 UI 记 N/A），用户显式发起的完整 review 通过，项目收尾条件满足 | 有效 review 与页面验收（或 N/A）齐备后，由最后完成的阶段写回 |
 | **Deprecated** | PRD 被放弃或替代（从任意前置状态可达） | 人工标记 |
 
 **状态与代码的关系**: `Done` 判定以代码和验收证据为准——不依赖 Issue 关闭状态或口头确认，而是验证：
 - 对应功能代码已按当前同一分支的提交与推送约定完成；不要求另建分支或远端 Issue
-- 有页面可观察行为的声明范围已通过页面测试；非 UI 范围记录 `Page acceptance: N/A — <reason>`，并以受影响侧编译和适用证据为准。Acceptance Criteria 已按实际验证结果勾选（用户明确要求但未运行的测试必须标为未验证，不能写成通过）
-- 无 `[TEMPORARY]` / `TODO(prd-NNNN)` 残留标记
+- 有页面可观察行为的声明范围已通过页面测试；非 UI 范围记录 `Page acceptance: N/A — <reason>`，并以适用且实际有效的检查证据为准，未授权检查如实记录未运行，不冒充满足独立发布门。Acceptance Criteria 已按实际验证结果勾选（用户明确要求但未运行的测试必须标为未验证，不能写成通过）
+- 无实际未解决的基线决定或临时功能替代；关键词/引用示例本身不作为门槛
 
-**验收与修复回流**：证据记录被验证的代码版本、范围与环境。后续实现或 debug 改变已验收行为时，受影响切片从 `Accepted` / `Done` 退回 `Dev Complete`（编译未通过则为 `In Progress`），标明旧验收及 review 结论失效范围与待复测路径；父 PRD 同步退回，未受影响切片保留状态。仅文档提交或不影响已验证行为的无关改动，不因 HEAD 改变而要求重测。
+**验收与修复回流**：证据记录被验证的代码版本、范围与环境。后续实现或 debug 改变已验收行为时，受影响切片从 `Accepted` / `Done` 退回 `Dev Complete`（已知代码缺陷或缺行为则为 `In Progress`；环境/未运行检查单列），标明旧验收及 review 结论失效范围与待复测路径；父 PRD 同步退回，未受影响切片保留状态。仅文档提交或不影响已验证行为的无关改动，不因 HEAD 改变而要求重测。
 
-有页面可观察行为时，标准顺序是 `implement → 首次全范围 page-acceptance → review（内嵌 debug）→ 修复点 page-acceptance → Done`。该类范围 review 开始前必须有首次页面验收，不能用修复点验收替代首次验收。纯后端、SQL、内部逻辑、日志或配置批次记录页面验收 `N/A`，从 `Dev Complete` 直接进入 review，review 通过后可直接写 `Done`，不伪造 `Accepted`。review 一轮内完成发现、修复和剩余范围检查，整轮结束后才由用户发起修复点验收，只覆盖修复点及连带路径。修复改变已验收行为时，旧验收先失效并退回 `Dev Complete`；修复点验收通过后恢复 `Accepted`，本轮 review 已覆盖最终代码即可恢复 `Done`。若整轮 review 没有修复，有效验收继续适用。验收证据保留历史并标注被哪次验证替代，不伪称旧代码上的检查覆盖新行为；非 UI 批次的 `Page acceptance: N/A` 不是“页面已通过”，只是明确该批次没有页面可观察范围。
+阶段顺序与证据回流见 [共享契约](../rules/workflow-contract.md#4-验收门槛与回流)：默认先手动 review，再手动页面验收；首次覆盖完整声明范围，不自动启动下一阶段。
 
 **Status 字段格式**（放在 PRD 模板中 `# <Feature Name>` 之后的第一行）:
 
@@ -114,13 +114,13 @@ Draft → Grilled → Sliced → In Progress → Dev Complete → Accepted → D
 
 * 声明的验收标准已在约定范围内验证通过，未验证项已列明
 * 每条需求至少有一条可观察的验收标准；切片后每条验收标准都有明确切片承接
-* 受影响的前后端编译通过；用户明确要求的其他检查通过
+* 当前请求授权或更高优先级明确要求的检查通过；未授权的构建/测试如实记未运行，项目独立发布门仍适用
 * 行为变化涉及的文档已同步
 * 有风险时已说明上线与回退方式
 
 ## Change Log
 
-Baseline changes after `Grilled` go here — one row per change. Additive changes (a new field, an extra validation, an added state) keep the baseline valid: set the PRD back to `Grilled`, mark affected slices `Dev Complete`, invalidate their old acceptance evidence, then re-run `story` for the new or changed `R#` / `AC#`; unaffected slices keep their state and evidence. If the goal or scope itself changes materially, set the PRD back to `Draft` and re-run `think` → `grill`.
+Baseline changes after `Grilled` go here — one row per change. Additive changes (a new field, an extra validation, an added state) keep the baseline valid: set the PRD back to `Grilled`, mark affected slices `In Progress` until changed criteria are implemented, invalidate only affected review/acceptance evidence, then re-run `story` for the new or changed `R#` / `AC#`; unaffected slices keep their state and evidence. If the goal or scope itself changes materially, set the PRD back to `Draft` and re-run `think` → `grill`.
 
 | Date | Change | Why / who asked | Affected slices |
 |---|---|---|---|
@@ -133,6 +133,8 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 ## Technical Approach
 
 <key design + decisions>
+
+如果方案新增或实质改变表、关系、唯一性、生命周期、索引或迁移，补充 `Data Model Contract`：实体身份、归属、不变量、基数、删除语义、主要查询与索引、容量、迁移回滚和未决项。字段级 DDL 仍由 `ruoyi6/references/database.md` 约束。
 
 ## Research References
 
@@ -221,4 +223,4 @@ Baseline changes after `Grilled` go here — one row per change. Additive change
 | Technical Notes | 技术笔记 |
 | Traceability | 全链路追踪（各 skill 阶段自动填充）|
 | Issue | 对应的 Issue 编号 |
-| Sliced into | 子 Issues 列表，Traceability 的一环（由 /story 自动填写，格式：`#<number> — <title> (type) — covers: R#, AC# — status`；PRD 无独立 "Child Issues" 字段）|
+| Sliced into | 稳定本地切片或远端 Issues 列表，Traceability 的一环（由 /story 自动填写，格式：`#<number> — <title> (type) — covers: R#, AC# — status`；PRD 无独立 "Child Issues" 字段）|

@@ -30,7 +30,7 @@ Before drafting slices, audit the frozen PRD read-only. Do not repair requiremen
 | Check | Pass condition |
 |---|---|
 | Frozen | `Status: Grilled`; `Grilled by` filled |
-| Resolved | No `Open Questions`, `TODO`, `?` markers, or unvalidated assumptions |
+| Resolved | No actual unresolved baseline decision or material unvalidated assumption; empty/resolved sections, SQL `?`, quoted examples and fully implemented non-blocking TODO notes are not blockers |
 | Traceable | Requirements and criteria carry stable `R#` / `AC#` IDs; every requirement has at least one observable criterion; every criterion traces to a requirement or is explicitly marked non-functional |
 | Consistent | Criteria do not contradict each other or `Out of Scope`; terminology matches `CONTEXT.md` |
 | Sliceable | Dependencies can be ordered without a cycle |
@@ -45,9 +45,13 @@ If any check fails, stop before creating issues, name the offending sections or 
 
 **Step 2**: Read the frozen baseline, including the latest `## Change Log`. Extract Goal, Requirements, Acceptance Criteria and Out of Scope. Do not add, soften or reinterpret requirements. For a post-freeze additive change, preserve unaffected slice states and evidence; only add or re-slice the criteria that changed.
 
+涉及持久化/模型时，先读项目指定的数据库技能和参考；仅项目未配置入口时使用 [database-design](../database-design/SKILL.md)。grill 核对身份、生命周期、约束与新表准入；story 承接已批准契约、迁移和使用方，不重新发明模型。
+
 **Step 3**: Explore the codebase as needed to size the slices — current modules, existing patterns, ADRs, domain glossary.
 
 **Step 4**: Draft vertical slices. Each slice is a thin path through every affected layer and can land verified on its own. Give every slice a `Covers` field naming the PRD requirements and acceptance criteria it closes.
+
+When a slice changes the database schema, include the end-to-end use of that schema in the same slice. A standalone schema/migration slice is allowed only for a migration or repair that cannot be delivered with its consumer; state why in `What to build`.
 
 **Step 5**: Record dependencies explicitly. Every slice carries `blocked-by` (or `none`). This is not optional: `implement` uses it to skip blocked work in unattended runs. Complete the coverage map: every PRD acceptance criterion is assigned to exactly one slice, or shared with a stated reason.
 
@@ -78,6 +82,7 @@ See [STORY-FORMAT.md](STORY-FORMAT.md) for the issue title/body template (single
 | A post-freeze change was implemented by extending a completed batch | Step 2: record it in `Change Log`, invalidate only affected acceptance evidence, then re-run `story` for the changed criteria before `implement` |
 | Unaffected slices were reopened for an additive change | Step 2: preserve their state and evidence; only affected slices return to `Dev Complete` |
 | Horizontal slicing (all schema, then all API) | Use vertical slices through all layers |
+| A schema change was split from every consumer with no delivery reason | Keep the schema, data behavior and consumer in one slice; allow a standalone migration/repair slice only when it cannot land with its consumer |
 | Slices too thick | Prefer many thin slices over few thick ones |
 | A PRD requirement had no accepting slice | Baseline Consistency Gate / Step 5: assign every acceptance criterion to a slice before approval |
 | A slice had no `blocked-by` | Step 5: every slice states its blockers or `none`; `implement` needs this to skip blocked work |
@@ -116,5 +121,5 @@ Story complete — PRD-NNNN <title> (baseline: Grilled → Sliced)
 
 Stage complete; stop here.
 
-**Next (user-initiated):** `/implement` for this batch. Implementation stops after the batch at `Dev Complete` and selects the next gate by observable impact: page-observable work goes to first full-scope `/page-acceptance` then `/review`; non-UI work records `Page acceptance: N/A` and goes to `/review`.
+**Next (user-initiated):** `/implement` for this batch. Implementation stops after the batch at `Dev Complete` and selects the next gate by observable impact: recommend user-initiated `/review` first, then full-declared-scope `/page-acceptance` for UI; non-UI records `Page acceptance: N/A`. Neither gate starts automatically.
 ```

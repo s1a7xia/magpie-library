@@ -23,7 +23,7 @@
 
 ## Re-run Checklist
 
-When `docs/agents/` already exists, run this drift detection loop **before** any user interaction. Each config file is checked against the current repo state:
+When `docs/agents/` already exists, use this checklist for the requested scope. A full setup audit covers all applicable rows; a narrow update reads only the relevant configuration and direct dependencies, without unrelated remote queries or a full-document sweep.
 
 | Config file | Detection check | Drift signal | Action |
 |---|---|---|---|
@@ -31,15 +31,15 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 | `coding-standards.md` | Read existing standards, selected profile, stack/version, source paths, verification commands and local run reference | Profile/version changed, source moved, command/port no longer exists, or the project now follows an installed profile that was never registered | Present the affected fields; preserve hand-written standards and explicit exceptions. If a profile is now applicable, ask the Section F question and register it |
 | `triage-labels.md` | Check actual labels on 1-2 recent issues → do they still match the file? | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
-| `language.md` | Read existing value. Ask: "Is `<language>` still the right doc language for the team?" | Language preference changed | Confirm, rewrite `language.md`. If changed, trigger **Conformance Sweep** (Language Audit) |
+| `language.md` | Preserve the existing language unless the user requests a change or a material conflict is found | Explicit change or unresolved language conflict | Clarify only the conflict; update `language.md` when authorized. If changed, offer the affected **Conformance Sweep** (Language Audit) |
 | **doc content** | Scan `docs/prd/`, `docs/adr/`, `docs/research/` for naming/language/format drift | Config changed (language, naming, FORMAT) | Trigger **Conformance Sweep** after overrides |
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
-| AGENTS.md/CLAUDE.md (optional) | Does a project file already exist? Does it contain copied global rules instead of a short pointer to `docs/agents/`? | File exists, or the user explicitly asked for one | Keep only project-specific facts and a short `## Project context` pointer; remove duplicated global workflow |
-| Stale skill/profile references | Scan `AGENTS.md`, `CLAUDE.md`, `docs/agents/*.md` and project rules for retired skills (`engineering-workflow`, `ruoyi-plus-dev`, `project-context`, `prompt-engineering`, `scm-collaboration`), Vue-as-future-frontend instructions, and profile names that do not match the selected `ruoyi6`/`none`/alternative profile | Retired name, mismatched frontend stack, or workflow instruction that contradicts the current global workflow | List every affected file and exact stale term; present a diff; after confirmation replace only the stale references with current skill/profile names and `docs/agents/` pointers. Do not silently rewrite hand-written project rules |
+| AGENTS.md/CLAUDE.md (optional) | Does a project file already exist? Does it contain copied global rules instead of a short pointer to `docs/agents/`? | File exists, or the user explicitly asked for one | Keep only project-specific facts and a short `## Project context` pointer; preserve approved project workflow and Git/check policies; remove only genuinely duplicated generic principles |
+| Stale skill/profile references | Scan `AGENTS.md`, `CLAUDE.md`, `docs/agents/*.md` and project rules for retired skills (`engineering-workflow`, `ruoyi-plus-dev`, `project-context`, `prompt-engineering`, `scm-collaboration`), Vue-as-future-frontend instructions, and profile names that do not match the selected `ruoyi6`/`none`/alternative profile | Retired name, mismatched frontend stack, or workflow instruction that contradicts the project-selected workflow contract | List every affected file and exact stale term; present a diff; after confirmation replace only the stale references with current skill/profile names and `docs/agents/` pointers. Do not silently rewrite hand-written project rules |
 | `docs/agents/coding-standards.md` Project engineering principles | Re-run stack detection and script scan — do scope, file-size bound, dependency paths and quick-reference commands still match? | Stack dimension added/removed, verification scripts renamed/added, section missing | Present diff, confirm, update in place |
 
-**If no drift detected in any section**, tell the user: "All config is current — no changes needed." and stop.
+**If no drift is detected in the inspected scope**, report that scope and say no changes are needed there; do not claim an unperformed full audit.
 
 Stale-reference detection is part of drift detection. Do not report "no changes needed" while `AGENTS.md`, `CLAUDE.md` or any `docs/agents/*.md` still names a retired skill, the old profile, or Vue as the future frontend. Report the exact file and matching term, present the replacement diff, and wait for confirmation before editing hand-written project rules. Include the result in the re-run output even when no stale reference is found.
 
@@ -47,12 +47,12 @@ Stale-reference detection is part of drift detection. Do not report "no changes 
 
 When re-running, follow this sequence:
 
-1. **Read current config** — load all existing `docs/agents/*.md` files before detecting anything new
-2. **Run the Re-run Checklist** (above) — detect drift per config file
+1. **Read current config** — load the requested configuration and direct dependencies; read all applicable configuration only for a full audit
+2. **Use the Re-run Checklist** (above) — inspect the selected scope; expand only for an observed dependency or contradiction
 3. **Present diff** — show what changed vs what stayed the same. Only ask about changed sections.
 4. **Update selectively** — rewrite only files that need changes. Leave untouched files alone.
 
-If the user says "update repo map" or "switch issue tracker", focus on that section only. Still run the full checklist first to verify nothing else drifted.
+If the user says "update repo map" or "switch issue tracker", focus on that section and its direct dependencies. Do not run the full checklist or re-confirm unchanged preferences.
 
 ## Migration (Structural Changes)
 
@@ -265,7 +265,7 @@ This is a **single language for the whole project** — it applies uniformly to 
 
 ### Section E — Project Engineering Principles
 
-> Project-specific engineering rules — design-first boundaries, module quality, security, concurrency, UX, dependency checks, and per-change verification — belong in `docs/agents/coding-standards.md`, not in a project `AGENTS.md`. The global Magpie instructions already carry the shared working principles and workflow.
+> Project-specific engineering rules — design-first boundaries, module quality, security, concurrency, UX, dependency checks, and per-change verification — belong in `docs/agents/coding-standards.md`, not in a project `AGENTS.md`. Global instructions carry generic working and permission rules; approved project workflow/manual gates/Git policies belong to project AGENTS.md.
 
 Present the detected tailoring as a draft; the user confirms or edits:
 
@@ -282,16 +282,14 @@ Write the result into `## Project engineering principles` and `## Verification q
 
 Read existing project/team conventions first. When supplied, register their maintained paths and scope in `docs/agents/coding-standards.md`, seeded from [templates/coding-standards.md](templates/coding-standards.md); preserve explicit exceptions. A project `AGENTS.md`/`CLAUDE.md` pointer is optional and only used when the file already exists or the user explicitly asks for one. Before declaring setup complete, actually read the registered profile and its original rules; report a missing dependency without declaring that profile ready. Do not copy the full standard into each workflow skill.
 
-**Default to the RuoYi-Vue-Plus technical profile without probing signatures.** `ruoyi6` (RuoYi-Vue-Plus 6.x + React; read the exact versions from the project's parent POM and `plus-ui-React/package.json`) applies by default. Put it in the confirmation draft together with everything else; the draft is the user's chance to select a project override. Never ask a separate "is this RuoYi?" question. If the user confirms non-RuoYi, record `Technical profile: none` or the user-named alternative plus the reason in the project config. That explicit project setting overrides the global default in later sessions.
+Select the profile from explicit user/project instructions, then the actual repository stack. Use `ruoyi6` only for an applicable RuoYi-Vue-Plus project; otherwise record the selected alternative or `none` and reason. Honor explicit `none`, and do not treat Java/React/PostgreSQL dependencies alone as RuoYi evidence. Inspect actual build/source files for version, scope and command facts; a command catalog does not grant permission to execute.
 
-For the default or a user-named profile, read the checkout only to establish registration facts — the exact version, governed module paths and real verification commands. Do not use those facts to re-decide whether the default applies. For RuoYi-Vue-Plus, take the exact version from the parent POM and the frontend package file; never infer either from a guess.
-
-**Once a profile is established** (the default, a user-named alternative, or none), register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
+**Once a profile is established** (an applicable stack profile, a user-named alternative, or none), register it and surface its framework-specific constraints in the project config, not only inside the profile skill:
 
 - Record the profile by name, its version/stack, and the scope it governs (modules, file types, languages).
 - Carry the profile's hard constraints into the registration — either the **Additional standards** field or an explicit **Project decisions and exceptions** entry. For a RuoYi-Vue-Plus profile these include "do not introduce original-RuoYi APIs", "check `sys_config`/`sys_dict_*` and existing entities before adding a table", and "background tasks declare service identity and data scope".
 - Keep the profile's full rules in the profile skill; register the pointer plus project-specific additions. Do not copy the entire profile into the workflow skills.
-- When the user identifies the project as non-RuoYi, exclude the default profile, record the named alternative or `none`, and say why. Keep the explicit `none` registration even when there are no additional team conventions; it prevents later sessions from reapplying the global default.
+- When the user identifies the project as non-RuoYi, exclude the RuoYi profile, record the named alternative or `none`, and say why. Keep the explicit `none` registration even when there are no additional team conventions; it prevents later sessions from guessing a different profile.
 
 Resolve the installed profile by name at runtime, not by a contributor's absolute path. Record the actual source/template locations and verification commands. Keep team-private additions in the target project. Omit the optional file only when there are no extra conventions and no selected profile or explicit `none` override to preserve.
 
@@ -317,7 +315,7 @@ Derive them from build files, package scripts, application config or verified ru
 
 ### Section H — Project AGENTS.md / CLAUDE.md
 
-Skip by default. Update only when the file already exists or the user explicitly asks for one, and only in place: add a short `## Project context` pointer to `docs/agents/` and the selected technical profile. Do not copy the global working rules, workflow, compile policy, page-acceptance policy or Git rules into the project file.
+Skip by default. Update only when the file already exists or the user explicitly asks for one, and only in place: add a short `## Project context` pointer to `docs/agents/` and the selected technical profile. Do not duplicate global generic principles; preserve or configure only approved project-specific workflow, manual gates, check and Git policies, with references to the shared contract.
 
 ## Step 5: Confirm
 
@@ -325,9 +323,9 @@ Show the user a draft of all files to be written. Let them edit before writing. 
 
 ## Step 6: Write
 
-**Project files first.** Write `docs/agents/*.md` from the seed templates in [templates/](templates/). Do not create `AGENTS.md` or `CLAUDE.md` when neither exists; the global Magpie instructions already provide the workflow.
+**Project files first.** Write `docs/agents/*.md` from the seed templates in [templates/](templates/). Do not create `AGENTS.md` or `CLAUDE.md` when neither exists; global instructions do not configure a project workflow; register approved project routing in existing project configuration when requested.
 
-**If a project file already exists, or the user explicitly asks for one:** update only that file, in place. Add a short `## Project context` section that points to `docs/agents/` and names the selected technical profile. Do not copy the global Working principles, engineering workflow, compile policy, page-acceptance policy, or Git rules. Do not create the other file when one already exists.
+**If a project file already exists, or the user explicitly asks for one:** update only that file, in place. Add a short `## Project context` section that points to `docs/agents/` and names the selected technical profile. Do not duplicate global generic principles. Preserve approved project workflow, manual gates, check authorization and Git policies; configure only the project-specific choices. Do not create the other file when one already exists.
 
 Example pointer (adapt to the project):
 

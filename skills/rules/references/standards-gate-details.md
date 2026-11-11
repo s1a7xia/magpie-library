@@ -10,9 +10,9 @@ A missing/unreadable file, an unresolved reference or a missing original is a bl
 
 ## Verification authorization before completion
 
-Checks are required only when the current request, the project's explicitly adopted standards, or this stage's explicitly authorized verification calls for them. Derive the scope from the active stage, applicable standards and actual project build configuration.
+Run checks only when the current request authorizes them or a higher-priority instruction explicitly requires them. Project command catalogs and skill recommendations are not permission; follow the global no-check default. Running an existing test does not authorize creating tests. Use actual project configuration to select the minimum authorized target.
 
-When checks are authorized, a code task is complete, verified, or eligible for a `Done` transition only after they pass against its final changes. Preserve command, working directory, exit status and relevant output as evidence. When no check is authorized, complete the implementation with the diff reviewed, label it unverified, and do not claim test, acceptance, or runtime success.
+When checks are authorized, claim verified success only after they pass against final changes. Track implementation, verification and Git independently; `Done` additionally requires the project's applicable closure gates. Preserve command, working directory, exit status and relevant output as evidence. When no check is authorized, complete the implementation with the diff reviewed, label it unverified, and do not claim test, acceptance, or runtime success.
 
 When an authorized check fails, repair and rerun it within scope. When it cannot run, report the affected task as blocked/unverified. Existing merge/release criteria still apply after authorized checks pass.
 

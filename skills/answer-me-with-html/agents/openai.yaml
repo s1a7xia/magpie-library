@@ -1,6 +1,2 @@
-interface:
-  display_name: "Answer Me With HTML"
-  short_description: "Explicit visual explainers and plan pages"
-  default_prompt: "Use $answer-me-with-html to turn this plan into a visual HTML page."
 policy:
   allow_implicit_invocation: false

@@ -20,6 +20,8 @@ Pick the boundary that this change could plausibly break, not the one easiest to
 
 ## Create/read/update/delete loop
 
+Only for an explicitly authorized target and disposable test-data scope. Otherwise use read-only checks and report CRUD unverified; never mutate existing business/production records.
+
 1. **Create** — fill every required field; add one optional value so the round trip is visible; use a unique marker such as `<feature>_<run-id>`.
 2. **Verify create** — dialog or drawer closes, no error toast, the row appears at the expected position with the expected values.
 3. **Read** — filter by the marker; confirm only matching rows remain and the total count agrees; reset and confirm the full list returns.

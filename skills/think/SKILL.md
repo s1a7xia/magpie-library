@@ -11,7 +11,7 @@ Transform rough ideas into decision-complete plans. Ask one question at a time, 
 
 If a question can be answered by exploring the codebase or a quick research pass, do that instead of asking.
 
-This stage is one of the two automatic research entry points. The other is `implement`'s novel-business gate; do not trigger research from later stages without an explicit user request.
+This stage is the only automatic research entry point; every other stage requires an explicit user request. External facts that affect a technical choice must be evidenced here, before `grill` freezes the baseline.
 
 ## Outcome Contract
 
@@ -33,7 +33,7 @@ This stage is one of the two automatic research entry points. The other is `impl
 
 **Step 0 — Quick assessment.** If the request is Trivial (typo, single-line fix, one obvious approach), tell the user `/think` is unnecessary, recommend direct implementation, and stop. No PRD created.
 
-**Step 1 — Auto-collect context.** Explore the codebase (affected modules, existing patterns, constraints) and docs (prior PRDs, README, ADRs) before asking anything. Write findings into the PRD's `What I already know` and `Technical Notes`.
+**Step 1 — Auto-collect context.** Explore the codebase (affected modules, existing patterns, constraints) and docs (prior PRDs, README, ADRs) before asking anything. Write findings into the PRD's `What I already know` and `Technical Notes`. If the solution creates or materially changes tables, relationships, uniqueness, lifecycle, indexes or migrations, follow the project-configured database design entry — for example the skill and references named in the project `AGENTS.md`; load the global `database-design` skill only when the project configures no database design entry — and put its data-model contract into `Technical Approach`; do not defer schema decisions to implementation.
 
 **Step 2 — Offer to create a PRD.** Ask whether to persist the plan as `docs/prd/PRD-NNNN-<title>.md`. By now you have enough context to explain what the PRD would contain — the user decides with findings in hand. Don't create one automatically. Declining a PRD ends the Baseline path: produce the approved design summary only, then stop; do not offer `/grill`, do not claim a frozen baseline, and only continue as Direct if the task independently meets Direct's low-risk scope. When creating: run the **PRD Conflict Check** (see REFERENCE.md §PRD Conflict Check) — compare the topic against existing PRDs by title slug and Goal; if a candidate collides, ask whether to resume it (reuse its NNNN) or create a new one with a distinct title. Only then assign next NNNN (max + 1, starting from 0000).
 
@@ -73,6 +73,7 @@ See [REFERENCE.md](REFERENCE.md) for complexity classification detail, question-
 |---|---|
 | Created PRD without asking user first | Step 2: ask before creating PRD |
 | Asked user about code/context that could be derived | Step 1: auto-collect context first |
+| Deferred table, relationship, uniqueness or deletion decisions to implementation | Step 1: follow the project-configured database design entry (global `database-design` only when none is configured) and record the data-model contract in the PRD |
 | Had user choose approach before presenting options | Step 5: research-first for technical choices |
 | Re-searched a topic a prior task already captured | Step 5: query `docs/research/INDEX.md` first; reuse the TL;DR on a hit |
 | Cited a blog/tutorial as the basis for a technical choice | Step 5: research against authoritative sources (official docs/source/spec) only |

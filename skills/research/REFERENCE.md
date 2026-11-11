@@ -222,6 +222,10 @@ The original prose stays. This preserves auditability within the immutability mo
 
 ## 8. Integration With Other Skills
 
+### Automatic invocation boundary
+
+`research` may start automatically only inside `/think`. Every post-baseline stage — `grill`, `story`, `implement`, `debug`, `review`, `page-acceptance` — may read an existing record as evidence but must not start a new search. From `grill` onward the baseline is frozen, so `implement` never launches ad-hoc research: a verdict that contradicts the approved contract would force rework the batch is not allowed to absorb. A genuinely missing external fact stops the affected slice and is reported with `Next: /research`.
+
 ### `/think` Step 5 (consumer)
 
 Before researching a technical choice, `/think` queries INDEX:
@@ -230,9 +234,9 @@ Before researching a technical choice, `/think` queries INDEX:
 - **Decision depends on implementation detail** (API shape, code pattern) → **read full record** even if verified.
 - **Miss** → either start `/research`, or proceed with inline research and create a record.
 
-### `/grill` (consumer + marker)
+### `/grill` (existing-record consumer)
 
-`/grill` reads INDEX when challenging a PRD's technical approach. If the PRD cites a research record, grill verifies the citation matches the record's verdict. Grill also marks stale rows it encounters (collaborative marking).
+`/grill` may read INDEX to verify a PRD's existing citation, but it does not start new research. If the record is stale or missing, report the gap and suggest an explicit `/research`; do not search on grill's behalf.
 
 ### ADR (referencer)
 

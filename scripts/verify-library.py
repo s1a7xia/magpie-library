@@ -25,7 +25,7 @@ def sha256(path: Path) -> str:
 
 
 def is_backup(path: Path) -> bool:
-    return ".bak" in path.name or path.name.endswith("~")
+    return path.name.endswith((".bak", "~"))
 
 
 def skill_files(root: Path) -> list[Path]:
@@ -95,13 +95,11 @@ def main() -> int:
     else:
         library_text = library_instructions.read_text(encoding="utf-8").strip()
         agents_text = agents_md.read_text(encoding="utf-8")
-        match = re.search(re.escape(BEGIN) + r".*?" + re.escape(END), agents_text, re.S)
+        match = re.search(re.escape(BEGIN) + r"[^\r\n]*-->\r?\n(.*?)" + re.escape(END), agents_text, re.S)
         if not match:
             errors.append("~/.codex/AGENTS.md has no Magpie instruction block")
         else:
-            block = match.group(0)
-            body = block[block.find("# 通用协作约定"):]
-            body = body[: body.rfind(END)].strip()
+            body = match.group(1).strip()
             digest = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
             if body != library_text:
                 errors.append("Codex instructions differ from library/instructions.md")

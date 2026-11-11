@@ -1,9 +1,11 @@
 ---
 name: page-acceptance
-description: "Test a rendered change in the real UI: render, visual finish, interaction, data round-trip, permission, console/network. Use when the user says 页面测试、页面验收、功能自测、冒烟测试、UI 走查、走一遍页面. Separate from implement; compile and code review do not substitute."
+description: "Test a rendered change in the real UI: render, visual finish, interaction, data round-trip, permission, console/network. Use when the user says 页面测试、页面验收、UI 走查、走一遍页面，或明确针对页面的功能自测/冒烟测试；不用于纯后端测试. Separate from implement; compile and code review do not substitute."
 ---
 
 # Page Acceptance
+
+本阶段只能由用户单独明确发起；端到端开发授权、上一阶段完成或工作流自动续接都不能启动本阶段。
 
 🥷 A rendered surface is its own artifact. Compilation proves syntax; this proves the page. Run it as a separate stage after development, never as an automatic step inside implementation.
 
@@ -16,12 +18,12 @@ description: "Test a rendered change in the real UI: render, visual finish, inte
 
 ## When this stage runs
 
-- **Started by the user, after development.** A batch of slices is finished and pushed; the user says "开始页面测试" or names the pages. The normal sequence is `implement → first full-scope acceptance → review → repair-scope acceptance → Done`. Do not start on your own, and never inside `implement`.
-- **Only for page-observable behavior.** This stage is required when a change affects rendering, interaction, displayed data, permission outcome or visual result. A backend-only change to internal logic, background jobs, SQL, logs or configuration records `Page acceptance: N/A — <reason>` and goes to review with compile evidence; do not manufacture a browser pass for it. A mixed batch applies the gate only to its page-observable scope.
+- **Started by the user.** 默认在完整 review（含修复）后，用户单独发起完整声明范围的页面验收；不自动运行。视觉探索可提前，但不能据此跳过正式范围验收。
+- **Only for page-observable behavior.** This stage is required when a change affects rendering, interaction, displayed data, permission outcome or visual result. A backend-only change to internal logic, background jobs, SQL, logs or configuration records `Page acceptance: N/A — <reason>` and goes to review with applicable existing evidence; do not manufacture a browser pass for it. A mixed batch applies the gate only to its page-observable scope.
 - **Unattended runs skip it.** A goal running without the user does not open a browser, does not need a login session or captcha. It stops with the slices marked `Dev Complete` and says page testing is pending.
-- **Fixes are re-tested narrowly.** There are two distinct passes: the first acceptance covers the declared full page scope after development; the second runs after a full review has changed code, and covers only the repaired points and their connected paths. Do not replace the first pass with a repair-only pass. Three rounds of verify → fix → re-test is the ceiling; past that, stop and report what still fails.
-- **Passing a first full-scope pass produces `Accepted`.** An implemented-but-untested change stays `Dev Complete`. `Accepted` means the declared page scope passed; `Done` still requires the project's close-out conditions, including a passing user-initiated full review. Without it, remain `Accepted`. After a first-pass acceptance, the next stage is review.
-- **A post-review repair pass completes close-out only when review already covered the final code.** That pass covers only the repaired points and connected paths. If review stayed open and has not inspected the final code, record `Accepted` and return to review. If review already completed over the final code and this pass reveals no remaining defect, write `Done` and update close-out; do not require a second full review. Not every review fix needs a new browser pass: if the fix changes no page-observable behavior, interaction, data feedback, permission outcome or visual result, the original acceptance evidence remains valid.
+- **Fixes are re-tested narrowly.** 首次覆盖完整声明页面范围；失败时 debug 后只复验受影响路径。最多三轮，仍失败则报告，不伪造通过。
+- 阶段顺序与证据回流见 [共享契约](../rules/workflow-contract.md#4-验收门槛与回流)：默认先手动 review，再手动页面验收；首次覆盖完整声明范围，不自动启动下一阶段。
+
 
 For RuoYi-Vue-Plus 6.x + React, use [the RuoYi browser quick reference](references/ruoyi6-browser.md) for session reuse, snapshot refresh, the five-step CRUD smoke path, and the error loop. Read [REFERENCE.md](REFERENCE.md) only when the page needs detailed evidence templates, multi-role/permission testing, or a failure-classification workflow beyond this file.
 
@@ -30,10 +32,10 @@ For RuoYi-Vue-Plus 6.x + React, use [the RuoYi browser quick reference](referenc
 Page acceptance drives an environment that is already running; it is not a build or deployment step.
 
 - Acceptance never packages or rebuilds: no `mvn package` round per fix, no container rebuild, no deploying just to look at a page. It connects to the environment the project already runs.
-- The run mode is the project's registered command. A locally launched application process is the norm: use the command recorded in the project's standards, such as `java -jar` for a packaged backend and the project's frontend dev script. Keep the app out of a container locally so code and config stay directly editable; reserve containers for deployment-shaped environments.
+- Use the project's actual registered environment and process/container mode. Do not impose another run mode or add dependencies for acceptance.
 - If the frontend or backend is not reachable, report the check as `blocked`, name the missing service, and ask the user to start it or run the project's registered command once. Do not improvise a different run mode.
-- Frontend-only changes use the dev server's HMR or a page reload. Java, backend configuration or mapper changes may need **one** reload of the already-running development process; SQL-only changes need none.
-- In a review round, finish the behavior-affecting fixes first, reload once, then run one repair-scope acceptance. Do not reload or restart once per fix, and do not have `debug` package or restart the service.
+- Frontend-only changes use the dev server's HMR or a page reload. Java, backend configuration or mapper changes may need **one** reload of the already-running development process; SQL changes may need cache/config refresh depending on the actual application; do not assume no reload is ever needed. Schema/data writes require their own authorization.
+- In a review round, finish the behavior-affecting fixes first, reload once, then leave the handoff for manual acceptance; first acceptance still covers the full declared scope, later re-tests may reuse valid unaffected evidence. Do not reload or restart once per fix, and do not have `debug` package or restart the service.
 - Do not add `spring-boot-devtools` or another hot-reload dependency just for acceptance; it changes the project's runtime and is a separate decision.
 - Restarting the backend is the environment owner's action, not part of acceptance. Do not build, package, start containers or create process-management wrappers during acceptance. Ask the user to stop the already-running process and start it again with the project's registered command once; if it is not reachable, report `blocked`.
 
@@ -44,7 +46,7 @@ Write down, before touching the browser:
 - **Target**: environment, base URL, entry route.
 - **Account**: which role; where the credential comes from.
 - **Path**: one main path plus one meaningful boundary (empty state, validation failure, denied permission, long content, pagination edge).
-- **Data boundary**: read-only, or may create/update/delete identifiable test records.
+- **Data boundary**: default read-only; create/update/delete only when the user has explicitly authorized the target environment and disposable test-data scope. Page-acceptance invocation alone does not authorize writing business/production records.
 
 Take target, commands and account from the project's configured standards, `AGENTS.md`, or verified run instructions. Do not guess ports, do not invent credentials, and do not copy a credential into a report, commit, screenshot or log. If a required piece is missing, report it as a blocked check instead of improvising.
 
@@ -52,8 +54,8 @@ Take target, commands and account from the project's configured standards, `AGEN
 
 Use the browser capability this environment actually provides, in this order:
 
-1. A browser automation CLI already installed and usable.
-2. The built-in browser or computer-use tooling of the current agent.
+1. The user/project-selected tool or existing host browser capability and authenticated session.
+2. An installed automation CLI when appropriate and no selected tool/session would be displaced; no install required just for this stage.
 
 Reuse a running session and its saved auth state before logging in again. Keep one session per task; do not let two operators drive the same browser.
 
@@ -83,14 +85,14 @@ If the project has a UI standard (for RuoYi-Vue-Plus: [前端规范和样式边�
 
 Drive the change the way a user would, through the rendered controls only.
 
-For a create/read/update/delete surface, close the loop in this order and stop at a failure instead of pushing on:
+Only with explicit disposable-data write authorization, close a create/read/update/delete loop in this order and stop at a failure instead of pushing on:
 
 1. **Create** — open the form, fill required fields with an identifiable marker, submit, confirm the dialog closes and the new row is visible.
 2. **Read** — search for that marker, confirm filtering is correct, then reset.
 3. **Update** — open the existing record, confirm fields populate from stored values (not defaults), change one field, confirm the list reflects it.
 4. **Delete** — delete the marker record, confirm the confirmation step, confirm it is gone.
 
-Clean up test data even when the run fails partway, and say so if cleanup was impossible.
+Clean up only the authorized records this task created, even on partial failure; never delete existing data. Without data-write authorization exercise read-only paths and report CRUD unverified; ask only if that missing scope is necessary for the requested verdict.
 
 ## Step 4 — Probe the boundary
 
@@ -105,7 +107,7 @@ When something fails, do not retry blindly:
 3. Fix the root cause inside the authorized scope.
 4. Reload, re-run from the failed step, and continue.
 
-Repeat until the declared scope passes, or report the specific blocker. Never weaken the check to make it pass.
+Allow at most three evidence-driven repair/retest rounds, then report remaining blockers; do not loop indefinitely or retry unchanged conditions. Never weaken the check to make it pass.
 
 ## Step 6 — Report
 
@@ -125,16 +127,16 @@ Name the untested items. A passing main path does not imply passing boundaries, 
 
 Persist the result in the same turn; a browser-only report leaves the project status stale.
 
-- **`accepted`** — a first full-scope pass sets the tested PRD or slice from `Dev Complete` to `Accepted`. A post-review repair pass whose completed review already covered the final code sets the affected slice and parent PRD to `Done`; otherwise it leaves them at `Accepted` for review to finish. Tick only the acceptance criteria actually exercised. On the first pass, record the full declared page scope. On a repair pass, record the invalidated scope and repaired points. Append the verified implementation commit (and any relevant uncommitted changes), URL/route, account role, main path, boundary, console/network result, evidence paths and date to `docs/agents/verification.md`, marked as verified by the agent. Do not close Issues without separate authorization.
+- **`accepted`** — 将实际覆盖范围写为 `Accepted`；有效 review 已覆盖最终实现且收尾完成时，可在同次写回 `Done`。记录代码版本、角色、URL、完整范围、边界、控制台/网络和证据，不自动关闭远端 Issue。
 - **`accepted with caveats`** — keep the tested scope at `Accepted` only when the caveats are outside its acceptance criteria. Record each unexercised role, boundary or page as an explicit remaining gap; otherwise keep it at `Dev Complete`.
-- **`not accepted` or `blocked`** — keep the status at `Dev Complete`. Record the failing step, symptom and evidence. A confirmed in-scope defect enters `debug` as part of this acceptance pass; after the fix, re-test only the affected path and return to this verdict step. If the failure is found in the second post-review pass, return to the same repair-scope loop; do not restart the full page scope.
+- **`not accepted` or `blocked`** — use `In Progress` for a known unresolved code defect/missing behavior; use `Dev Complete` for complete implementation with an environment/evidence blocker. Record the failing step, symptom and evidence. A confirmed in-scope defect enters `debug` as part of this acceptance pass; after the fix, re-test only the affected path and return to this verdict step. Resume any untested portion of the original declared scope after repair; narrow re-testing alone is sufficient only when all other scope has valid existing evidence. Substantial permission/transaction/model/state fixes invalidate affected review evidence and require a user-initiated targeted review.
 - **No PRD or slice exists** — still write the evidence to `docs/agents/verification.md` when that file is configured; otherwise report it and name the missing record instead of inventing a status.
 
-When `docs/agents/project-state.md` exists, update its **Workflow status → Page acceptance** row in the same turn: `Passed`, `Blocked`, or `In Progress`, with the tested routes and a one-line next step. When a repair pass completes `Done`, also set `Review` to `Passed` only if the review record says so, and set `Close-out` to `Passed` with the remaining release action, if any. Do not rewrite the rest of the dashboard.
+When `docs/agents/project-state.md` exists, update its **Workflow status → Page acceptance** row in the same turn: `Passed`, `Blocked`, or `In Progress`, with the tested routes and a one-line next step. When acceptance completes `Done`, also set `Review` to `Passed` only if the review record says so, and set `Close-out` to `Passed` only if every configured closure gate is actually satisfied; remaining required actions keep close-out pending. Do not rewrite the rest of the dashboard.
 
 After a defect fix passes re-testing, record the new tested code version and affected paths, superseding the invalidated verdict while preserving its history. Follow the [lifecycle rules](../think/PRD-FORMAT.md#prd-生命周期状态); unrelated valid evidence remains applicable. Recompute the parent PRD status from all slices; one passing slice cannot accept the whole batch.
 
-Commit and push the verdict update with the affected slice's repository state. If the evidence belongs to a batch already pushed, use one documentation commit for this testing round; do not rewrite history or create a feature branch.
+Commit and push verdict updates only under current user/project Git authorization; preserve changes and report Git state otherwise. If the evidence belongs to a batch already pushed, use one documentation commit for this testing round; do not rewrite history or create a feature branch.
 
 ## Hard rules
 
@@ -175,7 +177,7 @@ Evidence:    <screenshot paths, request observations>
 
 Failures:    <fixed and re-run: step, cause, fix> or <open: step, symptom, blocker>
 Debug:       <entered for confirmed in-scope defects | not needed>
-Next:        <First pass accepted -> user-initiated /review | repair pass accepted and review covered final code -> status written back to Done | repair pass accepted but review must still inspect final code -> /review | review fix changed no page-observable behavior -> original acceptance remains valid | finish current debug retest | resolve blocker>
+Next:        <Done with valid review and acceptance | user-initiated targeted /review after substantial fix | finish local debug/retest | resolve blocker>
 Not run:     <items outside the declared scope>
 Verdict:     accepted | accepted with caveats | not accepted | blocked
 ```

@@ -38,7 +38,7 @@ If a PRD exists, proceed to Step 2. If no PRD exists, there is nothing valid to 
 
 | Signal | Meaning | Action |
 |--------|---------|--------|
-| PRD has `Open Questions` / `TODO` / `?` markers | Decisions unresolved | Stop; return to `grill` |
+| PRD has actual unresolved decisions (not empty/resolved sections, quoted TODOs or SQL `?`) | Decisions unresolved | Stop; return to `grill` |
 | Requirements or acceptance criteria lack stable `R#` / `AC#` IDs | Coverage cannot be checked reliably | Add IDs as a labeling-only Change Log entry, then re-read |
 | A requirement has no acceptance criterion | Not independently verifiable | Stop; return to `grill` |
 | A criterion has no requirement or non-functional label | Untraceable scope | Stop; return to `grill` |
@@ -67,6 +67,8 @@ If codebase not yet explored, do so to understand current state. Issue titles an
 ### Step 5: Draft Vertical Slices
 
 Break plan into **tracer bullet** issues. Each issue is a **thin vertical slice** that goes through all integration layers end-to-end, **not** a horizontal slice of one layer.
+
+Schema changes follow the same rule: a table, relationship or migration lands with the consumer that proves it works. A standalone schema/migration issue is reserved for a migration or repair that cannot be delivered with its consumer, and its description must state that reason.
 
 For every slice, fill `Covers` with the parent PRD requirement and acceptance-criterion IDs it closes. Build a coverage map before presenting:
 
@@ -128,7 +130,7 @@ Replace the local slice IDs with the actual tracker identifiers, preserving each
 ```
 
 **Status markers**:
-- `— Dev Complete` — code implemented, compiled, committed and pushed; page testing not yet passed
+- `— Dev Complete` — code behavior implemented; verification and Git recorded separately; manual review/page closure still pending
 - `— Accepted` — the declared page-testing scope passed
 - `— Done` — accepted, reviewed when requested, and closed/merged
 - `— In Progress` — Issue being implemented
@@ -192,7 +194,7 @@ Issue 3: Management UI + page acceptance
 - "Build entire subscription system" (contains multiple features)
 
 **Just right:**
-- "Create subscription data model"
+- "Subscription data model + create/read API"
 - "Implement payment processing"
 - "Build management UI"
 
@@ -205,7 +207,7 @@ Issue 3: Management UI + page acceptance
 
 ```mermaid
 graph TD
-    A[Issue 1: Data Model] --> B[Issue 2: Payment Flow]
+    A[Issue 1: Data Model + CRUD API] --> B[Issue 2: Payment Flow]
     B --> C[Issue 3: Management UI]
     A --> C
 ```

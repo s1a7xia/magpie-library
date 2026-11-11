@@ -16,43 +16,43 @@ Do not auto-trigger `research` from debugging. Diagnose from runtime evidence, p
 ## Outcome Contract
 
 - **Outcome**: Bug fixed with a regression guard when authorized, root cause documented, debug artifacts cleaned
-- **Done when**: Bug no longer reproduces, the authorized regression test and reproduction check pass or their absence is recorded, instrumentation removed, root cause in commit/PR message when a commit is authorized
-- **Evidence**: Reproduction loop passes; when tests are authorized, the regression test fails on old code and passes on new
+- **Done when**: The in-scope code fix is complete, final diff is checked, task-owned instrumentation is removed, and actual verification or its absence is recorded; runtime recovery is claimed only with observed evidence
+- **Evidence**: Exact logs/code explaining the mechanism; runtime reproduction and regression results only when authorized and actually observed
 - **Output**: Root cause, fix, confirmation, test location, regression guard
 
 ## Process Summary
 
-**Stage 0 (Context Setup)**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md) and its [Standards Gate](../rules/entry-protocol.md#standards-gate) for applicable coding rules and verification. When the fix changes RuoYi-Vue-Plus 6.x + React backend Java, PostgreSQL/SQL, React UI, API/types, permissions or field contracts, load `ruoyi6` before touching the code; do not wait for the Entry Protocol to infer it. It also locates domain docs; domain vocabulary helps form accurate hypotheses.
+**Stage 0 (Context Setup)**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md) and its [Standards Gate](../rules/entry-protocol.md#standards-gate) for applicable coding rules and verification. Resolve the selected profile through that protocol, honoring explicit `none`; load `ruoyi6` only for an applicable RuoYi scope. It also locates domain docs; domain vocabulary helps form accurate hypotheses.
 
 **Stage 1 (Quick Locate)**: Root cause analysis — form 1-2 hypotheses, validate, output one-sentence root cause. If quick validation fails (hypotheses refuted or none explains all symptoms), escalate to Stage 2.
 
 **Stage 2 (Systematic Fix)**: 6-phase loop
-- Phase 1: Build feedback loop — construct deterministic repro (the critical skill)
-- Phase 2: Reproduce — run loop, confirm bug appears (or output a HITL repro guide when the loop can't run autonomously)
-- Phase 3: Hypothesize — generate 3-5 ranked falsifiable predictions
-- Phase 4: Instrument — add targeted logging with persistence + ordering for each prediction
-- Phase 5: Fix + regression guard — write or update a test first when authorized and a correct seam exists; otherwise record the unverified regression gap
-- Phase 6: Cleanup + retrospective — remove debug logs + `DEBUG/` artifacts, document proof
+- Phase 1: Build feedback loop — select the smallest useful signal; run only authorized reproduction
+- Phase 2: Reproduce — confirm symptoms from available evidence; distinguish static inference, user reports and agent runtime observations
+- Phase 3: Hypothesize — rank a few falsifiable predictions proportional to the uncertainty
+- Phase 4: Instrument — add minimal probes only if necessary and authorized; protect secrets
+- Phase 5: Fix + regression guard — write/update a test only with explicit test-authoring authorization and a correct seam; otherwise record the unverified regression gap
+- Phase 6: Cleanup + retrospective — remove only task-owned probes/artifacts, document actual evidence
 
 See [REFERENCE.md](REFERENCE.md) for detailed phases, optional modes (bisect, scope scan), and quality gates.
 
 ## Optional Modes
 
-**Bisect mode**: Triggered by "used to work", "broke after update", or user recalls specific good commit/version
+**Bisect mode**: Consider for a known regression interval; actual bisect/check execution requires authorization and an isolated worktree (see reference).
 
-**Scope scan mode**: Triggered after root fix, before declaring done, or user says "check similar areas"
+**Scope scan mode**: Read related callers after the root fix; broaden only for the requested same-class scope, report unrelated findings without fixing.
 
 ## Gotchas
 
 | What happened | Rule |
 |---|---|
 | Fix client pane instead of local pane | Trace execution path before touching files |
-| Say "try again" or "I'm confident" | Write hypothesis; run instrumentation to prove (anti-pattern #32 — fix without instrumentation) |
-| Instrumentation only to stdout, lost after loop | Persist probes to `DEBUG/<session>-<n>.log` with sequence+timestamp so evidence survives and ordering is analysable (race bugs) |
-| Can't reproduce autonomously, skip repro | Stop and output a HITL repro guide; wait for the user's report before hypothesizing |
+| Say "try again" or "I'm confident" | Tie the hypothesis to exact logs/code; run probes only when necessary and authorized |
+| Instrumentation only to stdout, lost after loop | When authorized probes need persistence, use a task-owned redacted log with sequence/time; do not require instrumentation for already-sufficient evidence |
+| Can't reproduce autonomously, skip repro | Continue static diagnosis where possible; ask only for evidence that materially blocks the fix, label runtime unverified |
 | MCP not loading, switch tools instead of diagnose | Check server status, API key, config first |
-| Compile passes but UI looks wrong | Move up Runtime Evidence Ladder, verify rendered surface |
-| Fix one instance, ignore siblings | After fix, grep pattern and fix or report each instance (anti-pattern #21) |
+| Compile passes but UI looks wrong | Report static/compile limits; suggest manual page acceptance, never auto-launch it |
+| Fix one instance, ignore siblings | Inspect directly affected callers; report unrelated instances, do not expand repair scope |
 | Fix expands beyond authorized behavior or data scope | Pause only the affected work and identify the additional decision; file count alone is not a permission gate |
 
 ## Output (Success)
@@ -66,7 +66,7 @@ Regression:    [test file:line] or [none, reason]
 Status:        resolved | resolved with caveats | blocked
 ```
 
-**Regression guard:** When the project profile or current request authorizes test work, a recurrence fix is not complete until a regression test exists (fails on old, passes on new) in the project suite. Otherwise report the missing guard; do not claim verification.
+**Regression guard:** Only an explicit request to write/modify tests authorizes a new regression test. A run-tests request permits existing tests only; profile suggestions do not grant permission. Otherwise report the missing guard; do not claim verification.
 
 **PRD Traceability:** If PRD exists, fill `Debugged by` in its `## Traceability`:
 ```markdown
@@ -75,19 +75,19 @@ Status:        resolved | resolved with caveats | blocked
 
 ## 验收交接
 
-按 [生命周期规则](../think/PRD-FORMAT.md#prd-生命周期状态)，修复改变已验收行为时，受影响的 `Accepted` / `Done` 切片退回 `Dev Complete`，记录原因和待复测路径；尚未编译通过则保持 `In Progress`。相关父 PRD 同步退回，其他切片不受影响。标明旧验收及 review 结论的失效范围，保留历史证据。
+按 [生命周期规则](../think/PRD-FORMAT.md#prd-生命周期状态)，修复改变已验收行为时，受影响的 `Accepted` / `Done` 切片退回 `Dev Complete`，记录原因和待复测路径；已知代码错误或行为未实现则保持 `In Progress`，未获授权运行构建另记未验证。相关父 PRD 同步退回，其他切片不受影响。标明旧验收及 review 结论的失效范围，保留历史证据。
 
-有页面可观察行为时，正常顺序是：`implement → 首次全范围 page-acceptance → review → debug（review 内） → 修复点 page-acceptance（仅行为变化时） → Done`。纯后端、SQL、内部逻辑、日志或配置批次记录 `Page acceptance: N/A`，直接进入 review，review 通过后可从 `Dev Complete` 写 `Done`。由首次页面验收触发时，修复后回到本次验收继续局部复测，不要求用户重新进入验收。由 review 触发时，修复完成后返回同一轮 review，继续检查剩余角度和范围；整轮 review 结束后，只有修复改变了页面可观察行为、交互、数据反馈、权限表现或视觉结果时，才提示用户发起一次 `/page-acceptance` 验证修复点及连带路径；纯内部修复保留原验收证据并说明覆盖边界。通过后恢复 `Accepted`，本轮 review 已覆盖最终代码即可 `Done`。其他情况下等待用户主动发起页面验收。不自行启动新的页面阶段或完整 review。
+正常顺序：implement → 用户手动 review（内部 debug 修复后继续本轮审查）→ 用户手动完整范围 page-acceptance → Done。非 UI 范围页面验收记 N/A。debug 返回调用它的当前阶段，不自动启动新 review 或页面验收；验收中涉及权限、事务、数据模型或复杂状态的实质修复后，提示用户发起针对性 review，普通样式/反馈修正局部复验即可。
 
-`debug` 不负责打包，也不负责重建开发环境。前端修复靠刷新；Java/配置修复由环境所有者重载一次已运行的开发进程（本地直接跑，Docker 留给部署）；同一轮 review 的多个行为修复合并后只重载和复测一次。
+`debug` 不默认构建、打包、重启或重建开发环境。确需运行验证时按项目实际模式与当前授权协调环境所有者；不假定 SQL 永不需要重载或项目不能使用容器。
 
 ## Next step
 
 If this debug was entered from `page-acceptance` or `review`, return to that calling flow and follow its re-test/review handoff. For a standalone fix:
 
-- If the fix changes page-observable behavior, interaction, displayed data, permission outcome or visual result, recommend the user-initiated `/page-acceptance` first; after it passes, recommend `/review`.
-- If the fix changes only backend internals, SQL, logs, configuration or other non-page-observable behavior, record `Page acceptance: N/A — <reason>` and recommend the user-initiated `/review` directly.
-- A simple fix with clear compile and regression evidence may stop without review when the user does not ask for it. Never start page acceptance or review automatically.
+- If the fix changes page-observable behavior, interaction, displayed data, permission outcome or visual result, recommend user-initiated `/review` first, then user-initiated full-declared-scope `/page-acceptance`; reuse still-valid evidence for unaffected paths.
+- Only after confirming no page-observable impact through the relevant consumers, record `Page acceptance: N/A — <reason>` and recommend user-initiated `/review` directly. SQL or configuration alone does not imply N/A; classify by [observable impact](../rules/workflow-contract.md#4-验收门槛与回流).
+- A simple Direct fix may stop after diff/code checks without a full review; record any unrun checks rather than requiring compile/regression execution. Never start page acceptance or review automatically.
 
 ## Output (Handoff — after 3 falsified hypotheses in Stage 2)
 

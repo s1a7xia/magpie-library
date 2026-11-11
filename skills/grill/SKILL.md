@@ -20,6 +20,8 @@ Ask **exactly one question per message, always** — never a batch, never a pre-
 - **Evidence**: Updated `docs/prd/PRD-NNNN-<title>.md` (status → Grilled), updated `CONTEXT.md`, created `docs/adr/<NNNN>-*.md` (where warranted)
 - **Output**: Updated PRD, parent Issue synced (if created by `/think`), next step to `/story`
 
+涉及持久化/模型时，先读项目指定的数据库技能和参考；仅项目未配置入口时使用 [database-design](../database-design/SKILL.md)。grill 核对身份、生命周期、约束与新表准入；story 承接已批准契约、迁移和使用方，不重新发明模型。
+
 ## Before You Start
 
 Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates the PRD and `CONTEXT.md` and checks upstream artifacts. If no PRD exists or it's too thin, suggest `/think` first — don't grill vapor.
@@ -55,7 +57,7 @@ Reaching `Status: Grilled` **freezes the baseline**. From that moment the PRD's 
 **Changes after freezing go through the PRD, not around it.** Record every change in a `## Change Log` table — one row per change: `date | what changed | why and who asked | affected slices`. If the goal and scope stay unchanged, set the PRD back to `Grilled`, mark affected slices `Dev Complete`, invalidate their old acceptance evidence, and re-run `story` only to add or re-slice work for the new or changed `R#` / `AC#`. Do not force unrelated slices through implementation and acceptance again. If the goal itself or the scope changes materially, send the PRD back to `Draft` and re-run `think` → `grill`.
 
 **Do not render an HTML page.** `grill` completes when the PRD, terminology and ADRs are frozen.
-The plan overview is rendered once by `story` after slicing. If the user explicitly asks for a
+Neither grill nor story renders an overview automatically. If the user explicitly asks for a
 visual baseline before then, load [answer-me-with-html](../answer-me-with-html/SKILL.md) and render
 `docs/baseline/PRD-NNNN-<slug>.html`. The PRD remains authoritative; the page is only a view.
 
