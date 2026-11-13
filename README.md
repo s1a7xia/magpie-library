@@ -27,7 +27,7 @@
 - `ruoyi6` 先按 Direct / Increment / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。任何 RuoYi 代码或字段/API/权限契约改动都加载它，覆盖 Direct、`implement`、`debug` 和 `review`；纯文档、只读规划或诊断且不改代码时可不加载。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
-`dev-skills` 插件当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。插件当前版本 `0.2.11`，共 10 个技能。
+工程阶段当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。这些技能源自 `dev-skills 0.2.11`，当前已并入资源库，与其余 6 个技能一起构成 16 个资源库技能。
 
 日常直接向 Codex 提需求；需要更细的方法控制时，再按需使用
 `think` / `grill` / `story` / `review`。Direct 和 Closure 不强套
@@ -39,7 +39,7 @@
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的角色、协作闭环、授权与改动保护 | 唯一源 `instructions.md`，由 Magpie 分发给 Codex、Alma |
-| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 Magpie 技能 |
+| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 16 个 Magpie 技能 |
 | 项目事实 | 当前目标、决策、验证证据、编译/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发，需要初始化时再使用 `setup-project` |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 MCP，加上本机 CLI |
 | 运行观察 | 已连接会话、通知、审批和持久任务协调 | Alma + Herdr，按需启动，不默认写代码 |
@@ -60,7 +60,7 @@
 当前基线使用：
 
 - Magpie `0.1.3887`
-- Codex `0.167.2`、Alma `0.4.579`、`dev-skills 0.2.11`
+- Codex `0.167.2`、Alma `0.4.579`（技能源自 `dev-skills 0.2.11`，现由资源库维护）
 - Node.js `v24.17.0`、npm `11.13.0`
 - Python `3.13.14`
 - Git `2.54.0`
@@ -69,7 +69,7 @@
 - Herdr `0.9.5`（`herdr-core` `0.1.20`），远程观察 Codex 会话时使用
 - Chrome 和 Edge
 
-MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-vision`、`magpie-web-search`、`ssh`。页面运行检查使用 Codex 宿主浏览器工具，不属于 Magpie 资源库 MCP；Alma 通过自己的 MCP 配置连接 Magpie Hub，不占用资源库里的独立条目。
+MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-vision`、`magpie-web-search`、`ssh`。页面运行检查使用 Codex 宿主浏览器工具，不属于 Magpie 资源库 MCP。`library.json` 当前把 9 项都分发给 Codex 和 Alma；Alma 的 `mcp.json` 实际直连这 9 项，并保留一个 `magpie` 的 Hub 入口。
 
 版本、Agent 分发矩阵、凭据位置、换机恢复、校验和故障处理见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 

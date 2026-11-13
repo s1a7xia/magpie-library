@@ -6,26 +6,26 @@
 
 - Magpie：CLI 实测 `0.1.3887`。
 - 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=true`、`mcpHub=true`、`skillRouter=true`；全局指令当前分发给 Codex、Alma。
-- MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。Alma 通过自己的 MCP 配置连接 Magpie `hub/alma`，该入口对 Alma 暴露 0 个工具，避免复用 Codex 的开发工具集。
+- MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。Alma 的 `mcp.json` 直连 9 项开发 MCP，并保留 Magpie `hub/alma` 入口；工具可见不等于获得写操作授权。
 - 自动备份：每 24 小时、保留 3 份、包含登录态；密码及备份文件不公开。没有执行备份或恢复演练，不能保证未核验的数据一定被整包覆盖。
 
 ## MCP：9 项资源库配置
 
 | 服务 | 传输 | Agent | 用途 |
 |---|---|---|---|
-| context7 | http | codex | 库与框架文档 |
-| dbhub | stdio | codex | PostgreSQL 只读取证/获授权数据库操作 |
-| gitee | http | codex | Gitee 代码与 Issue/PR |
-| github | http | codex | GitHub 代码与 Issue/PR |
-| magpie-image | stdio | codex | 图片生成 |
-| magpie-memory | stdio | codex | 跨 Agent 共享结构化记忆 |
-| magpie-vision | stdio | codex | 图像识别 |
-| magpie-web-search | stdio | codex | 联网搜索 |
-| ssh | stdio | codex | 已登记 SSH 目标操作 |
+| context7 | http | alma, codex | 库与框架文档 |
+| dbhub | stdio | alma, codex | PostgreSQL 只读取证/获授权数据库操作 |
+| gitee | http | alma, codex | Gitee 代码与 Issue/PR |
+| github | http | alma, codex | GitHub 代码与 Issue/PR |
+| magpie-image | stdio | alma, codex | 图片生成 |
+| magpie-memory | stdio | alma, codex | 跨 Agent 共享结构化记忆 |
+| magpie-vision | stdio | alma, codex | 图像识别 |
+| magpie-web-search | stdio | alma, codex | 联网搜索 |
+| ssh | stdio | alma, codex | 已登记 SSH 目标操作 |
 
 公开端点与无密钥启动命令见脱敏快照。dbhub 连接参数、HTTP Authorization、SSH 主机/用户名/密码/密钥均不入库。`magpie-vision` 是独立识图入口，不能因为有 image 就漏记。`magpie mcp ...` 在本机使用已安装可执行文件，换机先确认 PATH 和生成配置。
 
-当前 Magpie 资源库登记 9 项 MCP。Codex 宿主另有浏览器、computer-use、app-tools 等内置工具，它们不是资源库 MCP，换机时按 Codex 自身配置恢复。工具注册、MCP hub 状态、当前会话暴露和目标写入权限是四件事；本轮未做全部业务写入测试。
+当前 Magpie 资源库登记 9 项 MCP，并同时分发给 Alma 和 Codex。Codex 宿主另有浏览器、computer-use、app-tools 等内置工具，它们不是资源库 MCP，换机时按 Codex 自身配置恢复。工具注册、MCP hub 状态、当前会话暴露和目标写入权限是四件事；本轮未做全部业务写入测试。
 
 ## 社区插件：2 个
 

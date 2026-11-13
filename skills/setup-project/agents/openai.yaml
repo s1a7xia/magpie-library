@@ -1,0 +1,5 @@
+interface:
+  display_name: "Setup Project (internal)"
+  short_description: "Internal project configuration stage"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Implement (internal)"
+  short_description: "Internal implementation orchestration stage"
+policy:
+  allow_implicit_invocation: false

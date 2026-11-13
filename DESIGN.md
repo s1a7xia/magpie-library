@@ -19,7 +19,7 @@ Magpie 是唯一的配置源，负责把指令、技能、MCP、模型写进各�
    │  Codex   │          │    Alma     │
    │ 开发写入 │          │ 观察/协调    │
    └────┬─────┘          └──────┬──────┘
-        │  MCP hub/codex         │ MCP hub/alma（0 工具）
+        │  MCP hub/codex         │ 9 项直连 + hub/alma
         │                        │ Herdr CLI / API
         └────────┬───────────────┘
                  │
@@ -35,8 +35,7 @@ Magpie 是唯一的配置源，负责把指令、技能、MCP、模型写进各�
 |---|---|---|---|
 | Magpie | 指令、技能、MCP、模型的配置源 | `~/.config/magpie/library/` + `library.json` | 用户 / 经授权的 Agent |
 | 全局指令 | 项目无关的角色、授权、验证与交付边界 | `instructions.md`，可选 `instructions/<agent>.md` | 只在资源库改 |
-| 技能 | 阶段方法与检查门槛 | `library/skills/` | 只在资源库改 |
-| 工程阶段 | 需求、设计、实现、调试、审查、文档 | `dev-skills` 插件 | 插件版本管理 |
+| 技能 | 业务规范、协作与工程阶段方法 | `library/skills/`（16 个） | 只在资源库改 |
 | 项目事实 | 技术栈、命令、端口、项目授权 | 项目内 `AGENTS.md` 与项目文档 | 项目仓库 |
 | 执行 | 搜索、数据库、Git、SSH、图片 | Magpie 托管的 MCP + 宿主内置工具 | Magpie / Codex |
 | 运行观察 | 会话、通知、审批、持久协调 | Alma + Herdr | Alma |
@@ -68,35 +67,29 @@ instructions.md                    ← 唯一正文
 ## 3. 技能分发
 
 - `sharedSkills = true`，`skillRouter = true`。
-- 资源库技能 6 个：`answer-me-with-html`、`api-regression`、`database-design`、`frontend-design`、`ruoyi6`、`team-orchestration`。
+- 资源库技能 16 个：`answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`team-orchestration`、`think`。
 - `~/.agents/skills/` 的每一项都是指向资源库的 **Junction**，不是副本。
-- Alma 的 `~/.config/alma/skills/team-orchestration` 也是 Junction，指向 `~/.agents/skills/`。
+- Alma 的 `~/.config/alma/skills/team-orchestration` 是 Junction，指向 `~/.agents/skills/`；Alma 的个人技能目录当前只有这一项。
 - 逐 Agent 勾选独立于共享目录：共享目录可见 ≠ 该 Agent 已启用。
 
-当前勾选：
+当前 `library.json` 把 16 个技能全部勾选给 `codex` 和 `alma`，没有只分发给单一 Agent 的技能。`~/.agents/skills/` 有 16 个 Junction，均指向资源库。
 
-| 技能 | Codex | Alma |
-|---|---|---|
-| `answer-me-with-html` | ✓ | |
-| `api-regression` | ✓ | |
-| `database-design` | ✓ | |
-| `frontend-design` | ✓ | |
-| `ruoyi6` | ✓ | |
-| `team-orchestration` | ✓ | ✓ |
-
-工程阶段不在资源库，由 `dev-skills` 插件提供，当前 **0.2.11**，共 10 个技能：
+工程阶段技能同样在资源库中。它们源自 `dev-skills` **0.2.11**，共 10 个：
 
 `dev-workflow`（唯一入口）、`think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project`。
 
-`dev-workflow` 只做路由，不要求每次走完全部阶段。
+`dev-workflow` 只做路由，不要求每次走完全部阶段。当前 Codex 插件列表中没有独立的 `dev-skills` 条目，资源库是这 10 个技能的编辑源和发布源。
 
 ## 4. MCP 拓扑
 
-`mcpHub = true`：资源库登记 9 项，由 Magpie 统一启动和转发。
+`mcpHub = true`：资源库登记 9 项，由 Magpie 统一启动和转发；`library.json` 当前把这 9 项都标记给 `codex` 和 `alma`。
 
 ```text
 资源库 9 项 ──► Magpie hub ──┬─► /mcp/magpie/hub/codex  （9 项全量）
-                             └─► /mcp/magpie/hub/alma    （0 工具）
+                             └─► /mcp/magpie/hub/alma    （兜底入口）
+
+资源库 9 项 ──► Alma 直连 9 项（~/.config/alma/mcp.json）
+                    └─► magpie 入口（hub/alma）
 ```
 
 | 服务 | 传输 | 用途 |
@@ -111,7 +104,7 @@ instructions.md                    ← 唯一正文
 | `magpie-web-search` | stdio | 联网搜索 |
 | `ssh` | stdio | 已登记 SSH 目标 |
 
-为什么 Alma 的 hub 是空的：Alma 的职责是观察和协调，不需要开发工具集。给它 0 工具可以避免协调上下文顺手改代码或写库。Alma 自己的会话、通知、审批和 Herdr 能力由 Alma 应用自身提供，不经过 MCP。
+当前 Alma 不是零工具模式：它的 `mcp.json` 有 9 个开发 MCP 直连，同时保留 `magpie` 的 `hub/alma` 入口。这样便于观察和协调，但也扩大了可调用面；工具可见不等于已授权写入，数据库、SSH、代码托管等写操作仍须按当前任务单独授权。Alma 自己的会话、通知、审批和 Herdr 能力由 Alma 应用自身提供，不经过这些 MCP。
 
 宿主内置工具（浏览器、computer-use、app-tools 等）不属于这 9 项，换机按 Codex 自身配置恢复。
 
@@ -182,13 +175,13 @@ Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能
 已被采纳的取舍：
 
 - **单一配置源**：不做第二套技能路由器，避免双所有权。
-- **Alma 零开发工具**：观察者不该顺手成为写入者。
+- **Alma 按需接入工具**：当前直连 9 项；观察者仍不因工具可见而获得写库、提交或部署授权。
 - **不改写 Codex 全部配置**：Magpie 只写模型与 MCP 入口，sandbox、hooks、项目信任等仍归 Codex。
-- **技能走 Junction**：改一处即可生效，避免六份副本漂移。
+- **技能走 Junction**：改一处即可生效，避免多份副本漂移。
 
 明确不做：
 
-- 不引入独立技能路由运行时（当前 6 + 10 个技能规模不需要）。
+- 不引入独立技能路由运行时（当前 16 个资源库技能规模不需要）。
 - 不把密钥、DSN、登录态写进 Git。
 - 不让 Alma 自动成为第二个产品写作者。
 - 不为“可能会用到”预留抽象层。
@@ -200,3 +193,5 @@ Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能
 3. MCP 只做了工具暴露与最小调用验证，未对所有目标系统做全量业务测试。
 4. `dbhub` 绑定本机 PostgreSQL，`ssh` 依赖 `ssh-profiles.json`，换机需重配。
 5. 版本未锁定：Magpie `0.1.3887`、Codex `0.167.2`、Alma `0.4.579`、`dev-skills` `0.2.11`、Herdr `0.9.5` / `herdr-core` `0.1.20`。
+6. Alma 当前直连 9 项开发 MCP，扩大了可调用面；若恢复严格的观察者最小权限，应改回只保留 `hub/alma` 并按任务临时授权。
+7. Alma 的个人技能目录当前只链入 `team-orchestration`；其余 15 个技能虽已在 `library.json` 勾选给 Alma，是否被每个 Alma 会话实际加载仍需按会话验证。

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Debug (internal)"
+  short_description: "Internal root-cause and regression stage"
+policy:
+  allow_implicit_invocation: false

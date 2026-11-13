@@ -11,7 +11,7 @@
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局协作指令 | 团队角色、协作闭环、权限和已有改动保护 | 唯一正文在 `instructions.md`；项目专属规则留在项目 `AGENTS.md` |
-| 6 个资源库技能 | 业务规范、协作与回答呈现；工程阶段由 Codex 插件提供 | 在 `skills/` |
+| 16 个资源库技能 | 业务规范、协作、回答呈现与工程阶段方法 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -28,7 +28,7 @@
 | Codex | `0.167.2` | 必需 | 当前主要开发 Agent |
 | Alma | `0.4.579` | 按需 | 运行观察、通知、审批和持久协调；不承担产品开发 |
 | Herdr | `0.9.5`（`herdr-core` `0.1.20`） | 按需 | 持久会话；远程观察 Codex 时必须由 Herdr 承载会话 |
-| `dev-skills` 插件 | `0.2.11` | 必需 | 工程阶段路由与方法（1 入口 + 9 阶段） |
+| `dev-skills` 上游 | `0.2.11` | 溯源 | 10 个工程阶段技能的方法来源；当前文本已并入资源库 |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
 | npm / npx | `11.13.0` | 必需 | 启动 stdio MCP 和部分技能工具 |
@@ -54,7 +54,7 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 |---|---|---|
 | Alma 服务 | `alma-server`，监听 `127.0.0.1:23001` | `alma status` 核对；不随登录自启 |
 | Alma 配置与密钥 | `~/.config/alma/`、`~/AppData/Roaming/alma/` | 含 provider、微信凭据、中继 token，**不入库** |
-| Alma MCP 入口 | `~/.config/alma/mcp.json` | 只有一项，指向 Magpie `hub/alma`，工具集为空 |
+| Alma MCP 入口 | `~/.config/alma/mcp.json` | 9 项开发 MCP 直连 + 一项 Magpie `hub/alma`；均不等于写操作授权 |
 | Herdr 服务 | `~/.herdr/`、`~/AppData/Roaming/herdr/`、`~/AppData/Local/herdr-core/` | 持久终端与 pane 状态 |
 | Codex × Herdr hook | `~/.codex/hooks.json` + `~/.codex/herdr-agent-state.ps1` | `SessionStart` 上报会话 ID；由 `herdr integration install codex` 维护 |
 | 手机中继 | `relay.alma.now`，端到端加密 | 状态见 `/api/mobile-relay/status`；`phonesConnected` 才是真实在线 |
@@ -86,11 +86,11 @@ winget install rtk-ai.rtk
 
 - `sharedSkills = true`
 - `mcpHub = true`
-- Magpie 资源库技能数：6
+- Magpie 资源库技能数：16
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Agent 共享目录：`C:\Users\<user>\.agents\skills\`
 
-本机 `~\.agents\skills` 的项均为指向资源库的 Junction，不是独立副本；插件阶段不在这里分发。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
+本机 `~\.agents\skills` 的 16 项均为指向资源库的 Junction，不是独立副本；工程阶段技能也已并入这里。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -103,12 +103,9 @@ winget install rtk-ai.rtk
 
 | 资源库技能 | Agent |
 |---|---|
-| `answer-me-with-html` | codex |
-| `api-regression` | codex |
-| `database-design` | codex |
-| `frontend-design` | codex |
-| `ruoyi6` | codex |
-| `team-orchestration` | alma, codex |
+当前 16 个技能全部勾选给 `alma, codex`，包括 `answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`team-orchestration`、`think`。
+
+Alma 的个人技能目录当前只包含 `team-orchestration` 的 Junction；“在 `library.json` 中勾选”和“该 Agent 的每个会话实际加载”仍需分开核对。
 
 全局指令当前分发给 `codex`、`alma`：
 
@@ -146,7 +143,7 @@ instructions.agents = ["alma", "codex"]
 
 ### 4.1 实际连通性
 
-本次核对以当前 `library.json` 为准：Magpie 资源库登记 9 项 MCP，Codex 会话通过 Magpie Hub 使用；不把 Codex 宿主内置工具混算为资源库 MCP。Alma 的 `hub/alma` 可见 0 个工具。这里验证的是工具暴露和最小调用，**没有对所有 MCP 的目标系统做全量业务测试**。
+本次核对以当前 `library.json` 和 `~/.config/alma/mcp.json` 为准：Magpie 资源库登记 9 项 MCP，Codex 会话通过 Magpie Hub 使用；Alma 同时直连这 9 项并保留 `hub/alma`。不把 Codex 宿主内置工具混算为资源库 MCP。这里核对的是配置与已登记状态，**没有对所有 MCP 的目标系统做全量业务测试**。
 
 恢复后应按用途做一次最小只读验证：
 
@@ -384,7 +381,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 这些是当前事实，不在本文里假装已经解决：
 
 1. **全局规则分发给 Codex、Alma**：两者共享同一正文；Codex 是唯一默认产品写作者，Alma 只做按需观察与协调。
-2. **逐 Agent 技能启用不统一**：多数流程技能只勾选 Codex；共享目录存在不等于所有 Agent 已启用。
+2. **技能勾选与实际加载需分开核对**：`library.json` 当前把 16 个技能都勾选给 Codex 和 Alma，但 Alma 的个人技能目录当前只有 `team-orchestration`；共享目录存在不等于每个 Agent 会话都已加载。
 3. **浏览器跨机器差异**：本机 Magpie Browser 已连接；新机器仍需在 Chrome 加载扩展并检查 `connected: true`。
 4. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
 5. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
@@ -393,6 +390,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 8. **仓库不是可执行安装包**：它只保存可读文本；恢复运行环境仍依赖 Magpie 备份或手工重配。
 9. **远程可见性依赖 Herdr**：Codex Desktop 或普通终端直接开的会话不能被 Alma / 微信观察；需要远程盯进度时改由 `alma herdr new` 启动。
 10. **Alma 模型列表少于网关**：Alma 侧登记 12 个模型，Magpie 网关暴露 19 个，差额为 8 个 `our-free-model/*`。不影响现有链路，需要时在 Alma 中补登记。
+11. **Alma 当前可见 9 项开发工具**：配置层面扩大了可调用面；工具可见不等于已获写库、SSH 变更、提交或部署授权。
 
 ## 10. 最小验收清单
 

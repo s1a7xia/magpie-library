@@ -1,0 +1,5 @@
+interface:
+  display_name: "Research (internal)"
+  short_description: "Internal technical research stage"
+policy:
+  allow_implicit_invocation: false

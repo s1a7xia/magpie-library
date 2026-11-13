@@ -12,24 +12,98 @@
     {
       "name": "answer-me-with-html",
       "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "api-regression",
+      "agents": [
+        "alma",
         "codex"
       ]
     },
     {
       "name": "database-design",
       "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "debug",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "dev-workflow",
+      "agents": [
+        "alma",
         "codex"
       ]
     },
     {
       "name": "frontend-design",
       "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "grill",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "implement",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "research",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "review",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "rules",
+      "agents": [
+        "alma",
         "codex"
       ]
     },
     {
       "name": "ruoyi6",
       "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "setup-project",
+      "agents": [
+        "alma",
+        "codex"
+      ]
+    },
+    {
+      "name": "story",
+      "agents": [
+        "alma",
         "codex"
       ]
     },
@@ -41,8 +115,9 @@
       ]
     },
     {
-      "name": "api-regression",
+      "name": "think",
       "agents": [
+        "alma",
         "codex"
       ]
     }
@@ -51,6 +126,7 @@
     {
       "name": "context7",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "库与框架文档",
@@ -60,6 +136,7 @@
     {
       "name": "dbhub",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "PostgreSQL 只读取证/获授权数据库操作",
@@ -69,6 +146,7 @@
     {
       "name": "gitee",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "Gitee 代码与 Issue/PR",
@@ -78,6 +156,7 @@
     {
       "name": "github",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "GitHub 代码与 Issue/PR",
@@ -87,6 +166,7 @@
     {
       "name": "magpie-image",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "图片生成",
@@ -96,6 +176,7 @@
     {
       "name": "magpie-memory",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "跨 Agent 共享结构化记忆",
@@ -105,6 +186,7 @@
     {
       "name": "magpie-vision",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "图像识别",
@@ -114,6 +196,7 @@
     {
       "name": "magpie-web-search",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "联网搜索",
@@ -123,6 +206,7 @@
     {
       "name": "ssh",
       "agents": [
+        "alma",
         "codex"
       ],
       "purpose": "已登记 SSH 目标操作",
@@ -186,5 +270,5 @@
   },
   "skillRouter": true,
   "cleanedAt": "2026-11-13",
-  "cleanup": "6 Magpie library skills; dev-skills plugin stages remain in the plugin and are not library skills. Codex host built-ins are not library MCP servers."
+  "cleanup": "16 Magpie library skills, including 10 engineering-stage skills derived from dev-skills 0.2.11. Codex host built-ins are not library MCP servers."
 }

@@ -1,0 +1,466 @@
+# Think: Detailed Reference
+
+
+
+
+## Contents
+
+- [Step 0: Quick Assessment](#step-0-quick-assessment)
+- [Step 1: Auto-Context Collection](#step-1-auto-context-collection)
+- [Step 2: Offer to Create a PRD](#step-2-offer-to-create-a-prd)
+- [Step 3: Classify Complexity](#step-3-classify-complexity)
+- [Step 4: Question Gates (Only Ask High-Value Questions)](#step-4-question-gates-only-ask-high-value-questions)
+- [Step 5: Research-First Mode (Mandatory for Technical Choices)](#step-5-research-first-mode-mandatory-for-technical-choices)
+- [Step 6: Expansion Scan (DIVERGE)](#step-6-expansion-scan-diverge)
+- [Step 7: Q&A Loop (CONVERGE)](#step-7-qa-loop-converge)
+- [Step 8: Propose Approaches + Record Decision](#step-8-propose-approaches-record-decision)
+- [Step 9: Submit Plan for Approval](#step-9-submit-plan-for-approval)
+- [Step 10: Create Parent Issue & Finalize PRD](#step-10-create-parent-issue-finalize-prd)
+- [Complexity Classification Detail](#complexity-classification-detail)
+
+---
+
+## Step 0: Quick Assessment
+
+Before doing anything, assess complexity from the user's request:
+
+- If the request is obviously **Trivial** (single-line fix, typo, obvious change with one clear approach): tell the user `/think` is unnecessary, recommend direct implementation, and **stop here**. No PRD file is created.
+- For all other complexity levels: proceed to Step 1.
+
+This avoids wasting time on requests that don't need brainstorming.
+
+## Step 1: Auto-Context Collection
+
+Before asking "what does the code look like?", collect context yourself:
+
+**Codebase Checklist:**
+- Identify likely affected modules/files
+- Find existing patterns (similar features, conventions, error handling style)
+- Check configs, scripts, existing command definitions
+- Note constraints (runtime, dependency policies, build tools)
+
+**Docs Checklist:**
+- Find existing PRD/spec/templates
+- Find command usage examples, README, ADRs (if any)
+
+Write findings to PRD:
+- Add to `What I already know`
+- Add constraints/links to `Technical Notes`
+
+## Step 2: Offer to Create a PRD
+
+After auto-context collection (Step 1), ask the user if they want to persist the plan as a PRD file. **Do not create the PRD automatically.** By this point you have enough context to explain what the PRD would contain.
+
+Step 2 is sequenced after Step 1 so the user can make an informed decision based on actual findings, not just the initial request.
+
+**Ask (for non-Trivial tasks):**
+
+```
+I'll help you think through this. Would you like me to create a PRD file at `docs/prd/PRD-NNNN-<title>.md` as we work through the design?
+
+- **Yes** — I'll create and update a PRD file throughout our discussion
+- **No** — I'll work through the plan conversationally and provide a summary at the end
+```
+
+**If Yes:** first run the [PRD Conflict Check](#prd-conflict-check-before-assigning-nnnn) (below) to catch topic collisions against existing `PRD-NNNN-*.md` (resume vs create-new). Only after the check passes, scan `docs/prd/` for existing `PRD-NNNN-*.md` files, assign the next NNNN (max + 1, starting from 0000), and create the PRD at `docs/prd/PRD-NNNN-<title>.md`.
+
+**If No:** skip PRD creation. Still follow the brainstorming process (Steps 3-10 — Step 10a parent-issue creation is skipped; new domain terms go to the approved design summary instead of a PRD), but keep notes in your working context and produce a design summary at the end.
+
+**PRD Location:** `docs/prd/PRD-NNNN-<title>.md`
+
+If creating, use the template and field rules in [PRD-FORMAT.md](PRD-FORMAT.md) — that file is the single source for the template and every field rule.
+
+### PRD Conflict Check (before assigning NNNN)
+
+> This check lives here (the primary PRD-creator skill) rather than in the shared Entry Protocol, because only PRD-creating skills (`/think`, `/story`) need it — every other skill that "applies the Entry Protocol" would otherwise carry PRD-management ceremony it never uses. `/story` references the same procedure defined here.
+
+Applies when about to **create** a new PRD file. Skills that only **read** an existing PRD skip this check.
+
+Different sessions do not share memory, so a later session has no way to know an earlier one already started a PRD on the same topic — it would silently auto-assign the next NNNN and write a duplicate file. This check prevents that.
+
+**Before assigning a new NNNN, scan `docs/prd/` and compare against the new topic:**
+
+1. List existing `PRD-NNNN-*.md` files.
+2. For each, compare to the topic being created:
+   - **Title slug match** — the kebab-case title in the filename equals the new topic's intended slug (e.g. two `*-block-ui.md`). This is the strongest signal.
+   - **Header/Goal similarity** — the PRD's `# <Feature Name>` line or `## Goal` first paragraph names the same subject as the new request.
+3. A match on either is a candidate collision.
+
+**If a candidate is found, ask one question (Preference type, with a recommended answer):**
+
+```
+Found a possible existing PRD on this topic:
+- PRD-0001-block-ui.md — <one-line Goal summary>
+
+Is this the same design, or a different topic?
+1. Resume PRD-0001 (Recommended) — reuse its number, continue editing it
+2. New PRD — different topic, create with a distinct title
+```
+
+- **Resume** → reuse that NNNN, load and continue editing the existing file. Do not create a new file.
+- **New PRD** → assign next NNNN (max + 1) and create a new file with a clearly distinct title.
+
+**If no candidate is found** → proceed to assign next NNNN (max + 1) as before.
+
+This check is non-blocking: it never silently merges or silently duplicates. When in doubt, it asks. The intent is to surface the collision, not to make a perfect semantic match — a cheap one-time confirmation is preferable to a stray duplicate PRD.
+
+## Step 3: Classify Complexity
+
+Determine depth of brainstorming for Simple/Moderate/Complex tasks:
+
+| Complexity | Criteria | Behavior |
+|---|---|---|
+| **Simple** | Clear goal, 1-2 files, clear scope | Ask 1 confirmation question, then finalize a lightweight PRD or implement directly when the change is already clear |
+| **Moderate** | Multiple files, some ambiguity | Light brainstorming — resolve only MVP-critical blocking/preference nodes, however many (or few) that turns out to be |
+| **Complex** | Unclear goal, architecture choices, multiple approaches | Full brainstorming |
+
+## Step 4: Question Gates (Only Ask High-Value Questions)
+
+Before asking any question, run these gates:
+
+**Gate A — Can I derive this without user?**
+
+If answer obtainable via:
+- Codebase inspection (code/configs)
+- Docs/specs/conventions
+- Quick market/OSS research
+
+→ **Don't ask.** Fetch it, summarize, update PRD. Only when the evidence genuinely doesn't exist in the repo (e.g. no content files to sample) may you ask — as its own single question with your best inference as the recommended answer.
+
+**Gate B — Is this a meta/lazy question?**
+
+Examples:
+- "Should I search?"
+- "Can you paste code so I can continue?"
+- "What does the code look like?" (when codebase is available)
+
+→ **Don't ask.** Take action.
+
+**Gate C — What type of question is this?**
+
+- **Blocking**: Cannot continue without user input
+- **Preference**: Multiple valid choices, depends on product/UX/risk preference
+- **Derivable**: Should be answered by inspection/research
+
+→ Only ask **Blocking** or **Preference**.
+
+## Step 5: Research-First Mode (Mandatory for Technical Choices)
+
+**Triggers (any one → research first):**
+- Task involves choosing approach, library, protocol, framework, template system, plugin mechanism, or CLI UX convention
+- User asks "best practice", "how do others do this", "recommended"
+- User cannot reasonably enumerate options
+
+**Gate — query `docs/research/INDEX.md` first.** The full hit (verified/stale/implementation-detail) / miss decision table lives in [SKILL.md Step 5](SKILL.md) — it is authoritative. On a verified hit, reuse the TL;DR and skip the research steps below entirely; on a stale hit, check the record's Boundary Conditions first. The steps below run **only on a miss** (or a stale record whose conclusion no longer applies):
+
+**Research Steps (only on an INDEX miss):**
+1. Identify 2-4 comparable tools/patterns
+2. Summarize common conventions and why they exist
+3. Map conventions to our codebase constraints
+4. Write to PRD's `Research References` section
+
+If the resulting conclusion is reusable beyond this PRD, suggest `/research` to persist it as an immutable record before committing to the approach.
+
+Then present **2-3 viable approaches** in the PRD. Fill the `## Research References` and `## Feasible Approaches` sections per [PRD-FORMAT.md](PRD-FORMAT.md) — that file is the single source for the exact field shape.
+
+Then ask **one** preference question:
+- "Which approach do you prefer: A / B / C (or other)?"
+
+## Step 6: Expansion Scan (DIVERGE)
+
+Once you can summarize the goal, proactively expand your thinking before converging. **Scale to complexity** (from Step 3):
+
+- **Simple** — skip this step entirely. Simple tasks have a clear goal and 1-2 files; forcing future-evolution/related-scenario divergence on them is over-ceremony. Go straight to Step 7.
+- **Moderate** — do only category 3 (Failure & edge cases), raised as a single question.
+- **Complex** — do all three categories below, 1-2 points each.
+
+**Expansion Categories (1-2 points each):**
+
+1. **Future evolution**
+   - What might this feature become in 1-3 months?
+   - Which extension points are worth preserving now?
+
+2. **Related scenarios**
+   - Related commands/workflows this should align with?
+   - Parity expectations (create vs update, import vs export)?
+
+3. **Failure & edge cases**
+   - Conflicts, offline/network failures, retry, idempotency, compatibility, rollback
+   - Input validation, security boundaries, permission checks
+
+**Expansion message template (to user):**
+
+```markdown
+I understand you want to implement: <current goal>.
+
+Before deep design, let me quickly diverge on three categories (avoid rework later):
+
+1. Future evolution: <1-2 points>
+2. Related scenarios: <1-2 points>
+3. Failure/edge cases: <1-2 points>
+
+Which do you want in this MVP (or none)?
+
+1. Current requirements only (minimum viable)
+2. Add <X> (reserve for future expansion)
+3. Add <Y> (improve robustness/consistency)
+4. Other: describe your preference
+```
+
+Then update PRD:
+- What goes in MVP → `Requirements`
+- What's excluded → `Out of Scope`
+
+## Step 7: Q&A Loop (CONVERGE)
+
+**Rules:**
+- Exactly one **decision** per message, with a recommended answer — never a batch, never a pre-computed question list, and never piggyback riders: no "顺便确认 / please also mention X" attached to the main ask. A rider is a second decision wearing the same message — split it into the next question (anti-patterns #3, #4)
+- The next question is derived from the user's last answer: it may open new branches, close others, or reshape the remaining choices. If you knew what question N+1 would be before hearing answer N, you are working a list, not a tree
+- Terminate on tree exhaustion: every blocking/preference node for the MVP resolved — not when a question list runs out
+- Use multiple choice for preference questions
+- After each user answer:
+  - Immediately update PRD
+  - Move answered items from `Open Questions` to `Requirements`
+  - Update `Acceptance Criteria` with testable checkboxes
+  - Clarify `Out of Scope`
+
+**Question priority (recommended):**
+1. MVP scope boundaries (what's in/out)
+2. Preference decisions (after presenting specific options)
+3. Failure/edge behavior (only for MVP-critical paths)
+4. Success metrics & acceptance criteria (what proves it works)
+
+**Preference question format (multiple choice):**
+
+```markdown
+For <topic>, which approach do you prefer?
+
+1. **Option A** — <implication + trade-off>
+2. **Option B** — <implication + trade-off>
+3. **Option C** — <implication + trade-off>
+4. **Other** — describe your preference
+```
+
+## Step 8: Propose Approaches + Record Decision
+
+When requirements are clear enough, propose 2-3 approaches (if not already done via research-first):
+
+```markdown
+Based on current information, here are 2-3 viable approaches:
+
+**Approach A: <name>** (Recommended)
+- How:
+- Pros:
+- Cons:
+
+**Approach B: <name>**
+- How:
+- Pros:
+- Cons:
+
+Which direction do you prefer?
+```
+
+Record the result in the PRD's `## Decision (ADR-lite)` section, using the field shape defined in [PRD-FORMAT.md](PRD-FORMAT.md) (Context / Decision / Consequences).
+
+## Step 9: Submit Plan for Approval
+
+When open questions are resolved, confirm complete requirements with structured summary. This is the approval step — after the user confirms, **do not wrap up yet**. Proceed to Step 10 to create the parent Issue and finalize the PRD.
+
+**Approval format:**
+
+```markdown
+Here is my understanding of complete requirements:
+
+**Goal**: <one sentence>
+
+**Requirements**:
+* ...
+
+**Acceptance Criteria**:
+* [ ] ...
+* [ ] ...
+
+**Definition of Done**:
+* ...
+
+**Out of Scope**:
+* ...
+
+**Technical Approach**:
+<brief summary + key decisions>
+
+**Implementation Plan (small PRs)**:
+* PR1: <scaffolding + tests + minimal pipeline>
+* PR2: <core behavior>
+* PR3: <edge cases + docs + cleanup>
+
+Does this look correct? If confirmed, I will:
+1. Create the parent Issue in the issue tracker (for child issue tracking downstream)
+2. Record new domain terms for `/grill` to refine
+3. Finalize the PRD and recommend the next step
+
+→ Then proceed to Step 10 (Create Parent Issue & Finalize PRD)
+```
+
+## Step 10: Create Parent Issue & Finalize PRD
+
+After the user confirms the plan in Step 9, do **not** output the final message yet. First create the parent Issue, then record domain terms, then finalize.
+
+### 10a: Create Parent Issue (Required)
+
+Create the parent Issue as a **required** action. This is the single point where the PRD's parent Issue is created — `/grill` and `/story` downstream rely on the PRD's `## Issue` field to attach child issues. Skipping it leaves child issues orphaned (the "PRD has no parent Issue" break in the chain). Read `docs/agents/issue-tracker.md` for the issue creation convention.
+
+**If no PRD exists** (user declined PRD in Step 2): skip parent Issue creation — there is no `## Issue` field to record it in. Output the approved design summary without a parent Issue reference.
+
+Create the issue with a structured body (not the raw PRD dump). Use the same Issue Format as `/story` for consistency:
+
+```markdown
+## Parent
+
+(This is the parent issue — child issues created by `/story`)
+
+## What to build
+
+<goal from PRD, 1-2 sentences>
+
+## Acceptance Criteria
+
+* [ ] <from PRD>
+* [ ] ...
+
+## Blocked by
+
+None — this is a parent issue
+```
+
+For GitHub:
+```bash
+gh issue create --title "<Feature Name>" --body "$(cat <<'EOF'
+## Parent
+
+(This is the parent issue — child issues created by \`/story\`)
+
+## What to build
+
+<goal>
+
+## Acceptance Criteria
+
+* [ ] ...
+
+## Blocked by
+
+None — this is a parent issue
+EOF
+)" --label "prd"
+```
+
+Record Issue number in PRD:
+
+```markdown
+## Issue
+#<issue-number>
+```
+
+### No-tracker degradation
+
+Step 10 assumes an issue tracker exists. If `docs/agents/issue-tracker.md` is absent **and** the user confirms the repo has no tracker (e.g. a local-only meta-repo, a docs-only project), the parent Issue step is **waived** — do not block the workflow and do not invent a tracker. Record the waiver explicitly so downstream skills (`/grill`, `/story`) know the `## Issue` field is intentionally empty rather than missing:
+
+```markdown
+## Issue
+
+N/A — no issue tracker configured for this repo (confirmed with user <YYYY-MM-DD>). PRD serves as the tracking artifact.
+```
+
+Downstream skills check this field's content: an `N/A —` line means "deliberately no tracker" (proceed without parent-issue sync); an empty/missing field during `/grill` or `/story` means "/think didn't run" (suggest running it). This single convention keeps the degradation legible across skills.
+
+### 10b: Record Domain Terms
+
+If new domain concepts emerged during brainstorming (a named concept, an agreed working definition for an ambiguous term, or an entity/relationship not yet in `CONTEXT.md`), capture them so `/grill` can sharpen and promote them. These are **draft** terms — they do NOT go into `CONTEXT.md` during `/think`; that is `/grill`'s job.
+
+Add a `## Domain Terms` section (to the PRD, or to the approved design summary if no PRD):
+
+```markdown
+## Domain Terms (draft — for /grill to refine)
+
+| Term | Working Definition | Status |
+|------|--------------------|--------|
+| <term> | <one-sentence working definition> | new / needs sharpening / conflicts with existing |
+```
+
+Keep this lightweight — record only genuinely new or ambiguous terms (don't duplicate `CONTEXT.md`), flag conflicts explicitly, and 3-7 terms is typical. If you have notably more, the scope may be too broad.
+
+### 10c: Output Approved Plan
+
+After parent Issue creation and domain terms recorded, output the approved plan:
+
+```markdown
+Plan approved. Next: Run /grill to challenge and refine this approach.
+
+**Approved design summary:**
+- **Building**: What this is (1 paragraph)
+- **Not building**: Explicit exclusion list
+- **Approach**: Chosen option + rationale
+- **Key decisions**: 3-5 items with rationale
+- **Unknowns**: Only explicitly deferred items with reason and owner
+- **Parent Issue**: #<num> created | (no PRD, skipped)
+```
+
+## Complexity Classification Detail
+
+### Trivial
+
+**Criteria:**
+- Single-line fix
+- Typo correction
+- Obvious change with one clear approach
+
+**Behavior:**
+- Skip brainstorming entirely
+- State that `/think` is unnecessary for this request
+- Recommend direct implementation outside this skill
+
+**Example:** "Fix typo in error message"
+
+### Simple
+
+**Criteria:**
+- Clear goal
+- 1-2 files affected
+- Clear scope, no ambiguity
+
+**Behavior:**
+- Ask 1 confirmation question if needed
+- Finalize a lightweight PRD, or implement directly when the change is already clear
+- Do not write code inside `/think`
+
+**Example:** "Add retry to this API call"
+
+### Moderate
+
+**Criteria:**
+- Multiple files
+- Some ambiguity
+- Clear goal but multiple paths
+
+**Behavior:**
+- Light brainstorming
+- resolve only MVP-critical blocking/preference nodes — the tree decides the count, not a quota
+
+**Example:** "Add user preferences page"
+
+### Complex
+
+**Criteria:**
+- Unclear goal
+- Architecture choices required
+- Multiple valid approaches
+- Significant implementation effort
+
+**Behavior:**
+- Full brainstorming process
+- All steps apply
+- Research-first for technical choices
+
+**Example:** "Design multi-tenant authentication system"

@@ -27,7 +27,7 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
 | MCP | 搜索、数据库、Git 托管、SSH、图片等 9 项执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单：6 个资源库技能 + `dev-skills` 插件阶段 | Magpie 资源库/共享目录；插件由 Codex 加载 |
+| Skills | 按任务加载的方法和检查清单：16 个资源库技能（含 10 个工程阶段技能） | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
 | Alma | 按需的人类驾驶舱：查看已连接会话、通知、审批和持久协调 | 用户手动启动的 Alma 应用，默认不写代码 |
 

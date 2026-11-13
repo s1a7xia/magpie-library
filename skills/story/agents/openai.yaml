@@ -1,0 +1,5 @@
+interface:
+  display_name: "Story (internal)"
+  short_description: "Internal work slicing and issue stage"
+policy:
+  allow_implicit_invocation: false

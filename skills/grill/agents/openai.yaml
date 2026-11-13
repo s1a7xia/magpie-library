@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill (internal)"
+  short_description: "Internal plan challenge and validation stage"
+policy:
+  allow_implicit_invocation: false

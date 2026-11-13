@@ -1,0 +1,5 @@
+interface:
+  display_name: "Think (internal)"
+  short_description: "Internal requirement and solution design stage"
+policy:
+  allow_implicit_invocation: false
