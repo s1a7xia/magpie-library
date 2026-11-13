@@ -10,7 +10,7 @@
 辅助：需要远程查看、通知、审批或持久任务协调 → 启动 Alma
 ```
 
-**第一次使用先看 [机制与日常用法](USAGE.md)**。不强制 PRD、交接文件、固定流水线或多个 Agent 并行；阶段技能仅在对应任务需要时加载。
+**第一次使用先看 [机制与日常用法](USAGE.md)**；要理解各层如何连接、为什么这样分层，读 [当前设计](DESIGN.md)。不强制 PRD、交接文件、固定流水线或多个 Agent 并行；阶段技能仅在对应任务需要时加载。
 
 本仓库公开用于阅读、参考和溯源。**日常生效的源头不是本仓库**，而是本机 Magpie 资源库 `~/.config/magpie/library/`；本仓库是它的可读、可 diff、可回滚副本。
 
@@ -27,7 +27,7 @@
 - `ruoyi6` 先按 Direct / Increment / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。任何 RuoYi 代码或字段/API/权限契约改动都加载它，覆盖 Direct、`implement`、`debug` 和 `review`；纯文档、只读规划或诊断且不改代码时可不加载。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
-`dev-skills` 插件当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。
+`dev-skills` 插件当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。插件当前版本 `0.2.11`，共 10 个技能。
 
 日常直接向 Codex 提需求；需要更细的方法控制时，再按需使用
 `think` / `grill` / `story` / `review`。Direct 和 Closure 不强套
@@ -42,7 +42,7 @@
 | 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 Magpie 技能 |
 | 项目事实 | 当前目标、决策、验证证据、编译/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发，需要初始化时再使用 `setup-project` |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 MCP，加上本机 CLI |
-| 运行观察 | 已连接会话、通知、审批和持久任务协调 | Alma，按需启动，不默认写代码 |
+| 运行观察 | 已连接会话、通知、审批和持久任务协调 | Alma + Herdr，按需启动，不默认写代码 |
 
 各层各司其职：
 
@@ -60,12 +60,13 @@
 当前基线使用：
 
 - Magpie `0.1.3887`
-- Codex `0.167.2`、Alma `0.4.575`
+- Codex `0.167.2`、Alma `0.4.579`、`dev-skills 0.2.11`
 - Node.js `v24.17.0`、npm `11.13.0`
 - Python `3.13.14`
 - Git `2.54.0`
 - `gh 2.103.2`、`glab 1.128.0`（按托管平台选用）
 - `rtk 1.1.0`
+- Herdr `0.9.5`（`herdr-core` `0.1.20`），远程观察 Codex 会话时使用
 - Chrome 和 Edge
 
 MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-vision`、`magpie-web-search`、`ssh`。页面运行检查使用 Codex 宿主浏览器工具，不属于 Magpie 资源库 MCP；Alma 通过自己的 MCP 配置连接 Magpie Hub，不占用资源库里的独立条目。
@@ -77,12 +78,14 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee
 | 路径 | 说明 |
 |---|---|
 | `instructions.md` | 全局协作指令的唯一正文源；项目规则不写回这里 |
-| `instructions/<agent>.md` | 可选的 Agent 专属追加内容；目前 Codex 的旧重复正文已清空 |
+| `instructions/<agent>.md` | Agent 专属追加内容：`codex.md` 放工程规则，`alma.md` 放观察与协调边界 |
 | `skills/` | Magpie 技能及其引用、模板和脚本 |
 | `scripts/verify-library.py` | 资源库结构、链接、同步和凭证提示检查 |
 | `README.md` | 组合介绍与入口 |
 | `USAGE.md` | 当前机制、调用示例、权限边界与更新方法 |
+| `DESIGN.md` | 当前分层设计、MCP 拓扑、模型路由与远程可见性边界 |
 | `DEPENDENCIES.md` | 运行依赖、MCP、恢复与校验 |
+| `ENVIRONMENT.md` | 本机插件、记忆与同步的脱敏清单 |
 
 ## 维护和发布
 
@@ -116,6 +119,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee
 - 项目仍可有自己的 `AGENTS.md`，但只写该项目的技术栈、命令、端口和授权边界，不复制全局团队规则。团队 Skill 只有一个 Magpie 源，`~/.agents/skills` 与 Alma personal 目录通过 Junction 指向它。
 - 默认不安装工程 Hook 和子代理；Hook 只作为可选护栏，主代理负责判断、执行和交付。
 - Alma 不随登录自动启动；需要时直接运行 `& "$env:LOCALAPPDATA\Programs\Alma\Alma.exe"`，再用 `alma status` 核对运行状态。
+- **远程可见性有明确边界**：只有跑在 Herdr 里的 Codex 会话才能被 Alma / 微信看到；Codex Desktop 直接打开的会话不在发现范围。详见 [DESIGN.md](DESIGN.md) 第 6 节。
 
 ## 永不入库
 

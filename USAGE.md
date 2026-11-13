@@ -77,6 +77,41 @@ alma status
 
 Alma 不随登录自启，也不是第二个默认代码写作者。桌面 Codex、CLI 任务或未接入 Herdr 的会话不会自动出现在 Alma；启动和连接状态也不扩大写库、测试、提交、推送或部署授权。
 
+### 4.1 远程看 Codex 执行情况
+
+要在家外通过手机或微信看到 Codex 的实时执行情况，**Codex 必须跑在 Herdr 的 pane 里**。Codex Desktop 直接打开的会话不在 Alma 的发现范围，无法远程查看。
+
+不需要手动开 Herdr，让 Alma 发起即可：
+
+```text
+在微信里说：在 D:\你的项目 开个 Codex 做 XXX
+     ↓
+Alma 执行 alma herdr new --cwd D:\你的项目 --agent codex "<task>"
+     ↓
+Codex 在 Herdr pane 中运行，手机可看进度、追问、回答审批
+```
+
+| 会话来源 | 手机/微信可见 |
+|---|---|
+| Alma 通过 Herdr 启动的 Codex | ✅ |
+| Alma 自己的会话（含微信消息） | ✅ |
+| Codex Desktop 直接打开的会话 | ❌ |
+| 普通终端里直接运行的 `codex` | ❌ |
+
+常用命令（在 Alma 会话内执行）：
+
+| 目的 | 命令 |
+|---|---|
+| 列出现有 workspace 和会话 | `alma herdr workspaces` / `alma herdr chats` |
+| 新开一个 Codex 会话并派任务 | `alma herdr new --cwd <目录> --agent codex "<任务>"` |
+| 继续已有会话 | `alma herdr send --pane <pane> "<任务>"` |
+| 持续跟随直到完成 | `alma herdr follow --pane <pane> "<任务>"` |
+| 回答运行中的选择 | `alma herdr answer --pane <pane> --option N` |
+
+`follow` 需要 `ALMA_THREAD_ID`，只能在 Alma 会话内使用；在外部终端直接调用会返回 `missing_thread`，这是设计行为。
+
+远程可见性只解决“看见”和“转达”，不扩大测试、写库、提交或部署授权。
+
 ## 5. 权限和停止边界
 
 | 动作 | 默认边界 |
@@ -110,6 +145,6 @@ magpie healthcheck
 
 ## 7. 当前边界
 
-当前团队只保留 Codex 和 Alma。Magpie 管共享能力；Codex 负责开发闭环；Alma 只在需要时提供运行观察、通知、审批和持久协调。Pi 已卸载，dsh/微信 Agent 不再是团队入口。
+当前团队只保留 Codex 和 Alma。Magpie 管共享能力；Codex 负责开发闭环；Alma 只在需要时提供运行观察、通知、审批和持久协调。Pi 已卸载；微信是 Alma 的输入通道之一，不是独立的第三套 Agent。
 
 本说明不宣称效率已被证明。评估方式应是真实任务的总耗时、有效缺陷和返工；如果发现某条规则没有改善结果，应删除或缩短它，而不是继续增加流程。

@@ -128,7 +128,7 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 
 ## Entity / BO / VO
 
-- Entity 基类按当前模块和隔离契约选择；作者普通示例继承 `BaseEntity`，其审计属性为 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。不机械改成 `TenantEntity` 或给每表增加 `tenant_id`；以当前基类、填充器、租户/数据权限拦截器核对真实列。
+- Entity 基类按当前模块和隔离契约选择；作者普通示例继承 `BaseEntity`，其审计属性为 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。以当前基类、填充器和数据权限拦截器核对真实列，不增加项目没有的隔离字段。
 - 主键用 `@TableId`；逻辑删除、乐观锁、排序分别按需用 `@TableLogic`、`@Version`、`@OrderBy`。
 - 状态、标志类的物理类型、默认值和约束由 `database-design` 的数据库契约决定；Entity/BO/VO 使用与契约同型的 Java 类型，并核对外部接口序列化，不在同一业务域混用两套表示。
 - JSON 字段先按项目本地 JSONB 规范选择 TypeHandler；普通 `JacksonTypeHandler` 不能证明 PostgreSQL `jsonb` JDBC 绑定正确。优先复用项目已有的 JSONB-aware TypeHandler，并核对 `@TableName(autoResultMap = true)`、`@TableField`、Entity/BO/VO 类型和 Wrapper 写入链路。数据库侧何时使用 JSONB、何时提升为真实列由 `database-design` 判断。
@@ -211,7 +211,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 
 - `@DataPermission` 主要标在 Mapper 层；列表、详情、更新、删除都要覆盖，不能只给列表加。
 - 方法级注解优先于类级；XML / MPJ 联表使用表别名时，`@DataColumn` 的 `value` 必须写 `别名.列名`。
-- 不把权限码格式正确当作权限闭环。列表、详情、增改删、导出及关联 ID 都按实际对象范围核对；安全默认不得扩大跨用户、跨部门或跨租户权限。新增绕过/扩大范围须有已批准契约或用户决定，不能用 TODO 放行。已批准且确有必要时，`DataPermissionHelper.ignore(...)` 或 `@InterceptorIgnore(dataPermission = "true")` 只包最小范围，并说明原因。
+- 不把权限码格式正确当作权限闭环。列表、详情、增改删、导出及关联 ID 都按实际对象范围核对；安全默认不得扩大跨用户、跨部门权限。新增绕过/扩大范围须有已批准契约或用户决定，不能用 TODO 放行。已批准且确有必要时，`DataPermissionHelper.ignore(...)` 或 `@InterceptorIgnore(dataPermission = "true")` 只包最小范围，并说明原因。
 - 功能权限只控制“能否调用”，数据权限控制“能看到/操作哪些数据”，两者不能互相替代。
 - 新增时由服务端确定归属，或校验用户选择的归属范围；修改归属另查转移权限。关联 ID 和子记录还要校验可访问性及所属主记录，不能只信任页面选项或 `@DataPermission` 对原记录的过滤。
 

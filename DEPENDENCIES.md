@@ -25,7 +25,10 @@
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
 | Magpie | `0.1.3887` | 必需 | 指令、技能、MCP 的统一分发与托管 |
-| Codex | 随桌面端安装 | 必需 | 当前主要开发 Agent |
+| Codex | `0.167.2` | 必需 | 当前主要开发 Agent |
+| Alma | `0.4.579` | 按需 | 运行观察、通知、审批和持久协调；不承担产品开发 |
+| Herdr | `0.9.5`（`herdr-core` `0.1.20`） | 按需 | 持久会话；远程观察 Codex 时必须由 Herdr 承载会话 |
+| `dev-skills` 插件 | `0.2.11` | 必需 | 工程阶段路由与方法（1 入口 + 9 阶段） |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
 | npm / npx | `11.13.0` | 必需 | 启动 stdio MCP 和部分技能工具 |
@@ -38,14 +41,27 @@
 |---|---:|---|---|
 | `gh` | `2.103.2` | 可选 | GitHub CLI 兜底；MCP 不可用时的只读排查 |
 | `glab` | `1.128.0` | 可选 | GitLab 任务和 MR；当前明确不启用 `glab mcp serve` |
-| `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用 |
+| `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用；当前 `off Codex` |
 | Magpie Browser | 扩展 0.1.9（2026-11-13 实测） | 显式页面运行检查时使用 | 由 Magpie 内置 MCP 驱动，使用用户真实 Chrome 登录态 |
 | Google Chrome | 已安装 | 显式页面运行检查时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
 | Microsoft Edge | 已安装 | 显式页面运行检查的后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 
 Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用资源库的固定前置条件。需要初始化项目约定时，从仓库实际构建文件读取命令；缺少 `docs/agents` 不是开发前置条件。
 
-### 2.3 可选安装命令
+### 2.3 Alma 与 Herdr 的机器状态
+
+| 项 | 位置 | 说明 |
+|---|---|---|
+| Alma 服务 | `alma-server`，监听 `127.0.0.1:23001` | `alma status` 核对；不随登录自启 |
+| Alma 配置与密钥 | `~/.config/alma/`、`~/AppData/Roaming/alma/` | 含 provider、微信凭据、中继 token，**不入库** |
+| Alma MCP 入口 | `~/.config/alma/mcp.json` | 只有一项，指向 Magpie `hub/alma`，工具集为空 |
+| Herdr 服务 | `~/.herdr/`、`~/AppData/Roaming/herdr/`、`~/AppData/Local/herdr-core/` | 持久终端与 pane 状态 |
+| Codex × Herdr hook | `~/.codex/hooks.json` + `~/.codex/herdr-agent-state.ps1` | `SessionStart` 上报会话 ID；由 `herdr integration install codex` 维护 |
+| 手机中继 | `relay.alma.now`，端到端加密 | 状态见 `/api/mobile-relay/status`；`phonesConnected` 才是真实在线 |
+
+远程观察的前提是 Codex 会话跑在 Herdr pane 内。Codex Desktop 直接打开的会话没有 `HERDR_PANE_ID`，Alma 不发现也不跟踪。
+
+### 2.4 可选安装命令
 
 只在确实缺少且用户同意时安装：
 
@@ -375,6 +391,8 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 6. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。
 7. **版本没有锁定文件**：本文记录的是核对时版本；Magpie、Node、Python 和 CLI 升级后需要重新验证。
 8. **仓库不是可执行安装包**：它只保存可读文本；恢复运行环境仍依赖 Magpie 备份或手工重配。
+9. **远程可见性依赖 Herdr**：Codex Desktop 或普通终端直接开的会话不能被 Alma / 微信观察；需要远程盯进度时改由 `alma herdr new` 启动。
+10. **Alma 模型列表少于网关**：Alma 侧登记 12 个模型，Magpie 网关暴露 19 个，差额为 8 个 `our-free-model/*`。不影响现有链路，需要时在 Alma 中补登记。
 
 ## 10. 最小验收清单
 
@@ -385,8 +403,9 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `verify-library.py` 零错误；
 - [ ] `~/.agents/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] `setup-project`、`think`、`grill`、`story`、`implement`、`review` 能被正确路由；
+- [ ] `dev-workflow` 入口以及 `think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project` 能被正确路由；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
+- [ ] 需要远程观察时，`alma herdr chats` 能看到目标 Codex 会话；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
 - [ ] 只有用户明确要求页面运行检查时，才准备 Magpie Browser、账号和目标 URL；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

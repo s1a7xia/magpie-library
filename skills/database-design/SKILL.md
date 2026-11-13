@@ -132,7 +132,7 @@ JSONB 只用于真正稀疏、结构可变、不参与关键约束或高频筛�
 
 - 表、列、约束和索引使用不加双引号的小写 `snake_case`；标识符默认不超过 63 字节。
 - 主键默认 `id`；雪花 ID 用 `bigint` / `Long`，前端精度处理按 `ruoyi6` 的当前约定核对。
-- 继承 `BaseEntity` 的审计列按当前真实基类和自动填充器核对，不机械增加 `tenant_id` 或 `del_flag`。
+- 继承 `BaseEntity` 的审计列按当前真实基类和自动填充器核对，不机械增加项目没有的隔离字段或 `del_flag`。
 - 金额用明确精度；字符串长度按真实业务约束，不统一 `varchar(255)`。
 - 新表和新增字段写数据库注释，术语与页面、字典、Java 字段一致；审计时查 `obj_description` / `col_description`，不能拿 Entity JavaDoc 冒充数据库注释。
 - 时间类型沿用项目已确认的 JDBC、序列化和存量时区契约；未完成验证前不擅自混用 `timestamp` 与 `timestamptz`。PostgreSQL 的 `timestamptz` 是时间点，`timestamp` 是无时区墙上时间。
