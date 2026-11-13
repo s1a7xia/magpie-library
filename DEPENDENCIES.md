@@ -2,7 +2,7 @@
 
 本文记录这套组合拳在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-11。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-13。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
@@ -10,8 +10,8 @@
 
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
-| 全局协作指令 | 通用协作、权限和已有改动保护；工作流与收尾策略在项目 AGENTS.md | 正文在 `instructions.md`，生成副本不在本仓库 |
-| 16 个技能 | 各阶段的方法、模板和检查门槛 | 在 `skills/` |
+| 全局协作指令 | 团队角色、协作闭环、权限和已有改动保护 | 唯一正文在 `instructions.md`；项目专属规则留在项目 `AGENTS.md` |
+| 6 个资源库技能 | 业务规范、协作与回答呈现；工程阶段由 Codex 插件提供 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -24,7 +24,7 @@
 
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
-| Magpie | `0.1.3488` | 必需 | 指令、技能、MCP 的统一分发与托管 |
+| Magpie | `0.1.3887` | 必需 | 指令、技能、MCP 的统一分发与托管 |
 | Codex | 随桌面端安装 | 必需 | 当前主要开发 Agent |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
@@ -39,21 +39,17 @@
 | `gh` | `2.103.2` | 可选 | GitHub CLI 兜底；MCP 不可用时的只读排查 |
 | `glab` | `1.128.0` | 可选 | GitLab 任务和 MR；当前明确不启用 `glab mcp serve` |
 | `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用 |
-| `agent-browser` | 0.41.2（2026-11-11 核对，已在 PATH） | 可选 | 浏览器自动化；未安装 CLI 时页面验收使用当前 Agent 已有浏览器能力 |
-| Google Chrome | 已安装 | 页面验收时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
-| Microsoft Edge | 已安装 | 页面验收后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
+| Magpie Browser | 扩展 0.1.9（2026-11-13 实测） | 显式页面运行检查时使用 | 由 Magpie 内置 MCP 驱动，使用用户真实 Chrome 登录态 |
+| Google Chrome | 已安装 | 显式页面运行检查时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
+| Microsoft Edge | 已安装 | 显式页面运行检查的后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 
-Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用资源库的固定前置条件。项目初始化时从仓库实际构建文件读取并写入 `docs/agents/project-state.md`。
+Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用资源库的固定前置条件。需要初始化项目约定时，从仓库实际构建文件读取命令；缺少 `docs/agents` 不是开发前置条件。
 
 ### 2.3 可选安装命令
 
 只在确实缺少且用户同意时安装：
 
 ```powershell
-# 浏览器自动化 CLI
-npm install -g agent-browser
-agent-browser install
-
 # 代码托管 CLI，按实际平台选用
 winget install GitHub.cli
 winget install GLab.GLab
@@ -64,6 +60,8 @@ winget install rtk-ai.rtk
 
 安装后重新打开终端，并实际运行一次版本命令确认 PATH 生效。不要仅凭安装程序退出码判断可用。
 
+页面运行检查使用 Codex 宿主的浏览器工具；它不属于 Magpie 资源库 MCP，换机时按 Codex 自身配置恢复。
+
 ## 3. 技能分发
 
 ### 3.1 共享目录
@@ -72,11 +70,11 @@ winget install rtk-ai.rtk
 
 - `sharedSkills = true`
 - `mcpHub = true`
-- 技能数：16
+- Magpie 资源库技能数：6
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Agent 共享目录：`C:\Users\<user>\.agents\skills\`
 
-本机 `~\.agents\skills` 下 16 项均是指向资源库的 Junction，不是独立副本。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
+本机 `~\.agents\skills` 的项均为指向资源库的 Junction，不是独立副本；插件阶段不在这里分发。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -87,36 +85,27 @@ winget install rtk-ai.rtk
 
 ### 3.2 当前逐 Agent 勾选
 
-| 技能 | 当前 Agent |
+| 资源库技能 | Agent |
 |---|---|
-| `agent-browser` | claude, codex, dsh, qoder, workbuddy |
-| `answer-me-with-html` | claude, codex, dsh, qoder, workbuddy |
-| `debug` | codex |
+| `answer-me-with-html` | codex |
+| `api-regression` | codex |
 | `database-design` | codex |
 | `frontend-design` | codex |
-| `grill` | codex |
-| `implement` | codex |
-| `page-acceptance` | codex |
-| `powershell-windows` | codex |
-| `research` | codex |
-| `review` | codex |
-| `rules` | codex |
 | `ruoyi6` | codex |
-| `setup-project` | codex |
-| `story` | codex |
-| `think` | codex |
+| `team-orchestration` | alma, codex |
 
-全局指令当前只分发给 `codex`：
+全局指令当前分发给 `codex`、`alma`：
 
 ```text
-instructions.agents = ["codex"]
+instructions.agents = ["alma", "codex"]
 ```
 
-这意味着：换到 Claude、Qoder 或其他 Agent 时，即使共享目录读得到技能，也不自动获得同一套全局规则和逐项启用状态。需要先在 Magpie 中明确勾选并重新同步。
+`instructions.md` 是唯一正文源。Magpie 生成的 Codex `AGENTS.md` 和 Alma `USER.md` 都是分发副本，不手工维护第二套规则；各 Agent 的
+`instructions/<agent>.md` 只用于必要的专属追加。项目自己的 `AGENTS.md` 属于项目仓库，只记录技术栈、命令、端口和授权边界。
 
 ## 4. MCP 清单
 
-当前登记 9 个 MCP。因为 `mcpHub = true`，Agent 会话通常只看到一个由 Magpie 托管的聚合入口，实际服务由 Magpie 启动和转发；下表是逻辑服务清单。
+当前登记 9 项 Magpie 资源库 MCP。Codex 另有内置浏览器/computer-use 工具，不计入该清单。因为 `mcpHub = true`，实际服务由 Magpie 启动和转发。Alma 通过自己的 `~/.config/alma/mcp.json` 连接 `http://127.0.0.1:3425/mcp/magpie/hub/alma`，不占用资源库的独立条目；它的 Hub 工具集为空，只保留自己的会话、通知、审批和 Herdr 能力。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
@@ -124,12 +113,12 @@ instructions.agents = ["codex"]
 |---|---|---|---|
 | `context7` | HTTP `https://mcp.context7.com/mcp` | codex | 查框架和库的官方用法 |
 | `dbhub` | stdio `npx -y @bytebase/dbhub@1.5.0 --transport stdio` | codex | 本机 PostgreSQL；完整 DSN 在 `library.json`，不在此展开 |
-| `gitee` | HTTP `https://api.gitee.com/mcp` | codex, dsh | Gitee Issue/PR；Bearer Token 在 `library.json` |
-| `github` | HTTP `https://api.githubcopilot.com/mcp/` | codex, dsh | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可作为 CLI 兜底 |
+| `gitee` | HTTP `https://api.gitee.com/mcp` | codex | Gitee Issue/PR；Bearer Token 在 `library.json` |
+| `github` | HTTP `https://api.githubcopilot.com/mcp/` | codex | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可作为 CLI 兜底 |
 | `magpie-image` | stdio `magpie.exe mcp image` | codex | 图片生成与识图；依赖本机 Magpie 可执行文件和模型配置 |
 | `magpie-vision` | stdio `magpie mcp vision` | codex | 独立图像识别入口；依赖 Magpie 和模型配置 |
-| `magpie-memory` | stdio `magpie.exe mcp memory` | claude, codex, dsh, qoder, workbuddy | 跨 Agent 共享的项目记忆；依赖本机 Magpie 可执行文件 |
-| `magpie-web-search` | stdio `magpie.exe mcp search` | codex, dsh | 联网搜索；`research` 的首选搜索入口 |
+| `magpie-memory` | stdio `magpie.exe mcp memory` | codex | 跨 Agent 共享的项目记忆；依赖本机 Magpie 可执行文件 |
+| `magpie-web-search` | stdio `magpie.exe mcp search` | codex | 联网搜索；`research` 的首选搜索入口 |
 | `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | codex | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |
 
 说明：
@@ -141,7 +130,7 @@ instructions.agents = ["codex"]
 
 ### 4.1 实际连通性
 
-本次核对了配置和进程级依赖；**没有对所有 MCP 做全量连通测试**。
+本次核对以当前 `library.json` 为准：Magpie 资源库登记 9 项 MCP，Codex 会话通过 Magpie Hub 使用；不把 Codex 宿主内置工具混算为资源库 MCP。Alma 的 `hub/alma` 可见 0 个工具。这里验证的是工具暴露和最小调用，**没有对所有 MCP 的目标系统做全量业务测试**。
 
 恢复后应按用途做一次最小只读验证：
 
@@ -172,14 +161,14 @@ instructions.agents = ["codex"]
 | `~/.codex/config.toml` | Codex 模型、MCP 等运行配置 |
 | `~/.codex/AGENTS.md` | Magpie 生成的全局指令副本 |
 | `~/.codex/ssh-profiles.json` | SSH MCP 的目标配置 |
-| `~/.agents/skills/` | 16 个技能的共享 Junction |
-| 项目内 `.ruoyi-auth.json`、浏览器状态 | 页面验收登录态；本地生成，不入库 |
+| `~/.agents/skills/` | Magpie 资源库技能的共享 Junction；以当前目录和快照为准 |
+| Chrome 的 Magpie 标签组、Magpie Browser 扩展 | 页面运行检查登录态；本机浏览器状态，不入库 |
 
 原则：
 
 - 加密整包备份可以包含这些机器状态；普通 Git 仓库不能。
 - `library.json` 含有认证信息，不能直接提交或发到聊天里。
-- 浏览器登录态和 `.ruoyi-auth.json` 不由本仓库保存。
+- 浏览器登录态不由本仓库保存；显式页面运行检查直接复用 Chrome 中的真实登录，不另保存认证文件。
 - `*.magpie-backup`、`sync.json`、`sync-state.json`、`sync.lock` 已在 `.gitignore` 中排除。
 
 ## 6. 换机恢复
@@ -217,8 +206,9 @@ magpie backup --sign-ins C:\path\to\magpie-full.magpie-backup
    python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
    ```
 
-5. 补装不属于 Magpie 整包的 CLI：Node.js、Python、Git、`gh` / `glab`、RTK、`agent-browser`，按实际项目需要选择。
-6. 打开新的 Agent 会话，实际调用技能和一个只读 MCP，确认不是“配置存在但会话未挂载”。
+5. 补装不属于 Magpie 整包的 CLI：Node.js、Python、Git、`gh` / `glab`、RTK，按实际项目需要选择。
+6. 在 Chrome 中加载 `C:\Users\<user>\Magpie Browser Extension`，确认 Magpie Browser 状态为 `connected: true`。
+7. 打开新的 Agent 会话，实际调用技能和一个只读 MCP，确认不是“配置存在但会话未挂载”。
 
 如果同步由 WebDAV、S3 或 GitHub 加密仓库负责，安装 Magpie 后也可以配置同一同步地址，让机器状态自动回来；恢复后仍执行 `magpie library sync` 和健康检查。
 
@@ -233,7 +223,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 还需要另外完成：
 
 1. 在 Magpie 中创建或恢复 `library.json`；
-2. 重新登记 8 个 MCP 和认证信息；
+2. 重新登记 9 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
 4. 重新勾选技能分发给哪些 Agent；
 5. 执行 `magpie library sync`；
@@ -255,7 +245,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
-- Codex 指令块存在且与资源库正文一致；
+- Codex 指令块存在，且与资源库正文及可选专属追加一致；
 - 资源库与 `~/.agents/skills` 的文件哈希一致。
 
 它**不验证**：
@@ -276,7 +266,7 @@ Get-Content "$env:USERPROFILE\.codex\AGENTS.md" -TotalCount 20
 预期：
 
 - `magpie ls` 能看到 Codex；
-- `~/.agents/skills` 有 16 项，并指向资源库；
+- `~/.agents/skills` 与当前 Magpie 技能清单一致，并指向资源库；
 - `~/.codex/AGENTS.md` 含 `<!-- magpie:begin` 到 `<!-- magpie:end -->` 的指令块。
 
 ### 7.3 MCP
@@ -291,10 +281,12 @@ magpie tools
 ### 7.4 浏览器
 
 ```powershell
-agent-browser --version
+Invoke-WebRequest -UseBasicParsing `
+  -Uri 'http://127.0.0.1:3425/v1/magpie/browser' `
+  -Headers @{'User-Agent'='magpie-cli'}
 ```
 
-2026-11-11 本机已核对 `agent-browser 0.41.2` 且在 PATH。换机需重新确认；CLI 可选，优先遵守项目/用户指定工具并复用现有宿主会话，目录存在不能证明命令可用。
+期望返回 `connected: true`，并显示 Chrome 与扩展版本。2026-11-13 本机为 Chrome 157、扩展 0.1.9，已实际完成标签读取、页面点击和关闭。换机需重新加载扩展；仅存在扩展目录不能证明已连接。
 
 ## 8. 常见故障
 
@@ -308,9 +300,9 @@ agent-browser --version
 | `github` / `gitee` 返回 401 | Token 过期或认证头无效 | 在 Magpie 中更新凭据，开新会话验证只读接口 |
 | `ssh` 无目标 | `~/.codex/ssh-profiles.json` | 补配置并确认从当前工作目录出发的目标主机 |
 | 基线页不能生成 | Node.js 是否 20+ | 升级 Node.js LTS，再运行 `am.mjs` |
-| 页面验收被登录或验证码拦住 | 目标环境、账号、验证码开关 | 报告阻塞；不要在未授权时破解验证码或改认证逻辑 |
-| 页面验收通过但项目仍显示 `Dev Complete` | 验证结论是否落盘 | 更新 PRD/切片状态和 `docs/agents/verification.md` |
-| `review` 被当成页面验收 | 当前阶段是否真的走过浏览器 | 回到 `page-acceptance`；代码审查不能替代渲染验证 |
+| 显式页面运行检查被登录或验证码拦住 | 目标环境、账号、验证码开关 | 报告阻塞；不要在未授权时破解验证码或改认证逻辑 |
+| 页面运行检查通过但项目仍显示 `Dev Complete` | 验证结论是否落盘 | 更新项目已有的需求或验证记录；没有固定台账时不要为状态词新建目录 |
+| `review` 被当成页面运行检查 | 当前阶段是否真的走过浏览器 | 补做当前任务明确授权的页面检查；代码审查不能替代渲染验证 |
 | 推送后远端不一致 | 本地 `HEAD`、`origin/main`、远端引用 | 先 fetch 核对，不强制推送，不改写历史 |
 | Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 两种根因，先用 `output_tokens` 区分：≈4096 是输出上限未覆盖；很小且工具参数 JSON 不完整是模型退化 |
 
@@ -375,9 +367,9 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 
 这些是当前事实，不在本文里假装已经解决：
 
-1. **全局规则只分发 Codex**：其他 Agent 需要单独确认是否能承载相同约束。
+1. **全局规则分发给 Codex、Alma**：两者共享同一正文；Codex 是唯一默认产品写作者，Alma 只做按需观察与协调。
 2. **逐 Agent 技能启用不统一**：多数流程技能只勾选 Codex；共享目录存在不等于所有 Agent 已启用。
-3. **浏览器跨机器差异**：本机已安装 `agent-browser 0.41.2`；新机器仍需检查工具/会话可用性，不强制 CLI 替代宿主能力。
+3. **浏览器跨机器差异**：本机 Magpie Browser 已连接；新机器仍需在 Chrome 加载扩展并检查 `connected: true`。
 4. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
 5. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
 6. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。
@@ -391,10 +383,10 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `magpie --version` 正常；
 - [ ] `magpie library sync` 成功；
 - [ ] `verify-library.py` 零错误；
-- [ ] `~/.agents/skills` 有 16 项；
+- [ ] `~/.agents/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] `setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review` 能被正确路由；
+- [ ] `setup-project`、`think`、`grill`、`story`、`implement`、`review` 能被正确路由；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
-- [ ] 页面验收有可用浏览器、账号和目标 URL；
+- [ ] 只有用户明确要求页面运行检查时，才准备 Magpie Browser、账号和目标 URL；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

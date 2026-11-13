@@ -130,7 +130,8 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 
 - Entity 基类按当前模块和隔离契约选择；作者普通示例继承 `BaseEntity`，其审计属性为 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。不机械改成 `TenantEntity` 或给每表增加 `tenant_id`；以当前基类、填充器、租户/数据权限拦截器核对真实列。
 - 主键用 `@TableId`；逻辑删除、乐观锁、排序分别按需用 `@TableLogic`、`@Version`、`@OrderBy`。
-- JSON 字段用 `@TableName(autoResultMap = true)` + `@TableField(typeHandler = JacksonTypeHandler.class)`，Entity/BO/VO 类型同构。
+- 状态、标志类的物理类型、默认值和约束由 `database-design` 的数据库契约决定；Entity/BO/VO 使用与契约同型的 Java 类型，并核对外部接口序列化，不在同一业务域混用两套表示。
+- JSON 字段先按项目本地 JSONB 规范选择 TypeHandler；普通 `JacksonTypeHandler` 不能证明 PostgreSQL `jsonb` JDBC 绑定正确。优先复用项目已有的 JSONB-aware TypeHandler，并核对 `@TableName(autoResultMap = true)`、`@TableField`、Entity/BO/VO 类型和 Wrapper 写入链路。数据库侧何时使用 JSONB、何时提升为真实列由 `database-design` 判断。
 - BO 用 `@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)`；新增/修改用 `AddGroup` / `EditGroup`。
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
 - 映射变更按下节核对；未经当前请求授权不编译。

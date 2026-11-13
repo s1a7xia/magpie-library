@@ -1,0 +1,3 @@
+interface:
+  display_name: "API 优先的业务回归"
+  short_description: "API 业务闭环 + 数据库只读 MCP 核对持久化、状态与权限"

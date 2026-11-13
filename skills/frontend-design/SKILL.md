@@ -102,5 +102,5 @@ Verify each item on the rendered page, not on the source. These four failures mo
 - 页面属于 Enhance 还是 Design 模式；
 - 实际读过的项目规范、主题 token 和 2–3 个同类页面；
 - 改动的具体问题与最小改动集；
-- craft floor 四项哪些已在渲染页面核对，哪些留给 `page-acceptance`；
+- craft floor 四项哪些已在渲染页面核对，哪些仍未验证；
 - 明确没有改变权限、字典、分页、校验和弹窗生命周期。

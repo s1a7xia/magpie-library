@@ -1,17 +1,16 @@
-# Magpie 工程组合拳（RuoYi 6.x React 版）
+# Magpie 工程协作基线（任意项目）
 
-这是一套以 **RuoYi-Vue-Plus 6.x + React + Ant Design ProComponents** 为主线的 AI 工程协作基线：把通用规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 等 Agent。版本和源码事实以项目实际的根 `pom.xml`、`plus-ui-React/package.json` 和当前 checkout 为准，不把某个补丁版本或提交号写死。
+这是一套面向任意项目的轻量 AI 工程协作基线：把全局规则、工程技能、项目文档和工具连接统一放进 Magpie 资源库，再由 Magpie 分发给 Codex 和 Alma。RuoYi-Vue-Plus 6.x + React 是条件加载的技术层，不是所有项目的前置假设。版本和源码事实以项目实际的构建文件与当前 checkout 为准。
 
 它解决的不是“让 AI 多写一点代码”，而是让每次开发都遵循同一条可追溯的路径：
 
 ```text
-小改：直接实现 → 核对相关差异 → 按授权同步文档/Git
-复杂需求：think → grill → story → implement → Dev Complete
-正式交付：用户单独发起 review（缺陷修复后继续审查）
-        → 用户单独发起 page-acceptance（有页面影响时）→ 收尾 → Done
+日常：直接提需求 → Codex 实现 → 核对差异 → 按项目规则交付
+闭环：目标与验收项 → 实现 → 验证/修复 → 风险审查 → 验收/Git 收尾
+辅助：需要远程查看、通知、审批或持久任务协调 → 启动 Alma
 ```
 
-**第一次使用先看 [机制与日常用法](USAGE.md)**：包含如何发起任务、哪些环节自动执行、数据库设计入口、验证授权、Git 收尾与更新方法。不是每个任务都走完整流程；不自动构建，不自动审查或打开浏览器。
+**第一次使用先看 [机制与日常用法](USAGE.md)**。不强制 PRD、交接文件、固定流水线或多个 Agent 并行；阶段技能仅在对应任务需要时加载。
 
 本仓库公开用于阅读、参考和溯源。**日常生效的源头不是本仓库**，而是本机 Magpie 资源库 `~/.config/magpie/library/`；本仓库是它的可读、可 diff、可回滚副本。
 
@@ -19,289 +18,37 @@
 
 ## 这一版改了什么
 
-相比上一版 20 个技能：
-
-- 保留 7 个显式阶段：`setup-project`、`think`、`grill`、`story`、`implement`、`page-acceptance`、`review`；`debug` 在确认缺陷时进入，作为页面验收或 review 的内部修复回流。
+- 把日常开发收敛为 Direct / Closure / Debug 三条路径；`think`、`grill`、`story`、`implement`、`review` 保留为按需方法，不再要求每次逐阶段调用。
+- 用户说“按闭环做”或“从需求到验收”时，Codex 连续完成目标与验收项、实现、授权范围内验证/修复、风险审查和收尾；新增表、扩大权限、不可逆写库、提交部署仍按原有授权。
 - 保留 3 个技术与设计技能：`ruoyi6`、`database-design`、`frontend-design`。
-- 保留 5 个支撑/环境技能：`research`、`rules`、`answer-me-with-html`、`agent-browser`、`powershell-windows`。
+- 保留 3 个支撑技能：`research`、`rules`、`answer-me-with-html`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到项目工作流配置、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
 - `ruoyi6` 先按 Direct / Increment / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。任何 RuoYi 代码或字段/API/权限契约改动都加载它，覆盖 Direct、`implement`、`debug` 和 `review`；纯文档、只读规划或诊断且不改代码时可不加载。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
-当前是 **16 个技能**，不是一条每次都要走完的流水线；会话只加载当前阶段真正需要的技能。
+`dev-skills` 插件当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。
 
-正式批次默认先由用户手动 `review`，再手动 `page-acceptance`；Direct 不强套正式批次状态。状态、证据复用与缺陷回流以 [共享工作流契约](skills/rules/workflow-contract.md#4-验收门槛与回流) 为准。
+日常直接向 Codex 提需求；需要更细的方法控制时，再按需使用
+`think` / `grill` / `story` / `review`。Direct 和 Closure 不强套
+正式批次状态；状态、证据复用与缺陷回流以
+当前 `dev-workflow` 入口和 Codex 全局规则为准。
 
 ## 这套东西由什么组成
 
 | 层 | 作用 | 当前载体 |
 |---|---|---|
-| 全局规则 | 项目无关的协作原则、授权与改动保护；工作流在项目 AGENTS.md 启用 | `instructions.md`，同步到 Codex 的 `AGENTS.md` |
-| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 16 个技能 |
-| 项目事实 | 当前目标、决策、验证证据、编译/启动命令与端口 | 项目内 `docs/agents/`，由 `setup-project` 创建 |
+| 全局规则 | 项目无关的角色、协作闭环、授权与改动保护 | 唯一源 `instructions.md`，由 Magpie 分发给 Codex、Alma |
+| 技能 | 把不同阶段的方法、检查门槛和输出约定固化 | `skills/` 下的 Magpie 技能 |
+| 项目事实 | 当前目标、决策、验证证据、编译/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发，需要初始化时再使用 `setup-project` |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片和浏览器操作 | Magpie 托管的 MCP，加上本机 CLI |
+| 运行观察 | 已连接会话、通知、审批和持久任务协调 | Alma，按需启动，不默认写代码 |
 
 各层各司其职：
 
 - 规则不承载长篇流程，只负责边界和路由。
 - 技能不重复复制全局规则，只负责本阶段怎么做。
 - MCP 和 CLI 是执行能力，不代表已经连接、已经授权或已经验证。
-
-阶段入口、产物、退出门和失败回流的单一契约见 `skills/rules/workflow-contract.md`；各技能只写本阶段方法，不再各存一份流程表。
-
-## 项目怎么跑起来
-
-先按任务规模选路径，不把完整流程套在单点改动上：
-
-| 路径 | 适用 | 执行方式 |
-|---|---|---|
-| **Direct** | 错字、样式微调、单文件小修等明确低风险改动 | 主代理直接实现并核对 diff，不建 PRD |
-| **Slice** | 已有冻结基线，只推进一个或少量已拆切片 | `implement` |
-| **Baseline** | 新需求、多方案、跨模块、验收口径不清 | `think` → `grill` → `story` → `implement` |
-
-### Hook 护栏（可选）
-
-Hook 是平台事件适配层，不是第二套开发流程。它可以检查启动上下文、拦截危险命令、记录工具结果和提醒交付缺口，但不得自动串联技能、替代页面验收或伪造测试证据。默认不安装；需要时由项目显式登记，具体事件和边界见 `skills/rules/hook-guardrails.md`。
-
-### 工作区收尾（按项目配置与授权）
-
-Codex 这类 Agent 没有传统 IDE 的 Git 面板，未跟踪文件、旧改动和漏更新文档很容易在会话之间堆积。因此每个任务、切片或显式阶段在第一次写入前记录工作区基线，结束时自动比较并收尾；这不是 Hook，也不新增技能：
-
-- 本轮的代码和文档：核对 diff、更新适用文档；提交和推送按项目配置与当前授权执行，未授权或被阻塞时分别记录，不假装完成；
-- 本轮生成的临时日志、备份和调试文件：自动清理，验收证据除外；
-- 阶段开始前已有或归属不明的改动：只保护并报告，不清理、不回滚、不扫入本轮提交；
-- 文档 freshness：按 `skills/rules/workflow-contract.md` 的矩阵检查 PRD、`project-state.md`、`verification.md`、ADR、research 和 `CONTEXT.md`，不适用时写明 `Docs: no change — <reason>`；
-- 最终回复：只在存在未提交改动或无法安全分离时说明具体路径与阻塞，不附加固定格式的工作区回执。
-
-### 0. 首次进入项目：`setup-project`
-
-在新项目或协作方式发生明显变化时，明确要求“按通用资源库配置这个项目”。这是项目初始化与重配置入口，不是每个日常开发任务的前置门槛。
-
-它会根据仓库事实生成或更新：
-
-- `docs/agents/domain.md`、`coding-standards.md`、`project-state.md`、`project-decisions.md`、`verification.md`、`language.md`；
-- 可选的 `issue-tracker.md`、`triage-labels.md`、`repo-map.md`；
-- 项目 `AGENTS.md` / `CLAUDE.md`：按用户请求登记本项目路由、阶段边界和 Git 策略；不把项目流程塞回全局规则；
-- 前后端实际编译命令、启动命令、工作目录和监听端口。
-
-按用户/项目明确选择或仓库实际技术栈配置 profile。适用的 RuoYi-Vue-Plus 6.x + React 项目使用 `ruoyi6`；其他项目记录 `none` 或替代 profile 与理由，不把通用 Java/React/PostgreSQL 当成 RuoYi。显式 `none` 在后续会话仍有效。
-
-### 1. 需求和方案：`think` -> `grill`
-
-- 需求确实模糊、存在多个实质不同方案时，使用 `think`。
-- `think` 和 `grill` 都由用户明确发起。`think` 完成并写入 PRD 后停止，只提示下一步为 `grill`。
-- `research` 只在 `think` 为技术选择取证时自动触发。其它阶段只能由用户显式发起，包括 `grill`、`story`、`implement`、`debug`、`review` 和 `page-acceptance`；普通 CRUD、版本确认和排错也不自动调研。缺业务规则、状态语义、权限边界或验收口径时，按当前业务最安全、最推荐的默认做法完整实现并留下 TODO（待确认什么、当前推荐实现、后续是否需要调整、找谁确认），不自动回 `grill`，也不能用调研替业务拍板；只有不可逆数据变更、权限扩大或安全风险不能安全设默认值时，才停止受影响动作或切片并报告。冻结基线后，`implement` 缺外部事实时停止受影响切片并报告 `Next: /research`，不在实现阶段发起调研。技术调研必须联网取权威来源，优先 `magpie-web-search`，其次 `context7`。
-- `grill` 每次只问一个必须由人拍板的问题，并给出推荐答案。能从代码、表结构、文档回答的事实由 AI 自查，不反问用户。
-
-结束时必须落盘：
-
-- PRD 状态改为 `Grilled`；
-- 术语同步到 `CONTEXT.md`；
-- 满足条件的关键取舍写入 ADR；
-
-`grill` 不生成 HTML。只有用户明确要求视觉基线页时，才调用 `answer-me-with-html`。基线冻结后，需求和验收标准是合同；后续变化先写入 PRD 的 `Change Log`，不能绕过 PRD 直接改实现。目标与范围不变时，把 PRD 状态改回 `Grilled`，重新发起 `story` 为新增或变更的 `R#` / `AC#` 补切片，受影响切片退回 `Dev Complete` 并作废旧验收证据；只有目标或范围实质改变，才退回 `Draft` 重走 `think` → `grill`。
-
-### 2. 拆任务：`story`
-
-只有状态为 `Grilled` 的 PRD 才能进入 `story`。它也承接冻结后的增量变更：按最新 `Change Log` 只为新增或变更的验收标准补切片，未受影响切片保留状态和证据。它把基线拆成可独立验收的纵向切片，并记录：
-
-- 每个切片的验收标准；
-- 每条 PRD 验收标准由哪个切片承接（`Covers`）；
-- `blocked-by` 依赖；
-- 适合 Agent 执行还是需要人处理；
-- 本地切片清单和可选远端 Issue 的对应关系。
-
-拆片前必须先做基线一致性检查：PRD 已冻结、无未决项、每条需求至少有一条可观察的验收标准、验收标准能追溯到需求、范围不矛盾、依赖无环。不通过就回 `grill`，不拿自相矛盾的基线拆任务。
-
-默认把切片写回 PRD 的 `Sliced into`，本地 Markdown 就是事实源。只有项目配置了远端 Issue 跟踪且用户明确要求时才发布远端 Issue。PRD 状态变为 `Sliced`、父 Issue 同步后，`story` 即完成；只有用户明确要求时才生成 `docs/baseline/PRD-NNNN-<slug>.html` 计划总览。页面是计划视图，PRD 才是事实源。`story` 完成后停下，不自动进入开发。
-
-### 3. 开发：`implement`
-
-`implement` 只在用户明确调用时进入，一次处理一批已确认的切片。`goal` 只能从 `implement` 起步，不从 think/story 自动进入。
-
-每个切片：
-
-1. 按验收标准做最小充分改动；
-2. 按当前项目 profile 加载适用参考；RuoYi 才用 `ruoyi6`；页面和样式改动先使用其 `frontend.md` 的业务页面基线；用户明确要求美化或深度设计时，再叠加 `frontend-design`，两者可以同时生效；
-3. 只在业务基线已定、项目现有实现/`ruoyi6`/已有调研均未覆盖技术实现方式时，停止受影响切片并报告 `Next: /research`，不在 implement 联网调研；缺业务规则、状态语义、权限边界或验收口径时，按当前业务最安全、最推荐的默认做法完整实现并留下 TODO（待确认什么、当前推荐实现、后续是否需要调整、找谁确认），不自动回 `grill`。显式调研的结论回到当前切片，不自动跳转 `think`/`grill`；只有不可逆数据变更、权限扩大或安全风险不能安全设默认值时，才停止受影响动作或切片并报告；
-4. 开工前把 PRD 切片改为 `In Progress`；
-5. 默认核对 diff/字段调用链；当前请求明确授权检查时运行最小目标，未运行如实记录；
-6. 更新 PRD 中本切片状态；
-7. Git 已获授权时在当前分支精确提交/推送本片；未授权或阻塞单独记录，不混入旧改动；
-8. 标记为 `Dev Complete`。
-
-开发阶段**不打开浏览器**，不执行页面验收，不运行全量测试。无人值守执行到这一层就停，不依赖登录态、验证码或人工测试环境。
-
-整批完成后，先做覆盖门：每条需求和验收标准都有实际完整实现的 `Dev Complete` 切片承接，验证和 Git 不冒充通过；更新 `project-state.md` 和 `verification.md`；输出切片、提交、推送和编译证据，并提示用户手动发起 review。
-
-阻塞的切片在 PRD 中保持 `In Progress` 并说明原因，不要标记 `Dev Complete`。
-
-### 4. 完整审查：`review`
-
-由用户单独明确发起，默认先于页面验收。依据需求、业务/数据契约和当前最终代码审查；在已授权的修复型审查中，确认缺陷后内嵌 `debug` 当场修复，再继续覆盖最终代码。当前请求只读时不修改。
-
-审查不以前置页面验收为门槛，也不自动运行构建、测试或页面验收。没有检查的运行行为明确记录未验证。
-
-### 5. 页面验收：`page-acceptance`
-
-页面验收是独立的、由用户主动发起的阶段：
-
-```text
-implement -> Dev Complete -> review（内嵌 debug，修复后继续审查）
-  -> 用户手动全范围 page-acceptance -> Accepted -> Done
-```
-
-核心规则：
-
-- 只通过真实前端 UI 操作，不写脚本直接请求后端 API。
-- 页面验收连接已运行的开发环境，不为验收重复打包。服务按 `docs/agents/project-state.md` 登记的启动命令运行，技能不写死路径或端口；不新增进程管理脚本；前端改动刷新即可；Java/配置改动由环境所有者用同一命令重启一次开发进程；不可达时记为 `blocked`，不能每个修复重启一次。
-- 首次覆盖完整声明页面范围及适用主路径/边界；已有有效证据仅复验受影响路径，不能用一个修复点冒充整批验收。
-- 页面验收按实际可观察影响分类，不按 SQL/配置等文件类型豁免。菜单、字典、角色权限或页面消费的数据变化仍可能需要验收；确认无页面影响才记 `Page acceptance: N/A — <reason>`，未知记待确认。
-- 涉及增删改查时，在明确授权的测试数据范围内完成适用闭环；不操作未知真实数据，清理也遵循数据范围授权。
-- 元素引用在路由、弹窗、下拉框、表格刷新后立即失效，必须重新取可交互元素快照。
-- 不抓取完整组件 DOM；不把读取源码当作视觉验收。
-- 失败时结合控制台、网络和代码定位根因，修复后只重测受影响路径。
-- 验证、修复、重测最多三轮，超限停止并报告。
-
-RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见 `skills/page-acceptance/references/ruoyi6-browser.md`。
-
-详见 `skills/rules/workflow-contract.md`：默认先手动 review，再手动页面验收；不自动启动任一阶段。
-
-### 6. 收尾
-
-`Accepted` 仍不等于 `Done`。正式批次通常先 review，再页面验收；未满足相应证据门槛时不标 Done。无页面影响时使用有理由的 N/A，Direct 不强套正式批次状态。相关文档和 Git 按项目配置及授权收尾，不能混入已有改动；不要求固定格式回执，也不能用未授权操作补齐形式。
-
-## 状态机
-
-| 状态 | 含义 | 谁能推进 |
-|---|---|---|
-| `Draft` | 需求仍在形成 | `think` / 用户 |
-| `Grilled` | 决策已收敛，基线冻结 | `grill` |
-| `Sliced` | 已拆成有依赖关系的可验收切片 | `story` |
-| `In Progress` | 正在按切片实现 | `implement` |
-| `Dev Complete` | 代码行为完整实现；检查和 Git 分开记实际状态；UI 待手动验收，非 UI 记 `N/A` | `implement` |
-| `Accepted` | UI 可观察范围已在真实浏览器通过；非 UI 范围可记页面验收 `N/A` | `page-acceptance` / `review` 依据适用证据 |
-| `Done` | 项目收尾条件全部满足 | 用户 / 项目约定 |
-
-关键边界：
-
-- 前七个阶段都由用户明确进入；当前阶段结束时只提示下一步，不自动串联。
-- 页面验收通过为 `Accepted`；有效 review 已覆盖最终实现且收尾完成，可同次写回 `Done`。
-详见 `skills/rules/workflow-contract.md`：默认先手动 review，再手动页面验收；不自动启动任一阶段。
-- 编译通过不等于界面可用，代码审查也不能替代渲染验证。
-- 不是每个小任务都要走完整流水线；临时修复和明确的小改动可以直接处理。
-
-## 常用请求
-
-| 你说什么 | 会进入什么环节 |
-|---|---|
-| “按通用资源库配置这个项目” | `setup-project` |
-| “这个需求先帮我想想方案” | `think`，完成后提示下一步 `/grill` |
-| “把这个方案往死里拷问” | 直接 `grill` |
-| “把这个方案生成一个 HTML 说明页” | `answer-me-with-html`（显式调用） |
-| “调研一下这个版本的最佳实践” | `research` |
-| “把冻结的基线拆成任务” | `story` |
-| “按这批切片开始实现” | `implement` |
-| “开始页面测试，验收这几个页面” | `page-acceptance` |
-| “完整审查这批改动” | `review`（有页面可观察行为时，默认先审查，再手动页面验收；非 UI 批次无需页面验收） |
-| “这里报错了 / 回归了” | `debug` |
-| “开始做，但先别提交” | 直接开发，保留本地改动，不提交 |
-| “测试没问题，可以收尾” | 同步受影响文档并完成已授权的 Git 收尾 |
-
-## 技能分层
-
-### 核心流程（8）
-
-| 技能 | 作用 |
-|---|---|
-| `setup-project` | 初始化或重配项目协作基线，是项目配置入口 |
-| `think` | 发散、收敛方案，生成初始 PRD |
-| `grill` | 逐项拷问未决问题，冻结业务基线 |
-| `story` | 从冻结基线拆纵向切片和依赖 |
-| `implement` | 按批实现切片，编译、提交、推送，停在页面验收前 |
-| `page-acceptance` | 在真实浏览器完成页面、视觉、交互、数据和权限验收 |
-| `review` | 用户明确发起的三视角完整审查 |
-| `debug` | 根因定位和系统性修复 |
-
-### 技术与设计（3）
-
-| 技能 | 作用 |
-|---|---|
-| `ruoyi6` | RuoYi-Vue-Plus 6.x + React 单一技术入口；按 Direct / Increment / New Module 分级，新模块再扫描框架复用能力并确认业务契约，按任务加载后端、前端和数据库规范 |
-| `database-design` | 关系型数据库的数据建模与评审；未配置项目数据库入口时的默认技能，先确认业务不变量、实体归属、唯一性、删除语义、查询路径、索引、容量和迁移安全，再用 `ruoyi6` 落成 RuoYi/PostgreSQL 规范 |
-| `frontend-design` | 显式深度视觉设计；用于用户明确要求的页面美化、整页改版、登录页、工作台、大屏或独立展示页。可直接调用，也可在明确需求下由 `ruoyi6` 路由进入，并叠加在其前端基线之上 |
-
-### 支撑与环境（5）
-
-| 技能 | 作用 |
-|---|---|
-| `research` | 联网查权威资料，形成可追溯的技术调研记录；自动入口仅限 `think` 的技术选择取证 |
-| `rules` | 共享入口协议、反模式和工程原则，不是独立任务技能 |
-| `answer-me-with-html` | 显式调用的深度可视化技能；可生成 HTML 说明页、计划总览或解释视频，普通回答、`story`、`grill`、`review` 和 `implement` 不自动加载 |
-| `agent-browser` | 浏览器自动化技能；页面验收优先使用当前 Agent 已有浏览器能力 |
-| `powershell-windows` | Windows PowerShell 的可靠写法与常见坑 |
-
-### 维护规则
-
-- 新增技能前先确认三件事：有独立触发词、有独立产物、不能作为现有技能的参考文件。缺一项就扩展原技能，不新建。
-- 技能正文只写本阶段方法；全局约束、编译口径、提交边界不重复抄写。
-- 删除或合并低频技能优先于继续添加；共享模式下的技能越少，路由和上下文成本越低。
-- `answer-me-with-html` 是外部上游技能，本地触发规则是“始终显式调用”。升级该技能后必须重新核对 frontmatter 和 “Explicit invocation only”，防止更新覆盖本地限制。
-- 每次改完运行 `python scripts/verify-library.py`，检查技能清单、frontmatter、全量 Markdown 相对链接、同步和凭证提示。
-
-## RuoYi 6.x React 技术层
-
-`ruoyi6` 不按后端、前端拆成多个技能，而是单一入口按需加载；数据库的建模评审由项目配置的数据库入口负责（未配置时为 `database-design`），RuoYi 落表、字段链路和方言仍由 `ruoyi6/references/database.md` 负责：
-
-| 任务 | 读取 |
-|---|---|
-| 任何 RuoYi 业务改动 | `SKILL.md` |
-| Java / Spring Boot / MyBatis-Plus / Sa-Token | `references/backend.md` |
-| React / TypeScript / Ant Design / ProComponents / API / hooks / 页面骨架 | `references/frontend.md` |
-| 表结构 / SQL / 字典 / 参数 / 菜单 | `references/database.md` |
-| 新表、表关系、唯一性、删除语义、索引或迁移中的建模取舍 | 项目数据库入口（未配置时为 `database-design`），再回到 `references/database.md` |
-| 字符串 / 集合 / 对象 / JSON / 日期 / 树 / 文件 / IP / SQL 工具选型 | `references/utils.md` |
-| 事务 / 幂等 / 缓存 / 异步 / 并发 / 编排 / 序列 / 导出 / 审计等机制选型 | `references/capabilities.md` |
-| 按作者源码蒸馏的后端代码模板（Controller/Service/BO/VO/Entity/Mapper） | `references/templates.md` |
-| 单表/树表 React 页面、API 和 types 骨架 | `references/frontend-templates.md` |
-| 业务场景到作者实现的定位 | `references/author-patterns.md` |
-| 工作流 / 定时任务 / AI / 监控等按需能力 | `references/optional-integrations.md` |
-
-`ruoyi6` 先按 Direct / Increment / New Module 判断任务规模，再通过能力地图只加载需要的文件；任何 RuoYi 代码或字段/API/权限契约改动都加载它，不区分 Direct、`implement`、`debug` 和 `review`，纯文档、只读规划或只读诊断且不改代码时可不加载。新模块才走完整业务判型、复用扫描和契约门。涉及新表、表关系、唯一性、删除语义、索引或迁移的建模取舍时按项目配置的数据库入口（未配置时为 `database-design`）确认数据模型契约，再落成 DDL。后端完整骨架只维护在 `templates.md`，前端页面/API/types 骨架只维护在 `frontend-templates.md`；`backend.md` 和 `frontend.md` 只负责规则与复用边界，避免同一知识多处漂移。跨模块用户、部门、角色、参数、消息、OSS、工作流能力只走 `ruoyi-api`；系统能力、公共技术和框架 demo 优先复用，不复制现有业务模块，不另造第二套请求、权限、字典、组件或流程实现。AI 直接编写 Controller/Service/Mapper/React 页面，不把运行代码生成器作为前置或交付步骤；`ruoyi-gen` 模板只作为结构清单。目标栈始终是 **RuoYi-Vue-Plus 6.x + plus-ui-React + Ant Design ProComponents**。
-
-普通业务页面的基础视觉质量在 `ruoyi6/references/frontend.md` 的“样式与设计”中定义，开发时完成；`frontend-design` 只在用户明确要求页面美化、深度视觉设计或整页改版时叠加，不承担普通 CRUD 页面的兜底美化。
-
-业务功能参考的边界：
-
-- **落地顺序**：任务分级 -> 能力地图；新模块再走业务判型 -> 框架复用扫描 -> 业务契约门 -> 最小模板，不用 CRUD 模板倒推业务。
-- **核心复用面**：业务模块默认只依赖 `ruoyi-common`、`ruoyi-system` 和自身所在分层；工作流、AI、定时任务、MQTT 等在 `ruoyi-modules/ruoyi-*` 内随主应用装配，属于按需能力，用到才接入；`ruoyi-extend/` 下的 monitor-admin、snailjob-server、snailai-server 是独立进程，只能通过客户端、HTTP 或消息交互。
-- **本地完整模板**：普通单表、树表和 Excel 的后端分层、Service/Mapper、React API、页面骨架和菜单 SQL 可直接裁剪；业务模块不作为模板。
-- **改动路径**：新业务、字段、接口、页面、权限、导入导出、字典/参数和公共组件都有“改哪里、参考哪里、验证什么”的路线。
-- **按需加载**：每个 reference 只在对应任务读取；跨模块能力先查 `ruoyi-api`，普通业务不预读低频领域知识，也不为可选能力预留结构。
-- **机制判型**：业务判型决定做成什么形状，机制判型决定靠什么保障；事务、幂等、缓存、异步、并发、编排、序列、展示和审计命中信号才引入，没有验收标准不预埋。
-- **整体跑通优先**：业务模块第一要务是能在框架上完整跑通（启动、接口、页面、菜单、权限）。业务口径未定时先按当前业务推荐做法完整实现，不阻断其它功能测试；TODO 只记录“待确认什么、当前推荐实现、后续是否需要调整、找谁确认”，不能用“先不校验”或“前端不提示”绕过业务约束，交付时汇总。
-
-事实优先级：当前项目源码 > 同模块现有实现 > 本技能规范 > 官方文档。不要用外部文档的旧类名或配置直接覆盖当前 checkout。
-
-## 文档怎么分工
-
-初始化后的项目通常按以下职责保存事实：
-
-| 位置 | 记录什么 |
-|---|---|
-| `AGENTS.md` / `CLAUDE.md` | 项目路由、阶段边界、授权与 Git 策略，以及 `docs/agents/` 指针；通用协作规则留在全局 |
-| `docs/agents/domain.md` | CONTEXT、PRD、ADR、research 的实际路径 |
-| `docs/agents/coding-standards.md` | 项目约定、技术 profile、源码证据、实际编译与启动命令 |
-| `docs/agents/project-state.md` | 当前目标、阶段面板、阻塞、下一步和真实编译/启动命令及端口 |
-| `docs/agents/project-decisions.md` | 已确认、跨任务有效的决策 |
-| `docs/agents/verification.md` | 带版本、命令、结果和来源的验证证据 |
-| `docs/prd/` | PRD、验收标准和变更记录 |
-| `docs/adr/` | 重要的架构与实现取舍 |
-| `docs/baseline/` | 仅用户明确要求时生成的可视计划总览或基线页，不是默认阶段产物 |
-| `docs/research/` | 可复用的技术调研记录和索引 |
-| `CONTEXT.md` | 业务术语表，不写实现细节 |
-
 文档记录必须区分 Agent 实测、用户确认和未验证项。原始聊天历史不是项目事实，凭证、完整认证头和私密数据不进入文档、提交或截图。
 
 ## 环境清单
@@ -312,8 +59,8 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 
 当前基线使用：
 
-- Magpie `0.1.3488`
-- Codex
+- Magpie `0.1.3887`
+- Codex `0.167.2`、Alma `0.4.575`
 - Node.js `v24.17.0`、npm `11.13.0`
 - Python `3.13.14`
 - Git `2.54.0`
@@ -321,7 +68,7 @@ RuoYi 6.x React 的会话复用、`snapshot -i`、五步 CRUD 和错误闭环见
 - `rtk 1.1.0`
 - Chrome 和 Edge
 
-MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-vision`、`magpie-memory`、`magpie-web-search`、`ssh`。
+MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee`、`github`、`magpie-image`、`magpie-memory`、`magpie-vision`、`magpie-web-search`、`ssh`。页面运行检查使用 Codex 宿主浏览器工具，不属于 Magpie 资源库 MCP；Alma 通过自己的 MCP 配置连接 Magpie Hub，不占用资源库里的独立条目。
 
 版本、Agent 分发矩阵、凭据位置、换机恢复、校验和故障处理见 [DEPENDENCIES.md](DEPENDENCIES.md)。
 
@@ -329,8 +76,9 @@ MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee
 
 | 路径 | 说明 |
 |---|---|
-| `instructions.md` | 通用协作指令正文 |
-| `skills/` | 16 个技能及其引用、模板和脚本 |
+| `instructions.md` | 全局协作指令的唯一正文源；项目规则不写回这里 |
+| `instructions/<agent>.md` | 可选的 Agent 专属追加内容；目前 Codex 的旧重复正文已清空 |
+| `skills/` | Magpie 技能及其引用、模板和脚本 |
 | `scripts/verify-library.py` | 资源库结构、链接、同步和凭证提示检查 |
 | `README.md` | 组合介绍与入口 |
 | `USAGE.md` | 当前机制、调用示例、权限边界与更新方法 |
@@ -338,11 +86,11 @@ MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee
 
 ## 维护和发布
 
-技能与指令的编辑源是 Magpie 资源库，不是本仓库。
+技能与全局指令的编辑源是 Magpie 资源库，不是生成到各 Agent 的副本，也不是本仓库。
 
 正确顺序：
 
-1. 修改 `~/.config/magpie/library/` 中的源文件；
+1. 修改 `~/.config/magpie/library/` 中的源文件；全局规则只改 `instructions.md`；
 2. 运行：
 
    ```powershell
@@ -350,7 +98,7 @@ MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee
    python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
    ```
 
-3. 确认 `~/.agents/skills` 与源一致；
+3. 确认 `~/.agents/skills` 与源一致，Codex/Alma 的 Magpie 块都来自同一正文；
 4. 把同一组改动同步到本仓库；
 5. 只提交本次文档或技能变更，核对 diff 后推送；
 6. 核验本地 `HEAD`、`origin/main` 和远端引用一致。
@@ -362,15 +110,15 @@ MCP 由 Magpie 统一托管，当前登记 9 个：`context7`、`dbhub`、`gitee
 - 本仓库只保存可阅读的规则和技能，不保存 API 密钥、登录态、同步密码或机器专属配置。
 - “已登记 MCP”不等于“当前会话已连通”；需要实际调用一次才算验证。
 - `dbhub` 依赖本机 PostgreSQL 和正确的 DSN，换机后目标可能变化。
-- 本机已确认 `agent-browser 0.41.2` 可用；版本与 PATH 属机器事实。页面验收尊重当前宿主会话和工具可用性，不把本机状态写成所有机器的前置保证。
-- 全局指令目前只分发给 Codex；16 个技能在共享目录中，但各 Agent 的逐项勾选不同。
+- 页面验收使用 Magpie Browser MCP 和本机 Chrome 扩展；扩展已连接不等于其他机器已恢复。换机时需重新加载扩展并确认 `/v1/magpie/browser` 返回 `connected: true`。
+- 全局指令由 `instructions.md` 统一维护并分发给 `codex`、`alma`：
+  Codex 写入 `~/.codex/AGENTS.md`，Alma 写入 `~/.config/alma/USER.md`。这些是生成物，不手工维护第二套规则。
+- 项目仍可有自己的 `AGENTS.md`，但只写该项目的技术栈、命令、端口和授权边界，不复制全局团队规则。团队 Skill 只有一个 Magpie 源，`~/.agents/skills` 与 Alma personal 目录通过 Junction 指向它。
 - 默认不安装工程 Hook 和子代理；Hook 只作为可选护栏，主代理负责判断、执行和交付。
+- Alma 不随登录自动启动；需要时直接运行 `& "$env:LOCALAPPDATA\Programs\Alma\Alma.exe"`，再用 `alma status` 核对运行状态。
 
 ## 永不入库
 
 - API 密钥、令牌、认证头；
 - 数据库连接串和密码；
 - 浏览器登录态与订阅凭据；
-- WebDAV/S3/GitHub 同步密码和 passphrase；
-- 生产数据、个人数据、完整隐私日志；
-- 运行时缓存、`__pycache__`、编辑备份和 `*.magpie-backup`。

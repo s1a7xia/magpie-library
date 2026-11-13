@@ -1,6 +1,6 @@
 ---
 name: ruoyi6
-description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。按任务规模判定后，引导复用当前框架已有能力，再按需加载 Java 后端、React/Ant Design Pro、PostgreSQL 与可选集成规范。用于实际 RuoYi-Vue-Plus 6.x + plus-ui-React 项目或项目明确选定的 ruoyi6 profile；不因通用 Java、React 或 PostgreSQL 任务自动套用，尊重 Technical profile: none。"
+description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。按任务规模判定后，引导复用当前框架已有能力，再按需加载 Java 后端、React/Ant Design Pro 与可选集成规范。数据库建模、落表和迁移统一加载 database-design；用于实际 RuoYi-Vue-Plus 6.x + plus-ui-React 项目或项目明确选定的 ruoyi6 profile，不因通用 Java、React 或 PostgreSQL 任务自动套用。"
 ---
 
 # RuoYi-Vue-Plus 6.x 业务开发
@@ -33,7 +33,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。按任务规模判�
 
 | 需求信号 | 先读 | 关键动作 |
 |---|---|---|
-| 新模块、CRUD、字段、表关系 | [backend.md](references/backend.md)、[database.md](references/database.md)；需要建模取舍时按项目数据库入口（未配置时为 `database-design`） | 判业务形态，查现有表/字典/菜单，默认单表；先确认业务不变量和查询路径。 |
+| 新模块、CRUD、字段、表关系 | [database-design](../database-design/SKILL.md)、[backend.md](references/backend.md) | 数据库模型先加载唯一入口 `database-design`；再按本参考落 Java/前端源码。 |
 | 单表查询、分页、联表、数据权限 | [backend.md](references/backend.md) | 先看 `BaseMapperPlus`、`QueryBuilder`、`LambdaQueryCondition`；按查询入口表选型。 |
 | 事务、幂等、缓存、异步、并发、状态编排 | [capabilities.md](references/capabilities.md) | 命中信号才引入，说明选择理由和失败边界。 |
 | 字符串、集合、对象、JSON、日期、树、文件、IP、SQL 工具 | [utils.md](references/utils.md) | 先找项目已有工具，使用前读当前方法签名。 |
@@ -41,7 +41,7 @@ description: "RuoYi-Vue-Plus 6.x 业务模块开发规范。按任务规模判�
 | 展示名称、翻译、脱敏、导入导出 | [backend.md](references/backend.md)、[author-patterns.md](references/author-patterns.md) | 先复用 `@Translation`、`ExcelBuilder` 和作者示例；需要新增翻译类型时看扩展入口。 |
 | React 页面、API、类型、hooks、样式 | [frontend.md](references/frontend.md) | 按现有页面壳、公共组件和 hooks 组合；请求统一走 `@/api/request`。 |
 | 新页面或布局调整 | [frontend.md](references/frontend.md) | 先按用户任务选页面形态并应用视觉基线；单表/树表才取对应模板，新业务页面登记动态路由。用户明确要求美化或深度改版时，可再叠加 `frontend-design`。 |
-| 菜单、字典、参数 SQL、字段链路 | [database.md](references/database.md) | 核对 PostgreSQL 方言、幂等脚本和全链路字段。 |
+| 菜单、字典、参数 SQL、字段链路 | [database-design](../database-design/SKILL.md) | SQL、约束和迁移按唯一入口核对；菜单/权限源码链路按本技能核对。 |
 | 工作流、任务、AI、监控 | [optional-integrations.md](references/optional-integrations.md) | 只在有当前验收标准时接入，区分同进程模块和独立服务。 |
 
 需要按业务场景定位作者真实实现时读 [author-patterns.md](references/author-patterns.md)；需要完整后端骨架时读 [templates.md](references/templates.md)。
@@ -78,7 +78,7 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 | 并发与容量 | 锁、条件更新、分页、导出规模、索引和异步边界 |
 | 集成边界 | 同步或异步、超时、重试、补偿和第三方字段隔离 |
 
-普通单表不为了未来可能拆主从、预埋状态机或建立通用扩展表。业务口径未定时，先按当前业务最安全、最推荐的默认做法完整实现接口、页面、数据和反馈，并用固定格式 `TODO(待确认)` 记录“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”；TODO 不阻塞当前切片或后续页面验收，但不得留下空白按钮、半实现或跳过校验。不可逆动作或扩大权限的动作不擅自放开，停止受影响动作并报告。
+普通单表不为了未来可能拆主从、预埋状态机或建立通用扩展表。业务口径未定时，先按当前业务最安全、最推荐的默认做法完整实现接口、页面、数据和反馈，并用固定格式 `TODO(待确认)` 记录“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”；TODO 不阻塞当前切片，但不得留下空白按钮、半实现或跳过校验。不可逆动作或扩大权限的动作不擅自放开，停止受影响动作并报告。
 
 ## 实施闭环
 
@@ -92,7 +92,7 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 6. 涉及页面创建或布局调整时按 [frontend.md](references/frontend.md) 选择页面形态、信息层级和视觉基线，再组合组件；单表/树表参考 [frontend-templates.md](references/frontend-templates.md)，报表、大屏、工作区不套 CRUD 布局。用户明确要求页面美化、深度视觉设计或整页改版时，再叠加 `frontend-design`；它不会替代本文件的组件与行为边界。纯 API/类型改动不加载设计技能。
 7. 登记 `dynamicPage.tsx`，核对菜单 `component`、路由、权限字符和页面壳。
 8. 过前后端联动门：路径、方法、响应、字段、权限、查询、导入导出和文件契约。
-9. 按当前授权执行最小检查；默认仅核对 diff/字段调用链，不运行构建或测试。记录实现、验证、Git 独立状态；后续先建议手动 review，再手动页面验收，不自动启动。
+9. 页面可见改动完成后直接做真实浏览器检查；其它范围按目标执行最小验证。记录实现、验证、Git 独立状态，不把构建通过说成业务验收。
 
 ### Increment
 
@@ -128,9 +128,8 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 - 前端请求只走 `@/api/request`，主键和关联 ID 用 `string | number`，雪花 ID 不丢精度。
 - 新页面放 `src/pages/<module>/<business>/index.tsx`，请求和类型放 `src/api/<module>/<business>/`，并登记 `dynamicPage.tsx`。
 - 复用 `PageContainer`、`ProTable`、`ModalForm`、`RowActions`、`DictTag`、`TreePanel`、选择器、上传组件和现有 hooks。
-- 默认单表；有可重复明细、关系约束或独立生命周期时才拆子表。
-- 新表、表关系、唯一性、删除语义、索引或迁移存在实质取舍时，先按项目数据库入口（未配置时为 `database-design`）完成数据模型契约，再用本技能的 `database.md` 落成当前项目方言、字段链路和菜单/字典。
-- 可枚举状态用 `sys_dict_*`，运行期开关/阈值用 `sys_config`；不为此新建业务表。
+- 数据库模型、新表、关系、约束、索引和迁移只按 [database-design](../database-design/SKILL.md) 判断；本技能只负责 Java/React 分层和字段链路。
+- 可枚举字典和运行期参数复用系统既有表；是否建业务表由 `database-design` 的复用准入决定。
 - 权限字符在菜单 SQL、`@SaCheckPermission` 和 `hasPermi` 三处一致。
 - 业务口径未定时按当前业务推荐做法完整实现，并用 `TODO(待确认)` 标注“待确认什么 / 当前推荐实现 / 后续调整点 / 找谁确认”；TODO 不是 `grill` 入口，也不能掩盖接口、页面、数据或编译未完成。
 
@@ -147,6 +146,6 @@ Direct 只沿直接受影响文件和调用方读取；Increment 只读本次涉
 - [ ] 新增字段或接口已完成数据库、后端、前端和菜单/权限联动。
 - [ ] 新页面已登记 `dynamicPage.tsx`，没有绕过统一请求层。
 - [ ] 业务未定项已按推荐做法完整实现，并留下“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”的 TODO。
-- [ ] 未做的页面验收明确标为“开发完成、未验收”；未运行的检查不伪称通过。
+- [ ] 未运行的页面或运行检查明确标为“未验证”；未运行的检查不伪称通过。
 
 输出按任务规模给结果：修改了哪些范围、实际复用入口、执行了什么构建、TODO 和未完成项；Direct 任务不必输出完整新模块报告。

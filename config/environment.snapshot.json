@@ -1,41 +1,22 @@
 {
-  "recordedDate": "2026-11-11",
-  "source": "local config and read-only CLI; registration is not connectivity verification",
-  "magpieVersion": "0.1.3488",
+  "recordedDate": "2026-11-13",
+  "source": "local config and read-only CLI; registration is not connectivity verification. Pi was uninstalled on 2026-11-13; Alma runs on demand.",
+  "magpieVersion": "0.1.3887",
   "sharedSkills": true,
   "mcpHub": true,
   "instructionsAgents": [
+    "alma",
     "codex"
   ],
   "skills": [
     {
-      "name": "agent-browser",
-      "agents": [
-        "claude",
-        "codex",
-        "dsh",
-        "qoder",
-        "workbuddy"
-      ]
-    },
-    {
       "name": "answer-me-with-html",
-      "agents": [
-        "claude",
-        "codex",
-        "dsh",
-        "qoder",
-        "workbuddy"
-      ]
-    },
-    {
-      "name": "database-design",
       "agents": [
         "codex"
       ]
     },
     {
-      "name": "debug",
+      "name": "database-design",
       "agents": [
         "codex"
       ]
@@ -47,67 +28,20 @@
       ]
     },
     {
-      "name": "grill",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "implement",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "page-acceptance",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "powershell-windows",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "research",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "review",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "rules",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
       "name": "ruoyi6",
       "agents": [
         "codex"
       ]
     },
     {
-      "name": "setup-project",
+      "name": "team-orchestration",
       "agents": [
+        "alma",
         "codex"
       ]
     },
     {
-      "name": "story",
-      "agents": [
-        "codex"
-      ]
-    },
-    {
-      "name": "think",
+      "name": "api-regression",
       "agents": [
         "codex"
       ]
@@ -135,8 +69,7 @@
     {
       "name": "gitee",
       "agents": [
-        "codex",
-        "dsh"
+        "codex"
       ],
       "purpose": "Gitee 代码与 Issue/PR",
       "transport": "http",
@@ -145,8 +78,7 @@
     {
       "name": "github",
       "agents": [
-        "codex",
-        "dsh"
+        "codex"
       ],
       "purpose": "GitHub 代码与 Issue/PR",
       "transport": "http",
@@ -164,11 +96,7 @@
     {
       "name": "magpie-memory",
       "agents": [
-        "claude",
-        "codex",
-        "dsh",
-        "qoder",
-        "workbuddy"
+        "codex"
       ],
       "purpose": "跨 Agent 共享结构化记忆",
       "transport": "stdio",
@@ -186,8 +114,7 @@
     {
       "name": "magpie-web-search",
       "agents": [
-        "codex",
-        "dsh"
+        "codex"
       ],
       "purpose": "联网搜索",
       "transport": "stdio",
@@ -256,5 +183,8 @@
     "keep": 3,
     "includeSignIns": true,
     "secretPassphraseExcluded": true
-  }
+  },
+  "skillRouter": true,
+  "cleanedAt": "2026-11-13",
+  "cleanup": "6 Magpie library skills; dev-skills plugin stages remain in the plugin and are not library skills. Codex host built-ins are not library MCP servers."
 }

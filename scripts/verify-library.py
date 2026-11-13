@@ -101,8 +101,12 @@ def main() -> int:
         else:
             body = match.group(1).strip()
             digest = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
-            if body != library_text:
-                errors.append("Codex instructions differ from library/instructions.md")
+            extra = LIBRARY / "instructions" / "codex.md"
+            extra_text = extra.read_text(encoding="utf-8").strip() if extra.is_file() else ""
+            if not body.startswith(library_text):
+                errors.append("Codex instructions do not start with library/instructions.md")
+            elif extra_text and not body.startswith(f"{library_text}\n\n{extra_text}"):
+                errors.append("Codex instructions differ from the library and its Codex additions")
             elif applied.get("instrHash") and applied["instrHash"] != digest:
                 errors.append("applied.instrHash does not match the instruction body")
             else:

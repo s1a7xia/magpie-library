@@ -462,4 +462,4 @@ export interface XxxQuery extends PageQuery {
 - [ ] 删除有确认和刷新；树表新增子节点携带 `parentId`。
 - [ ] 权限字符在菜单 SQL、后端注解和 `hasPermi` 三处一致。
 - [ ] 页面已登记到 `dynamicPage.tsx`。
-- [ ] 页面可见改动只标记 `Dev Complete`，由用户发起 `page-acceptance`，不把构建通过说成验收通过。
+- [ ] 页面可见改动已做真实浏览器检查并记录证据，不把构建通过说成验收通过。

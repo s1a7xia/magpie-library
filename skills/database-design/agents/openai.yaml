@@ -1,6 +1,6 @@
 interface:
   display_name: "Database Design"
-  short_description: "Model invariants, keys, indexes and migrations"
-  default_prompt: "Use $database-design to review this schema before writing DDL."
+  short_description: "Model, land and migrate relational data safely"
+  default_prompt: "Use $database-design to model and land this relational data change before writing DDL."
 policy:
   allow_implicit_invocation: true
