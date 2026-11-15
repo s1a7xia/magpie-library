@@ -45,7 +45,7 @@ A **topic** is right-sized when its answer is a **single one-line verdict**. If 
 
 ## 2. Dedup: Query INDEX Before Writing
 
-Before creating a new record, **always** scan `docs/research/INDEX.md` for an existing record matching `stack + topic + major`. This mirrors the PRD Conflict Check (see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn)) and anti-pattern #37 (silent duplicate).
+When an INDEX exists, scan it for an existing record matching `stack + topic + major` before repeating research. When a durable record is about to be created, check for a filename or topic collision first; reuse the record rather than silently duplicating it.
 
 ### Match signals (any one = candidate collision)
 
@@ -54,7 +54,7 @@ Before creating a new record, **always** scan `docs/research/INDEX.md` for an ex
 
 ### On a candidate collision
 
-Ask the user one question (Preference type, with a recommended answer):
+Only when a durable record will be created and a candidate collision affects the result, ask one preference question:
 
 ```
 Found an existing research record on this stack+topic+major:
@@ -74,7 +74,7 @@ If `react-concurrent-rendering-17.md` exists and you're researching React 18, th
 
 ### On no INDEX yet
 
-If `docs/research/INDEX.md` doesn't exist, this is the first record — create INDEX lazily alongside the record (see INDEX-FORMAT.md). No collision possible.
+If `docs/research/INDEX.md` doesn't exist, do not create it for an inline answer. Create it lazily only alongside the first record that is actually requested or justified for reuse (see INDEX-FORMAT.md).
 
 ---
 
@@ -159,7 +159,7 @@ If any check fails, either find a better source or exclude it.
 
 ### Who marks stale
 
-**Any skill reading INDEX** (think/research/grill) is responsible for marking stale when it detects a version mismatch. This is *collaborative* — the first reader to notice flags it, so later readers benefit. No central stale-sweeper.
+When a loaded stage reads an existing INDEX, it can mark a relevant stale row on detecting a version mismatch. This is *collaborative*; do not scan for an INDEX or create one merely to perform stale maintenance.
 
 ### Threshold: major-only
 
@@ -181,11 +181,11 @@ When marking a row stale, edit **both** fields (never embed data in Status):
 2. `Version` column → `studied-version → current-major` (e.g. `react@18.2.0 → 19`)
 
 Then add the re-research hint (in the verdict cell or a note below the table):
-`→ suggest /research react <topic>-19`
+`→ re-research react <topic>-19 when requested`
 
 ### Do not auto-trigger re-research
 
-Marking stale is a **hint, not an action**. The next `/research` for that stack+topic is the user's explicit decision. Never auto-start research from a stale detection — that would be an unrequested network operation (anti-pattern: unsolicited action).
+Marking stale is a **hint, not an action**. Re-research requires a current request. Never auto-start research from a stale detection — that would be an unrequested network operation.
 
 ---
 
@@ -222,17 +222,17 @@ The original prose stays. This preserves auditability within the immutability mo
 
 ## 8. Integration With Other Skills
 
-### `/think` Step 5 (consumer)
+### `think` Step 5 (consumer)
 
-Before researching a technical choice, `/think` queries INDEX:
+Before researching a technical choice, the `think` stage checks an existing INDEX:
 - **Hit at current major** → read the record's TL;DR; reuse the verdict. Default: don't read full record.
-- **Hit but stale** → **read full record** (Boundary Conditions decide if old conclusion still applies), then optionally suggest `/research` for the new major.
+- **Hit but stale** → **read full record** (Boundary Conditions decide if old conclusion still applies), then report that the new major needs re-research if the current request requires it.
 - **Decision depends on implementation detail** (API shape, code pattern) → **read full record** even if verified.
-- **Miss** → either start `/research`, or proceed with inline research and create a record.
+- **Miss** → research inline against authoritative sources; persist a record only when requested or clearly reusable.
 
-### `/grill` (consumer + marker)
+### `grill` (consumer + marker)
 
-`/grill` reads INDEX when challenging a PRD's technical approach. If the PRD cites a research record, grill verifies the citation matches the record's verdict. Grill also marks stale rows it encounters (collaborative marking).
+When challenging a technical approach and an INDEX is relevant, `grill` checks it. If the PRD cites a research record, grill verifies the citation matches the record's verdict. It can mark relevant stale rows it encounters.
 
 ### ADR (referencer)
 

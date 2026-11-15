@@ -1,6 +1,6 @@
 # Engineering Principles
 
-Single source for the principle definitions applied by `/review` and `/implement` (direct implementation). Consuming skills link here; a principle's meaning, signals, caveats, and phase live together in its entry (anti-patterns.md #38).
+Single source for the principle definitions used by the `review` and `implement` stages. Consuming stages link here; a principle's meaning, signals, caveats, and phase live together in its entry (anti-patterns.md #38).
 
 Thresholds are not prescribed here: choose scope from the caller and the concrete impact, not from a global scanner.
 
@@ -9,30 +9,24 @@ Thresholds are not prescribed here: choose scope from the caller and the concret
 1. **A finding needs a named consequence.** State the specific future change the violation makes harder, the bug class it hides, or the duplicated knowledge that has already diverged. Without one there is no finding — a bare "this violates SRP" is [anti-patterns.md #25](anti-patterns.md).
 2. **Severity defaults to `minor`.** `major` requires a named, specific consequence: it blocks a planned PRD change, couples tests to implementation, hides state behind a known bug class, or the same knowledge is maintained in diverging copies. A principle tag never *creates* a blocker, and never caps a perspective's own blocker definition — security failures, data loss, breaking bugs, and breaking changes without a migration path stay blockers where that perspective defines them ([review/REFERENCE.md](../review/REFERENCE.md) Chapters 3 and 4).
 3. **"Where natural" beats rule-matching.** Each entry's *When NOT to apply* overrides the principle. These are heuristics for judgment, not lint rules.
-4. **Scope follows the caller.** `/review` covers changed lines plus the code the change makes wrong ([anti-patterns.md #21](anti-patterns.md)); untouched modules are outside the current review unless the change makes them wrong. Generated code, vendored dependencies, migration scripts, and test fixtures are out of scope everywhere.
+4. **Scope follows the caller.** The `review` stage covers changed lines plus the code the change makes wrong ([anti-patterns.md #21](anti-patterns.md)); untouched modules are outside the current review unless the change makes them wrong. Generated code, vendored dependencies, migration scripts, and test fixtures are out of scope everywhere.
 5. **Project decisions win.** ADRs, `CONTEXT.md` vocabulary, lint config, and framework conventions outrank every principle here.
 6. **Conflict precedence**: correctness, security, and recorded decisions > **YAGNI > KISS > DRY > SOLID structure**. Uncalled abstractions cost the most; extracting a helper from three similar lines is negative value ([#8](anti-patterns.md), and the same shape as the archived "compensatory complexity"). Local consistency beats theoretical purity unless the local pattern is itself the finding.
-7. **Report, don't refactor.** `/review` reports ([anti-patterns.md #5](anti-patterns.md)); fixes route through `/story` or `/implement` under current authorization.
+7. **Report, don't refactor.** Read-only review reports ([anti-patterns.md #5](anti-patterns.md)); fix only when the current request authorizes it.
 
-## Consumer & Ownership Map
+## Consumer Map
 
-One owner per scope, so the two `/review` perspectives never report the same item twice.
-
-| Consumer | Owns |
+| Consumer | Applies |
 |---|---|
-| `/review` Code Review Sub-Agent — local to the diff | SRP, LSP, ISP, DRY, KISS, YAGNI, LoD, Composition over Inheritance, Explicit over Implicit, Fail Fast, Immutability & Pure Functions |
-| `/review` Impact Review Sub-Agent — cross-module | DIP, OCP, newly introduced abstractions and seams, new coupling |
-| `/review` | Only principles with a concrete consequence in the changed code or code the change makes wrong |
-| `/implement` | Every principle, design-time terms; no automatic refactor phase |
-| `/implement` direct implementation | Every principle, design-time terms (this path has no Refactor phase behind it) |
-
-**Overlap resolution:** when both review perspectives see the same principle issue, the diff-local instance belongs to Code Review and the cross-module boundary belongs to Impact Review. Chapter 5 already treats "different sub-agents finding different issues" as complementary, not a contradiction.
+| Review | Only principles with a concrete consequence in the changed code or code the change makes wrong |
+| Implement | Every principle as design-time judgment; no automatic refactor phase |
+| Optional delegated review | The same scope as main-agent review, only when the user authorizes delegation; the main agent validates and de-duplicates findings |
 
 ## Phase legend
 
 - **design-time** — applies while writing new code.
-- **design-time** — applies while implementing; do not refactor unrelated structure.
-- **review** — a judgment to report, never a change to make inside a refactor.
+- **refactor-safe** — may be applied to changed code, but does not authorize refactoring unrelated structure.
+- **review** — a judgment to report during read-only review, not a change to make inside that review.
 
 ---
 

@@ -18,21 +18,20 @@
 
 ## 这一版改了什么
 
-- 把日常开发收敛为 Direct / Closure / Debug 三条路径；`think`、`grill`、`story`、`implement`、`review` 保留为按需方法，不再要求每次逐阶段调用。
+- 把日常开发收敛为“入口路由 + 按需阶段”；`think`、`grill`、`story`、`implement`、`review` 保留为内部方法，不再要求每次逐阶段调用。
 - 用户说“按闭环做”或“从需求到验收”时，Codex 连续完成目标与验收项、实现、授权范围内验证/修复、风险审查和收尾；新增表、扩大权限、不可逆写库、提交部署仍按原有授权。
-- 保留 3 个技术与设计技能：`ruoyi6`、`database-design`、`frontend-design`。
+- 保留 3 个技术与设计技能：`ruoyi6`、`database-design`、`frontend-design`；其中 `database-design` 只负责模型准入，`ruoyi6` 负责已确认契约的 RuoYi/PostgreSQL 落点。
 - 保留 3 个支撑技能：`research`、`rules`、`answer-me-with-html`。
 - 删除 4 个重复层：`engineering-workflow`、`project-context`、`prompt-engineering`、`scm-collaboration`。它们的工作分别回到项目工作流配置、`setup-project`、任务契约和平台 MCP/CLI。
 - 把 RuoYi 技术层从 `ruoyi-plus-dev` 收敛为 `ruoyi6`，只保留 6.x + React 需要的后端、前端、数据库和工具规范。
-- `ruoyi6` 先按 Direct / Increment / New Module 分级，再通过能力地图复用框架已有实现；新模块才做完整业务判型、框架能力扫描和业务契约门。任何 RuoYi 代码或字段/API/权限契约改动都加载它，覆盖 Direct、`implement`、`debug` 和 `review`；纯文档、只读规划或诊断且不改代码时可不加载。代码骨架只保留在 `templates.md` 与 `frontend-templates.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
+- `ruoyi6` 只消费已确认的任务规格、复用结论和数据契约，负责后端、接口、前端、权限、菜单和 RuoYi/PostgreSQL 字段落点；不重新做需求分析、全量能力盘点或产品规划。代码骨架保留在 `templates.md`，作者真实实现入口在 `author-patterns.md`，现有业务模块只用于了解集成约束，不作为模板。前端只使用 `plus-ui-React` 的 React 实现。
 - 不再照搬参考站的 40/83 个技能。参考站提供的是**文档地图和工程思路**，不是直接复制清单。
 
-工程阶段当前是 **1 个自动入口 + 9 个内部阶段**，不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。这些技能源自 `dev-skills 0.2.11`，当前已并入资源库，与其余 6 个技能一起构成 16 个资源库技能。
+工程阶段当前是 **1 个自动入口 + 8 个内部阶段**（`setup-project` 只在明确初始化项目时作为独立动作），不是一条每次都要走完的流水线；会话只加载当前任务真正需要的技能。`dev-workflow` 是唯一开发路由；`database-design` 只在模型尚未决定或结构性变更时加入；`team-orchestration` 只负责明确授权的额外协作与 Alma 使用。这些阶段方法源自 `dev-skills 0.2.11`，现由资源库维护，与其余技术/支撑技能共同构成 16 个资源库技能。
 
-日常直接向 Codex 提需求；需要更细的方法控制时，再按需使用
-`think` / `grill` / `story` / `review`。Direct 和 Closure 不强套
-正式批次状态；状态、证据复用与缺陷回流以
-当前 `dev-workflow` 入口和 Codex 全局规则为准。
+日常直接向 Codex 提需求，不必手动指定
+`think` / `grill` / `story` / `review`。这些阶段由 `dev-workflow`
+按需读取；任务不需要时，不强套正式批次状态。
 
 ## 这套东西由什么组成
 
@@ -59,8 +58,8 @@
 
 当前基线使用：
 
-- Magpie `0.1.3887`
-- Codex `0.167.2`、Alma `0.4.579`（技能源自 `dev-skills 0.2.11`，现由资源库维护）
+- Magpie `0.1.4252`
+- Codex `0.169.0`、Alma `0.4.585`（技能源自 `dev-skills 0.2.11`，现由资源库维护）
 - Node.js `v24.17.0`、npm `11.13.0`
 - Python `3.13.14`
 - Git `2.54.0`
@@ -113,7 +112,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbhub`、`gitee
 - 本仓库只保存可阅读的规则和技能，不保存 API 密钥、登录态、同步密码或机器专属配置。
 - “已登记 MCP”不等于“当前会话已连通”；需要实际调用一次才算验证。
 - `dbhub` 依赖本机 PostgreSQL 和正确的 DSN，换机后目标可能变化。
-- 页面验收使用 Magpie Browser MCP 和本机 Chrome 扩展；扩展已连接不等于其他机器已恢复。换机时需重新加载扩展并确认 `/v1/magpie/browser` 返回 `connected: true`。
+- 显式页面运行检查使用 Codex 宿主浏览器技术；Magpie 资源库不再提供独立的 page-acceptance 技能。浏览器已连接不等于页面已验收，换机时按宿主工具的配置和登录态重新核对。
 - 全局指令由 `instructions.md` 统一维护并分发给 `codex`、`alma`：
   Codex 写入 `~/.codex/AGENTS.md`，Alma 写入 `~/.config/alma/USER.md`。这些是生成物，不手工维护第二套规则。
 - 项目仍可有自己的 `AGENTS.md`，但只写该项目的技术栈、命令、端口和授权边界，不复制全局团队规则。团队 Skill 只有一个 Magpie 源，`~/.agents/skills` 与 Alma personal 目录通过 Junction 指向它。

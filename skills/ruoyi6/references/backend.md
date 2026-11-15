@@ -2,7 +2,7 @@
 
 ## 写业务前
 
-按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和业务契约门，Increment / Direct 只读本次涉及一侧的现有契约和调用链后实现。后端重点检查：
+先读取当前任务的 PRD/规格、已确认复用结论和相关源码，只核对本次涉及的接口、字段、权限和调用链；需要新增业务能力时，按已确认方案落到现有分层。
 
 1. 现有表、字典、参数、菜单是否已经覆盖数据。
 2. `ruoyi-api` 是否已有跨模块查询、消息、配置、文件或工作流接口。
@@ -65,7 +65,20 @@ XxxController
 
 需要字符串、集合、对象、JSON、日期、树、文件、IP 或 SQL 工具时，先读 [utils.md](utils.md)，再按当前源码核对方法签名；不要另写一套。
 
-事务、幂等、缓存、异步、并发、编排、序列号、展示翻译和审计是否要用、用哪个，先读 [capabilities.md](capabilities.md) 做机制判型；不要凭习惯套注解，也不要在已有能力存在时自己实现。
+事务、幂等、并发、缓存和异步只在当前业务命中时选择，不为“以后可能”预埋：
+
+| 场景 | 先看 | 关键边界 |
+|---|---|---|
+| 多表或多处写入 | `@Transactional(rollbackFor = Exception.class)` | 标在 Service 公共方法；同类自调用不生效；异常不能被吞 |
+| 单行并发修改 | `@Version`、条件更新 | 检查影响行数，向用户返回冲突 |
+| 同资源并发抢占 | `@Lock4j` | 锁范围包住事务，粒度最小且有超时 |
+| 重复点击 | `@RepeatSubmit` | 只防短时重复；业务唯一性仍靠数据库约束 |
+| 回调或消息重复 | 业务幂等键/表 | 数据库唯一约束优先，跨天有效，不能只靠 Redis |
+| 高频读取 | `@Cacheable` / `@CacheEvict`、`CacheUtils` | 写操作同步失效；带数据权限的列表不直接缓存 |
+| 可丢失短任务 | `@Async` | 复用现有线程池；事务提交后触发；异步线程无登录态 |
+| 需恢复或重试的任务 | 现有持久任务机制 | 任务幂等可重入，业务结果落库，不只放内存线程池 |
+
+需要新增翻译实现时先读本文件翻译扩展边界；新增通用工具前先读 [utils.md](utils.md)。工作流、定时任务、AI、MQTT、短信等仅在已确认需求实际使用时，按当前 checkout 的 Bean、接口、配置和失败语义接入；业务模块保持按需依赖，不把可选能力变成启动前置。
 
 公共工具只放稳定、跨模块复用且无业务归属的能力。只服务一个业务的规则留在该业务 Service；不要为了“以后可能复用”把它提升为通用层。
 
@@ -130,8 +143,8 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 
 - Entity 基类按当前模块和隔离契约选择；作者普通示例继承 `BaseEntity`，其审计属性为 `createDept`、`createBy`、`createTime`、`updateBy`、`updateTime`。以当前基类、填充器和数据权限拦截器核对真实列，不增加项目没有的隔离字段。
 - 主键用 `@TableId`；逻辑删除、乐观锁、排序分别按需用 `@TableLogic`、`@Version`、`@OrderBy`。
-- 状态、标志类的物理类型、默认值和约束由 `database-design` 的数据库契约决定；Entity/BO/VO 使用与契约同型的 Java 类型，并核对外部接口序列化，不在同一业务域混用两套表示。
-- JSON 字段先按项目本地 JSONB 规范选择 TypeHandler；普通 `JacksonTypeHandler` 不能证明 PostgreSQL `jsonb` JDBC 绑定正确。优先复用项目已有的 JSONB-aware TypeHandler，并核对 `@TableName(autoResultMap = true)`、`@TableField`、Entity/BO/VO 类型和 Wrapper 写入链路。数据库侧何时使用 JSONB、何时提升为真实列由 `database-design` 判断。
+- 状态、标志类的物理类型、默认值和约束来自项目或 `database-design` 已确认的数据契约；Entity/BO/VO 使用与 DDL 同型的 Java 类型，并核对外部接口序列化，不在同一业务域混用两套表示。已有契约直接落实现，不重新建模。
+- JSON 字段先按项目本地 JSONB 规范选择 TypeHandler；普通 `JacksonTypeHandler` 不能证明 PostgreSQL `jsonb` JDBC 绑定正确。优先复用项目已有的 JSONB-aware TypeHandler，并核对 `@TableName(autoResultMap = true)`、`@TableField`、Entity/BO/VO 类型和 Wrapper 写入链路。已有契约直接落实现；若是否采用 JSONB 尚未决定，才回到 `database-design`。
 - BO 用 `@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)`；新增/修改用 `AddGroup` / `EditGroup`。
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
 - 映射变更按下节核对；未经当前请求授权不编译。

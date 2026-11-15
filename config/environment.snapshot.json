@@ -1,7 +1,7 @@
 {
-  "recordedDate": "2026-11-13",
+  "recordedDate": "2026-11-16",
   "source": "local config and read-only CLI; registration is not connectivity verification. Pi was uninstalled on 2026-11-13; Alma runs on demand.",
-  "magpieVersion": "0.1.3887",
+  "magpieVersion": "0.1.4252",
   "sharedSkills": true,
   "mcpHub": true,
   "instructionsAgents": [

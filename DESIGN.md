@@ -1,6 +1,6 @@
 # 当前设计：Magpie / Codex / Alma / Herdr
 
-更新日期：2026-11-13。本文描述**当前实际生效**的结构，不是理想蓝图。每条结论都对应本机可核对的配置或命令输出；未验证的项在下文明确标出。
+更新日期：2026-11-16。本文描述**当前实际生效**的结构，不是理想蓝图。每条结论都对应本机可核对的配置或命令输出；未验证的项在下文明确标出。
 
 ## 0. 一句话
 
@@ -78,7 +78,11 @@ instructions.md                    ← 唯一正文
 
 `dev-workflow`（唯一入口）、`think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project`。
 
-`dev-workflow` 只做路由，不要求每次走完全部阶段。当前 Codex 插件列表中没有独立的 `dev-skills` 条目，资源库是这 10 个技能的编辑源和发布源。
+`dev-workflow` 只做路由，不要求每次走完全部阶段。除它之外，只有 `database-design` 等业务规范可独立发现；其余阶段和 `rules` 的 `openai.yaml` 均设为 `allow_implicit_invocation: false`，由入口按需读取，减少描述常驻和路由竞争。
+
+2026-11-16 用 `codex debug prompt-input` 实测新会话提示：团队侧可自动发现的技能只有 `dev-workflow`、`database-design`、`ruoyi6` 和 `answer-me-with-html`；`think`、`grill`、`story`、`implement`、`review`、`debug`、`research`、`setup-project`、`rules` 未进入技能描述列表。内部阶段仍可由入口读取文件，但不是常驻技能。
+
+Alma 的 `chat.defaultSkillSelection` 和 `chat.defaultToolSelection` 当前都设为 `auto`。`alma skill list` 返回的是已发现目录，不等于每轮都会注入全部技能；`auto` 只选择当前消息相关的技能和工具。共享目录中的 16 个技能仍全部可见，Alma 自带技能也保留，不把它们复制进资源库。
 
 ## 4. MCP 拓扑
 
@@ -192,6 +196,6 @@ Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能
 2. Alma 的 provider 模型列表少于 Magpie 网关暴露的模型（缺 8 个 `our-free-model/*`），不影响现有链路。
 3. MCP 只做了工具暴露与最小调用验证，未对所有目标系统做全量业务测试。
 4. `dbhub` 绑定本机 PostgreSQL，`ssh` 依赖 `ssh-profiles.json`，换机需重配。
-5. 版本未锁定：Magpie `0.1.3887`、Codex `0.167.2`、Alma `0.4.579`、`dev-skills` `0.2.11`、Herdr `0.9.5` / `herdr-core` `0.1.20`。
+5. 版本未锁定：Magpie `0.1.4252`、Codex `0.169.0`、Alma `0.4.585`、`dev-skills` `0.2.11`、Herdr `0.9.5` / `herdr-core` `0.1.20`。
 6. Alma 当前直连 9 项开发 MCP，扩大了可调用面；若恢复严格的观察者最小权限，应改回只保留 `hub/alma` 并按任务临时授权。
 7. Alma 的个人技能目录当前只链入 `team-orchestration`；其余 15 个技能虽已在 `library.json` 勾选给 Alma，是否被每个 Alma 会话实际加载仍需按会话验证。

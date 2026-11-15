@@ -17,7 +17,7 @@ is confirmed with the user in Step 4E / Step 5):
 - ADR path (principle 8): use the path configured in docs/agents/domain.md.
 
 These are project-level mandates for the target repo. They complement the dev-skills catalog
-(skills/rules/engineering-principles.md) consumed by /review and /implement; overlap in spirit is
+(skills/rules/engineering-principles.md) consumed by the review and implement stages; overlap in spirit is
 intentional. Keep the section self-contained — no links into install-path-dependent skill files.
 -->
 

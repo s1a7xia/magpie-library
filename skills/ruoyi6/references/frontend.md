@@ -2,7 +2,7 @@
 
 ## 写页面前
 
-按 `SKILL.md` 的任务分级确认范围；New Module 再走业务判型、复用扫描和契约门，Increment / Direct 只读本次涉及一侧的现有契约和调用链后实现。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
+先读取当前任务的 PRD/规格和已确认复用结论，只查本次涉及的页面、接口、权限和组件契约。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
 
 前端重点检查：
 
@@ -107,7 +107,71 @@ PageContainer
 - 日期范围保留 `Query.params`；列表页 `Query` 继承 `PageQuery`，树表 `Query` 不继承。
 - API 函数优先跟随 `plus-ui-React/gen/api.ts.ftl` 的命名和 `export function` 形式；相邻模块已统一另一风格时保持该模块风格。
 
-完整 API 和类型骨架只在 [frontend-templates.md](frontend-templates.md) 维护一份；`types.ts` 至少分开 `XxxVO`、`XxxForm`、`XxxQuery`，字段名与 BO/VO 完全一致，主键、关联 ID 和雪花 ID 不使用单 `number` 类型。
+API 与类型保持最小骨架，字段名与后端 BO/VO 完全一致：
+
+```ts
+// types.ts
+import type { BaseEntity, PageQuery } from '@/api/types';
+
+export interface XxxVO {
+  id: string | number;
+  name: string;
+}
+
+export interface XxxForm extends BaseEntity {
+  id?: string | number;
+  name?: string;
+}
+
+export interface XxxQuery extends PageQuery {
+  name?: string;
+}
+
+// index.ts
+import type { PageResult, R } from '@/api/types';
+import request from '@/api/request';
+import type { XxxForm, XxxQuery, XxxVO } from './types';
+
+export function listXxx(query?: XxxQuery) {
+  return request<R<PageResult<XxxVO>>>({
+    url: '/<module>/<business>/list',
+    method: 'get',
+    params: query
+  });
+}
+
+export function getXxx(id: string | number) {
+  return request<R<XxxVO>>({
+    url: '/<module>/<business>/' + id,
+    method: 'get'
+  });
+}
+
+export function addXxx(data: XxxForm) {
+  return request<R>({
+    url: '/<module>/<business>',
+    method: 'post',
+    data
+  });
+}
+
+export function updateXxx(data: XxxForm) {
+  return request<R>({
+    url: '/<module>/<business>',
+    method: 'put',
+    data
+  });
+}
+
+export function delXxx(id: string | number | Array<string | number>) {
+  return request<R>({
+    url: '/<module>/<business>/' + id,
+    method: 'delete'
+  });
+}
+```
+
+`types.ts` 至少分开 `XxxVO`、`XxxForm`、`XxxQuery`；树表 `Query` 不继承 `PageQuery`，并补齐 `parentId` / `children`。主键、关联 ID 和雪花 ID 不使用单 `number` 类型。请求和类型可按目标模块现有风格微调，但不得绕过统一请求层。
 
 ## 页面行为
 
@@ -215,7 +279,7 @@ PageContainer
 ## 构建与验收
 
 - 使用项目登记的 pnpm 脚本：`pnpm dev`、`pnpm build:dev`、`pnpm build:prod`、`pnpm lint`、`pnpm fmt`。
-- 修改前端后至少执行实际构建；独立类型检查不替代构建。
+- 当前请求授权构建时，执行项目登记的实际构建；独立类型检查不替代构建。
 - 修改路由、`dynamicPage.tsx`、请求封装、全局 store 或布局时检查所有受影响页面。
 - 页面可见改动需要运行验证时，使用当前任务明确授权的浏览器或人工检查；构建通过只代表代码可编译，不代表页面行为已验证。
 

@@ -25,8 +25,8 @@ Every file in this directory is listed here. A rules file that is not listed is 
 | File | Holds | Cited by |
 |---|---|---|
 | `anti-patterns.md` | Cross-skill behavioral constraints (main table + frozen-number Archive) | every skill; cited by number |
-| `entry-protocol.md` | Shared bootstrap: project config, domain docs, upstream-artifact checks | every skill's first step |
-| `sub-agent-runtime.md` | "Sub-agent" = re-read-from-disk discipline, not a scheduler | `review` |
+| `entry-protocol.md` | Selective context discovery: relevant project config, domain docs, and prior artifacts | engineering skills when context is needed |
+| `sub-agent-runtime.md` | Delegation is optional, explicit, permission-preserving, and re-reads current facts | `review` |
 | `writing-skills.md` | Authoring discipline: two loads, descriptions, information hierarchy, wording, pruning | contributors and any skill edit |
 | `engineering-principles.md` | Single definition source for SOLID/DRY/KISS/YAGNI/LoD/composition/explicit/fail-fast/immutability, plus the gates that keep principle findings from becoming nitpicks | `review`, `implement` |
 

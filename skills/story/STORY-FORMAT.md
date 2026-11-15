@@ -2,11 +2,11 @@
 
 ## 用途
 
-单个 Story/Issue 的格式模板。
+单个交付切片的可选 Issue 格式模板。仅在项目已有 Issue tracker 且当前请求授权发布时使用；普通任务拆解不需要创建 Issue。
 
 ## 使用场景
 
-`story` skill 创建 Issues 时使用此格式。
+发布 Issues 时使用此格式；对话或现有计划记录中的切片只需保留标题、范围、验收和依赖。
 
 ## Issue 标题格式
 
@@ -19,13 +19,13 @@
 - `<垂直切片描述>` — 一句话描述这个切片的范围
 - `—` — 分隔符（en-dash + 空格）
 - `<核心行为>` — 用户可感知的核心行为
-- **文档语言**: 跟随项目配置 `docs/agents/language.md`（由 `/setup-project` 写入）。若未配置，回退到用户输入语言并询问团队偏好。详见 [Skill Entry Protocol](../rules/entry-protocol.md)。
+- **文档语言**: 项目已配置 `docs/agents/language.md` 时遵循它；未配置时跟随用户当前语言。详见 [Skill Entry Protocol](../rules/entry-protocol.md)。
 
 **示例**：
 ```
-[PRD-0003] 用户订阅数据模型 — schema + CRUD API + 测试
-[PRD-0003] 支付流程 — 支付网关集成 + webhook 处理 + 测试
-[PRD-0003] 订阅管理 UI — 查看/取消/升级 + E2E 测试
+[PRD-0003] 用户订阅数据模型 — schema + CRUD API
+[PRD-0003] 支付流程 — 支付网关集成 + webhook 处理
+[PRD-0003] 订阅管理 UI — 查看/取消/升级
 ```
 
 ## Issue Body 模板
@@ -35,7 +35,7 @@
 
 - **PRD**: PRD-NNNN-<title>.md
 - **Type**: AFK | HITL
-- **Siblings**: #<issue-2>, #<issue-3> (其他 Child Issues；advisory，非承重；/story 在 Publish Issues 时填充)
+- **Siblings**: #<issue-2>, #<issue-3> (其他 Child Issues；advisory，非承重；发布时填充)
 
 ## Parent
 
@@ -66,7 +66,7 @@
 |------|------|
 | Meta → PRD | 所属 PRD 文件路径（PRD-NNNN-<title>.md）|
 | Meta → Type | AFK（可自动完成）或 HITL（需人工交互）|
-| Meta → Siblings | 同一 PRD 的其他 Child Issues（advisory，/story 填充）|
+| Meta → Siblings | 同一 PRD 的其他 Child Issues（advisory，由切片阶段 `story` 填充）|
 | Parent | 父 Issue 引用（如有）|
 | What to build | 端到端行为描述 |
 | Acceptance Criteria | 可测试的验收标准 |
@@ -106,4 +106,4 @@ What to build:
 | 类型 | 说明 | 示例 |
 |------|------|------|
 | **HITL** | 需要人工交互 | UI 设计审查、架构决策 |
-| **AFK** | 可自动完成 | API 开发、测试编写 |
+| **AFK** | 可自动完成 | API 开发、非交互式重构 |

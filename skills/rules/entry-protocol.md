@@ -1,80 +1,80 @@
 # Skill Entry Protocol
 
-Shared bootstrap sequence for all skills. Each skill references this protocol instead of repeating the full instructions.
+Optional context discovery shared by engineering skills. Each skill references this protocol instead of repeating the full instructions.
 
 ## Purpose
 
-Every skill needs to locate domain docs, identify multi-repo scope, and check for upstream artifacts before starting work. This protocol standardizes that bootstrap — it operationalizes [anti-patterns.md #1](anti-patterns.md) (act before reading) as a shared sequence. It ensures skills can run **standalone** (graceful degradation when prerequisites are missing) and **composable** (correctly reads prior skill outputs when chained).
+Read the smallest set of project facts needed for the current task. This protocol prevents acting before reading relevant evidence, while avoiding a mandatory full-project preload. It ensures skills can run **standalone** when optional docs are missing and **composable** when relevant prior outputs exist.
 
 ## Protocol
 
-When entering any skill, perform this read sequence **before** starting skill-specific work:
+Use this sequence selectively before skill-specific work. Read only files relevant to the current request; do not scan the whole repository or every document directory by default.
 
 ### Step 1: Read Project Config
 
-Read config files under `docs/agents/` (created by `setup-project`). If the directory doesn't exist, skip to defaults.
+Read config files under `docs/agents/` only when they exist and affect the current task. A missing directory is a valid standalone setup, not a reason to initialize the project.
 
 | File | What it tells you | If missing |
 |------|-------------------|------------|
 | `docs/agents/domain.md` | Actual paths for CONTEXT.md, PRDs, ADRs (may differ from defaults in multi-repo/monorepo) | Use default paths (Step 3) |
 | `docs/agents/repo-map.md` | Multi-repo structure — which repos exist, which owns the issue tracker | Treat as single-repo |
-| `docs/agents/issue-tracker.md` | Issue tracker type and CLI conventions | Ask user which tracker they use |
+| `docs/agents/issue-tracker.md` | Optional issue tracker type and CLI conventions | No tracker: use existing project docs or the current conversation; do not ask or initialize one |
 | `docs/agents/triage-labels.md` | Label vocabulary mapping | Use canonical defaults |
-| `docs/agents/language.md` | Language consumer skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments) | Fall back to the user's input language; ask when unsure |
+| `docs/agents/language.md` | Language consumer skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments) | Follow the user's current language; ask only when the audience materially matters |
 
 ### Step 2: Identify Multi-Repo Scope
 
-If `repo-map.md` exists, identify which repos are involved in the current task. Cross-repo tasks require reading domain docs from all relevant repos.
+If `repo-map.md` exists and the current task crosses repository boundaries, identify the repositories actually involved and read only their relevant docs.
 
-If `repo-map.md` is missing, treat the current repo as the only repo. If the task mentions files or modules outside this repo, ask the user.
+If `repo-map.md` is missing, treat the current repo as the only repo. Investigate an explicitly mentioned external path when it is readable; ask only if the missing repository changes the task outcome.
 
 ### Step 3: Read Domain Context
 
-Read domain docs at the paths discovered in Step 1 (or defaults if config missing):
+Read only domain docs that can affect the current task:
 
 | Document | Default path | Purpose |
 |----------|-------------|---------|
 | CONTEXT.md | `CONTEXT.md` at repo root; if a root `CONTEXT-MAP.md` exists (multi-context repo), the per-context `CONTEXT.md` files it points to | Domain glossary — terminology, concepts, relationships |
 | PRDs | `docs/prd/PRD-NNNN-<title>.md` | Product requirements — what to build, acceptance criteria |
 | ADRs | `docs/adr/*.md` | Architecture Decision Records — past technical decisions |
-| Research INDEX | `docs/research/INDEX.md` | Searchable index of persisted technical research records (stack × topic × major). Query before re-searching; see `/research` skill |
+| Research INDEX | `docs/research/INDEX.md` | Optional index of persisted technical research records (stack × topic × major). Check it when it exists and the current decision depends on prior research |
 | Audit records | `docs/audits/*.md` | Dated architecture and anti-pattern audit records. Read the most recent before proposing structural changes — it records which judgments were already made and why |
 
-**If any document is missing, proceed without it.** Missing context reduces precision but does not block execution. State what's missing so the user knows the limitation.
+**If any document is missing, proceed without it.** Do not create blank docs, initialize `docs/agents/`, or suggest setup merely because a document is absent. Mention a concrete evidence gap only when it affects the current conclusion.
 
-**Filing-consistency check.** While scanning for these docs, also flag misplaced files so the drift surfaces early. Report (do not auto-fix — moving files is a destructive op needing explicit authorization):
+**Filing-consistency check.** When a relevant documentation directory is already being read, flag clearly misplaced files that affect this task. Do not scan unrelated directories. Report the issue; moving or renaming files requires explicit authorization.
 
 - PRD content found **outside** `docs/prd/` — e.g. `docs/adr/PRD-*.md`, `docs/prd-*.md` in the docs root, or `PRD-*.md` at repo root.
 - ADR files carrying a `PRD-` prefix, or PRD files carrying no `PRD-` prefix.
 - Research records found **outside** `docs/research/` — e.g. `<stack>-<topic>-<major>.md` at repo root or under `docs/`.
 - **Number collisions** — two ADRs sharing the same `NNNN`, or two PRDs sharing the same `PRD-NNNN` (common when multiple sessions run concurrently). Scan the directory and report any duplicate numbers before creating a new file.
-- **Research record collisions** — two records sharing the same `<stack>-<topic>-<major>` filename (a `/research` duplicate; see `/research` Step 2 dedup).
+- **Research record collisions** — two records sharing the same `<stack>-<topic>-<major>` filename. Report a duplicate before creating another record.
 
 Report findings as a note in the skill output: *"Filing inconsistency found: <file> appears misplaced / <NNNN> is used by two files. Want me to relocate?"* Do not silently move or renumber.
 
-### Step 3a: PRD Conflict Check (only for PRD-creating skills)
+### Step 3a: PRD Conflict Check (only before creating a PRD)
 
-Applies **only** to skills about to create a new PRD file (`/think` Step 2, `/story` Step 3). Skills that only read an existing PRD — and all non-PRD skills (`/debug`, `/review`, etc.) — skip this entirely.
+Applies **only** when the current task has already chosen to create a new PRD file. Skills that read an existing PRD, work conversationally, or do not use a PRD skip this entirely.
 
-The full procedure lives with the primary PRD-creator: see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn). It is owned there rather than in this shared protocol so that non-PRD skills don't carry PRD-management ceremony they never use. `/story` follows the same procedure when it creates a minimal PRD.
+The full procedure lives with the primary PRD-creator: see [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn). It is owned there rather than in this shared protocol so that non-PRD stages don't carry PRD-management ceremony they never use. The `story` stage follows the same procedure when it creates a minimal PRD.
 
-### Step 4: Check Upstream Artifacts (Composability)
+### Step 4: Check Relevant Upstream Artifacts
 
-If the skill consumes another skill's output, verify upstream quality:
+If the current task consumes a PRD or another persisted artifact, verify only the fields that affect the next action:
 
 | Signal | Meaning | Action |
 |--------|---------|--------|
-| PRD Traceability shows `Created by: /story (minimal PRD)` | Requirements may not be decision-complete — no `/think` session | Confirm acceptance criteria with user before proceeding |
-| PRD has `Open Questions` or `TODO` markers | `/grill` may not have resolved all decisions | Note: "PRD has unresolved items" — proceed but flag uncertainty |
-| PRD `Grilled by` field is empty | Plan not validated against domain model | Proceed but note plan is unvalidated |
+| PRD Traceability shows a minimal PRD created during slicing | Requirements may not be decision-complete | Confirm the acceptance criteria needed for the current task |
+| PRD has `Open Questions` or `TODO` markers | Some decisions remain unresolved | Resolve only those that affect the current action; otherwise note the uncertainty |
+| PRD has no validation record | Design may not have been separately challenged | Proceed; validation is optional unless the current task needs it |
 
-These are notes, not blockers. Record them in the skill's output.
+These are notes, not blockers and not a reason to initialize missing process artifacts.
 
 ## Standalone vs Composable
 
-**Standalone (no prior skill ran):** The skill works with whatever context exists. If no PRD, no CONTEXT.md, no ADRs — the skill derives what it can from the codebase and user input. It does not refuse to start.
+**Standalone (no prior artifact):** The skill works with the codebase, the current request, and any relevant existing docs. The absence of a PRD, tracker, `CONTEXT.md`, or ADR does not block ordinary work.
 
-**Composable (prior skills ran):** The skill reads prior outputs via the Traceability chain in PRD files. Each PRD's `## Traceability` section records which skills touched it, enabling the current skill to verify completeness.
+**Composable (relevant artifact exists):** The skill reads only the traceability or decision fields needed to understand the current slice. It does not require the full historical chain.
 
 ## Reference
 

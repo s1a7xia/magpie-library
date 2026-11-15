@@ -2,7 +2,7 @@
 
 ## File Layout
 
-grill creates and updates domain docs. Where they live depends on the repo shape.
+When the project already uses domain docs, grill can update the relevant ones. Their location depends on the repo shape; a project without them can still validate a plan conversationally.
 
 **Single context (most repos):**
 
@@ -33,38 +33,38 @@ grill creates and updates domain docs. Where they live depends on the repo shape
         └── docs/adr/
 ```
 
-Create files lazily — only when you have something to write. No `CONTEXT.md` yet → create it when the first term resolves, from the template in [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) (single source for the glossary's shape). No `docs/adr/` yet → create it when the first ADR is needed, from [ADR-FORMAT.md](ADR-FORMAT.md).
+Create or update these files only when the project has chosen to use that record and the current task includes it. Do not initialize a glossary or ADR directory merely because a decision was made. If a record is in use and a file is missing, use [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) or [ADR-FORMAT.md](ADR-FORMAT.md) as the format source.
 
-## Think vs Grill Boundary
+## Requirement vs Validation Boundary
 
-**think** discovers *what to build* → outputs a PRD. **grill** validates *how well the PRD holds up* → outputs a sharpened PRD + CONTEXT.md + ADRs.
+Requirement convergence discovers *what to build* and produces a plan. Validation challenges *how well that plan holds up* and sharpens the relevant decisions, glossary, and architecture records.
 
-**Send back to `/think`** when:
+**Return to requirement convergence** when:
 - The goal statement itself needs to change (not just individual requirements)
 - A fundamental technical approach needs re-evaluation (not just refinement)
 - New requirements introduce an entirely new domain area outside original scope
 - The PRD's Decision (ADR-lite) is invalidated by new information
-- The PRD was a minimal `/story` PRD (no `/think` session) and major design questions surface
+- The PRD was created minimally during slicing (no requirement-stage `think` pass) and major design questions surface
 
-**Proceed to `/story`** when only terminology was sharpened, scope confirmed, or approach validated with refinements.
+**Proceed with work slicing or implementation** when only terminology was sharpened, scope confirmed, or approach validated with refinements. Slicing is optional unless the work needs it.
 
 Small clarifications can be resolved inline. Major scope changes deserve a proper think session.
 
 ## What to Challenge
 
-Read the PRD with hostile eyes. Pull out every open decision across these categories — skip none:
+Read the available requirements or plan with hostile eyes. Pull out every open decision across these categories that can affect the current deliverable:
 
 | Category | What to look for |
 |---|---|
-| **Open Questions** | Items explicitly unresolved in the PRD |
-| **Assumptions** | Things the PRD assumes but hasn't validated |
+| **Open Questions** | Items explicitly unresolved in the plan |
+| **Assumptions** | Things the plan assumes but hasn't validated |
 | **Vague terms** | Words that could mean different things to different people |
 | **Scope boundaries** | Why something is in vs out of scope — and is "out" really "deferred"? |
 | **Technical approach** | Is the chosen approach sound? Were alternatives considered? |
 | **Edge cases** | What happens when things go wrong (mid-billing cancellation, partial failure, concurrency)? |
-| **CONTEXT.md conflicts** | Terms that clash with the existing domain glossary |
+| **Glossary conflicts** | Terms that clash with a glossary the project actually maintains |
 | **Code contradictions** | Stated behavior that doesn't match what the code does |
-| **ADR-lite decisions** | Each decision in the PRD's "Decision (ADR-lite)" section — evaluate against the 3 ADR conditions; upgrade qualifying ones to formal ADRs |
+| **Recorded decisions** | Decisions already captured in the plan — evaluate whether the project's existing ADR mechanism warrants a formal record |
 
 ## Challenge Patterns
 
@@ -78,7 +78,7 @@ For each item, lead with your recommended answer, then ask. A few patterns:
 
 ## Question Pacing
 
-Ask **exactly one question per message, always** — never a batch, never a numbered list of questions, never a pre-computed plan of what to ask (anti-patterns #3 and #4). The interview is a walk over the plan's decision tree:
+Ask only decisions that cannot be derived from code, documents, or safe reversible defaults. For a large ambiguous plan, walk the decision tree one question at a time with a recommended answer. For ordinary focused work, resolve independent low-risk defaults and report them; do not create a mandatory interview.
 
 1. **Pick the highest-value unresolved node** and ask it as a single question, with your recommended answer.
 2. **Wait for the answer.** The answer resolves that node and changes the tree: it may open child questions (the answer's consequences), close a branch (settled for good), or contradict the PRD (new unresolved node).
@@ -87,7 +87,7 @@ Ask **exactly one question per message, always** — never a batch, never a numb
 
 A question whose prerequisite decision is still open is **not askable yet** — asking it now means guessing at the prerequisite's answer. Keep it in the tree; it usually becomes askable (or disappears) after the next answer.
 
-Message format — one question block per message:
+For a multi-session or high-impact design, use one question block per message:
 
 ```
 ❓ **Q — <question title>**: <body; multiple choices if applicable>
@@ -97,47 +97,32 @@ Message format — one question block per message:
 
 ## Exhaustiveness Gate
 
-Before declaring complete, verify every box:
+Before declaring complete, verify every box that applies to the current deliverable:
 
-- [ ] Every PRD Open Question has a resolution
+- [ ] Every open question that can change the deliverable has a resolution or an explicit deferral
 - [ ] Every Assumption validated or converted to a requirement
-- [ ] Every term conflict with CONTEXT.md addressed
+- [ ] Every term conflict that affects implementation addressed
 - [ ] Every scope boundary confirmed (why is X out of scope?)
 - [ ] Code cross-check completed for all stated behaviors
 
 If any box is unchecked, keep going.
 
-## PRD Traceability Update
+## Optional Requirement Record Update
 
-Fill the `Grilled by` field in the PRD's `## Traceability` section AND set `Status` to `Grilled` so downstream skills know the plan was validated:
+If a PRD or equivalent requirement record is already in use, record the validation there:
 
 ```markdown
-- **Grilled by**: `/grill` (completed <YYYY-MM-DD>) — <summary: terms sharpened, assumptions resolved, ADRs created>
+- **Grilled by**: design-validation stage (`grill`, completed <YYYY-MM-DD>) — <summary: terms sharpened, assumptions resolved, ADRs created>
 ```
 
-## Sync Parent Issue
+## Existing Tracker Record
 
-The parent Issue is created by `/think` Step 10 (required) and recorded in the PRD's `## Issue` field (e.g. `#42`). grill's job is to **sync**, not create — creation is `/think`'s responsibility, and this division keeps a single point of ownership so `/story` always finds a parent to attach child issues to.
-
-**3-step logic:**
-
-1. **Read** the PRD `## Issue` field.
-2. **Number present** → update the parent Issue body to reflect this grill's scope changes:
-   - Sharpened terminology (link to updated `CONTEXT.md` entries)
-   - Confirmed scope boundaries (what's in vs deferred)
-   - New ADRs and their key conclusions
-   - **Do not** change the Issue title (it uses the PRD's `<Feature Name>`, set by `/think`)
-   - **Do not** close the parent Issue — it stays open until child issues from `/story` are done
-3. **Field empty or missing** → first check the value: if it reads `N/A — no issue tracker configured` (from `/think` Step 10a no-tracker waiver), skip — the repo has no tracker. Otherwise, check the PRD's `## Traceability` → `Created by` field to determine the source:
-   - **PRD created by `/story`** (minimal PRD, no `/think` session) → skip silently. Child issues stand alone by design. Do not create a parent Issue here.
-   - **PRD created by `/think`** → warn (in the repo's documentation language per `docs/agents/language.md`; English template follows): *"⚠️ Parent Issue missing — /think Step 10 should have created one. This PRD's child issues cannot link to a parent. Options: (a) create the parent Issue manually, (b) re-run /think to recreate the PRD (which also creates the parent), or (c) continue without a parent (child issues will stand alone)."*
-
-**Boundary:** grill is "validate + sync", not "create". If you find yourself wanting to create a parent Issue, the right fix is upstream — the PRD should have gone through `/think` Step 10.
+Issues are optional. If the PRD already references an Issue and the current request authorizes tracker writes, update that Issue with approved scope changes. If there is no tracker or no referenced Issue, continue with the PRD or conversation; do not create a parent Issue and do not warn about its absence.
 
 ## Worked Example
 
 ```
-User: /grill  (after /think for "user subscription feature")
+User: validate the "user subscription" plan (worked example where the project already uses a PRD)
 
 Agent: [reads docs/prd/PRD-0003-subscription.md and CONTEXT.md]
 
@@ -211,7 +196,7 @@ Updated files:
 - CONTEXT.md — 3 new terms, 1 sharpened
 - docs/adr/0003-cancellation-eop.md — created
 
-Next: /story to break PRD into Issues.
+Next: slice or implement the approved plan when the current request authorizes it. In a conversational plan, the validated decision summary is enough.
 ```
 
 Note the shape: extract all items up front; answer code questions yourself before asking anything; then **one question per message**, each next question derived from the answer just given (the trial-state answer opened the cancellation question; the cancellation answer unblocked the gateway question); hold questions whose prerequisites are still open until an answer unlocks them; update CONTEXT.md / create the ADR inline the moment each decision lands — never in a batch at the end.

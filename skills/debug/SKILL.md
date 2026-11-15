@@ -1,94 +1,27 @@
 ---
 name: debug
-description: "Root cause analysis and systematic fix. Quick root cause location, then 6-phase systematic loop for bug fixes. Use when errors, crashes, regressions, test failures, anomalous behavior, or the user says 'used to work'. Trigger words: debug, 排查, 报错, 崩溃, 不工作, regression, 以前是好的, broken after update."
+description: "定位并修复已出现的错误、回归或异常行为。以代码和运行证据定位根因，按当前授权最小修复；运行复现、日志探针和测试仅在授权且确有需要时使用。不用于普通功能实现或纯设计审查。"
 ---
 
-# Debug: Root Cause Analysis and Systematic Fix
+# Debug
 
-🥷 Find root cause before fixing.
+目标是找到可解释全部已观察症状的根因，并完成当前授权范围内的最小修复。代码阅读、日志和用户给出的错误是证据；不为满足固定流程而制造证据。
 
-> **Terminology note:** debug uses **Stage** (macro: Stage 0 context / Stage 1 quick-locate / Stage 2 systematic-fix) and **Phase** (micro: the 6-phase loop inside Stage 2) deliberately, to distinguish quick-locate from systematic-fix. Other skills use **Step**. This is an intentional divergence, not drift.
+## 执行
 
-## Outcome Contract
+1. 读取失败现象、最近改动、相关调用链和现有验证入口。区分可复现事实、用户描述和推测。
+2. 先形成能解释全部症状的根因假设，并用当前已获准的静态证据或运行证据验证。已有明确失败输出时直接沿栈追查，不重新做无关取证。
+3. 根因确认后修复直接受影响路径，保持最小改动。需要扩大范围、改变契约或修改无关模块时停下说明。
+4. 当前请求授权运行验证时，优先复用能区分修复前后的最小检查；未授权或环境不可用时明确标为未验证，不因此拒绝进行静态诊断和已授权修复。
+5. 清理本轮临时日志、探针和一次性脚本。PRD 或 Issue 存在且确实受影响时同步相应记录；不存在时不创建。
 
-- **Outcome**: Bug fixed with regression test, root cause documented, debug artifacts cleaned
-- **Done when**: Bug no longer reproduces, regression test passes, instrumentation removed, root cause in commit/PR message
-- **Evidence**: Reproduction loop passes, test fails on old code/passes on new
-- **Output**: Root cause, fix, confirmation, test location, regression guard
+## 约束
 
-## Process Summary
+- 不强制测试先行、回归测试、固定日志、固定阶段数或子代理；它们在当前任务确有诊断价值且获授权时才是选项。
+- 不把“无法运行复现”写成“问题已修复”；交付时分别报告根因、改动和验证证据。
+- 修一个实例时检查同一根因是否直接相邻的调用点；只修当前授权范围，其余明确列出。
+- 运行命令、写入测试、数据库操作、提交和推送分别遵循当前授权；调试技能本身不扩大这些权限。
 
-**Stage 0 (Context Setup)**: Apply the [Skill Entry Protocol](../rules/entry-protocol.md) — it locates and reads `CONTEXT.md`, ADRs, and PRDs for you. Domain vocabulary helps form accurate hypotheses.
+## 交付
 
-**Stage 1 (Quick Locate)**: Root cause analysis — form 1-2 hypotheses, validate, output one-sentence root cause. If quick validation fails (hypotheses refuted or none explains all symptoms), escalate to Stage 2.
-
-**Stage 2 (Systematic Fix)**: 6-phase loop
-- Phase 1: Build feedback loop — construct deterministic repro (the critical skill)
-- Phase 2: Reproduce — run loop, confirm bug appears (or output a HITL repro guide when the loop can't run autonomously)
-- Phase 3: Hypothesize — generate 3-5 ranked falsifiable predictions
-- Phase 4: Instrument — add targeted logging with persistence + ordering for each prediction
-- Phase 5: Fix + regression test — write test first if correct seam exists
-- Phase 6: Cleanup + retrospective — remove debug logs + `DEBUG/` artifacts, document proof
-
-See [REFERENCE.md](REFERENCE.md) for detailed phases, optional modes (bisect, scope scan), and quality gates.
-
-## Optional Modes
-
-**Bisect mode**: Triggered by "used to work", "broke after update", or user recalls specific good commit/version
-
-**Scope scan mode**: Triggered after root fix, before declaring done, or user says "check similar areas"
-
-## Gotchas
-
-| What happened | Rule |
-|---|---|
-| Fix client pane instead of local pane | Trace execution path before touching files |
-| Say "try again" or "I'm confident" | Write hypothesis; run instrumentation to prove (anti-pattern #32 — fix without instrumentation) |
-| Instrumentation only to stdout, lost after loop | Persist probes to `DEBUG/<session>-<n>.log` with sequence+timestamp so evidence survives and ordering is analysable (race bugs) |
-| Can't reproduce autonomously, skip repro | Stop and output a HITL repro guide; wait for the user's report before hypothesizing |
-| MCP not loading, switch tools instead of diagnose | Check server status, API key, config first |
-| Compile passes but UI looks wrong | Move up Runtime Evidence Ladder, verify rendered surface |
-| Fix one instance, ignore siblings | After fix, grep pattern and fix or report each instance (anti-pattern #21) |
-| Fix needs >5 files | Pause and confirm scope with user |
-
-## Output (Success)
-
-```
-Root cause:    [what broke, file:line]
-Fix:           [what changed, file:line]
-Confirmation:  [evidence fix works or test]
-Test:          [pass/fail count, regression test location]
-Regression:    [test file:line] or [none, reason]
-Status:        resolved | resolved with caveats | blocked
-```
-
-**Regression guard:** For recurrence, fix not complete until regression test exists (fails on old, passes on new), lives in project suite, and commit message explains prevention.
-
-**PRD Traceability:** If PRD exists, fill `Debugged by` in its `## Traceability`:
-```markdown
-- **Debugged by**: `/debug` (<YYYY-MM-DD>) — <one-line root cause + fix summary>
-```
-
-Next: Run `/review` for non-trivial fixes. For simple fixes with clear regression tests, review is optional.
-
-## Output (Handoff — after 3 falsified hypotheses in Stage 2)
-
-Emitted from Stage 2 Phase 4 when 3 hypotheses have been falsified without identifying the cause (see REFERENCE.md §Phase 4).
-
-```
-Symptom: [original error]
-
-Tested hypotheses:
-1. [h1] → [test] → [result]
-2. [h2] → [test] → [result]
-3. [h3] → [test] → [result]
-
-Evidence: [logs, stack traces, repro steps, environment]
-Excluded: [ruled out root causes]
-Unknown:  [what remains unclear]
-
-Suggested next: [next direction, tools needed, context required]
-Status: blocked
-```
-
-Share this handoff with a fresh agent session, or provide additional info and re-run /debug.
+报告：根因及位置、修复内容、实际证据、未验证边界；存在未授权或范围外同类问题时单列，不自动扩展修复。

@@ -2,7 +2,7 @@
 
 ## 用途
 
-单条技术研究记录的格式模板。由 `research` skill 生成。每条记录回答「在某个 stack 的某个 major 版本下，某个 topic 的最佳实践是什么」，基于权威信源，且不可变（immutable）。
+单条**持久化**技术研究记录的格式模板，由 `research` 阶段在用户要求或结论需要跨任务复用时使用。每条记录回答「在某个 stack 的某个 major 版本下，某个 topic 的最佳实践是什么」，基于权威信源，且不可变（immutable）。普通一次性调研保留在对话中，不需要套用本模板。
 
 ## 文件位置与命名
 
@@ -62,7 +62,7 @@ verified → stale → (re-researched: new -<newmajor>.md | deprecated)
 
 ## TL;DR
 
-<2-3 lines: verdict + key trade-off. INDEX's "one-line verdict" is a further distillation of this. Downstream skills (e.g. /think Step 5) read only this by default to make a decision.>
+<2-3 lines: verdict + key trade-off. INDEX's "one-line verdict" is a further distillation. A later task reading this record can use the TL;DR first and open the detail only when the decision depends on it.>
 
 ## Question
 

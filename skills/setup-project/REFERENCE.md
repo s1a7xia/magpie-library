@@ -23,19 +23,19 @@
 
 ## Re-run Checklist
 
-When `docs/agents/` already exists, run this drift detection loop **before** any user interaction. Each config file is checked against the current repo state:
+When `docs/agents/` already exists and the user explicitly asks to update project configuration, check only the config files relevant to that request:
 
 | Config file | Detection check | Drift signal | Action |
 |---|---|---|---|
-| `issue-tracker.md` | `git remote -v` → does the remote match the tracker type in the file? | Remote changed (GitHub→GitLab, or no remote→local) | Present change, confirm, rewrite `issue-tracker.md` |
-| `triage-labels.md` | Check actual labels on 1-2 recent issues → do they still match the file? | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
+| `issue-tracker.md` (only if present) | Does the configured tracker still match how this project actually tracks work? | Tracker changed or was abandoned | Present change, confirm, rewrite or remove with authorization |
+| `triage-labels.md` (only if present) | Check only the labels relevant to the requested tracker update | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
-| `language.md` | Read existing value. Ask: "Is `<language>` still the right doc language for the team?" | Language preference changed | Confirm, rewrite `language.md`. If changed, trigger **Conformance Sweep** (Language Audit) |
-| **doc content** | Scan `docs/prd/`, `docs/adr/`, `docs/research/` for naming/language/format drift | Config changed (language, naming, FORMAT) | Trigger **Conformance Sweep** after overrides |
+| `language.md` | Read the existing value only when language is in scope | Language preference changed | Confirm, rewrite `language.md`; report affected docs without auto-rewriting them |
+| **doc content** | When the requested change affects existing docs, scan only those record types | Config changed (language, naming, FORMAT) | Report affected files; change them only when cleanup is authorized |
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
-| AGENTS.md/CLAUDE.md `## Agent skills` block | Does the block open with the `### Working principles` section (first-principles prompt, verbatim)? | Block was written before the working-principles rule existed — section missing | Present the missing section, confirm, rewrite the block in-place (never append a duplicate) |
-| AGENTS.md/CLAUDE.md `## Engineering principles` section | Re-run the Step 1 stack detection and script scan — does the section still match (scope blocks, line bound, dependency paths, quick-reference commands)? | Stack dimension added/removed (frontend introduced, DB added), verification scripts renamed/added, section missing entirely (pre-principles run) | Present diff, confirm, rewrite the section in-place (never append a duplicate) |
+| AGENTS.md/CLAUDE.md `## Agent skills` block | Only if the requested configuration touches this block: are its recorded project facts still accurate? | Structure, language, or configured-record paths changed | Present the affected section and update it in place with confirmation |
+| AGENTS.md/CLAUDE.md `## Engineering principles` section | Only if principles are in scope: check them against the current stack and real commands | Stack or verification commands changed | Present the diff and update the section only when requested |
 
 **If no drift detected in any section**, tell the user: "All config is current — no changes needed." and stop.
 
@@ -43,12 +43,12 @@ When `docs/agents/` already exists, run this drift detection loop **before** any
 
 When re-running, follow this sequence:
 
-1. **Read current config** — load all existing `docs/agents/*.md` files before detecting anything new
-2. **Run the Re-run Checklist** (above) — detect drift per config file
+1. **Read the affected config** — load only the `docs/agents/*.md` files relevant to the requested change
+2. **Run the relevant Re-run Checklist rows** — do not expand into an unrelated project audit
 3. **Present diff** — show what changed vs what stayed the same. Only ask about changed sections.
 4. **Update selectively** — rewrite only files that need changes. Leave untouched files alone.
 
-If the user says "update repo map" or "switch issue tracker", focus on that section only. Still run the full checklist first to verify nothing else drifted.
+If the user says "update repo map" or "switch issue tracker", keep the change to that configuration area.
 
 ## Migration (Structural Changes)
 
@@ -57,9 +57,9 @@ When the repo's structure has changed significantly since the last setup-project
 | Previous state | Current state | Migration actions |
 |---|---|---|
 | **Single repo** | **Monorepo** (workspace files detected) | Add per-package `docs/agents/` dirs for packages with their own domain scope. Update `domain.md` to mention multi-context option. If `CONTEXT-MAP.md` was created, reference it in `domain.md`. |
-| **Single repo** | **Multi-repo** (user mentions sibling repos) | Create `repo-map.md` listing all repos. Update `issue-tracker.md` to reference the primary tracker. Ask: "Which repo owns the primary issue tracker for cross-repo features?" |
+| **Single repo** | **Multi-repo** (user mentions sibling repos) | Create `repo-map.md` listing all repos. Add tracker ownership only if the project uses Issues. |
 | **Monorepo** | **Single repo** (workspace removed) | Remove per-package `docs/agents/` dirs (**ask first** — destructive). Simplify `domain.md` back to single-context. If `CONTEXT-MAP.md` was removed, remove references to it. |
-| **Multi-repo** | **Single repo** | Remove `repo-map.md` (**ask first** — destructive). Simplify `issue-tracker.md` to point to this repo's tracker. |
+| **Multi-repo** | **Single repo** | Remove `repo-map.md` (**ask first** — destructive). Remove tracker ownership only if it is no longer valid. |
 | **Monorepo** | **Multi-repo** (packages split into separate repos) | Move per-package config to the new repos (`repo-map.md` + per-repo `docs/agents/`). Ask: "Which repo gets the shared domain docs?" |
 | Any structure | **Reorganized domain dirs** (e.g. `docs/prd/` renamed or split across contexts) | Update `domain.md` with new paths. Check if old paths have stale files and ask about cleanup. |
 
@@ -67,7 +67,7 @@ When the repo's structure has changed significantly since the last setup-project
 
 ## Conformance Sweep (Re-run Only)
 
-After config overrides are confirmed, sweep existing domain docs for drift against the new settings. This runs **after** Step 4 but **before** writing files.
+Only when the requested configuration changes an existing document rule, sweep the affected records for drift against that rule.
 
 ### Naming Audit
 
@@ -83,7 +83,7 @@ For each mismatch: report `<file> does not match convention — expected <patter
 
 ### Language Audit
 
-Read `docs/agents/language.md` for expected language. Scan each file's first 3 lines of prose:
+When documentation language is explicitly in scope, read `docs/agents/language.md` and scan only the affected files:
 
 - If detected language differs from setting → flag the file
 - Do NOT auto-translate; report the file as needing an authorized content update
@@ -134,7 +134,7 @@ dev-workflow / think / research / grill / story / implement / review / debug / s
 
 Consumer skills reference these config files via the [Skill Entry Protocol](../rules/entry-protocol.md), which reads `docs/agents/` at startup. Without this setup, consumer skills degrade to guesses and defaults (entry protocol "If missing" paths).
 
-When the project structure changes, re-running `/setup-project` updates the config layer so all downstream skills continue to read correct paths.
+When the project structure changes, re-running the `setup-project` stage updates the config layer so downstream stages continue to read correct paths.
 
 ## Step 1: Explore
 
@@ -186,7 +186,7 @@ If multi-repo, collect the repos one at a time — one repo per message, each fi
 - **Repo name/slug** — e.g., `backend`, `frontend`, `shared`
 - **Remote URL** — so skills can reference it
 - **Domain role** — what the repo does (API server, web app, shared library, infrastructure)
-- **Issue tracker** — which repo's issues should skills use for story creation? (usually the "main" or "frontend" repo)
+- **Issue tracker** — optional; if Issues are used, which repo owns them?
 
 Record this as `docs/agents/repo-map.md` (see seed template below).
 
@@ -195,7 +195,7 @@ Record this as `docs/agents/repo-map.md` (see seed template below).
 Summarise what's present and what's missing. Show the detected defaults:
 
 - **Project structure**: single repo / monorepo / multi-repo
-- **Issue tracker**: GitHub (if remote points to github.com), GitLab (if gitlab.com or self-hosted), or Local markdown (if no remote)
+- **Issue tracker**: optional. Detect GitHub/GitLab only as a candidate; do not enable Issue creation merely because a remote exists.
 - **Triage labels**: defaults (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix)
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
@@ -209,7 +209,7 @@ If the user wants to change something, walk through that section **one at a time
 
 ### Section A — Issue Tracker
 
-> The "issue tracker" is where issues live for this repo. Skills like `story` and `review` read from and write to it — they need to know whether to call `gh issue create`, write a markdown file under `.scratch/`, or follow some other workflow you describe.
+> The "issue tracker" is optional. Configure it only if this project actually uses Issues and the user wants AI work items published there.
 
 Options:
 - **GitHub** — issues live in the repo's GitHub Issues (uses the `gh` CLI)
@@ -233,7 +233,7 @@ Ask the user if they want to override any of the default label strings. If their
 
 ### Section C — Domain Docs
 
-> Some skills (`debug`, `implement`, `review`) read `CONTEXT.md` for domain language, `docs/adr/` for past decisions, and `docs/prd/` for product requirements. They need to know where these live.
+> Relevant skills may read `CONTEXT.md`, ADRs, and PRDs when those documents exist. This section records non-default paths; missing documents do not require setup.
 
 Options:
 - **Single-context** — one `CONTEXT.md` + `docs/adr/` + `docs/prd/` at the repo root. Most repos are this.
@@ -341,7 +341,7 @@ For shared conventions (including documentation language), see repo root `docs/a
 
 ## Step 7: Done
 
-Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later. Re-run this skill whenever the project structure changes, issue tracker switches, domain docs are reorganized, or documentation language preference changes. Re-running is always safe — it detects what changed and only touches affected files.
+Tell the user which requested configuration is now in place and which files were written. Mention that they can edit those files directly later; do not prescribe a setup refresh schedule. Re-run this skill only when the user explicitly requests a configuration update.
 
 ---
 
@@ -351,13 +351,13 @@ Each generated file is seeded from a template, customised based on the user's ch
 
 | Output file | Seed template | When used |
 |---|---|---|
-| AGENTS.md/CLAUDE.md `## Engineering principles` | [templates/engineering-principles.md](templates/engineering-principles.md) | Always (tailor per Section E; skip if the user keeps their own section) |
-| `docs/agents/issue-tracker.md` | [templates/issue-tracker-github.md](templates/issue-tracker-github.md) | Remote points to github.com |
-| | [templates/issue-tracker-gitlab.md](templates/issue-tracker-gitlab.md) | Remote points to gitlab.com or self-hosted GitLab |
-| | [templates/issue-tracker-local.md](templates/issue-tracker-local.md) | No remote (local markdown in `.scratch/`) |
-| `docs/agents/triage-labels.md` | [templates/triage-labels.md](templates/triage-labels.md) | Always (edit right-hand column to match the tracker's vocabulary) |
-| `docs/agents/domain.md` | [templates/domain.md](templates/domain.md) | Always. **Before writing:** scan `docs/prd/`, `docs/adr/`, `docs/research/` for existing files; replace the example filenames in the template's File structure section with the actual filenames, and omit empty/missing branches. On first run (no docs yet), use the template examples as-is. |
-| `docs/agents/language.md` | [templates/language.md](templates/language.md) | Always (fill in the team's chosen language) |
-| `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only |
+| `## Engineering principles` | [templates/engineering-principles.md](templates/engineering-principles.md) | Only when project principles are explicitly requested; skip when the project keeps its own section |
+| `docs/agents/issue-tracker.md` | [templates/issue-tracker-github.md](templates/issue-tracker-github.md) | Only when the project actually uses GitHub Issues and tracker configuration is requested |
+| | [templates/issue-tracker-gitlab.md](templates/issue-tracker-gitlab.md) | Only when the project actually uses GitLab Issues and tracker configuration is requested |
+| | [templates/issue-tracker-local.md](templates/issue-tracker-local.md) | Only when the project uses local markdown issues and requests tracker configuration |
+| `docs/agents/triage-labels.md` | [templates/triage-labels.md](templates/triage-labels.md) | Only after tracker configuration was explicitly requested |
+| `docs/agents/domain.md` | [templates/domain.md](templates/domain.md) | Only when domain-document paths need configuration; include only the record types the project actually uses |
+| `docs/agents/language.md` | [templates/language.md](templates/language.md) | Only when the team wants a fixed documentation language |
+| `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only, and only when requested |
 
 Read the relevant template file, apply the user's Step 4 overrides, and write the customised result to the target path.

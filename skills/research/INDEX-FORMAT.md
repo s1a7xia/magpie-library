@@ -2,13 +2,13 @@
 
 ## 用途
 
-研究知识库的索引与入口文件。位于 `docs/research/INDEX.md`。下游 skill（尤其 `/think` Step 5 的 research-first）**先查这里**：命中则复用 TL;DR，未命中才启动新研究。
+研究知识库的可选索引与入口文件。位于 `docs/research/INDEX.md`。已有索引时先查匹配记录并复用 TL;DR；只有当结论需要跨任务复用或用户要求时，才持久化新记录并更新索引。
 
 ## 文件位置
 
 `docs/research/INDEX.md`
 
-**Lazy creation**: created only when the first research record is produced; never scaffolded as an empty file (mirrors the `docs/prd/` and `docs/adr/` convention).
+**Lazy creation**: created only when the first durable research record is requested or justified; never scaffolded as an empty file.
 
 ## 双视图结构
 
@@ -70,8 +70,8 @@ Both views point to the same `<stack>-<topic>-<major>.md` files; content is not 
 
 | Status | When set | Set by |
 |---|---|---|
-| `verified` | When the research record is written | `research` skill |
-| `stale` | When any INDEX-reading skill finds the current project major is higher than the record's major | Any INDEX-reading skill (think/research/grill) — collaborative marking |
+| `verified` | When a durable research record is written | `research` stage |
+| `stale` | When a loaded stage reading the index finds the project's relevant major is higher than the record's major | The stage using the index — collaborative marking |
 | `deprecated` | When the conclusion is overturned or the stack is abandoned | Explicit human marking |
 
 ### Full format of a stale row
@@ -86,7 +86,7 @@ Example:
 | suspense-data-fetching | 18 | react@18.2.0 → 19 | Many edge cases... | react-suspense-data-fetching-18.md | stale |
 ```
 
-The re-research hint is written at the end of the verdict or in a note below the table, in the format: `→ suggest /research react suspense-data-fetching-19`. **Do not auto-trigger re-research** — that is the user's explicit call.
+The re-research hint is written at the end of the verdict or in a note below the table: `→ re-research react suspense-data-fetching-19 when requested`. **Do not auto-trigger re-research.**
 
 ## By Topic 视图规则
 
@@ -96,10 +96,10 @@ The re-research hint is written at the end of the verdict or in a note below the
 
 ## 更新规则
 
-1. **Immediate update** — the `research` skill updates both INDEX views immediately when producing a new record (mirrors PRD/ADR's "file on creation"; no batching).
-2. **Collaborative stale marking** — any skill reading INDEX marks stale immediately on detecting a version mismatch; do not wait for the next `/research`.
+1. **Immediate update** — the `research` stage updates both INDEX views when it produces a new durable record.
+2. **Collaborative stale marking** — a stage already reading the index can mark a relevant stale row when it detects a version mismatch.
 3. **Do not delete stale rows** — stale records have historical value (immutability principle, ADR-0004); keep and mark them.
-4. **Re-research produces a new row** — when the user explicitly runs `/research <stack> <topic>-<newmajor>`, a new record file is created and a new INDEX row added; the old row stays stale, not deleted.
+4. **Re-research produces a new row** — when the current request asks for research on a new major, create a new record file and row; keep the old stale row.
 
 ## 反模式
 

@@ -1,6 +1,6 @@
 interface:
   display_name: "Database Design"
-  short_description: "Model, land and migrate relational data safely"
-  default_prompt: "Use $database-design to model and land this relational data change before writing DDL."
+  short_description: "Validate relational data models before implementation"
+  default_prompt: "Use $database-design to validate this data model before implementation or DDL."
 policy:
   allow_implicit_invocation: true

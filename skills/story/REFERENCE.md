@@ -1,33 +1,33 @@
 # Story: Detailed Reference
 
-## Issue Template
+## Optional Issue Template
 
-The Issue body format (title, Meta, Parent, What to build, Acceptance Criteria, Blocked by, field rules) is defined once in [STORY-FORMAT.md](STORY-FORMAT.md) — that file is the single source, used by both `/think` (parent issues) and `/story` (child issues). Do not retype it here.
+When the project already has an Issue tracker and the current request authorizes publishing, the body format (title, Meta, Parent, What to build, Acceptance Criteria, Blocked by, field rules) is defined once in [STORY-FORMAT.md](STORY-FORMAT.md). It is not required for conversational slicing.
 
-**Do not close any parent issue** — appending the child-issues list to its body (Step 9) is the designed sync and the only allowed modification.
+If an existing parent Issue is in scope, do not close it merely because slicing completed. Synchronizing its body is the only allowed modification unless the user requests more.
 
 ## Process Detail
 
 ### Step 0: Read Project Configuration
 
-Apply the [Skill Entry Protocol](../rules/entry-protocol.md) to locate CONTEXT.md, ADR paths, and determine multi-repo scope. Read `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
+Apply the [Skill Entry Protocol](../rules/entry-protocol.md) selectively to locate only the requirements, decisions, and repository context relevant to this plan. Read tracker configuration only if the task will publish Issues.
 
 If neither `domain.md` nor `repo-map.md` exists, use default paths (`CONTEXT.md`, `docs/prd/`, `docs/adr/`).
 
-If `repo-map.md` exists and indicates issues should be created in a different repo, note this for Step 6.
+If `repo-map.md` exists and the task will publish Issues to a different repository, note this for Step 6.
 
 ### Step 1: Determine Input Source
 
 Check what input the user provided:
 
-1. **Existing PRD** — user mentions a feature name with an existing PRD file at `docs/prd/PRD-NNNN-<title>.md`, or says "break this PRD into issues"
-2. **Direct description** — user describes a feature verbally: "帮我拆分用户订阅功能的 issues", "break down the payment integration", or provides a rough spec
+1. **Existing requirement record** — an existing PRD or project specification owns the feature
+2. **Direct description** — user describes a feature or asks to break down an approved plan
 3. **Existing issue** — user references an existing issue number as the parent
 
 **PRD Issue field detection:** When an existing PRD is found, read its `## Issue` section. Three cases:
 
 - **`#<number>` present** → this is the parent issue — use it as the parent reference when creating child issues in Step 7 (Publish Issues), and update it in Step 9 (Sync Issue). Do not ask the user for the parent if it's already recorded in the PRD.
-- **`N/A — no issue tracker configured`** → `/think` Step 10a waived the parent (repo has no tracker). Create child issues with no parent reference; skip Step 9.
+- **`N/A — no issue tracker configured`** → no parent existed when the plan was recorded. If publishing is later authorized, create child issues with no parent reference; otherwise skip Issue publishing and Step 9.
 - **Field empty/missing** → no parent reference needed; treat as standalone child issues.
 
 If a PRD exists, skip to Step 5 (Draft Vertical Slices).
@@ -36,15 +36,15 @@ If no PRD exists and the user gave a direct description, proceed to Step 2 to ex
 
 ### Step 2: Extract Requirements & Quality Check
 
-**Quality check (degradation handling):** When reading an existing PRD, check for signs that `/grill` was skipped:
+**Quality check (degradation handling):** When reading an existing requirement record, check whether decisions needed for slicing are unresolved:
 
 | Signal | Meaning | Action |
 |--------|---------|--------|
-| PRD has `Open Questions` / `TODO` / `?` markers | Decisions unresolved | Note: "PRD has unresolved questions. Consider `/grill` to resolve them, or proceed and clarify during slicing." |
-| `CONTEXT.md` does not exist | No domain glossary | Proceed silently. Note domain terms found during slicing for later `/grill`. |
-| `docs/adr/` is empty or missing | No architecture decisions recorded | Proceed silently. Flag significant design decisions in issue descriptions. |
+| Requirement record has `Open Questions` / `TODO` / `?` markers | Decisions unresolved | Resolve the ones that block slicing; note the rest without requiring a separate stage. |
+| No glossary exists | No maintained domain glossary | Proceed silently. Use the project's existing terms. |
+| No ADR directory exists | No architecture decision records | Proceed silently. Do not create one merely for slicing. |
 
-If multiple signals are present (no CONTEXT.md + no ADRs + unresolved PRD), suggest: "PRD appears un-grilled. Recommend running `/grill` first before slicing, or proceed with awareness that the design may have unresolved issues."
+If unresolved decisions block a demonstrable slice, return to requirement or design clarification. Missing glossary, ADRs, or a formal validation marker is not a blocker.
 
 **When input is a direct description (no PRD):**
 
@@ -56,7 +56,7 @@ If multiple signals are present (no CONTEXT.md + no ADRs + unresolved PRD), sugg
    - What exists already (models, APIs, services related to the feature)
    - Project conventions (patterns, naming, testing style)
    - Check `CONTEXT.md` for domain glossary, `docs/adr/` for relevant decisions
-3. Ask focused clarification questions — only for genuinely ambiguous points, one decision per message with a recommended answer (anti-patterns #3, #4). Do NOT run a full brainstorming session (that's `/think`'s job).
+3. Ask focused clarification questions only for genuinely ambiguous points that affect slicing. Do NOT run a full brainstorming session; return to requirement clarification if the goal or acceptance criteria are missing.
 4. Compile findings into a requirements list.
 
 **When input is an existing PRD:**
@@ -68,15 +68,15 @@ Read `docs/prd/PRD-NNNN-<title>.md` file, understand complete requirements. Afte
 - At least 2 requirements
 - At least 1 acceptance criterion
 
-If these cannot be extracted, suggest running `/think` first — the feature is too underspecified for direct slicing.
+If these cannot be extracted, return to requirement clarification; the feature is too underspecified for direct slicing.
 
-### Step 3: Ensure PRD Exists
+### Step 3: Use the Existing Requirement Source
 
-If PRD already exists at `docs/prd/PRD-NNNN-<title>.md`: skip this step.
+If a PRD or project specification already owns this requirement, use it. Do not create a PRD solely to hold slices.
 
-If no PRD exists, before creating one, run the **PRD Conflict Check** to catch topic collisions against existing `PRD-NNNN-*.md` (resume vs create-new). The full procedure lives in [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn) — `/think` owns it as the primary PRD-creator skill; `/story` follows the same steps when it creates a minimal PRD.
+If the user explicitly wants a durable PRD and none exists, run the **PRD Conflict Check** before creating one; the full procedure lives in [think/REFERENCE.md §PRD Conflict Check](../think/REFERENCE.md#prd-conflict-check-before-assigning-nnnn).
 
-If no collision (or user chose new), create a minimal PRD. Include **only** sections where you have real information — do not leave empty headings. Use these sections:
+If no collision (or the user chose a new PRD), create a minimal PRD containing only real information — do not leave empty headings. Use these sections:
 
 | Section | Source |
 |---------|--------|
@@ -85,11 +85,11 @@ If no collision (or user chose new), create a minimal PRD. Include **only** sect
 | `Acceptance Criteria` | Derived from requirements |
 | `Out of Scope` | If the user mentioned boundaries |
 | `Technical Notes` | Findings from codebase exploration |
-| `Traceability` | Add `- **Created by**: `/story` (minimal PRD, no `/think` session)` — child issues later land in its `Sliced into` list (Step 8) |
+| `Traceability` | Add `- **Created by**: slicing stage (`story`, minimal PRD, no requirement-stage `think` pass)` — child issues later land in its `Sliced into` list (Step 8) |
 
-Sections like Research References, Feasible Approaches, Decision (ADR-lite), and Implementation Plan are `/think`'s output — do not include them.
+Sections like Research References, Feasible Approaches, Decision (ADR-lite), and Implementation Plan belong to requirement and design work; do not add them merely to hold a slice list.
 
-Write the file. This PRD will be updated in Step 8 with child issues.
+Write the file. Step 8 may record slices there when the project uses PRDs.
 
 ### Step 4: Explore Codebase (Optional)
 
@@ -97,14 +97,14 @@ If codebase not yet explored, do so to understand current state. Issue titles an
 
 ### Step 5: Draft Vertical Slices
 
-Break plan into **tracer bullet** issues. Each issue is a **thin vertical slice** that goes through all integration layers end-to-end, **not** a horizontal slice of one layer.
+Break the plan into **tracer bullet** slices. Each is a **thin vertical slice** through the layers the behavior actually needs end-to-end, **not** a horizontal slice of one layer.
 
 Slices may be 'HITL' or 'AFK':
 - **HITL** slices require human interaction at some point (architecture decisions, design reviews, UX choices). Marked for the human's project planning.
 - **AFK** slices can be implemented end-to-end without human interaction. Suitable for autonomous agent execution.
 
 **Vertical slice rules:**
-- Each slice traces one narrow but **complete** path through every layer (schema, API, UI, tests)
+- Each slice traces one narrow but **complete** path through the layers it actually changes; tests are included only when the current request requires them
 - Completed slice is demonstrable or verifiable on its own
 - Prefer many thin slices over few thick slices
 
@@ -117,17 +117,17 @@ Present proposed breakdown as numbered list. For each slice, show:
 - **Blocked by**: Other slices that must complete first (if any)
 - **User stories covered**: Which user stories this solves (if source material has them)
 
-Before presenting, self-check the draft against the four quality questions — granularity (too coarse / too fine), dependencies, merge/split candidates, HITL/AFK markings — and fix what you find. Then ask exactly one question: **"Approve this breakdown, or adjust which part?"** (with your recommendation: approve). If the user names an adjustment, revise and ask again — one decision per message (anti-patterns #3, #4).
+Before presenting, self-check the draft for granularity (too coarse / too fine), dependencies, merge/split candidates, and HITL/AFK markings. Then ask for approval with a recommended breakdown; revise only the parts the user changes.
 
-### Step 7: Publish Issues
+### Step 7: Publish Issues (Optional)
 
-Read `docs/agents/issue-tracker.md` for the issue creation convention (e.g., `gh issue create`, `glab issue create`, or writing markdown files). Read `docs/agents/triage-labels.md` for the label mapping.
+Publish only when the project already has a tracker and the current request authorizes external writes. Read its convention and labels at that point. Otherwise keep the approved list in the existing plan record or conversation.
 
 **Multi-repo:** If `repo-map.md` indicates issues should be created in a different repo, use that repo's issue tracker. Add `cross-repo` label (if configured) to issues touching multiple repos.
 
 **Issue title format**: `[PRD-NNNN] <vertical-slice-description> — <core-behavior>`. Use the same language as the user's input language; ask when unsure.
 
-For each approved slice, publish new issue to tracker. Use issue body template above. The `Meta` section must include:
+If publishing, for each approved slice use the issue body template. The `Meta` section includes:
 - **PRD**: Full PRD file path (PRD-NNNN-<title>.md)
 - **Type**: AFK or HITL
 - **Siblings**: Other child issues from the same PRD (if any)
@@ -136,11 +136,11 @@ If not otherwise indicated, these issues are considered ready for AFK agents, so
 
 Publish issues in dependency order (blockers first) so you can reference real issue identifiers in "Blocked by" fields.
 
-### Step 8: Update PRD
+### Step 8: Record the Slices
 
 **Issue title format**: `[PRD-NNNN] <vertical-slice-description> — <core-behavior>`
 
-Add created issues to PRD's `## Traceability → Sliced into` section:
+When a PRD is in use, add its slice list and dependencies to the appropriate traceability section:
 
 ```markdown
 - **Sliced into**:
@@ -154,15 +154,15 @@ Add created issues to PRD's `## Traceability → Sliced into` section:
 - `— In Progress` — Issue being implemented
 - No marker — Issue not started
 
-Fill the `Sliced by` field in the PRD's `## Traceability` section:
+If the project uses the traceability fields, fill `Sliced by`:
 
 ```markdown
-- **Sliced by**: `/story` → Child Issues above
+- **Sliced by**: slicing stage (`story`) → Child Issues above
 ```
 
-### Step 9: Sync Issue (if exists)
+### Step 9: Sync an Existing Issue (Optional)
 
-If parent Issue exists, update its body to include child issues list.
+Only if an existing parent Issue is already in scope and tracker writes are authorized, update its body with the approved slice list.
 
 ## Horizontal vs Vertical Slices
 
@@ -178,9 +178,9 @@ Issue 3: All UI components
 
 **RIGHT (Vertical):**
 ```
-Issue 1: Subscription schema + CRUD API + tests
-Issue 2: Payment flow + webhook handling + tests
-Issue 3: Management UI + E2E tests
+Issue 1: Subscription schema + CRUD API
+Issue 2: Payment flow + webhook handling
+Issue 3: Management UI
 ```
 - Each issue is verifiable independently
 - Can demo after each issue

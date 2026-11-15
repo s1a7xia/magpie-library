@@ -2,7 +2,7 @@
 
 本文记录这套组合拳在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-13。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-16。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
@@ -24,9 +24,9 @@
 
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
-| Magpie | `0.1.3887` | 必需 | 指令、技能、MCP 的统一分发与托管 |
-| Codex | `0.167.2` | 必需 | 当前主要开发 Agent |
-| Alma | `0.4.579` | 按需 | 运行观察、通知、审批和持久协调；不承担产品开发 |
+| Magpie | `0.1.4252` | 必需 | 指令、技能、MCP 的统一分发与托管 |
+| Codex | `0.169.0` | 必需 | 当前主要开发 Agent |
+| Alma | `0.4.585` | 按需 | 运行观察、通知、审批和持久协调；不承担产品开发 |
 | Herdr | `0.9.5`（`herdr-core` `0.1.20`） | 按需 | 持久会话；远程观察 Codex 时必须由 Herdr 承载会话 |
 | `dev-skills` 上游 | `0.2.11` | 溯源 | 10 个工程阶段技能的方法来源；当前文本已并入资源库 |
 | Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
@@ -105,7 +105,7 @@ winget install rtk-ai.rtk
 |---|---|
 当前 16 个技能全部勾选给 `alma, codex`，包括 `answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`team-orchestration`、`think`。
 
-Alma 的个人技能目录当前只包含 `team-orchestration` 的 Junction；“在 `library.json` 中勾选”和“该 Agent 的每个会话实际加载”仍需分开核对。
+Alma 的个人技能目录当前包含 `team-orchestration` 的 Junction，团队其余 15 个技能通过 `~/.agents/skills` 共享目录发现。`library.json` 勾选、`alma skill list` 的目录发现和每个会话的实际注入是三件事：当前 `chat.defaultSkillSelection=auto`、`chat.defaultToolSelection=auto`，按消息选择相关技能和工具，不执行全量注入。
 
 全局指令当前分发给 `codex`、`alma`：
 

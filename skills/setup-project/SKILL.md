@@ -1,29 +1,29 @@
 ---
 name: setup-project
-description: "Scaffold or update per-repo configuration for engineering skills: issue tracker convention, triage label vocabulary, domain doc layout, engineering principles (with a per-change verification quick reference), and multi-repo coordination. Run before first use of story, review, or any skill that creates issues or reads domain docs; also to add or refresh the repo's engineering principles in AGENTS.md/CLAUDE.md. Re-run when project structure changes (new repo added, tracker switched, docs reorganized, stack changed). Trigger words: setup, initialize, initialise, configure skills, issue tracker setup, new project, update config, project changed, engineering principles, 添加仓库, 配置变更, 工程原则."
+description: "仅在用户明确要求初始化或调整项目级 AI 工程约定时，生成或更新 docs/agents 配置、可选 Issue tracker 约定、领域文档路径和工程原则。普通开发不需要先运行；缺少 docs/agents、tracker 或 PRD 不触发本技能。"
 ---
 
 # Setup Project
 
 🥷 Configure the repo so skills know where to read and write.
 
-Scaffold the per-repo configuration that the engineering skills assume:
+Create or update optional project-level configuration when the user explicitly asks for it:
 
 - **Working principles** — a fixed first-principles reasoning prompt written verbatim into the `## Agent skills` rules block, so every agent session in the repo reasons from evidence
 - **Engineering principles** — a stack-tailored `## Engineering principles` section in AGENTS.md/CLAUDE.md (design-first planning, module quality, boundaries, security, concurrency, UX, reuse, maintainability, reversibility) plus a change quick-reference mapping each kind of change to its verification commands
 - **Project structure** — single repo, monorepo (multiple packages in one repo), or multi-repo (multiple related repos)
-- **Issue tracker** — where issues live (GitHub, GitLab, local markdown, or other)
+- **Issue tracker** — optional; where issues live if the project actually uses them (GitHub, GitLab, local markdown, or other)
 - **Triage labels** — the strings used for the five canonical triage roles
 - **Domain docs** — where `CONTEXT.md`, ADRs, PRDs, and the research index live; how consumer skills find them across repos
 - **Documentation language** — the language skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments), so output is readable for the team regardless of who triggers the skill
 
-This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
+This is a prompt-driven skill, not a deterministic script. Explore only the repository facts relevant to the requested setup, present what you found, confirm, then write.
 
-**Can be re-run.** If `docs/agents/` already exists, read current config first, detect what changed since last setup, present only the sections that need updating, and rewrite affected files. The user can also use this to switch issue trackers, add/remove repos from the map, or reorganize domain docs.
+**Can be re-run.** If `docs/agents/` already exists, read the relevant current config first, detect what changed since last setup, present only sections that need updating, and rewrite affected files.
 
 ## Relationship to the Entry Protocol
 
-This skill creates the configuration that the [Skill Entry Protocol](../rules/entry-protocol.md) reads at the start of every consumer skill. Without this setup, consumer skills fall back to default paths and guesses.
+This skill creates optional configuration that the [Skill Entry Protocol](../rules/entry-protocol.md) may read. Without it, consumer skills use relevant repository facts, existing docs, and reasonable defaults; missing configuration is not a defect.
 
 | Config file | Entry Protocol Step | What it tells the consumer skill |
 |---|---|---|
@@ -33,13 +33,13 @@ This skill creates the configuration that the [Skill Entry Protocol](../rules/en
 | `docs/agents/language.md` | Step 1 | Language for all human-facing prose (PRDs, ADRs, CONTEXT, Issues, comments) |
 | `docs/agents/repo-map.md` | Step 2 (if exists) | Multi-repo structure — which repos exist, which owns the primary issue tracker |
 
-This is not a consumer skill — it is the **foundation** that consumer skills depend on. The Entry Protocol's "If missing" degradation paths ensure skills still work without setup-project, but with reduced precision.
+This is not a normal development stage. Consumer skills remain usable without it; setup only improves explicit project conventions when those conventions are worth persisting.
 
 ## Outcome Contract
 
-- **Outcome**: `docs/agents/` directory with issue-tracker, triage-labels, domain docs, documentation language, and (for multi-repo) repo-map; `## Agent skills` block in AGENTS.md/CLAUDE.md opening with the fixed Working principles (first-principles) prompt, followed by the tailored `## Engineering principles` section with its change quick-reference. On re-run: conformance sweep results — naming, language, and format audit of existing doc files.
-- **Done when**: User confirms configuration, all files written, AGENTS.md updated
-- **Evidence**: `docs/agents/issue-tracker.md`, `docs/agents/triage-labels.md`, `docs/agents/domain.md`, `docs/agents/language.md`; `docs/agents/repo-map.md` (multi-repo only); `## Engineering principles` section present and tailored (scope matches detected stack, quick-reference commands are real repo commands)
+- **Outcome**: The project configuration the user explicitly requested — relevant `docs/agents/*.md` files and/or a tailored `## Agent skills` / `## Engineering principles` section. Tracker, triage, domain docs, and language files are created only when the project actually uses them. On re-run: conformance findings limited to the configuration being updated.
+- **Done when**: User confirms the requested configuration, selected files are written, and AGENTS.md/CLAUDE.md is updated only when requested
+- **Evidence**: The explicitly requested config files and/or principles updates; no placeholder tracker or domain files merely to complete setup
 - **Output**: Summary of configuration, next step to use engineering skills
 
 ## Process Summary
@@ -50,9 +50,9 @@ This is not a consumer skill — it is the **foundation** that consumer skills d
 
 **Step 3: Present findings** — show detected defaults (project structure, issue tracker, triage labels, domain layout, documentation language). If updating, show a diff of what changed vs current config.
 
-**Step 4: Ask for overrides** — present the full detected configuration as a draft; ask if anything needs changing. If the user wants to change something, walk through that section one at a time. Sections: A (Issue Tracker), B (Triage Labels), C (Domain Docs), D (Documentation Language), E (Engineering Principles — scope, line bound, dependency paths, quick-reference commands). If everything looks good, proceed.
+**Step 4: Ask for overrides** — present only the configuration sections the user asked to create or change. Ask one section at a time. A tracker and triage labels are included only when the project actually uses Issues.
 
-**Step 4a (Re-run only): Conformance sweep** — After config overrides are confirmed, scan `docs/prd/`, `docs/adr/`, `docs/research/` for files that don't match the new settings. Group findings by naming, language, format, and metadata. For naming violations suggest rename; for language and format/metadata report only. Confirm with user before acting. See [REFERENCE.md](REFERENCE.md) Conformance Sweep.
+**Step 4a (Re-run only, affected records)** — Only when the requested config change affects existing records, inspect those records for relevant naming, language, format, or metadata drift. Report findings; rename or rewrite only with authorization. See [REFERENCE.md](REFERENCE.md) Conformance Sweep.
 
 **Step 5: Confirm** — show the complete draft of all files to be written (AGENTS.md block + each `docs/agents/` file). If updating, show only files that changed.
 
@@ -88,28 +88,22 @@ See [REFERENCE.md](REFERENCE.md) for seed templates and detailed steps.
 
 ## Output
 
-**First run:**
+**Requested configuration:**
 ```
 Setup complete.
 
 Configuration:
 - Project structure: <single / monorepo / multi-repo>
-- Issue tracker: <GitHub / GitLab / Local / Other>
-- Triage labels: <defaults / customised>
-- Domain docs: <single-context / multi-context>
-- Documentation language: <English / Chinese / Other>
+- Issue tracker: <configured, or omitted when the project does not use one>
+- Domain docs: <configured paths, or omitted when not requested>
+- Documentation language: <configured, or follow the user's current language>
 
 Updated files:
-- AGENTS.md — added ## Agent skills block (opens with the Working principles prompt) + ## Engineering principles section (stack-tailored, with change quick reference)
-- docs/agents/issue-tracker.md — created
-- docs/agents/triage-labels.md — created
-- docs/agents/domain.md — created
-- docs/agents/language.md — created
-- docs/agents/repo-map.md — created (multi-repo only)
+- <only files actually requested and written>
 
-Skills now configured: dev-workflow, think, research, grill, story, implement, review, debug, setup-project
+Skills now configured: dev-workflow plus only the project-specific skills this setup actually needs
 
-Next: Start using skills. Run /think to brainstorm a feature, /research for technical investigation, or /debug to investigate a bug.
+Next: continue normal development. `dev-workflow` routes stages internally; do not require manual stage commands.
 ```
 
 **Re-run (config update):**

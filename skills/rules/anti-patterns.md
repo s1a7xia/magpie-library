@@ -1,14 +1,14 @@
 # Anti-Patterns: Cross-Skill Behavioral Constraints
 
-Behavioral constraints that always apply. Regardless of active skill. Per-skill gotchas stay in each SKILL.md.
+Behavioral constraints shared by the workflow stages. They apply when a stage loads this bundle; per-skill gotchas stay in each SKILL.md.
 
-Every rule in the main table below has at least one consumer skill that cites it by number (see `docs/audits/2026-07-03-anti-pattern-citation-audit.md` for the original audit; a repo-wide citation sweep accompanies each rule change). Rules without a consumer are archived at the bottom — retrievable, but off the always-loaded path.
+Every rule in the main table below has at least one consumer skill that cites it by number (see `docs/audits/2026-07-03-anti-pattern-citation-audit.md` for the original audit; a repo-wide citation sweep accompanies each rule change). Rules without a consumer are archived at the bottom — retrievable, but outside the routed path.
 
 | # | Anti-Pattern | Wrong Way | Right Way |
 |---|--------------|-----------|-----------|
 | 1 | Act before reading / trust stale memory | Start editing after the first sentence of a request; or act on "we discussed this before" without re-verifying current state | Read the full message and re-verify current state before acting. Re-reading current state applies at every scope — a single request, session memory, and (per #34/#35/#36) across skills and sub-agents |
-| 3 | Batch interrogation | Pile questions into one multi-question message or a numbered list — a wall of questions the user must answer all at once, decided before any answer was heard. Includes **piggyback riders**: a main question plus "顺便确认… / please also mention X" — one message, two decisions | In interview-style elicitation (/think Q&A loop, /grill interrogation), ask exactly one **decision** per message, with your recommended answer. A second needed decision becomes the next single question — including during approval submissions, which ask for approval and nothing else |
-| 4 | Pre-computed question list | Generate the whole question list upfront and work through it; answers don't reshape later questions | Derive the next question from the user's last answer — an answer resolves a node, opens children, or closes a branch, so recompute the tree after every answer and ask the highest-value still-open node next. Terminate when the decision tree is exhausted, not when the list runs out |
+| 3 | Batch interrogation | Pile many independent decisions into one wall of questions before any answer is heard, or attach an unrelated rider to the main decision | Ask only decisions that affect the outcome. For a large ambiguous design, ask one coherent decision at a time with a recommended answer; for ordinary focused work, resolve safe defaults and report them |
+| 4 | Pre-computed question list | Generate the whole question list upfront and keep working it after answers invalidate the earlier branches | In a large ambiguous design, let each answer reshape the next question and stop when no decision affecting the deliverable remains. Do not turn routine work into an interview |
 | 5 | Do more than asked | "Fix X" becomes fix X + refactor Y + add Z | Make minimal change that satisfies request |
 | 6 | Claim without evidence | Say "this should work", "I ran tests" | Run command and paste output, or note `(verified: <command>)` |
 | 8 | Premature abstraction | See two similar lines, extract helper | Wait until repetition proven and stable |
@@ -26,27 +26,27 @@ Every rule in the main table below has at least one consumer skill that cites it
 | 28 | Silent assumption of choice | Task has multiple valid interpretations; agent picks one and edits like confirmed | State assumption and trade-offs first. If choice changes scope, user-visible behavior, cost, or rollback path, ask before editing |
 | 29 | Weak success contract | "Make it work" becomes edits with no pass/fail criteria | Convert task to success criteria and verification command before acting. Report which checks ran or why couldn't run at end |
 | 30 | Procedural front-loading | Skill entry point starts with long procedure, before stating result, evidence, constraints, and output | Start with result contract. Keep only necessary workflow, safety, verification, and stop rules after |
-| 32 | Fix without instrumentation | Read code, form hypothesis, write fix, ship. Repeat when doesn't work | Add runtime probe (log, assertion, minimal test) before writing fix to confirm or refute the hypothesis. "Looks reasonable" is not evidence |
-| 34 | Skill-to-skill state drift | /think writes a PRD, /grill updates it, but /implement implements something different because it didn't re-read the latest PRD | When entering a skill that consumes another skill's output, always re-read the latest version of shared files (PRD, CONTEXT.md, Issues) before acting on them. Never cache a file read from a previous skill invocation. |
-| 35 | Sub-agent state leakage | A sub-agent reuses conclusions, cached understanding, or intermediate state from another sub-agent or from the orchestrator's earlier phase. Example: Develop Sub-Agent assumes Test Sub-Agent's interpretation of a requirement without re-reading the PRD. | Each sub-agent independently re-reads all shared context files (PRD, Story, Issues, CONTEXT.md, ADRs) from disk before acting. No shared memory, no cached understanding, no assumptions carried over from another sub-agent's execution. |
+| 32 | Fix without evidence | Read code, form a guess, edit, and claim success without evidence that connects the change to the observed failure | Trace the failure through code and existing outputs; when available and authorized, use a relevant probe, log, test, or reproduction to confirm the hypothesis. If runtime evidence is unavailable, separate static diagnosis from verified behavior |
+| 34 | Stage-to-stage state drift | `think` writes a PRD, `grill` updates it, but `implement` implements something different because it did not re-read the latest PRD | When entering a stage that consumes another stage's output, re-read the latest version of shared files (PRD, CONTEXT.md, Issues) before acting on them. Never cache a file read from an earlier stage. |
+| 35 | Delegated-context state leakage | A delegated context reuses conclusions, cached understanding, or intermediate state instead of checking the current facts it needs | Delegation is optional and requires authorization. When used, the delegated context reads the relevant current files or diff from disk and does not inherit permissions or unverified conclusions |
 | 36 | Session recovery | After session interruption (crash, context compression, manual resume), continue from where you think you left off without re-reading current state | On session resume or skill re-entry: (1) re-read the latest user message, (2) re-read shared context files (PRD, CONTEXT.md, ADRs, relevant issues), (3) verify any in-progress artifacts (test files, code changes) still exist on disk, (4) state what was recovered and confirm with user before continuing. Never assume artifacts from previous session exist without checking. |
 | 37 | Silent PRD duplicate | Create a new `PRD-NNNN` by auto-assigning max+1 without comparing the topic against existing PRDs — a different session may have already started the same one (e.g. PRD-0001 + PRD-0002 on `block-ui`) | Before assigning a new PRD number, scan `docs/prd/` and compare the topic by title slug and `## Goal` against existing `PRD-NNNN-*.md`. On a candidate collision, ask whether to resume the existing PRD (reuse its NNNN) or create a new one with a distinct title. Never silently merge or silently duplicate. See think/REFERENCE.md §PRD Conflict Check |
-| 38 | Restate shared rules | Copy a cross-skill shared rule (e.g. sub-agent independence, session recovery, PRD-conflict check) verbatim into a SKILL.md/REFERENCE.md instead of linking to its single home in `rules/` | Cross-skill shared behavioral rules live once in `rules/`. Skills link to them: "Apply [../rules/anti-patterns.md](../rules/anti-patterns.md) #NN." Skill-specific operational content (checklists, role-specific file lists) stays in the skill. One edit propagates; restatements drift. |
+| 38 | Restate shared rules | Copy a cross-skill shared rule (e.g. delegation boundaries, session recovery, PRD-conflict check) verbatim into a SKILL.md/REFERENCE.md instead of linking to its single home in `rules/` | Cross-skill shared behavioral rules live once in `rules/`. Skills link to them: "Apply [../rules/anti-patterns.md](../rules/anti-patterns.md) #NN." Skill-specific operational content stays in the skill. One edit propagates; restatements drift. |
 
 ## Usage
 
-These rules apply to all skills. When encountering a situation in the rules, reference the "Right Way" column.
+These rules apply when a stage loads this bundle. When encountering a situation in the rules, reference the "Right Way" column.
 
 When adding new rules:
 1. Check if similar rule already exists
 2. If exists, update existing rule rather than add new
 3. Ensure rule is general enough to apply to multiple skills
 4. Keep format consistent
-5. **Name a consumer skill.** Before a rule enters the main table, identify at least one skill whose SKILL.md or REFERENCE.md will cite it by number. A rule with no consumer is dead weight on the always-loaded path — archive it or hold it until a skill needs it. Run the repo-wide citation sweep after any renumbering (rule #21's lesson: renumbering without a sweep caused the `#36`→`#34` citation drift fixed in the 2026-07-03 audit).
+5. **Name a consumer skill.** Before a rule enters the main table, identify at least one skill whose SKILL.md or REFERENCE.md will cite it by number. A rule with no consumer is dead weight on the routed path — archive it or hold it until a skill needs it. Run the repo-wide citation sweep after any renumbering (rule #21's lesson: renumbering without a sweep caused the `#36`→`#34` citation drift fixed in the 2026-07-03 audit).
 
 ## Archive
 
-Rules moved off the always-loaded path because no skill cites them. Numbers are frozen (never reused, never renumbered). A rule returns to the main table when a skill actually cites it.
+Rules moved outside the routed path because no skill cites them. Numbers are frozen (never reused, never renumbered). A rule returns to the main table when a skill actually cites it.
 
 | # | Anti-Pattern | Why archived |
 |---|--------------|--------------|

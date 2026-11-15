@@ -1,6 +1,6 @@
 # 当前工作流机制与日常用法
 
-更新日期：2026-11-13。这是使用说明，不替代项目授权。
+更新日期：2026-11-16。这是使用说明，不替代项目授权。
 
 当前主线是 Codex 主开发、dev-workflow 自动路由、工程阶段按需读取；Alma 只在需要会话观察、通知、审批转达或持久协调时启动。Magpie 负责指令、MCP 和技能分发，不参与业务决策。
 
@@ -27,7 +27,7 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
 | MCP | 搜索、数据库、Git 托管、SSH、图片等 9 项执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单：16 个资源库技能（含 10 个工程阶段技能） | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
+| Skills | 按任务加载的方法和检查清单：16 个资源库技能（含 10 个工程阶段技能）；只有入口和业务规范常驻可发现 | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
 | Alma | 按需的人类驾驶舱：查看已连接会话、通知、审批和持久协调 | 用户手动启动的 Alma 应用，默认不写代码 |
 
@@ -41,9 +41,11 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | “排查这个接口 500 并最小修复” | 先定位根因，再修直接受影响路径；测试按当前授权执行 |
 | “按闭环做：……。验收：……” | 在当前授权内连续实现、核对、审查和收尾；未另明确测试或运行验收时，不把静态核对写成运行通过 |
 | “先整理需求，不改代码” | 输出需求、边界、验收项和未决问题，然后停止 |
-| “这个方案我还没定，先分析” | 按需用 `think` / `grill` 收敛；只有多切片交付才需要 PRD/`story` |
+| “这个方案我还没定，先分析” | 按需进行需求与方案收敛；PRD、Issue 和切片按项目已有记录决定 |
 
-任务清楚时不需要斜杠命令。`think`、`grill`、`story`、`implement`、`review` 是按需方法，不是每次都必须走完的流程。`dev-workflow` 是唯一开发路由；`team-orchestration` 仅处理明确授权的独立审查、委派或 Alma 协调。
+任务清楚时不需要斜杠命令，也不需要手动指定 `think`、`grill`、`story`、`implement`、`review`。`dev-workflow` 是唯一开发路由，阶段按需读取；数据库建模只在模型尚未确定或发生结构性变化时由 `database-design` 处理，已确认的字段落表由 `ruoyi6` 承接；`team-orchestration` 仅处理明确授权的独立审查、委派或 Alma 协调。
+
+按需加载不是“所有技能都隐藏”：Codex 新会话只把 `dev-workflow`、`database-design`、`ruoyi6` 和 `answer-me-with-html` 放进可自动发现的技能列表，其余内部阶段由入口读取。Alma 使用 `defaultSkillSelection=auto` 和 `defaultToolSelection=auto`；`alma skill list` 是目录清单，不代表每轮全量注入。
 
 ## 3. 闭环怎么验收
 
