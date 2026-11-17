@@ -31,6 +31,8 @@ When `docs/agents/` already exists and the user explicitly asks to update projec
 | `triage-labels.md` (only if present) | Check only the labels relevant to the requested tracker update | Labels renamed, added, or deprecated | Present change, confirm, rewrite `triage-labels.md` |
 | `domain.md` | Does `CONTEXT-MAP.md` exist now when it didn't before? Were domain dirs (`docs/prd/`, `docs/adr/`, `docs/research/`) reorganized? | Context layout changed (single↔multi), dirs moved | Present change, confirm, rewrite `domain.md` |
 | `language.md` | Read the existing value only when language is in scope | Language preference changed | Confirm, rewrite `language.md`; report affected docs without auto-rewriting them |
+| Existing project status document (if present) | Does it still describe the current stage and next action? | Status is stale or contradicted by evidence | Reconcile only affected facts; reuse the document without adding configuration |
+| No status document yet | Does the requested initialization need durable tracking? | Large, multi-session, or multi-stage project with no equivalent existing record | Include one initial status document in the requested setup; skip small work |
 | **doc content** | When the requested change affects existing docs, scan only those record types | Config changed (language, naming, FORMAT) | Report affected files; change them only when cleanup is authorized |
 | `repo-map.md` (if exists) | Has the project structure changed? (Workspace files added/removed? User mentions sibling repos?) | Package count changed, repos added/removed, project type (single↔mono↔multi) changed | Present diff, confirm, rewrite `repo-map.md`. If project type changed → trigger **Migration** path below |
 | (no `repo-map.md` yet) | Detect new multi-repo or monorepo signals: workspace files, user mentions sibling repos, subproject dirs | New structure signals found | Ask if project structure changed, create `repo-map.md` if needed |
@@ -199,6 +201,7 @@ Summarise what's present and what's missing. Show the detected defaults:
 - **Triage labels**: defaults (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix)
 - **Domain docs**: single-context (one CONTEXT.md + docs/adr/ at root) or multi-context (CONTEXT-MAP.md exists)
 - **Documentation language**: undetected by default — present as "please choose" (see Section D). If existing PRDs/ADRs/CONTEXT.md are consistently in one language, offer that as the recommended default.
+- **Project state**: present only when the work is large, multi-session, or multi-stage, or the user asks for durable status tracking (see Section D2).
 - **Engineering principles**: detected stack scope (fullstack / backend-only / frontend-only; multi-tenant yes/no) and candidate quick-reference commands, from the Step 1 stack detection (see Section E)
 
 ## Step 4: Ask for Overrides
@@ -255,6 +258,14 @@ This is a **single language for the whole project** — it applies uniformly to 
 **Detection heuristic (Step 3):** there is nothing in the repo that reliably reveals the team's preferred doc language, so do **not** guess. Surface this section as "undetected — please choose" and let the user pick. If `CONTEXT.md` or existing PRDs already exist and are consistently in one language, offer that as the recommended default.
 
 **Common pitfall:** the user typing the command is not necessarily the audience. A Chinese-speaking developer may still want English docs for an international team. Ask which language the *team* reads, not which language the conversation is in.
+
+### Section D2 — Project State
+
+For large, multi-session, or multi-stage work, reuse the existing status document or task board. If none exists and initialization is requested, create `docs/project-state.md` from `templates/project-state-document.md` with verified current facts. Small work needs no new status document.
+
+Use one task list with stable IDs and statuses, or link the existing task tracker. Include the current iteration, next action, known remaining work, risks, blockers, and acceptance evidence. Distinguish this iteration's remaining work from the whole project's known backlog; mark unsliced scope explicitly rather than inventing completion percentages.
+
+Do not create a separate path-config file. A non-default path belongs in existing project AGENTS.md/CLAUDE.md when needed. Do not copy mutable status into instructions or duplicate PRDs and task lists. Setup initializes the record, not a background sync service; ongoing maintenance follows [Skill Entry Protocol](../rules/entry-protocol.md#project-state-maintenance).
 
 ### Section E — Engineering Principles
 
@@ -313,6 +324,11 @@ Apply first-principles reasoning to engineering work. Establish WHAT before dete
 
 [one-line summary — e.g. "all docs in English"]. See `docs/agents/language.md`.
 
+<!-- Only when configured -->
+### Project state
+
+[Link the existing status document, otherwise docs/project-state.md. Reconcile code facts before work; update changed task and acceptance status before handoff.]
+
 <!-- Multi-repo only: include this section -->
 ### Repo map
 
@@ -320,6 +336,8 @@ Apply first-principles reasoning to engineering work. Establish WHAT before dete
 ```
 
 Then write the docs files using the seed templates in [templates/](templates/).
+
+When project state is requested, reuse the existing record; only if absent, seed `docs/project-state.md` from [templates/project-state-document.md](templates/project-state-document.md). Replace placeholders with verified facts, write unknowns explicitly, and translate prose to the project documentation language. Do not add a path-config file or migrate existing project docs without authorization.
 
 **The `## Engineering principles` section** — written into the same file, immediately after the `## Agent skills` block, from [templates/engineering-principles.md](templates/engineering-principles.md). Apply the Section E tailoring: drop inapplicable conditional blocks, fill placeholders from detected evidence, render in the Section D language. If the section already exists, update it in-place — never append a duplicate. If the user chose "adopt as-is" in Section E, skip writing it.
 
@@ -357,6 +375,8 @@ Each generated file is seeded from a template, customised based on the user's ch
 | | [templates/issue-tracker-local.md](templates/issue-tracker-local.md) | Only when the project uses local markdown issues and requests tracker configuration |
 | `docs/agents/triage-labels.md` | [templates/triage-labels.md](templates/triage-labels.md) | Only after tracker configuration was explicitly requested |
 | `docs/agents/domain.md` | [templates/domain.md](templates/domain.md) | Only when domain-document paths need configuration; include only the record types the project actually uses |
+
+| `docs/project-state.md` | [templates/project-state-document.md](templates/project-state-document.md) | Only when requested setup needs durable tracking and no equivalent record exists; use verified current facts |
 | `docs/agents/language.md` | [templates/language.md](templates/language.md) | Only when the team wants a fixed documentation language |
 | `docs/agents/repo-map.md` | [templates/repo-map.md](templates/repo-map.md) | Multi-repo only, and only when requested |
 

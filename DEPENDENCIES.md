@@ -1,17 +1,15 @@
-# Magpie 组合拳依赖与换机恢复
+# Magpie + Codex 依赖与换机恢复
 
-本文记录这套组合拳在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
+本文记录这套组合在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-16。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-17。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
-要得到相同的工作方式，以下五类内容需要一起恢复：
-
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
-| 全局协作指令 | 团队角色、协作闭环、权限和已有改动保护 | 唯一正文在 `instructions.md`；项目专属规则留在项目 `AGENTS.md` |
-| 16 个资源库技能 | 业务规范、协作、回答呈现与工程阶段方法 | 在 `skills/` |
+| 全局工程指令 | 工作原则、授权、验证和已有改动保护 | 唯一正文 `instructions.md`；项目专属规则留在项目 `AGENTS.md` |
+| 16 个资源库技能 | 业务规范、工程阶段方法、回答呈现与可选支撑 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -25,14 +23,11 @@
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
 | Magpie | `0.1.4252` | 必需 | 指令、技能、MCP 的统一分发与托管 |
-| Codex | `0.169.0` | 必需 | 当前主要开发 Agent |
-| Alma | `0.4.585` | 按需 | 运行观察、通知、审批和持久协调；不承担产品开发 |
-| Herdr | `0.9.5`（`herdr-core` `0.1.20`） | 按需 | 持久会话；远程观察 Codex 时必须由 Herdr 承载会话 |
-| `dev-skills` 上游 | `0.2.11` | 溯源 | 10 个工程阶段技能的方法来源；当前文本已并入资源库 |
-| Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
+| Codex | `0.169.0` | 必需 | 当前唯一默认开发 Agent |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
 | npm / npx | `11.13.0` | 必需 | 启动 stdio MCP 和部分技能工具 |
 | Python | `3.13.14` | 必需 | 运行资源库健康检查和暂存区密钥扫描 |
+| Git | `2.54.0.windows.1` | 必需 | 版本追溯、切片提交、推送 |
 | PowerShell | `7.6.9` | 当前平台必需 | Windows 主要命令环境 |
 
 ### 2.2 按平台或场景选用
@@ -42,39 +37,11 @@
 | `gh` | `2.103.2` | 可选 | GitHub CLI 兜底；MCP 不可用时的只读排查 |
 | `glab` | `1.128.0` | 可选 | GitLab 任务和 MR；当前明确不启用 `glab mcp serve` |
 | `rtk` | `1.1.0` | 可选 | 压缩终端输出，减少上下文占用；当前 `off Codex` |
-| Magpie Browser | 扩展 0.1.9（2026-11-13 实测） | 显式页面运行检查时使用 | 由 Magpie 内置 MCP 驱动，使用用户真实 Chrome 登录态 |
+| Magpie Browser | 扩展 0.1.9（2026-11-13 实测） | 显式页面运行检查时使用 | 使用用户真实 Chrome 登录态 |
 | Google Chrome | 已安装 | 显式页面运行检查时使用 | `C:\Program Files\Google\Chrome\Application\chrome.exe` |
 | Microsoft Edge | 已安装 | 显式页面运行检查的后备 | `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe` |
 
 Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用资源库的固定前置条件。需要初始化项目约定时，从仓库实际构建文件读取命令；缺少 `docs/agents` 不是开发前置条件。
-
-### 2.3 Alma 与 Herdr 的机器状态
-
-| 项 | 位置 | 说明 |
-|---|---|---|
-| Alma 服务 | `alma-server`，监听 `127.0.0.1:23001` | `alma status` 核对；不随登录自启 |
-| Alma 配置与密钥 | `~/.config/alma/`、`~/AppData/Roaming/alma/` | 含 provider、微信凭据、中继 token，**不入库** |
-| Alma MCP 入口 | `~/.config/alma/mcp.json` | 9 项开发 MCP 直连 + 一项 Magpie `hub/alma`；均不等于写操作授权 |
-| Herdr 服务 | `~/.herdr/`、`~/AppData/Roaming/herdr/`、`~/AppData/Local/herdr-core/` | 持久终端与 pane 状态 |
-| Codex × Herdr hook | `~/.codex/hooks.json` + `~/.codex/herdr-agent-state.ps1` | `SessionStart` 上报会话 ID；由 `herdr integration install codex` 维护 |
-| 手机中继 | `relay.alma.now`，端到端加密 | 状态见 `/api/mobile-relay/status`；`phonesConnected` 才是真实在线 |
-
-远程观察的前提是 Codex 会话跑在 Herdr pane 内。Codex Desktop 直接打开的会话没有 `HERDR_PANE_ID`，Alma 不发现也不跟踪。
-
-### 2.4 可选安装命令
-
-只在确实缺少且用户同意时安装：
-
-```powershell
-# 代码托管 CLI，按实际平台选用
-winget install GitHub.cli
-winget install GLab.GLab
-
-# RTK
-winget install rtk-ai.rtk
-```
-
-安装后重新打开终端，并实际运行一次版本命令确认 PATH 生效。不要仅凭安装程序退出码判断可用。
 
 页面运行检查使用 Codex 宿主的浏览器工具；它不属于 Magpie 资源库 MCP，换机时按 Codex 自身配置恢复。
 
@@ -90,60 +57,58 @@ winget install rtk-ai.rtk
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Agent 共享目录：`C:\Users\<user>\.agents\skills\`
 
-本机 `~\.agents\skills` 的 16 项均为指向资源库的 Junction，不是独立副本；工程阶段技能也已并入这里。修改源文件后，共享目录立即看到同一内容；`magpie library sync` 负责重新写入各 Agent 的加载配置和生成物。
+本机 `~\.agents\skills` 的 16 项均为指向资源库的 Junction，不是独立副本；修改源文件后，共享目录立即看到同一内容。`magpie library sync` 负责重新写入 Codex 的加载配置和生成物。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
-- `sharedSkills=true`：技能同时放进 `~/.agents/skills`，供支持该共享目录的 Agent 和工具读取；
-- `skills[].agents`：Magpie 在界面里勾选该技能由哪些 Agent 正式启用。
+- `sharedSkills=true`：技能放进 `~/.agents/skills`，供支持共享目录的工具读取；
+- `skills[].agents`：Magpie 勾选该技能由哪些 Agent 正式启用。
 
 “共享目录里看得到”不等于“每个 Agent 都已启用”。
 
-### 3.2 当前逐 Agent 勾选
+### 3.2 当前分发
 
-| 资源库技能 | Agent |
-|---|---|
-当前 16 个技能全部勾选给 `alma, codex`，包括 `answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`team-orchestration`、`think`。
+当前 16 个技能只勾选给 `codex`：`agent-browser`、`answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`think`。
 
-Alma 的个人技能目录当前包含 `team-orchestration` 的 Junction，团队其余 15 个技能通过 `~/.agents/skills` 共享目录发现。`library.json` 勾选、`alma skill list` 的目录发现和每个会话的实际注入是三件事：当前 `chat.defaultSkillSelection=auto`、`chat.defaultToolSelection=auto`，按消息选择相关技能和工具，不执行全量注入。
-
-全局指令当前分发给 `codex`、`alma`：
+全局指令当前只分发给 `codex`：
 
 ```text
-instructions.agents = ["alma", "codex"]
+instructions.agents = ["codex"]
 ```
 
-`instructions.md` 是唯一正文源。Magpie 生成的 Codex `AGENTS.md` 和 Alma `USER.md` 都是分发副本，不手工维护第二套规则；各 Agent 的
-`instructions/<agent>.md` 只用于必要的专属追加。项目自己的 `AGENTS.md` 属于项目仓库，只记录技术栈、命令、端口和授权边界。
+`instructions.md` 是唯一正文源，Magpie 生成到 `~/.codex/AGENTS.md` 的块是分发副本，不手工维护第二套规则。项目自己的 `AGENTS.md` 属于项目仓库，只记录技术栈、命令、端口和授权边界。
+
+Alma 不在本资源库的技能或指令分发范围；它的 personal、bundled 技能与应用状态独立管理。
 
 ## 4. MCP 清单
 
-当前登记 9 项 Magpie 资源库 MCP。Codex 另有内置浏览器/computer-use 工具，不计入该清单。因为 `mcpHub = true`，实际服务由 Magpie 启动和转发。Alma 通过自己的 `~/.config/alma/mcp.json` 连接 `http://127.0.0.1:3425/mcp/magpie/hub/alma`，不占用资源库的独立条目；它的 Hub 工具集为空，只保留自己的会话、通知、审批和 Herdr 能力。
+当前登记 10 项 Magpie 资源库 MCP，只分发给 Codex。Codex 另有内置浏览器/computer-use 工具，不计入该清单。因为 `mcpHub = true`，实际服务由 Magpie 启动和转发。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
-| MCP | 传输 / 地址 | 当前 Agent | 作用与依赖 |
-|---|---|---|---|
-| `context7` | HTTP `https://mcp.context7.com/mcp` | codex | 查框架和库的官方用法 |
-| `dbhub` | stdio `npx -y @bytebase/dbhub@1.5.0 --transport stdio` | codex | 本机 PostgreSQL；完整 DSN 在 `library.json`，不在此展开 |
-| `gitee` | HTTP `https://api.gitee.com/mcp` | codex | Gitee Issue/PR；Bearer Token 在 `library.json` |
-| `github` | HTTP `https://api.githubcopilot.com/mcp/` | codex | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可作为 CLI 兜底 |
-| `magpie-image` | stdio `magpie.exe mcp image` | codex | 图片生成与识图；依赖本机 Magpie 可执行文件和模型配置 |
-| `magpie-vision` | stdio `magpie mcp vision` | codex | 独立图像识别入口；依赖 Magpie 和模型配置 |
-| `magpie-memory` | stdio `magpie.exe mcp memory` | codex | 跨 Agent 共享的项目记忆；依赖本机 Magpie 可执行文件 |
-| `magpie-web-search` | stdio `magpie.exe mcp search` | codex | 联网搜索；`research` 的首选搜索入口 |
-| `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | codex | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |
+| MCP | 传输 / 地址 | 作用与依赖 |
+|---|---|---|
+| `chrome-devtools` | stdio `npx -y @secforge/chrome-devtools-mcp` | Chrome 页面检查与调试 |
+| `context7` | HTTP `https://mcp.context7.com/mcp` | 查框架和库的官方用法 |
+| `dbhub` | stdio `npx -y @bytebase/dbhub@1.5.0 --transport stdio` | 本机 PostgreSQL；完整 DSN 在 `library.json` |
+| `gitee` | HTTP `https://api.gitee.com/mcp` | Gitee Issue/PR；Bearer Token 在 `library.json` |
+| `github` | HTTP `https://api.githubcopilot.com/mcp/` | GitHub 仓库和 Issue/PR；Bearer Token 在 `library.json`；`gh` 可兜底 |
+| `magpie-image` | stdio `magpie.exe mcp image` | 图片生成与编辑；依赖本机 Magpie |
+| `magpie-vision` | stdio `magpie.exe mcp vision` | 独立图像识别入口 |
+| `magpie-memory` | stdio `magpie.exe mcp memory` | 结构化记忆；依赖本机 Magpie |
+| `magpie-web-search` | stdio `magpie.exe mcp search` | 联网搜索；`research` 的首选入口 |
+| `ssh` | stdio `npx -y @hypnosis/ssh-mcp-server` | SSH 目标操作；读取 `SSH_PROFILES_FILE=~/.codex/ssh-profiles.json` |
 
 说明：
 
-- `dbhub` 不是通用数据库万能入口；当前配置只指向本机 PostgreSQL。换项目时先核对目标库。
+- `dbhub` 不是通用数据库万能入口；当前配置只指向本机 PostgreSQL。
 - `ssh` 只有在 `~/.codex/ssh-profiles.json` 中有对应配置时才可用。
 - `github` 与 `gitee` 的 HTTP 头部包含真实认证信息，由 Magpie 保存；不要复制到聊天、文档或截图。
 - 登记成功、进程在监听、MCP hub 显示绿色，都不等于当前 Agent 会话已挂载或已获写权限。
 
 ### 4.1 实际连通性
 
-本次核对以当前 `library.json` 和 `~/.config/alma/mcp.json` 为准：Magpie 资源库登记 9 项 MCP，Codex 会话通过 Magpie Hub 使用；Alma 同时直连这 9 项并保留 `hub/alma`。不把 Codex 宿主内置工具混算为资源库 MCP。这里核对的是配置与已登记状态，**没有对所有 MCP 的目标系统做全量业务测试**。
+本次核对以当前 `library.json` 为准：Magpie 资源库登记 10 项 MCP，Codex 会话通过 Magpie Hub 使用。Alma 的 `mcp.json` 已清空，不再连接这些开发 MCP。这里核对的是配置与已登记状态，**没有对所有 MCP 的目标系统做全量业务测试**。
 
 恢复后应按用途做一次最小只读验证：
 
@@ -172,31 +137,27 @@ instructions.agents = ["alma", "codex"]
 | `~/.config/magpie/settings.json` | Magpie 运行设置 |
 | `~/.config/magpie/backups/`、`auto-backups/` | Magpie 本机备份 |
 | `~/.codex/config.toml` | Codex 模型、MCP 等运行配置 |
-| `~/.codex/AGENTS.md` | Magpie 生成的全局指令副本 |
+| `~/.codex/AGENTS.md` | Magpie 生成的 Codex 全局指令副本 |
 | `~/.codex/ssh-profiles.json` | SSH MCP 的目标配置 |
-| `~/.agents/skills/` | Magpie 资源库技能的共享 Junction；以当前目录和快照为准 |
+| `~/.agents/skills/` | Magpie 资源库技能的共享 Junction |
 | Chrome 的 Magpie 标签组、Magpie Browser 扩展 | 页面运行检查登录态；本机浏览器状态，不入库 |
 
 原则：
 
 - 加密整包备份可以包含这些机器状态；普通 Git 仓库不能。
 - `library.json` 含有认证信息，不能直接提交或发到聊天里。
-- 浏览器登录态不由本仓库保存；显式页面运行检查直接复用 Chrome 中的真实登录，不另保存认证文件。
+- 浏览器登录态不由本仓库保存；显式页面运行检查直接复用 Chrome 中的真实登录。
 - `*.magpie-backup`、`sync.json`、`sync-state.json`、`sync.lock` 已在 `.gitignore` 中排除。
 
 ## 6. 换机恢复
 
 ### 方案 A：推荐，恢复 Magpie 加密备份
 
-这是恢复完整工作方式的路径。备份可含供应商、密钥、模型设置、Agent 配置和资源库。
-
 旧电脑：
 
 ```powershell
 magpie backup --sign-ins C:\path\to\magpie-full.magpie-backup
 ```
-
-`--sign-ins` 会把订阅和插件登录态一并封装备份；不需要时省略。备份文件本身仍受 passphrase 保护，但应视为敏感文件。
 
 新电脑：
 
@@ -221,9 +182,7 @@ magpie backup --sign-ins C:\path\to\magpie-full.magpie-backup
 
 5. 补装不属于 Magpie 整包的 CLI：Node.js、Python、Git、`gh` / `glab`、RTK，按实际项目需要选择。
 6. 在 Chrome 中加载 `C:\Users\<user>\Magpie Browser Extension`，确认 Magpie Browser 状态为 `connected: true`。
-7. 打开新的 Agent 会话，实际调用技能和一个只读 MCP，确认不是“配置存在但会话未挂载”。
-
-如果同步由 WebDAV、S3 或 GitHub 加密仓库负责，安装 Magpie 后也可以配置同一同步地址，让机器状态自动回来；恢复后仍执行 `magpie library sync` 和健康检查。
+7. 打开新的 Codex 会话，实际调用技能和一个只读 MCP，确认不是“配置存在但会话未挂载”。
 
 ### 方案 B：只有 Git 仓库
 
@@ -236,9 +195,9 @@ git clone git@github.com:s1a7xia/magpie-library.git
 还需要另外完成：
 
 1. 在 Magpie 中创建或恢复 `library.json`；
-2. 重新登记 9 个资源库 MCP 和认证信息；
+2. 重新登记 10 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
-4. 重新勾选技能分发给哪些 Agent；
+4. 把 16 个技能勾选给 Codex；
 5. 执行 `magpie library sync`；
 6. 重新建立 SSH、数据库和浏览器登录态。
 
@@ -258,7 +217,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
-- Codex 指令块存在，且与资源库正文及可选专属追加一致；
+- Codex 指令块存在，且与资源库正文一致；
 - 资源库与 `~/.agents/skills` 的文件哈希一致。
 
 它**不验证**：
@@ -291,22 +250,12 @@ magpie tools
 
 `magpie healthcheck` 只能说明 Magpie 网关有响应，不能证明每个 MCP 已连通。最终以当前 Agent 会话中的一次实际只读调用为准。
 
-### 7.4 浏览器
-
-```powershell
-Invoke-WebRequest -UseBasicParsing `
-  -Uri 'http://127.0.0.1:3425/v1/magpie/browser' `
-  -Headers @{'User-Agent'='magpie-cli'}
-```
-
-期望返回 `connected: true`，并显示 Chrome 与扩展版本。2026-11-13 本机为 Chrome 157、扩展 0.1.9，已实际完成标签读取、页面点击和关闭。换机需重新加载扩展；仅存在扩展目录不能证明已连接。
-
 ## 8. 常见故障
 
 | 现象 | 先检查什么 | 处理 |
 |---|---|---|
 | 技能改了但不生效 | 是否直接改了镜像仓库 | 改 `~/.config/magpie/library/`，再 `magpie library sync` |
-| Agent 看不到某个技能 | `skills[].agents` 是否勾选、Agent 是否重启 | 在 Magpie 中勾选，重新同步，开新会话 |
+| Codex 看不到某个技能 | `skills[].agents` 是否有 `codex`、`~/.codex/config.toml` 是否显式禁用、是否开了新会话 | 勾选给 Codex，移除 `[[skills.config]] enabled=false`，重新同步并开新会话 |
 | 全局规则不一致 | `verify-library.py` 的哈希检查 | 修正资源库 `instructions.md`，重新同步，不要手改生成副本 |
 | MCP 显示已配置但调用失败 | 当前会话是否挂载、Magpie 是否运行、认证是否过期 | 先查实际错误，再修目标；不要无变化重复重试 |
 | `dbhub` 连接失败 | 本机 PostgreSQL、端口、DSN、目标库 | 核对 DSN 和目标环境；不要把 DSN 贴进报告 |
@@ -314,10 +263,8 @@ Invoke-WebRequest -UseBasicParsing `
 | `ssh` 无目标 | `~/.codex/ssh-profiles.json` | 补配置并确认从当前工作目录出发的目标主机 |
 | 基线页不能生成 | Node.js 是否 20+ | 升级 Node.js LTS，再运行 `am.mjs` |
 | 显式页面运行检查被登录或验证码拦住 | 目标环境、账号、验证码开关 | 报告阻塞；不要在未授权时破解验证码或改认证逻辑 |
-| 页面运行检查通过但项目仍显示 `Dev Complete` | 验证结论是否落盘 | 更新项目已有的需求或验证记录；没有固定台账时不要为状态词新建目录 |
-| `review` 被当成页面运行检查 | 当前阶段是否真的走过浏览器 | 补做当前任务明确授权的页面检查；代码审查不能替代渲染验证 |
 | 推送后远端不一致 | 本地 `HEAD`、`origin/main`、远端引用 | 先 fetch 核对，不强制推送，不改写历史 |
-| Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 两种根因，先用 `output_tokens` 区分：≈4096 是输出上限未覆盖；很小且工具参数 JSON 不完整是模型退化 |
+| Codex 报 `Incomplete response returned, reason: max_output_tokens` | 见 §8.1 | 先用 `output_tokens` 区分：≈4096 是输出上限未覆盖；很小且工具参数 JSON 不完整是模型退化 |
 
 ### 8.1 `Incomplete response returned, reason: max_output_tokens`（输出上限截断）
 
@@ -378,19 +325,12 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 
 ## 9. 已知缺口
 
-这些是当前事实，不在本文里假装已经解决：
-
-1. **全局规则分发给 Codex、Alma**：两者共享同一正文；Codex 是唯一默认产品写作者，Alma 只做按需观察与协调。
-2. **技能勾选与实际加载需分开核对**：`library.json` 当前把 16 个技能都勾选给 Codex 和 Alma，但 Alma 的个人技能目录当前只有 `team-orchestration`；共享目录存在不等于每个 Agent 会话都已加载。
-3. **浏览器跨机器差异**：本机 Magpie Browser 已连接；新机器仍需在 Chrome 加载扩展并检查 `connected: true`。
-4. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
-5. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
-6. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。
-7. **版本没有锁定文件**：本文记录的是核对时版本；Magpie、Node、Python 和 CLI 升级后需要重新验证。
-8. **仓库不是可执行安装包**：它只保存可读文本；恢复运行环境仍依赖 Magpie 备份或手工重配。
-9. **远程可见性依赖 Herdr**：Codex Desktop 或普通终端直接开的会话不能被 Alma / 微信观察；需要远程盯进度时改由 `alma herdr new` 启动。
-10. **Alma 模型列表少于网关**：Alma 侧登记 12 个模型，Magpie 网关暴露 19 个，差额为 8 个 `our-free-model/*`。不影响现有链路，需要时在 Alma 中补登记。
-11. **Alma 当前可见 9 项开发工具**：配置层面扩大了可调用面；工具可见不等于已获写库、SSH 变更、提交或部署授权。
+1. **MCP 未做全量连通测试**：只核对了配置和依赖，恢复后必须逐项做最小只读验证。
+2. **`dbhub` 绑定本机 PostgreSQL**：换项目或换机器时目标可能变化，需要重新核对。
+3. **`magpie-image` 绑定本机 Magpie 路径**：换机后路径和模型配置可能不同。
+4. **版本没有锁定文件**：本文记录的是核对时版本；升级后需要重新验证。
+5. **仓库不是可执行安装包**：它只保存可读文本；恢复运行环境仍依赖 Magpie 备份或手工重配。
+6. **Alma 独立运行**：其 skills、MCP、聊天、记忆、微信和 Herdr 行为不由本资源库管理；其 `mcp.json` 已清空，不再继承开发 MCP。
 
 ## 10. 最小验收清单
 
@@ -401,9 +341,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `verify-library.py` 零错误；
 - [ ] `~/.agents/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] `dev-workflow` 入口以及 `think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project` 能被正确路由；
+- [ ] `dev-workflow` 入口以及 `think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project` 能被正确路由或显式调用；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
-- [ ] 需要远程观察时，`alma herdr chats` 能看到目标 Codex 会话；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
-- [ ] 只有用户明确要求页面运行检查时，才准备 Magpie Browser、账号和目标 URL；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

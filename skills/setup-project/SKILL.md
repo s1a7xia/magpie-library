@@ -1,6 +1,6 @@
 ---
 name: setup-project
-description: "仅在用户明确要求初始化或调整项目级 AI 工程约定时，生成或更新 docs/agents 配置、可选 Issue tracker 约定、领域文档路径和工程原则。普通开发不需要先运行；缺少 docs/agents、tracker 或 PRD 不触发本技能。"
+description: "仅在用户明确要求初始化或调整项目级 AI 工程约定时，生成或更新 docs/agents 配置、可选 Issue tracker 约定、领域文档路径、项目状态文档和工程原则。普通开发不需要先运行；缺少 docs/agents、tracker、状态文档或 PRD 不触发本技能。"
 ---
 
 # Setup Project
@@ -15,6 +15,7 @@ Create or update optional project-level configuration when the user explicitly a
 - **Issue tracker** — optional; where issues live if the project actually uses them (GitHub, GitLab, local markdown, or other)
 - **Triage labels** — the strings used for the five canonical triage roles
 - **Domain docs** — where `CONTEXT.md`, ADRs, PRDs, and the research index live; how consumer skills find them across repos
+- **Project state** — the optional live status document for large, multi-session, or multi-stage work; records current stage, completed, in progress, next step, remaining work, risks, and acceptance status
 - **Documentation language** — the language skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments), so output is readable for the team regardless of who triggers the skill
 
 This is a prompt-driven skill, not a deterministic script. Explore only the repository facts relevant to the requested setup, present what you found, confirm, then write.
@@ -31,13 +32,14 @@ This skill creates optional configuration that the [Skill Entry Protocol](../rul
 | `docs/agents/issue-tracker.md` | Step 1 | Issue tracker type and CLI conventions |
 | `docs/agents/triage-labels.md` | Step 1 | Label vocabulary mapping for the five canonical triage roles |
 | `docs/agents/language.md` | Step 1 | Language for all human-facing prose (PRDs, ADRs, CONTEXT, Issues, comments) |
+| Existing status document, otherwise `docs/project-state.md` | Step 3 | Current task state; reuse the existing document instead of adding a path-config file |
 | `docs/agents/repo-map.md` | Step 2 (if exists) | Multi-repo structure — which repos exist, which owns the primary issue tracker |
 
 This is not a normal development stage. Consumer skills remain usable without it; setup only improves explicit project conventions when those conventions are worth persisting.
 
 ## Outcome Contract
 
-- **Outcome**: The project configuration the user explicitly requested — relevant `docs/agents/*.md` files and/or a tailored `## Agent skills` / `## Engineering principles` section. Tracker, triage, domain docs, and language files are created only when the project actually uses them. On re-run: conformance findings limited to the configuration being updated.
+- **Outcome**: The project configuration the user explicitly requested — relevant `docs/agents/*.md` files and/or a tailored `## Agent skills` / `## Engineering principles` section. Tracker, triage, domain docs, project state, and language files are created only when the project actually uses them. On re-run: conformance findings limited to the configuration being updated.
 - **Done when**: User confirms the requested configuration, selected files are written, and AGENTS.md/CLAUDE.md is updated only when requested
 - **Evidence**: The explicitly requested config files and/or principles updates; no placeholder tracker or domain files merely to complete setup
 - **Output**: Summary of configuration, next step to use engineering skills
@@ -48,15 +50,15 @@ This is not a normal development stage. Consumer skills remain usable without it
 
 **Step 2: Detect project structure** — single repo, monorepo, or multi-repo. Ask the user if detection is uncertain or if there are related repos not visible in this clone. If config already exists, compare detected structure against `repo-map.md` to find what changed.
 
-**Step 3: Present findings** — show detected defaults (project structure, issue tracker, triage labels, domain layout, documentation language). If updating, show a diff of what changed vs current config.
+**Step 3: Present findings** — show detected defaults (project structure, issue tracker, triage labels, domain layout, project state, documentation language). If updating, show a diff of what changed vs current config.
 
-**Step 4: Ask for overrides** — present only the configuration sections the user asked to create or change. Ask one section at a time. A tracker and triage labels are included only when the project actually uses Issues.
+**Step 4: Ask for overrides** — present only the configuration sections the user asked to create or change. Ask one section at a time. A tracker and triage labels are included only when the project actually uses Issues; project state is included only for large, multi-session, or multi-stage work, or when explicitly requested.
 
 **Step 4a (Re-run only, affected records)** — Only when the requested config change affects existing records, inspect those records for relevant naming, language, format, or metadata drift. Report findings; rename or rewrite only with authorization. See [REFERENCE.md](REFERENCE.md) Conformance Sweep.
 
 **Step 5: Confirm** — show the complete draft of all files to be written (AGENTS.md block + each `docs/agents/` file). If updating, show only files that changed.
 
-**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). Update in-place, never append duplicates.
+**Step 6: Write** — write the `docs/agents/*.md` config files first, the AGENTS.md/CLAUDE.md sections last (an abort mid-way then leaves at most an unchanged AGENTS.md, never a block pointing at missing files): the `## Agent skills` block, then the tailored `## Engineering principles` section after it (see [REFERENCE.md](REFERENCE.md) Step 6). When writing `domain.md`, scan `docs/prd/`, `docs/adr/`, `docs/research/` first and use actual filenames in the file tree, not template placeholders (see REFERENCE.md domain.md template note). When project state is requested, reuse the existing status document; otherwise seed `docs/project-state.md` from `templates/project-state-document.md` with actual current facts. Record only a non-default path in the existing project AGENTS.md/CLAUDE.md when needed, never a separate path-config file or a duplicate of mutable status. Setup initializes the record; task execution maintains it under the shared entry protocol. Update in-place, never append duplicates.
 
 **Step 7: Done** — list skills now configured, suggest next step
 
@@ -84,6 +86,7 @@ See [REFERENCE.md](REFERENCE.md) for seed templates and detailed steps.
 | Re-run: renamed PRDs not updated in referencing files | After renaming, scan `docs/adr/` and `CONTEXT.md` for references to old name; suggest update |
 | Re-run: language change didn't reach existing docs | Language Audit: flag files in wrong language — don't auto-translate |
 | Re-run: format drift not detected | Format Audit: compare each file's section structure against its FORMAT spec |
+| Project state copied into AGENTS.md or allowed to go stale | Reuse one status document; keep only its pointer in project instructions when needed, and follow the shared entry protocol for maintenance |
 | Migration: orphaned files after structure change (e.g. single→monorepo) | Step 2: Detect drift, present migration path, clean up with confirmation |
 
 ## Output
@@ -96,6 +99,7 @@ Configuration:
 - Project structure: <single / monorepo / multi-repo>
 - Issue tracker: <configured, or omitted when the project does not use one>
 - Domain docs: <configured paths, or omitted when not requested>
+- Project state: <configured path, or omitted when not requested>
 - Documentation language: <configured, or follow the user's current language>
 
 Updated files:

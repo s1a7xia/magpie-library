@@ -22,6 +22,7 @@ Read config files under `docs/agents/` only when they exist and affect the curre
 | `docs/agents/triage-labels.md` | Label vocabulary mapping | Use canonical defaults |
 | `docs/agents/language.md` | Language consumer skills should write human-facing output in (PRDs, ADRs, CONTEXT, Issues, comments) | Follow the user's current language; ask only when the audience materially matters |
 
+
 ### Step 2: Identify Multi-Repo Scope
 
 If `repo-map.md` exists and the current task crosses repository boundaries, identify the repositories actually involved and read only their relevant docs.
@@ -39,6 +40,7 @@ Read only domain docs that can affect the current task:
 | ADRs | `docs/adr/*.md` | Architecture Decision Records — past technical decisions |
 | Research INDEX | `docs/research/INDEX.md` | Optional index of persisted technical research records (stack × topic × major). Check it when it exists and the current decision depends on prior research |
 | Audit records | `docs/audits/*.md` | Dated architecture and anti-pattern audit records. Read the most recent before proposing structural changes — it records which judgments were already made and why |
+| Project state | Existing project status record; otherwise `docs/project-state.md` | Current stage, task statuses, next action, remaining work, risks, blockers, and acceptance evidence. Use the project instructions for a non-default path; follow Project State Maintenance below |
 
 **If any document is missing, proceed without it.** Do not create blank docs, initialize `docs/agents/`, or suggest setup merely because a document is absent. Mention a concrete evidence gap only when it affects the current conclusion.
 
@@ -69,6 +71,17 @@ If the current task consumes a PRD or another persisted artifact, verify only th
 | PRD has no validation record | Design may not have been separately challenged | Proceed; validation is optional unless the current task needs it |
 
 These are notes, not blockers and not a reason to initialize missing process artifacts.
+
+## Project State Maintenance
+
+For large, multi-session, or multi-stage projects, reuse one current-state record (existing status doc or task board; otherwise `docs/project-state.md`). A non-default path may be recorded in existing project instructions; no separate path-config file is needed.
+
+- Before work, read the current summary and relevant requirements; reconcile code claims with the branch, working-tree diff, and relevant commits. Do not scan all history. Git proves code changes, not business acceptance; if Git is unavailable, state the evidence gap rather than initializing a repository.
+- Keep the current iteration, objective, next action, risks, blockers, and acceptance evidence. Use one task list with stable IDs and statuses, or link the existing task source instead of duplicating it. Separate iteration remaining work from known project backlog; mark unsliced scope as unknown, not a completion percentage.
+- After a slice, scope change, blocker, or acceptance decision, and before session handoff, update only facts changed by the authorized task. Pure questions and read-only reviews do not authorize document edits. No changed facts means no ceremonial update.
+- Distinguish implementation complete, unverified, failed verification, passed verification, and business acceptance. Record actual evidence or the unverified boundary; a commit does not imply acceptance.
+- Keep the summary short. Do not copy whole PRDs, diffs, or task lists into it, or mutable status into AGENTS.md. Missing documents do not trigger setup; create them only within requested initialization or documentation work. Never create them for a small change merely to satisfy process.
+- These rules do not authorize tests, commits, pushes, or deployment. When a commit is authorized, include the related status update within its scope. Setup only initializes records; the task's executing agent maintains them, not a background service.
 
 ## Standalone vs Composable
 

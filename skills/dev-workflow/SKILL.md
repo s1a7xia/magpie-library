@@ -56,7 +56,6 @@ metadata:
 | 实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 代码、接口、权限、菜单、字段链路或已批准的数据落表 | `ruoyi6` |
 | 用户明确要求深度视觉设计或整页改版 | `frontend-design` |
 | 用户明确要求 API 回归、多账号权限或数据库终态验证 | `api-regression` |
-| 用户明确授权独立审查/委派，或要求 Alma 会话查看、通知、审批转达和协调 | `team-orchestration` |
 
 数据库按两层处理：
 
@@ -67,7 +66,7 @@ metadata:
 
 ## 文档与 Git
 
-- 只更新本次行为实际影响的现有文档；不默认新建 brief、handoff、PRD、Issue 或控制台账。
+- 只更新本次行为实际影响的现有文档；不默认新建 brief、handoff、PRD、Issue 或控制台账。大型、跨会话或多阶段项目，按 [状态维护规则](../rules/entry-protocol.md#project-state-maintenance) 复用一份状态记录；有相关状态变化才更新，纯问答只读。
 - 改动后检查实际 diff，区分产品代码、测试、文档和用户已有改动。
 - 提交、推送、合并、发布和数据库变更分别按当前授权执行；“按闭环做”不自动扩大这些权限。
 - 交付说明用户可见结果、实际执行的验证、未验证边界和必要的 Git 状态；不把编译通过或工具连通当作业务验收。

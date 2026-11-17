@@ -1,14 +1,14 @@
 # 当前工作流机制与日常用法
 
-更新日期：2026-11-16。这是使用说明，不替代项目授权。
+更新日期：2026-11-17。这是使用说明，不替代项目授权。
 
-当前主线是 Codex 主开发、dev-workflow 自动路由、工程阶段按需读取；Alma 只在需要会话观察、通知、审批转达或持久协调时启动。Magpie 负责指令、MCP 和技能分发，不参与业务决策。
+当前主线是 **Magpie + Codex**：Magpie 负责全局规则、技能和 MCP 的配置分发，Codex 负责从需求到交付验收的完整开发闭环。Alma 作为独立应用自行使用，不属于这套开发团队。
 
 ## 0. 只需记住三句话
 
 1. **日常开发直接向 Codex 说目标**，不用先选 Agent、MCP 或 Skill。
 2. **要连续交付就说**：`按闭环做：<目标>。验收：<能观察到的结果>。` 运行测试和页面检查仍要在当次明确要求。
-3. **需要看运行会话、通知或审批时才启动 Alma**：先运行 `alma status`；未运行时执行 `& "$env:LOCALAPPDATA\Programs\Alma\Alma.exe"`。普通开发不启动。
+3. **需求、设计、代码、文档和 Git 都在 Codex 当前项目中完成**；不要把项目事实搬进全局规则。
 
 完整任务示例：
 
@@ -26,12 +26,11 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 |---|---|---|
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
-| MCP | 搜索、数据库、Git 托管、SSH、图片等 9 项执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单：16 个资源库技能（含 10 个工程阶段技能）；只有入口和业务规范常驻可发现 | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
+| MCP | 搜索、数据库、Git 托管、SSH、图片、浏览器等执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
+| Skills | 按任务加载的方法和检查清单：16 个资源库技能；只有入口和业务规范常驻可发现 | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
-| Alma | 按需的人类驾驶舱：查看已连接会话、通知、审批和持久协调 | 用户手动启动的 Alma 应用，默认不写代码 |
 
-项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。工程阶段由 dev-workflow 选择；共享指令只描述团队关系。
+项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。工程阶段由 `dev-workflow` 选择；共享指令只描述工程边界。大型、跨会话或多阶段项目复用一份状态记录，见 [README.md](README.md#项目状态文档)。
 
 ## 2. 按任务选择最短路径
 
@@ -43,9 +42,9 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | “先整理需求，不改代码” | 输出需求、边界、验收项和未决问题，然后停止 |
 | “这个方案我还没定，先分析” | 按需进行需求与方案收敛；PRD、Issue 和切片按项目已有记录决定 |
 
-任务清楚时不需要斜杠命令，也不需要手动指定 `think`、`grill`、`story`、`implement`、`review`。`dev-workflow` 是唯一开发路由，阶段按需读取；数据库建模只在模型尚未确定或发生结构性变化时由 `database-design` 处理，已确认的字段落表由 `ruoyi6` 承接；`team-orchestration` 仅处理明确授权的独立审查、委派或 Alma 协调。
+任务清楚时不需要斜杠命令，也不需要手动指定 `think`、`grill`、`story`、`implement`、`review`。`dev-workflow` 是唯一开发路由，阶段按需读取；数据库建模只在模型尚未确定或发生结构性变化时由 `database-design` 处理，已确认的字段落表由 `ruoyi6` 承接。
 
-按需加载不是“所有技能都隐藏”：Codex 新会话只把 `dev-workflow`、`database-design`、`ruoyi6` 和 `answer-me-with-html` 放进可自动发现的技能列表，其余内部阶段由入口读取。Alma 使用 `defaultSkillSelection=auto` 和 `defaultToolSelection=auto`；`alma skill list` 是目录清单，不代表每轮全量注入。
+按需加载不是“所有技能都隐藏”：Codex 新会话会把 `dev-workflow`、`database-design`、`ruoyi6`、`answer-me-with-html` 和 `agent-browser` 放进可自动发现的技能列表，其余内部阶段由入口读取；也可显式输入 `$think`、`$review`、`$debug` 等调用。
 
 ## 3. 闭环怎么验收
 
@@ -62,59 +61,7 @@ Codex 最终按三列交付：
 
 普通任务由 Codex 自查。只有你明确要求独立审查或授权委派时，才增加额外只读协作；高风险本身不自动启动子代理。审查发现问题由 Codex 核实并在已授权范围修复，再复检受影响部分。
 
-## 4. Alma 什么时候加入
-
-只在需要以下能力时启动：
-
-- 查看实际已连接的 Herdr 会话并看进度；
-- 接收任务完成/阻塞通知；
-- 回答运行中的审批选择；
-- 协调明确已经接入的持久任务。
-
-```powershell
-& "$env:LOCALAPPDATA\Programs\Alma\Alma.exe"
-alma status
-# 运行后访问 http://localhost:23001
-```
-
-Alma 不随登录自启，也不是第二个默认代码写作者。桌面 Codex、CLI 任务或未接入 Herdr 的会话不会自动出现在 Alma；启动和连接状态也不扩大写库、测试、提交、推送或部署授权。
-
-### 4.1 远程看 Codex 执行情况
-
-要在家外通过手机或微信看到 Codex 的实时执行情况，**Codex 必须跑在 Herdr 的 pane 里**。Codex Desktop 直接打开的会话不在 Alma 的发现范围，无法远程查看。
-
-不需要手动开 Herdr，让 Alma 发起即可：
-
-```text
-在微信里说：在 D:\你的项目 开个 Codex 做 XXX
-     ↓
-Alma 执行 alma herdr new --cwd D:\你的项目 --agent codex "<task>"
-     ↓
-Codex 在 Herdr pane 中运行，手机可看进度、追问、回答审批
-```
-
-| 会话来源 | 手机/微信可见 |
-|---|---|
-| Alma 通过 Herdr 启动的 Codex | ✅ |
-| Alma 自己的会话（含微信消息） | ✅ |
-| Codex Desktop 直接打开的会话 | ❌ |
-| 普通终端里直接运行的 `codex` | ❌ |
-
-常用命令（在 Alma 会话内执行）：
-
-| 目的 | 命令 |
-|---|---|
-| 列出现有 workspace 和会话 | `alma herdr workspaces` / `alma herdr chats` |
-| 新开一个 Codex 会话并派任务 | `alma herdr new --cwd <目录> --agent codex "<任务>"` |
-| 继续已有会话 | `alma herdr send --pane <pane> "<任务>"` |
-| 持续跟随直到完成 | `alma herdr follow --pane <pane> "<任务>"` |
-| 回答运行中的选择 | `alma herdr answer --pane <pane> --option N` |
-
-`follow` 需要 `ALMA_THREAD_ID`，只能在 Alma 会话内使用；在外部终端直接调用会返回 `missing_thread`，这是设计行为。
-
-远程可见性只解决“看见”和“转达”，不扩大测试、写库、提交或部署授权。
-
-## 5. 权限和停止边界
+## 4. 权限和停止边界
 
 | 动作 | 默认边界 |
 |---|---|
@@ -125,13 +72,13 @@ Codex 在 Herdr pane 中运行，手机可看进度、追问、回答审批
 | 提交、推送 | 按项目已有明确授权；混杂归属不明时停止并报告 |
 | 合并、部署、发布、资金和凭证操作 | 单独授权，不因闭环或审查通过自动获得 |
 
-一个工作区同一时间只有一个写入者，默认 Codex。子代理、Alma 和审查上下文默认只读；缺证据就报告阻塞，不伪造完成。
+一个工作区同一时间只有一个写入者，默认 Codex。子代理和审查上下文默认只读；缺证据就报告阻塞，不伪造完成。
 
-## 6. 配置和换机
+## 5. 配置和换机
 
-- 共享协作规则改 `instructions.md`；Codex 执行规则改 `instructions/codex.md`；Alma 规则改 `instructions/alma.md`。均在 Magpie 资源库维护，再执行 `magpie library sync`。
+- 全局工程规则改 `instructions.md`，再执行 `magpie library sync`。
 - Skills 修改直接改资源库 `skills/<name>/`；`~/.agents/skills` 是指向资源的 Junction。
-- 不要手改 Codex 的 Magpie 生成块或 Alma 的生成块。
+- 不要手改 Codex 的 Magpie 生成块。
 - 项目 `AGENTS.md` 只补充项目约定，不复制全局流程。
 - 换机恢复依赖、MCP 和凭据按 [DEPENDENCIES.md](DEPENDENCIES.md)；只拉 Git 仓库不等于能力已安装。
 
@@ -145,8 +92,10 @@ magpie healthcheck
 
 文件同步和结构检查通过，不等于模型在每个新会话必然加载正确 Skill，也不等于底层 MCP 或业务环境都可用；这些要按实际任务再验证。
 
-## 7. 当前边界
+## 6. 当前边界
 
-当前团队只保留 Codex 和 Alma。Magpie 管共享能力；Codex 负责开发闭环；Alma 只在需要时提供运行观察、通知、审批和持久协调。Pi 已卸载；微信是 Alma 的输入通道之一，不是独立的第三套 Agent。
+当前开发团队只保留 Codex。Magpie 管配置分发；Codex 负责开发闭环。Alma 的会话、通知、审批、微信和 Herdr 能力由 Alma 自己维护；Alma 当前不接收 Magpie 的指令、技能或 MCP（`library.json` 与 Alma 的 `mcp.json` 已核对），也不参与本项目从需求到验收的交付。
+
+项目状态只在大型、跨会话或多阶段项目中启用。默认用 `docs/project-state.md`，已有状态文档或任务板就直接复用；不建立独立路径配置，也不要求小改动维护状态文档。Git 证明代码变化，业务验收仍需实际证据或用户确认。
 
 本说明不宣称效率已被证明。评估方式应是真实任务的总耗时、有效缺陷和返工；如果发现某条规则没有改善结果，应删除或缩短它，而不是继续增加流程。

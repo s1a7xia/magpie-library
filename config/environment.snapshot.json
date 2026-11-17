@@ -1,132 +1,123 @@
 {
-  "recordedDate": "2026-11-16",
-  "source": "local config and read-only CLI; registration is not connectivity verification. Pi was uninstalled on 2026-11-13; Alma runs on demand.",
+  "recordedDate": "2026-11-17",
+  "source": "local config and read-only CLI; registration is not connectivity verification. Pi was uninstalled on 2026-11-13. Alma was detached from Magpie distribution on 2026-11-17 and remains an independent application.",
   "magpieVersion": "0.1.4252",
   "sharedSkills": true,
   "mcpHub": true,
   "instructionsAgents": [
-    "alma",
     "codex"
   ],
   "skills": [
     {
+      "name": "agent-browser",
+      "agents": [
+        "codex"
+      ]
+    },
+    {
       "name": "answer-me-with-html",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "api-regression",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "database-design",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "debug",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "dev-workflow",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "frontend-design",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "grill",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "implement",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "research",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "review",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "rules",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "ruoyi6",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "setup-project",
       "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "story",
       "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "team-orchestration",
-      "agents": [
-        "alma",
         "codex"
       ]
     },
     {
       "name": "think",
       "agents": [
-        "alma",
         "codex"
       ]
     }
   ],
   "mcp": [
     {
+      "name": "chrome-devtools",
+      "agents": [
+        "codex"
+      ],
+      "purpose": "Chrome 页面检查与调试",
+      "transport": "stdio",
+      "command": "npx -y @secforge/chrome-devtools-mcp"
+    },
+    {
       "name": "context7",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "库与框架文档",
@@ -136,7 +127,6 @@
     {
       "name": "dbhub",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "PostgreSQL 只读取证/获授权数据库操作",
@@ -146,7 +136,6 @@
     {
       "name": "gitee",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "Gitee 代码与 Issue/PR",
@@ -156,7 +145,6 @@
     {
       "name": "github",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "GitHub 代码与 Issue/PR",
@@ -166,7 +154,6 @@
     {
       "name": "magpie-image",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "图片生成",
@@ -176,17 +163,15 @@
     {
       "name": "magpie-memory",
       "agents": [
-        "alma",
         "codex"
       ],
-      "purpose": "跨 Agent 共享结构化记忆",
+      "purpose": "结构化记忆",
       "transport": "stdio",
       "command": "magpie mcp memory"
     },
     {
       "name": "magpie-vision",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "图像识别",
@@ -196,7 +181,6 @@
     {
       "name": "magpie-web-search",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "联网搜索",
@@ -206,7 +190,6 @@
     {
       "name": "ssh",
       "agents": [
-        "alma",
         "codex"
       ],
       "purpose": "已登记 SSH 目标操作",
@@ -269,6 +252,6 @@
     "secretPassphraseExcluded": true
   },
   "skillRouter": true,
-  "cleanedAt": "2026-11-13",
-  "cleanup": "16 Magpie library skills, including 10 engineering-stage skills derived from dev-skills 0.2.11. Codex host built-ins are not library MCP servers."
+  "cleanedAt": "2026-11-17",
+  "cleanup": "16 Magpie library skills, including 10 engineering-stage skills derived from dev-workflow. All instructions, skills and 10 MCP servers are distributed to Codex only. Alma is independent and receives no Magpie instructions, skills or MCP servers; its local mcp.json has no Magpie endpoint."
 }
