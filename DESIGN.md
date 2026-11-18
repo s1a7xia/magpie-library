@@ -1,6 +1,6 @@
 # 当前设计：Magpie + Codex
 
-更新日期：2026-11-17。本文描述**当前实际生效**的结构，不是理想蓝图。每条结论都对应本机可核对的配置或命令输出；未验证的项在正文明确标出。
+更新日期：2026-11-18。本文描述**当前实际生效**的结构，不是理想蓝图。每条结论都对应本机可核对的配置或命令输出；未验证的项在正文明确标出。
 
 ## 0. 一句话
 
@@ -28,7 +28,7 @@ Magpie 是唯一的工程配置源，负责把全局指令、技能、MCP 和模
 |---|---|---|---|
 | Magpie | 指令、技能、MCP、模型的工程配置源 | `~/.config/magpie/library/` + `library.json` | 用户 / 经授权的 Agent |
 | 全局指令 | 项目无关的工作原则、授权、验证与交付边界 | `instructions.md` | 只在资源库改 |
-| 技能 | 工程阶段方法、业务规范与可选支撑能力 | `library/skills/`（16 个） | 只在资源库改 |
+| 技能 | 工程阶段方法、业务规范与可选支撑能力 | `library/skills/`（13 个） | 只在资源库改 |
 | 项目事实 | 技术栈、命令、端口、项目授权 | 项目内 `AGENTS.md` 与项目文档 | 项目仓库 |
 | 执行 | 搜索、数据库、Git、SSH、图片、浏览器 | Magpie 托管的 MCP + Codex 宿主工具 | Magpie / Codex |
 
@@ -39,7 +39,7 @@ Magpie 是唯一的工程配置源，负责把全局指令、技能、MCP 和模
 - 项目文档不放全局规则，全局规则不放业务细节。
 - `~/.codex/AGENTS.md` 的 Magpie 生成块不手改。
 
-项目状态记录属于项目事实，不进入 Magpie 全局规则。默认路径为 `docs/project-state.md`；已有状态文档或任务板直接复用。`docs/agents/project-state.md` 这种独立路径配置不再生成，状态维护规则统一由 `skills/rules/entry-protocol.md` 的 Project State Maintenance 提供。`setup-project` 只初始化记录，不运行后台同步。
+项目状态记录属于项目事实，不进入 Magpie 全局规则。默认路径为 `docs/project-state.md`；已有状态文档或任务板直接复用。`docs/agents/project-state.md` 这种独立路径配置不再生成。`setup-matt-pocock-skills` 为项目初始化文档与工作入口，只初始化记录，不运行后台同步。
 
 ## 2. 指令分发
 
@@ -54,19 +54,15 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 ## 3. 技能分发
 
-- `sharedSkills = true`，`skillRouter = true`。
-- 资源库 16 个技能：`agent-browser`、`answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`think`。
-- `~/.agents/skills/` 的每一项都是指向资源库的 **Junction**，不是副本。
-- `library.json` 当前把全部 16 个技能只勾选给 `codex`。
+- `sharedSkills = false`，`skillRouter = true`；技能按代理分发，Codex 使用混合模式：少量核心规范直接暴露，其余通过 `magpie-skills` 路由。
+- 资源库 13 个技能：`agent-browser`、`answer-me-with-html`、`api-regression`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`。
+- `~/.codex/skills/` 是指向资源库的 **Junction**；`~/.agents/skills/` 不再承载共享技能。
+- `library.json` 当前把全部 13 个技能只勾选给 `codex`；其中 6 个直接暴露，7 个进入路由。
 - Alma 的个人技能目录不再包含 Magpie Junction；它自己的 bundled 与 personal 技能独立管理。
 
-工程阶段技能源自 `dev-workflow`，共 10 个：
+工程阶段由 Matt Pocock 的技能组合承担，不设单一路由技能：`setup-matt-pocock-skills` 负责 Codex 项目初始化、`AGENTS.md` 入口和必要的项目状态文档；需求/方案未收敛时按需加载 `grill-with-docs`，`domain-modeling` 与 `grilling` 作为其依赖；方案定稿且需要持久记录时用 `to-spec`；存在多项任务依赖或切片价值时用 `to-tickets`；`code-review` 仅在明确审查请求时调用。Codex 直接负责实现。RuoYi 项目的原始需求进入后，先基于当前仓库盘点框架/相邻模块复用，将功能分为复用、配置/扩展、新开发，再确认首个可交付主干的页面/菜单/路由、API、字典/参数、权限、数据与验收；小任务不强制全套规格与 tickets。
 
-`dev-workflow`（唯一入口）、`think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project`。
-
-`dev-workflow` 只做路由，不要求每次走完全部阶段。除它之外，只有 `database-design` 等业务规范可独立发现；其余阶段和 `rules` 的 `openai.yaml` 均设为 `allow_implicit_invocation: false`，由入口按需读取，避免描述常驻和路由竞争；它们仍可通过 `$think`、`$review` 等显式调用。
-
-2026-11-17 用 `codex debug prompt-input` 实测新会话提示：资源库侧可自动发现的是 `agent-browser`、`answer-me-with-html`、`dev-workflow`、`database-design` 和 `ruoyi6`；其余内部阶段不会常驻技能描述列表。
+技能通过 Magpie 分发到 `~/.codex/skills`。直接暴露：`ruoyi6`、`database-design`、`code-review`、`frontend-design`、`api-regression`、`setup-matt-pocock-skills`；RuoYi 后端或前端业务实现时加载 `ruoyi6`；需求/方案开始涉及持久化对象、身份、归属、字段、状态、关系、唯一性、生命周期、删除/历史或 JSONB 时，提前加载 `database-design` 并在形成实现规格前确认数据契约。`code-review`、`frontend-design`、`api-regression` 和 `setup-matt-pocock-skills` 保持仅在明确请求/初始化项目时执行。其余技能进入 `magpie-skills` 路由。
 
 ## 4. MCP 拓扑
 
@@ -89,7 +85,7 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 | `magpie-web-search` | stdio | 联网搜索 |
 | `ssh` | stdio | 已登记 SSH 目标 |
 
-Alma 的 `~/.config/alma/mcp.json` 当前为 `{"mcpServers":{}}`，不再直连资源库 MCP，也不再保留 `hub/alma` 入口。Alma 自己的会话、通知、审批和 Herdr 能力由 Alma 应用自身提供，不经过 Magpie。
+Alma 的 `~/.config/alma/mcp.json` 当前为 `{"mcpServers":{}}`，不再直连资源库 MCP，也不再保留 `hub/alma` 入口。Alma 自己的会话、通知、审批和 Herdr 能力由 Alma 应用自身提供，不经过 Magpie。`library.json` 中部分 MCP 仍带有 `alma` 勾选，这是配置残留；Alma 的运行时 MCP 列表为空，当前开发链只使用 Codex。
 
 宿主内置工具（浏览器、computer-use、app-tools 等）不属于这 10 项，换机按 Codex 自身配置恢复。
 
@@ -133,5 +129,5 @@ Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能
 
 1. MCP 只做了工具暴露与最小调用验证，未对所有目标系统做全量业务测试。
 2. `dbhub` 绑定本机 PostgreSQL，`ssh` 依赖 `ssh-profiles.json`，换机需重配。
-3. 版本未锁定：Magpie `0.1.4252`、Codex `0.169.0`。
+3. 版本未锁定：Magpie `0.1.4395`、Codex `0.169.0`。
 4. Alma 已退出 Magpie 分发链，但其自身聊天、记忆、通知、微信和 Herdr 行为不在本资源库的管理范围内。

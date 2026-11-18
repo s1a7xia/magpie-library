@@ -9,7 +9,7 @@
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局工程指令 | 工作原则、授权、验证和已有改动保护 | 唯一正文 `instructions.md`；项目专属规则留在项目 `AGENTS.md` |
-| 16 个资源库技能 | 业务规范、工程阶段方法、回答呈现与可选支撑 | 在 `skills/` |
+| 13 个资源库技能 | 业务规范、工程阶段方法、回答呈现与可选支撑 | 在 `skills/` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -22,7 +22,7 @@
 
 | 依赖 | 本次核对版本 | 必要性 | 用途 |
 |---|---:|---|---|
-| Magpie | `0.1.4252` | 必需 | 指令、技能、MCP 的统一分发与托管 |
+| Magpie | `0.1.4395` | 必需 | 指令、技能、MCP 的统一分发与托管 |
 | Codex | `0.169.0` | 必需 | 当前唯一默认开发 Agent |
 | Node.js | `v24.17.0` | 必需 | `answer-me-with-html` 要求 Node.js 20+；部分 MCP 通过 `npx` 启动 |
 | npm / npx | `11.13.0` | 必需 | 启动 stdio MCP 和部分技能工具 |
@@ -47,28 +47,29 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 
 ## 3. 技能分发
 
-### 3.1 共享目录
+### 3.1 分发位置
 
 当前配置：
 
-- `sharedSkills = true`
+- `sharedSkills = false`
 - `mcpHub = true`
-- Magpie 资源库技能数：16
+- `skillRouter = true`
+- Magpie 资源库技能数：13
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
-- Agent 共享目录：`C:\Users\<user>\.agents\skills\`
+- Codex 技能目录：`C:\Users\<user>\.codex\skills\`
 
-本机 `~\.agents\skills` 的 16 项均为指向资源库的 Junction，不是独立副本；修改源文件后，共享目录立即看到同一内容。`magpie library sync` 负责重新写入 Codex 的加载配置和生成物。
+Codex 使用混合模式：`ruoyi6`、`database-design`、`code-review`、`frontend-design`、`api-regression`、`setup-matt-pocock-skills` 直接出现在 `~\.codex\skills`；其余 7 个技能位于 `~\.codex\skills\magpie-skills\.skills`，由 `magpie-skills` 入口按任务读取。直接技能与路由技能都是指向资源库的 Junction，不是独立副本。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
-- `sharedSkills=true`：技能放进 `~/.agents/skills`，供支持共享目录的工具读取；
+- `sharedSkills=false`：技能按代理分发，Codex 只从 `~/.codex/skills` 读取；
 - `skills[].agents`：Magpie 勾选该技能由哪些 Agent 正式启用。
 
 “共享目录里看得到”不等于“每个 Agent 都已启用”。
 
 ### 3.2 当前分发
 
-当前 16 个技能只勾选给 `codex`：`agent-browser`、`answer-me-with-html`、`api-regression`、`database-design`、`debug`、`dev-workflow`、`frontend-design`、`grill`、`implement`、`research`、`review`、`rules`、`ruoyi6`、`setup-project`、`story`、`think`。
+当前 13 个技能只勾选给 `codex`：`agent-browser`、`answer-me-with-html`、`api-regression`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`。
 
 全局指令当前只分发给 `codex`：
 
@@ -82,7 +83,7 @@ Alma 不在本资源库的技能或指令分发范围；它的 personal、bundle
 
 ## 4. MCP 清单
 
-当前登记 10 项 Magpie 资源库 MCP，只分发给 Codex。Codex 另有内置浏览器/computer-use 工具，不计入该清单。因为 `mcpHub = true`，实际服务由 Magpie 启动和转发。
+当前登记 10 项 Magpie 资源库 MCP。`chrome-devtools`、`context7`、`dbhub` 只勾选给 Codex；其余 7 项在 `library.json` 中仍保留 `alma` 分发勾选，但 Alma 的 `mcp.json` 已清空，运行时并未连接这些开发 MCP，当前实际使用方是 Codex。Codex 另有内置浏览器/computer-use 工具，不计入该清单。因为 `mcpHub = true`，实际服务由 Magpie 启动和转发。
 
 不要在本仓库记录真实令牌、完整认证头或 DSN。
 
@@ -108,7 +109,7 @@ Alma 不在本资源库的技能或指令分发范围；它的 personal、bundle
 
 ### 4.1 实际连通性
 
-本次核对以当前 `library.json` 为准：Magpie 资源库登记 10 项 MCP，Codex 会话通过 Magpie Hub 使用。Alma 的 `mcp.json` 已清空，不再连接这些开发 MCP。这里核对的是配置与已登记状态，**没有对所有 MCP 的目标系统做全量业务测试**。
+本次核对以当前 `library.json` 为准：Magpie 资源库登记 10 项 MCP，Codex 会话通过 Magpie Hub 使用。Alma 的 `mcp.json` 已清空，不再连接这些开发 MCP；`library.json` 里的 `alma` 勾选属于残留配置，不应当作 Alma 仍在使用。这里核对的是配置与已登记状态，**没有对所有 MCP 的目标系统做全量业务测试**。
 
 恢复后应按用途做一次最小只读验证：
 
@@ -139,7 +140,7 @@ Alma 不在本资源库的技能或指令分发范围；它的 personal、bundle
 | `~/.codex/config.toml` | Codex 模型、MCP 等运行配置 |
 | `~/.codex/AGENTS.md` | Magpie 生成的 Codex 全局指令副本 |
 | `~/.codex/ssh-profiles.json` | SSH MCP 的目标配置 |
-| `~/.agents/skills/` | Magpie 资源库技能的共享 Junction |
+| `~/.codex/skills/` | Codex 的直接技能与 `magpie-skills` 路由入口 |
 | Chrome 的 Magpie 标签组、Magpie Browser 扩展 | 页面运行检查登录态；本机浏览器状态，不入库 |
 
 原则：
@@ -197,7 +198,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 1. 在 Magpie 中创建或恢复 `library.json`；
 2. 重新登记 10 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
-4. 把 16 个技能勾选给 Codex；
+4. 把 13 个技能勾选给 Codex，并按混合模式设置直接与路由技能；
 5. 执行 `magpie library sync`；
 6. 重新建立 SSH、数据库和浏览器登录态。
 
@@ -218,7 +219,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
 - Codex 指令块存在，且与资源库正文一致；
-- 资源库与 `~/.agents/skills` 的文件哈希一致。
+- 资源库与 `~/.codex/skills` 的直接技能及 `magpie-skills/.skills` 路由技能哈希一致。
 
 它**不验证**：
 
@@ -238,7 +239,7 @@ Get-Content "$env:USERPROFILE\.codex\AGENTS.md" -TotalCount 20
 预期：
 
 - `magpie ls` 能看到 Codex；
-- `~/.agents/skills` 与当前 Magpie 技能清单一致，并指向资源库；
+- `~/.codex/skills` 与当前 Magpie 技能清单一致，并指向资源库；
 - `~/.codex/AGENTS.md` 含 `<!-- magpie:begin` 到 `<!-- magpie:end -->` 的指令块。
 
 ### 7.3 MCP
@@ -339,9 +340,9 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `magpie --version` 正常；
 - [ ] `magpie library sync` 成功；
 - [ ] `verify-library.py` 零错误；
-- [ ] `~/.agents/skills` 的链接与当前 Magpie 技能清单一致；
+- [ ] `~/.codex/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] `dev-workflow` 入口以及 `think`、`grill`、`story`、`implement`、`debug`、`review`、`research`、`rules`、`setup-project` 能被正确路由或显式调用；
+- [ ] 13 个技能与脱敏快照一致，核心技能直接可见，其余技能可通过 `magpie-skills` 路由读取或按任务显式调用；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

@@ -1,6 +1,6 @@
 # 当前工作流机制与日常用法
 
-更新日期：2026-11-17。这是使用说明，不替代项目授权。
+更新日期：2026-11-18。这是使用说明，不替代项目授权。
 
 当前主线是 **Magpie + Codex**：Magpie 负责全局规则、技能和 MCP 的配置分发，Codex 负责从需求到交付验收的完整开发闭环。Alma 作为独立应用自行使用，不属于这套开发团队。
 
@@ -27,10 +27,10 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
 | MCP | 搜索、数据库、Git 托管、SSH、图片、浏览器等执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单：16 个资源库技能；只有入口和业务规范常驻可发现 | Magpie 资源库，经 `~/.agents/skills` 的 Junction 共享 |
+| Skills | 按任务加载的方法和检查清单：核心规范直接暴露，其余经 `magpie-skills` 路由 | Magpie 资源库，经 `~/.codex/skills` 的 Junction 分发 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
 
-项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。工程阶段由 `dev-workflow` 选择；共享指令只描述工程边界。大型、跨会话或多阶段项目复用一份状态记录，见 [README.md](README.md#项目状态文档)。
+项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。共享指令只描述工程边界；通用工程阶段使用 Matt Pocock 的需求收敛、规格、切片和审查技能，不另设单一路由技能。大型、跨会话或多阶段项目复用一份状态记录，见 [README.md](README.md#项目状态文档)。
 
 ## 2. 按任务选择最短路径
 
@@ -42,9 +42,11 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | “先整理需求，不改代码” | 输出需求、边界、验收项和未决问题，然后停止 |
 | “这个方案我还没定，先分析” | 按需进行需求与方案收敛；PRD、Issue 和切片按项目已有记录决定 |
 
-任务清楚时不需要斜杠命令，也不需要手动指定 `think`、`grill`、`story`、`implement`、`review`。`dev-workflow` 是唯一开发路由，阶段按需读取；数据库建模只在模型尚未确定或发生结构性变化时由 `database-design` 处理，已确认的字段落表由 `ruoyi6` 承接。
+任务清楚时不需要手动指定技能。首次进入项目运行一次 `setup-matt-pocock-skills`，它会配置项目入口，并在大型、跨会话或多阶段项目中建立或复用状态文档。
 
-按需加载不是“所有技能都隐藏”：Codex 新会话会把 `dev-workflow`、`database-design`、`ruoyi6`、`answer-me-with-html` 和 `agent-browser` 放进可自动发现的技能列表，其余内部阶段由入口读取；也可显式输入 `$think`、`$review`、`$debug` 等调用。
+RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时用 `to-spec`；多项任务存在依赖或切片价值时用 `to-tickets`。简单单次改动跳过完整 PRD 和任务拆分。进入 RuoYi 代码实现由 `ruoyi6` 承接；明确要求审查或 API/页面验收时才调用对应技能。
+
+直接暴露的核心技能是 `ruoyi6`、`database-design`、`code-review`、`frontend-design`、`api-regression` 和 `setup-matt-pocock-skills`。`code-review`、`frontend-design`、`api-regression` 和 `setup-matt-pocock-skills` 仅手动调用；其余按需技能通过 `magpie-skills` 路由读取。
 
 ## 3. 闭环怎么验收
 
@@ -59,7 +61,7 @@ Codex 最终按三列交付：
 - Git 提交只证明版本状态，不证明功能已验收。
 - 只有你明确要求页面运行检查时才使用浏览器；未要求时把页面行为标为未验证。无 UI 影响需经调用链确认后记 `N/A` 及理由。
 
-普通任务由 Codex 自查。只有你明确要求独立审查或授权委派时，才增加额外只读协作；高风险本身不自动启动子代理。审查发现问题由 Codex 核实并在已授权范围修复，再复检受影响部分。
+普通任务由 Codex 自查。只有你明确要求 `code-review`、独立审查或授权委派时，才增加额外只读协作；高风险本身不自动启动子代理。要求 `code-review` 即授权两个只读审查子代理，审查发现的问题只在当前实现授权范围内修复，再复检受影响部分。
 
 ## 4. 权限和停止边界
 
@@ -77,7 +79,8 @@ Codex 最终按三列交付：
 ## 5. 配置和换机
 
 - 全局工程规则改 `instructions.md`，再执行 `magpie library sync`。
-- Skills 修改直接改资源库 `skills/<name>/`；`~/.agents/skills` 是指向资源的 Junction。
+- Skills 修改直接改资源库 `skills/<name>/`；Codex 从 `~/.codex/skills` 读取直接技能，路由技能位于 `~/.codex/skills/magpie-skills/.skills`。
+- 公开仓库镜像指令、技能、说明、脱敏快照和 active 记忆，供阅读与换机参考；凭据、登录态、会话、运行元数据和私密配置仍由 Magpie 加密备份维护。
 - 不要手改 Codex 的 Magpie 生成块。
 - 项目 `AGENTS.md` 只补充项目约定，不复制全局流程。
 - 换机恢复依赖、MCP 和凭据按 [DEPENDENCIES.md](DEPENDENCIES.md)；只拉 Git 仓库不等于能力已安装。
@@ -96,6 +99,6 @@ magpie healthcheck
 
 当前开发团队只保留 Codex。Magpie 管配置分发；Codex 负责开发闭环。Alma 的会话、通知、审批、微信和 Herdr 能力由 Alma 自己维护；Alma 当前不接收 Magpie 的指令、技能或 MCP（`library.json` 与 Alma 的 `mcp.json` 已核对），也不参与本项目从需求到验收的交付。
 
-项目状态只在大型、跨会话或多阶段项目中启用。默认用 `docs/project-state.md`，已有状态文档或任务板就直接复用；不建立独立路径配置，也不要求小改动维护状态文档。Git 证明代码变化，业务验收仍需实际证据或用户确认。
+项目状态只在大型、跨会话或多阶段项目中启用。`setup-matt-pocock-skills` 在这类项目中建立 `docs/project-state.md`，已有状态文档或任务板就直接复用；不建立第二份状态源，也不要求小改动维护状态文档。Git 证明代码变化，业务验收仍需实际证据或用户确认。
 
 本说明不宣称效率已被证明。评估方式应是真实任务的总耗时、有效缺陷和返工；如果发现某条规则没有改善结果，应删除或缩短它，而不是继续增加流程。

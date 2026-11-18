@@ -118,6 +118,8 @@ def main() -> int:
     else:
         # Skills land where the library is configured to put them: ~/.agents/skills
         # when shared, otherwise each agent's own skills directory (Codex checked here).
+        # With the skill router on, routed skills live under magpie-skills/.skills
+        # instead of being copied beside the direct skills.
         if data.get("sharedSkills"):
             target_skills = Path.home() / ".agents" / "skills"
             target_label = "~/.agents/skills (shared)"
@@ -127,10 +129,22 @@ def main() -> int:
         if not target_skills.is_dir():
             errors.append(f"{target_label} is missing")
         else:
+            router_dir = target_skills / "magpie-skills" / ".skills"
+            router_on = bool(data.get("skillRouter"))
+            routes = {
+                item.get("name"): item.get("router")
+                for item in data.get("skills", [])
+                if item.get("name")
+            }
             missing = 0
             changed = 0
             for source in skill_files(source_skills):
-                target = target_skills / source.relative_to(source_skills)
+                rel = source.relative_to(source_skills)
+                skill_name = rel.parts[0] if rel.parts else ""
+                if router_on and routes.get(skill_name) != "direct":
+                    target = router_dir / rel
+                else:
+                    target = target_skills / rel
                 if not target.is_file():
                     missing += 1
                 elif sha256(source) != sha256(target):
