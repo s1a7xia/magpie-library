@@ -2,7 +2,7 @@
 
 Read this when SKILL.md section 0 sends you here.
 
-When the arguments for this call (shown in section 0 of SKILL.md) start with `config` (for example `/answer-me-with-html config open off`), this turn handles settings only and produces no page:
+When the arguments for this call (shown in section 0 of SKILL.md) start with `config` (for example `$answer-me-with-html config open off`), this turn handles settings only and produces no page:
 
 - `config`: run `am config` to show the current settings, then let the user choose. Where the agent has a choice tool such as AskUserQuestion, use it: at most 4 settings at a time, these first: `open`, `theme`, `mode`, `style`, with the current value marked in the options. Otherwise ask in plain text.
 - `config <key> <value>`: run `am config set <key> <value>`.

@@ -1,5 +1,0 @@
-interface:
-  display_name: "Team Orchestration"
-  short_description: "仅在明确授权时处理独立审查、委派或 Alma 协调"
-policy:
-  allow_implicit_invocation: false

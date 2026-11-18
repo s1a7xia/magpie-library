@@ -1,0 +1,5 @@
+interface:
+  display_name: "实现 Spec"
+  short_description: "按 spec 和 tickets 实现代码"
+policy:
+  allow_implicit_invocation: false

@@ -1,5 +1,0 @@
-interface:
-  display_name: "Story (internal)"
-  short_description: "纵向交付切片；Issue 仅在已有 tracker 且获授权时发布"
-policy:
-  allow_implicit_invocation: false

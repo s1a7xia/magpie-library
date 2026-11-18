@@ -1,274 +1,193 @@
 {
-  "recordedDate": "2026-11-16",
-  "source": "local config and read-only CLI; registration is not connectivity verification. Pi was uninstalled on 2026-11-13; Alma runs on demand.",
-  "magpieVersion": "0.1.4252",
-  "sharedSkills": true,
-  "mcpHub": true,
+  "recordedDate": "2026-11-19",
+  "source": "local Magpie library; config registration is not connectivity verification",
   "instructionsAgents": [
-    "alma",
     "codex"
   ],
+  "sharedSkills": false,
+  "mcpHub": true,
+  "skillRouter": true,
   "skills": [
     {
       "name": "answer-me-with-html",
       "agents": [
-        "alma",
         "codex"
-      ]
-    },
-    {
-      "name": "api-regression",
-      "agents": [
-        "alma",
-        "codex"
-      ]
+      ],
+      "route": "routed"
     },
     {
       "name": "database-design",
       "agents": [
-        "alma",
         "codex"
-      ]
-    },
-    {
-      "name": "debug",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "dev-workflow",
-      "agents": [
-        "alma",
-        "codex"
-      ]
+      ],
+      "route": "direct"
     },
     {
       "name": "frontend-design",
       "agents": [
-        "alma",
         "codex"
-      ]
-    },
-    {
-      "name": "grill",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "implement",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "research",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "review",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "rules",
-      "agents": [
-        "alma",
-        "codex"
-      ]
+      ],
+      "route": "routed"
     },
     {
       "name": "ruoyi6",
       "agents": [
-        "alma",
         "codex"
+      ],
+      "route": "direct"
+    }
+  ],
+  "pluginSkills": [
+    {
+      "name": "mattpocock-skills-zh",
+      "version": "1.0.8",
+      "repository": "https://github.com/vinvcn/mattpocock-skills-zh-CN",
+      "license": "MIT",
+      "skills": [
+        "ask-matt",
+        "code-review",
+        "domain-modeling",
+        "grill-with-docs",
+        "grilling",
+        "handoff",
+        "implement-spec",
+        "prototype",
+        "research",
+        "retro",
+        "setup-matt-pocock-skills",
+        "to-spec",
+        "to-tickets",
+        "triage",
+        "wayfinder",
+        "writing-for-agents"
       ]
+    }
+  ],
+  "publicMemory": [
+    {
+      "file": "m_c0e6bf94134e.md",
+      "kind": "preference",
+      "scope": "agent:codex",
+      "status": "active",
+      "tags": "[ruoyi-vue-plus, 业务模块, 复用优先, 编码规范, 风格统一]"
     },
     {
-      "name": "setup-project",
-      "agents": [
-        "alma",
-        "codex"
-      ]
+      "file": "m_e0827147ced5.md",
+      "kind": "preference",
+      "scope": "agent:codex",
+      "status": "active",
+      "tags": "[数据库设计, 单表优先, 避免过度设计]"
     },
     {
-      "name": "story",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "team-orchestration",
-      "agents": [
-        "alma",
-        "codex"
-      ]
-    },
-    {
-      "name": "think",
-      "agents": [
-        "alma",
-        "codex"
-      ]
+      "file": "m_e6a950c6126c.md",
+      "kind": "preference",
+      "scope": "agent:codex",
+      "status": "active",
+      "tags": "[功能闭环, 迭代, 状态文档, git, 大型项目, 任务追踪]"
     }
   ],
   "mcp": [
     {
       "name": "context7",
+      "transport": "http",
       "agents": [
-        "alma",
         "codex"
       ],
-      "purpose": "库与框架文档",
-      "transport": "http",
-      "endpoint": "https://mcp.context7.com/mcp"
+      "url": "https://mcp.context7.com/mcp"
     },
     {
-      "name": "dbhub",
+      "name": "dbx",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "PostgreSQL 只读取证/获授权数据库操作",
-      "transport": "stdio",
-      "command": "npx -y @bytebase/dbhub@1.5.0 --transport stdio <private connection arguments>"
+      "command": "npx",
+      "args": [
+        "@dbx-app/mcp-server"
+      ]
     },
     {
       "name": "gitee",
+      "transport": "http",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "Gitee 代码与 Issue/PR",
-      "transport": "http",
-      "endpoint": "https://api.gitee.com/mcp"
+      "url": "https://api.gitee.com/mcp"
     },
     {
       "name": "github",
+      "transport": "http",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "GitHub 代码与 Issue/PR",
-      "transport": "http",
-      "endpoint": "https://api.githubcopilot.com/mcp/"
+      "url": "https://api.githubcopilot.com/mcp/"
     },
     {
       "name": "magpie-image",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "图片生成",
-      "transport": "stdio",
-      "command": "magpie mcp image"
+      "command": "magpie.exe",
+      "args": [
+        "mcp",
+        "image"
+      ]
     },
     {
       "name": "magpie-memory",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "跨 Agent 共享结构化记忆",
-      "transport": "stdio",
-      "command": "magpie mcp memory"
+      "command": "magpie.exe",
+      "args": [
+        "mcp",
+        "memory"
+      ]
     },
     {
       "name": "magpie-vision",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "图像识别",
-      "transport": "stdio",
-      "command": "magpie mcp vision"
+      "command": "magpie.exe",
+      "args": [
+        "mcp",
+        "vision"
+      ]
     },
     {
       "name": "magpie-web-search",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "联网搜索",
-      "transport": "stdio",
-      "command": "magpie mcp search"
+      "command": "magpie.exe",
+      "args": [
+        "mcp",
+        "search"
+      ]
     },
     {
       "name": "ssh",
+      "transport": "stdio",
       "agents": [
         "alma",
         "codex"
       ],
-      "purpose": "已登记 SSH 目标操作",
-      "transport": "stdio",
-      "command": "npx -y @hypnosis/ssh-mcp-server"
+      "command": "npx",
+      "args": [
+        "@hypnosis/ssh-mcp-server"
+      ]
     }
-  ],
-  "communityPlugins": [
-    {
-      "source": "github:mu-zi-lee/magpie-our-free-model",
-      "version": "0.9.4",
-      "enabled": true,
-      "purpose": "community model provider; credentials excluded"
-    },
-    {
-      "source": "@vshulcz/magpie-deja",
-      "upstream": "https://github.com/vshulcz/deja-vu/tree/main/extensions/magpie",
-      "version": "0.24.0",
-      "installation": "local directory; upstream package is not proof of local byte equivalence",
-      "enabled": true,
-      "options": {
-        "allowUnscoped": false,
-        "maxBytes": 4000,
-        "recallRemote": false,
-        "requestTimeoutMs": 800
-      }
-    }
-  ],
-  "builtinsEnabled": [
-    "gateway",
-    "groups",
-    "library",
-    "middleware",
-    "otel",
-    "redact",
-    "rotation",
-    "routing",
-    "search",
-    "sessions",
-    "tools",
-    "usage",
-    "warmups"
-  ],
-  "builtinsDisabled": [
-    "budget"
-  ],
-  "memory": {
-    "structuredStore": "~/.config/magpie/memory.json",
-    "entryCountAtSnapshot": 13,
-    "distillEnabled": true,
-    "dreamEnabled": true,
-    "lastDistillErrorPresent": true,
-    "lastDreamErrorPresent": true,
-    "dejaRecallRuntimeVerified": false
-  },
-  "backup": {
-    "intervalHours": 24,
-    "keep": 3,
-    "includeSignIns": true,
-    "secretPassphraseExcluded": true
-  },
-  "skillRouter": true,
-  "cleanedAt": "2026-11-13",
-  "cleanup": "16 Magpie library skills, including 10 engineering-stage skills derived from dev-skills 0.2.11. Codex host built-ins are not library MCP servers."
+  ]
 }

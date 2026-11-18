@@ -1,6 +1,6 @@
 ---
 name: ruoyi6
-description: "RuoYi-Vue-Plus 6.x + plus-ui-React 的后端、接口、前端与数据落表实现规范。用于已确认任务的实际编码、修复和审查；需求整理、产品规划与迭代编排由 dev-workflow 和项目 PRD 负责。"
+description: "RuoYi-Vue-Plus 6.x + plus-ui-React 的后端、接口、前端与数据落表实现规范。用于已确认任务的实际编码、修复和审查；需求整理、产品规划与迭代编排使用项目 PRD 和已确认规格。"
 ---
 
 # RuoYi-Vue-Plus 实现规范

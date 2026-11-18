@@ -20,3 +20,8 @@ sync.lock
 Thumbs.db
 .idea/
 .vscode/
+
+# 镜像重建时的嵌套临时目录，不属于公开内容
+config/config/
+scripts/scripts/
+instructions/instructions/

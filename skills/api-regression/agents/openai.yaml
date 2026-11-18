@@ -1,5 +1,0 @@
-interface:
-  display_name: "API 优先的业务回归"
-  short_description: "仅在明确要求时执行 API 业务回归与只读数据核对"
-policy:
-  allow_implicit_invocation: false

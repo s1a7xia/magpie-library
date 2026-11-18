@@ -1,0 +1,19 @@
+{
+  "name": "mattpocock-skills-zh",
+  "version": "1.0.8",
+  "description": "Matt Pocock 工程技能的简体中文本地化版本，按用户选择裁剪，并适配 Codex 的执行、授权与可靠交付边界。",
+  "author": {
+    "name": "Matt Pocock; Chinese localization by vinvcn"
+  },
+  "homepage": "https://github.com/vinvcn/mattpocock-skills-zh-CN",
+  "repository": "https://github.com/vinvcn/mattpocock-skills-zh-CN",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "engineering",
+    "chinese",
+    "spec",
+    "wayfinder"
+  ],
+  "skills": "./skills/"
+}
