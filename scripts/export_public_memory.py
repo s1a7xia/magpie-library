@@ -7,6 +7,7 @@ fields, so the public mirror never depends on hand-editing the live store.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
@@ -48,6 +49,16 @@ def top_level_yaml(frontmatter: str) -> dict[str, list[str]]:
     return fields
 
 
+def public_scope(source: Path) -> str:
+    """Use the transport-neutral scope published by the public mirror."""
+    try:
+        index = json.loads((MEMORY / "index.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "global"
+    item = index.get("files", {}).get(source.name, {}).get("memory", {})
+    return "global" if item.get("scope") == "agent:codex" else item.get("scope", "global")
+
+
 def export_file(source: Path) -> str:
     frontmatter, body = split_frontmatter(source.read_text(encoding="utf-8"))
     fields = top_level_yaml(frontmatter)
@@ -56,11 +67,18 @@ def export_file(source: Path) -> str:
         raise ValueError(f"{source.name}: missing {', '.join(missing)}")
     output = ["---"]
     for name in PUBLIC_FIELDS:
-        values = fields.get(name)
+        values = ["global"] if name == "scope" else fields.get(name)
         if not values:
             continue
         output.append(f"{name}: {values[0]}" if values[0] else f"{name}:")
         output.extend(values[1:])
+    output.extend(
+        [
+            "sources:",
+            "  - agent: codex",
+            f'    at: "{fields.get("created", [""])[0].strip(chr(34))}"',
+        ]
+    )
     output.extend(["---", "", body.rstrip(), ""])
     return "\n".join(output)
 

@@ -8,6 +8,7 @@ $null
 *.bak
 *.bak-*
 *.bak.*
+.pre-mirror-backup-*/
 
 # 同步与登录态属于机器状态，由 Magpie 同步或本地维护，不进技能库
 sync.json
