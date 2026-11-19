@@ -1,6 +1,7 @@
 ---
 name: research
 description: 对照高可信一手来源调研问题，并把带引用的发现保存为项目中的 Markdown 文件。适用于用户想调研主题、收集文档或 API 事实；由后台子代理调研，主会话继续推进其他工作。
+disable-model-invocation: true
 ---
 
 # Research

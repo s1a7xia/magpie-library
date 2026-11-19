@@ -1,6 +1,7 @@
 ---
 name: to-spec
 description: 把当前对话中已经确认的内容合成为可验收 spec；不做访谈。默认保存为项目内 Markdown，只有明确授权时才发布到外部 issue tracker。
+disable-model-invocation: true
 ---
 
 # To Spec

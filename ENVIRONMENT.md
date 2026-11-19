@@ -39,7 +39,7 @@
 
 | 插件 | 当前来源/版本 | 状态与作用 |
 |---|---|---|
-| `mattpocock-skills-zh` | 本地 marketplace `magpie-mattpocock-zh`，1.0.8；内容来自 [vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN) commit `d97aa0788b120c9363ebddfd47b87618d9314c3e` | Codex CLI 显示 `installed, enabled`；提供 16 个按用户选择裁剪并适配 Codex 执行与授权边界的简体中文工程技能 |
+| `mattpocock-skills-zh` | 本地 marketplace `magpie-mattpocock-zh`，1.0.10；内容来自 [vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN) commit `d97aa0788b120c9363ebddfd47b87618d9314c3e` | Codex CLI 显示 `installed, enabled`；提供 16 个按用户选择裁剪并适配 Codex 执行与授权边界的简体中文工程技能；仅 `grill-with-docs` 可隐式选择，其余 15 个必须显式调用 |
 
 运行插件源是本机 Codex marketplace `magpie-mattpocock-zh`，公开只读镜像在 `plugins\mattpocock-skills-zh\`。安装缓存由 Codex 管理，不手工编辑；更新顺序是修改插件源、提升版本、先执行 `codex plugin remove "mattpocock-skills-zh@magpie-mattpocock-zh"`，再执行 `codex plugin add "mattpocock-skills-zh@magpie-mattpocock-zh"`，最后核对 `codex plugin list` 与缓存版本。
 

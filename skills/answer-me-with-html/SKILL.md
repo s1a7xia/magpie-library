@@ -6,6 +6,7 @@ description: >-
   CLI builds one page. Use only when the user explicitly asks for a diagram, visual explanation,
   HTML page, explainer video, or settings change. Do not attach pages to ordinary code, review,
   planning, or status replies.
+disable-model-invocation: true
 ---
 
 # Answer me with HTML: answer a complex question with one HTML page

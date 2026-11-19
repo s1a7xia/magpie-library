@@ -56,20 +56,20 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 ## 3. 技能分发
 
 - `sharedSkills = false`，`skillRouter = off`；4 个本地技能全部直接暴露，不使用 `magpie-skills` 聚合路由。
-- Magpie 资源库只剩 4 个本地技能，全部直接出现在 `~/.codex/skills`：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。它们都是指向资源库的 **Junction**，由模型按任务需要手动读取对应 `SKILL.md`。
-- Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，与 Magpie 直接技能互不重复。`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`writing-for-agents` 可由模型按 description 选择；`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由元数据限制为显式调用，必须由用户确认后进入。当前 Codex 专属指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径。
+- Magpie 资源库只剩 4 个本地技能，全部直接出现在 `~/.codex/skills`：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。它们都是指向资源库的 **Junction**。前两个由全局指令按场景优先触发，后两个只由用户显式调用。
+- Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，与 Magpie 直接技能互不重复。只有 `grill-with-docs` 可由模型按 description 选择；其余 15 个由 `allow_implicit_invocation: false` 限制为显式调用，必须由用户点名完整技能名后进入。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
 ```text
 Codex 自带技能匹配
   ├─ ruoyi6 / database-design / frontend-design / answer-me-with-html（直接）
   └─ 16 个 Matt 中文插件技能
-       └─ 路径不清时建议 ask-matt，用户确认后进入
+       └─ 路径不清时建议 $mattpocock-skills-zh:ask-matt，用户确认后进入
 ```
 
-工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `wayfinder`，由用户确认后建决策地图。`research` 补外部事实，`prototype` 解决难以文字判断的 UI/行为问题，`grilling + domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `to-spec`，存在多个可交付切片或真实依赖时才建议 `to-tickets`。路径仍不清时建议 `ask-matt`，用户确认后导航。Codex 默认在当前会话实现；明确要求 `implement-spec` 时，由该技能启动隔离 worktree 的实现编排。`code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
+工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$mattpocock-skills-zh:wayfinder`，由用户确认后建决策地图。`$mattpocock-skills-zh:research` 补外部事实，`$mattpocock-skills-zh:prototype` 解决难以文字判断的 UI/行为问题，`grilling + domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$mattpocock-skills-zh:to-spec`，存在多个可交付切片或真实依赖时才建议 `$mattpocock-skills-zh:to-tickets`。路径仍不清时建议 `$mattpocock-skills-zh:ask-matt`，用户确认后导航。Codex 默认在当前会话实现；明确要求 `$mattpocock-skills-zh:implement-spec` 时，由该技能启动隔离 worktree 的实现编排。`$mattpocock-skills-zh:code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
 
-`wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`grilling`、`research`、`wayfinder`、`implement-spec` 被当前任务调用时，即按其定义授权所需子代理，`prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
+`$mattpocock-skills-zh:wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$mattpocock-skills-zh:to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$mattpocock-skills-zh:to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`grilling`、`research`、`wayfinder`、`implement-spec` 被当前任务调用时，即按其定义授权所需子代理，`prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
 
 ## 4. MCP 拓扑
 

@@ -1,6 +1,7 @@
 ---
 name: grilling
 description: 围绕计划、decision 或 idea 持续追问用户。适用于用户想对自己的思路做压力测试，或使用任何 “grill” 触发措辞时。
+disable-model-invocation: true
 ---
 
 持续访谈用户，直到达成共同理解。把这件事映射成一棵 **design tree**：每个 decision 都分支到挂在它下面的那些 decisions。

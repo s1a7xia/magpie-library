@@ -12,35 +12,37 @@
   -> 事实基线
 
 任何阶段涉及持久化对象 / 字段 / 关系 / 状态 / 唯一性 / 删除 / 迁移
-  -> database-design：to-spec 前确认数据契约
+  -> database-design：进入 $mattpocock-skills-zh:to-spec 前确认数据契约
 
 需求收敛
   ├─ 小而明确：直接实现
   ├─ 会话内真实歧义：grill-with-docs
-  └─ 大型、跨会话、未知互相阻塞：建议 wayfinder
+  └─ 大型、跨会话、未知互相阻塞：建议 $mattpocock-skills-zh:wayfinder
        ├─ 外部事实未明：research
        ├─ 设计需要看效果：prototype
        └─ 业务决策/术语：grilling + domain-modeling
 
 规格与切片
-  -> 大型/多阶段项目首次 spec/ticket 流程：建议 setup-matt-pocock-skills（用户确认后配置）
-  -> to-spec：需要可验收规格、交接或复杂变更
-  -> 多个纵向切片或真实依赖：建议 to-tickets（用户确认后）
+  -> 大型/多阶段项目首次 spec/ticket 流程：建议 $mattpocock-skills-zh:setup-matt-pocock-skills（用户确认后配置）
+  -> $mattpocock-skills-zh:to-spec：需要可验收规格、交接或复杂变更
+  -> 多个纵向切片或真实依赖：建议 $mattpocock-skills-zh:to-tickets（用户确认后）
   -> 小改 / 单切片：跳过规格和拆票
 
 实现 -> 按授权验收
   -> 默认当前会话实现；仅 RuoYiPlus 叠加 ruoyi6
-  -> 仅明确要求时 implement-spec
-  -> code-review / retro：用户明确要求时
+  -> 仅明确要求时 $mattpocock-skills-zh:implement-spec
+  -> $mattpocock-skills-zh:code-review / $mattpocock-skills-zh:retro：用户明确要求时
 ```
 
-不是每个任务都必须走完整流程。`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`writing-for-agents` 可由模型按技能 description 选择；`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由元数据限制为显式调用，必须由用户确认后进入。当前 Codex 专属指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；它们不是确定性 hook，实际以本轮读取的 `SKILL.md` 为准。
+不是每个任务都必须走完整流程。只有 `grill-with-docs` 可由模型按技能 description 隐式选择；`ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff`、`writing-for-agents` 全部由元数据限制为显式调用，必须由用户点名完整技能名后进入。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；它们不是确定性 hook，实际以本轮读取的 `SKILL.md` 为准。
+
+插件技能必须带命名空间，例如 `$mattpocock-skills-zh:wayfinder`、`$mattpocock-skills-zh:to-tickets`；只写 `$wayfinder` 不会加载插件技能。`grill-with-docs` 虽可自动匹配，也支持 `$mattpocock-skills-zh:grill-with-docs` 显式调用；它内部通过相对路径读取 `grilling` 与 `domain-modeling`，不依赖这两个技能被隐式选中。
 
 ## 载体
 
 - **Codex 插件**：`mattpocock-skills-zh`，来源为中文翻译仓库 `vinvcn/mattpocock-skills-zh-CN`。运行安装在 Codex 插件缓存；公开镜像位于 `plugins/mattpocock-skills-zh/`。
-- **Magpie 直接分发**：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接暴露在 `~/.codex/skills`，按需手动读取；不使用 `magpie-skills` 聚合路由。
-- **Matt 中文插件**：16 个流程技能独立加载，不与 Magpie 本地技能重复；常规决策、证据和规格技能可按条件选用，`wayfinder`、`to-tickets`、`ask-matt` 等由 Codex 建议后经用户确认。
+- **Magpie 直接分发**：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接暴露在 `~/.codex/skills`；`ruoyi6` 和 `database-design` 按场景优先触发，`frontend-design` 和 `answer-me-with-html` 仅在用户点名时进入；不使用 `magpie-skills` 聚合路由。
+- **Matt 中文插件**：16 个流程技能独立加载，不与 Magpie 本地技能重复；只有 `grill-with-docs` 可隐式选择，其余 15 个必须由用户显式点名。
 
 ## 中文插件：16 个
 
@@ -84,7 +86,7 @@
 | `frontend-design` | 用户明确要求深度视觉设计时叠加 |
 | `answer-me-with-html` | 用户明确要求视觉解释页时使用 |
 
-这 4 个技能仍在 Magpie 资源库中维护；16 个 Matt 中文技能的运行载体仍是 Codex 插件，公开仓库只保留一份只读镜像，避免在 Magpie 形成同名双份。4 个本地技能全部直接暴露在 `~/.codex/skills`，由模型按任务需要手动读取；不使用 `magpie-skills` 聚合入口。API 回归的执行约束已收敛到全局 `instructions.md` 与 Codex 补充 `instructions/codex.md`，不再单独维护技能。
+这 4 个技能仍在 Magpie 资源库中维护；16 个 Matt 中文技能的运行载体仍是 Codex 插件，公开仓库只保留一份只读镜像，避免在 Magpie 形成同名双份。4 个本地技能全部直接暴露在 `~/.codex/skills`；`ruoyi6`、`database-design` 由全局指令优先触发，`frontend-design`、`answer-me-with-html` 只在用户点名时进入。不使用 `magpie-skills` 聚合入口。API 回归的执行约束已收敛到全局 `instructions.md` 与 Codex 补充 `instructions/codex.md`，不再单独维护技能。
 
 ## 刻意不纳入
 

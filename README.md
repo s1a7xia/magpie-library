@@ -41,7 +41,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的工作原则、授权、验证与交付边界 | 唯一源 `instructions.md` + Codex 补充 `instructions/codex.md`，由 Magpie 合并分发 |
-| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 4 个本地技能全部直接暴露，按需手动读取；16 个 Matt 中文技能由 Codex 插件提供 |
+| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 4 个本地技能直接暴露，其中 2 个优先触发、2 个显式调用；16 个 Matt 中文技能由 Codex 插件提供，仅 `grill-with-docs` 可隐式选择 |
 | 项目事实 | 当前目标、决策、验证证据、构建/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片；页面检查使用 Codex 宿主能力 | Magpie 托管的 9 项 MCP，加上本机 CLI |
 
@@ -55,7 +55,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 ## 工程入口
 
-本项目使用 Matt Pocock 的中文技能插件。Codex 每轮看到的是技能名称和 description，再由当前模型按条件选择并读取 `SKILL.md`，不是路径匹配式的确定性自动执行。技能元数据决定哪些技能可由模型选择、哪些只能显式进入；当前 Codex 专属指令只补充 3 条优先触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余技能仍按 description 和显式边界选择。`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由 Codex 先说明理由和建议产物，用户确认后进入。
+本项目使用 Matt Pocock 的中文技能插件。Codex 每轮看到的是技能名称和 description，再由当前模型按条件选择并读取 `SKILL.md`，不是路径匹配式的确定性自动执行。技能元数据决定哪些技能可由模型选择、哪些只能显式进入；当前只保留 3 条优先触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 15 个 Matt 插件技能和 `frontend-design`、`answer-me-with-html` 全部为 explicit-only，不会进入隐式技能列表。
 
 ```text
 新项目 / 重大新模块
@@ -66,28 +66,28 @@ git clone git@github.com:s1a7xia/magpie-library.git
   -> 事实基线（读规则、代码、Git、状态和授权）
 
 任何阶段涉及持久化对象 / 字段 / 关系 / 状态 / 唯一性 / 删除 / 迁移
-  -> database-design：to-spec 前确认数据契约
+  -> database-design：进入 $mattpocock-skills-zh:to-spec 前确认数据契约
 
 需求收敛
   ├─ 目标、验收和修改点清楚 -> 直接实现
   ├─ 单会话真实歧义 -> grill-with-docs
   └─ 大型、跨会话、关键未知互相阻塞
-       -> 建议 wayfinder（用户确认后建决策地图）
+       -> 建议 $mattpocock-skills-zh:wayfinder（用户确认后建决策地图）
           ├─ research：外部事实
           ├─ prototype：UI / 行为效果
           ├─ grilling + domain-modeling：业务决策 / 术语
-          └─ 路径仍不清：建议 ask-matt（用户确认后导航）
+          └─ 路径仍不清：建议 $mattpocock-skills-zh:ask-matt（用户确认后导航）
 
 规格与切片
-  -> 大型/多阶段项目首次 spec/ticket 流程：建议 setup-matt-pocock-skills（用户确认后配置）
-  -> to-spec：需要可验收规格、交接或复杂变更
-  -> 多个纵向切片或真实依赖：建议 to-tickets（用户确认后拆）
+  -> 大型/多阶段项目首次 spec/ticket 流程：建议 $mattpocock-skills-zh:setup-matt-pocock-skills（用户确认后配置）
+  -> $mattpocock-skills-zh:to-spec：需要可验收规格、交接或复杂变更
+  -> 多个纵向切片或真实依赖：建议 $mattpocock-skills-zh:to-tickets（用户确认后拆）
   -> 小改或单一明确切片：跳过规格和拆票
 
 实现 -> 授权内验证
   -> 默认当前会话实现；仅 RuoYiPlus 叠加 ruoyi6
-  -> 仅明确要求时 implement-spec
-  -> code-review 仅在明确要求时
+  -> 仅明确要求时 $mattpocock-skills-zh:implement-spec
+  -> $mattpocock-skills-zh:code-review 仅在明确要求时
   -> 预发布、UAT、生产发布、客户验收是审批门
 ```
 
@@ -95,13 +95,15 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 `wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。子代理、提交、push 和外部 Issue 仍按当前任务授权。
 
+插件技能必须用完整命名空间调用，例如 `$mattpocock-skills-zh:wayfinder`、`$mattpocock-skills-zh:to-tickets`；只写 `$wayfinder` 不会加载插件技能。本地技能直接用 `$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`。
+
 业务规范按场景叠加：
 
 - `database-design`：需求/方案阶段讨论持久化对象、字段语义、身份/归属、关系、唯一性、生命周期、删除/历史、JSONB 时先加载；后续结构性变更继续使用。
 - `ruoyi6`：实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-Matt 中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 承载；Magpie 维护 4 个本地技能，全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`；不使用 `magpie-skills` 聚合路由，由模型按任务需要手动读取。插件与本地技能不要重复安装同名副本。
+Matt 中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 承载；Magpie 维护 4 个本地技能，全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`；不使用 `magpie-skills` 聚合路由。`ruoyi6` 和 `database-design` 由全局指令优先触发，`frontend-design` 和 `answer-me-with-html` 只在用户点名时进入。插件与本地技能不要重复安装同名副本。
 
 ## 环境清单
 

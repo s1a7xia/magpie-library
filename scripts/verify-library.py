@@ -60,6 +60,24 @@ def markdown_links(text: str) -> list[str]:
     ]
 
 
+def invocation_policy(skill_dir: Path) -> str:
+    """Return the effective Codex invocation policy for one skill."""
+    metadata = skill_dir / "agents" / "openai.yaml"
+    if metadata.is_file():
+        text = metadata.read_text(encoding="utf-8")
+        if re.search(r"allow_implicit_invocation:\s*false", text):
+            return "explicit"
+        if re.search(r"allow_implicit_invocation:\s*true", text):
+            return "implicit"
+    skill_md = skill_dir / "SKILL.md"
+    if skill_md.is_file() and re.search(
+        r"(?m)^disable-model-invocation:\s*true\s*$",
+        skill_md.read_text(encoding="utf-8")[:1200],
+    ):
+        return "explicit"
+    return "implicit"
+
+
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -175,6 +193,22 @@ def main() -> int:
         else:
             checks.append(f"library.json lists all {len(skill_dirs)} skills")
 
+        local_implicit = {
+            item.name
+            for item in source_skills.iterdir()
+            if item.is_dir()
+            and (item / "SKILL.md").is_file()
+            and invocation_policy(item) == "implicit"
+        }
+        expected_local_implicit = {"ruoyi6", "database-design"}
+        if local_implicit != expected_local_implicit:
+            errors.append(
+                "local implicit skills differ from the 3-route design: "
+                f"expected={sorted(expected_local_implicit)}, actual={sorted(local_implicit)}"
+            )
+        else:
+            checks.append("local implicit skills are exactly ruoyi6 and database-design")
+
         backups = [
             item for item in source_skills.rglob("*") if item.is_file() and is_backup(item)
         ]
@@ -259,6 +293,48 @@ def main() -> int:
             warnings.append(
                 "MCP headers contain inline credentials (move to Magpie placeholders): "
                 + ", ".join(sorted(set(inline_credentials)))
+            )
+
+    plugin_root = (
+        CODEX_HOME
+        / "plugins"
+        / "cache"
+        / "magpie-mattpocock-zh"
+        / "mattpocock-skills-zh"
+    )
+    versions = []
+    if plugin_root.is_dir():
+        for item in plugin_root.iterdir():
+            if item.is_dir() and re.fullmatch(r"\d+\.\d+\.\d+", item.name):
+                versions.append((tuple(int(part) for part in item.name.split(".")), item))
+    if not versions:
+        warnings.append("installed Matt plugin cache was not found; plugin policy not checked")
+    else:
+        plugin_dir = max(versions)[1]
+        plugin_skills = plugin_dir / "skills"
+        plugin_skill_dirs = {
+            item.name: item
+            for item in plugin_skills.iterdir()
+            if item.is_dir() and (item / "SKILL.md").is_file()
+        }
+        expected_plugin_implicit = {"grill-with-docs"}
+        plugin_implicit = {
+            name
+            for name, item in plugin_skill_dirs.items()
+            if invocation_policy(item) == "implicit"
+        }
+        if len(plugin_skill_dirs) != 16:
+            errors.append(
+                f"installed Matt plugin has {len(plugin_skill_dirs)} skills; expected 16"
+            )
+        if plugin_implicit != expected_plugin_implicit:
+            errors.append(
+                "Matt plugin implicit skills differ from the 3-route design: "
+                f"expected={sorted(expected_plugin_implicit)}, actual={sorted(plugin_implicit)}"
+            )
+        if len(plugin_skill_dirs) == 16 and plugin_implicit == expected_plugin_implicit:
+            checks.append(
+                f"Matt plugin {plugin_dir.name}: only grill-with-docs is implicit"
             )
 
     print("Magpie library health check")

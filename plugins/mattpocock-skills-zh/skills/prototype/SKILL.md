@@ -1,6 +1,7 @@
 ---
 name: prototype
 description: 构建一次性原型来回答一个设计问题。适用于用户想验证某个 state model 或 logic 是否感觉对，或探索 UI 应该长什么样时。
+disable-model-invocation: true
 ---
 
 # 原型

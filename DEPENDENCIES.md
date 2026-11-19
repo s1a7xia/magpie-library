@@ -59,14 +59,14 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Codex 技能目录：`C:\Users\<user>\.codex\skills\`
 
-Magpie 使用直接分发：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由，由模型按任务需要手动读取对应 `SKILL.md`。Matt 的 16 个简体中文技能由 Codex 插件提供，不复制到 Magpie。
+Magpie 使用直接分发：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由。前两个由全局指令优先触发，后两个只在用户点名时进入。Matt 的 16 个简体中文技能由 Codex 插件提供，不复制到 Magpie。
 
 插件配置：
 
 ```text
 marketplace: magpie-mattpocock-zh
 plugin: mattpocock-skills-zh@magpie-mattpocock-zh
-version: 1.0.8
+version: 1.0.10
 source: 本机 Codex marketplace `magpie-mattpocock-zh`；公开仓库镜像在 `plugins\mattpocock-skills-zh\`
 upstream: https://github.com/vinvcn/mattpocock-skills-zh-CN
 commit: d97aa0788b120c9363ebddfd47b87618d9314c3e
@@ -89,11 +89,11 @@ codex plugin list
 
 ### 3.2 当前分发
 
-当前 Magpie 的 4 个技能只勾选给 `codex`，并全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。它们都按任务需要手动读取，不使用聚合路由。
+当前 Magpie 的 4 个技能只勾选给 `codex`，并全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。`ruoyi6`、`database-design` 由全局指令优先触发；`frontend-design`、`answer-me-with-html` 只在用户点名时进入。不使用聚合路由。
 
 Matt 中文插件包含 16 个技能：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`。`tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture` 和 `pr` 未纳入，不得按旧文档声称可用。
 
-Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`writing-for-agents` 可由 Codex 按技能描述选择；`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由元数据限制为显式调用，需用户确认后进入。当前 Codex 专属指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
+Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；`ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff`、`writing-for-agents` 全部由 `allow_implicit_invocation: false` 限制为显式调用。插件技能在 Codex 中的完整调用名是 `$mattpocock-skills-zh:<skill>`；只写 `$wayfinder` 不会加载插件技能。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
 
 全局指令当前只分发给 `codex`：
 

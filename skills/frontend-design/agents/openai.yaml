@@ -3,4 +3,4 @@ interface:
   short_description: "Explicit deep design on UI baseline"
   default_prompt: "Use $frontend-design to redesign this page with a deliberate visual direction."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

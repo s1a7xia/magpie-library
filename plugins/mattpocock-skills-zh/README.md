@@ -3,7 +3,7 @@
 这是 [vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN) 的本地 Codex 插件，按用户勾选保留 16 个工程技能，并针对 Codex 的执行语义、授权边界和可靠交付做了适配。
 
 - 上游中文内容 commit：`d97aa0788b120c9363ebddfd47b87618d9314c3e`
-- 插件版本：`1.0.8`
+- 插件版本：`1.0.10`
 - 许可证：MIT；见 [LICENSE](LICENSE) 和 [LICENSE.zh-CN.md](LICENSE.zh-CN.md)
 - 插件名：`mattpocock-skills-zh`
 - Marketplace：`magpie-mattpocock-zh`
@@ -40,23 +40,35 @@
 Codex 自带技能匹配 + 可选 ask-matt 导航
   -> 小而明确：直接实现
   -> 会话内可收敛：grill-with-docs
-  -> 大型、跨会话、未知互相阻塞：wayfinder
+  -> 大型、跨会话、未知互相阻塞：$mattpocock-skills-zh:wayfinder
        -> research：外部事实未明
        -> prototype：设计需要看效果
        -> grilling + domain-modeling：业务决策和领域术语
-  -> to-spec
-  -> to-tickets（仅多个纵向切片或真实依赖）
-  -> 默认由 Codex 直接实现；显式 implement-spec 时走隔离 worktree 编排
+  -> $mattpocock-skills-zh:to-spec
+  -> $mattpocock-skills-zh:to-tickets（仅多个纵向切片或真实依赖）
+  -> 默认由 Codex 直接实现；显式 $mattpocock-skills-zh:implement-spec 时走隔离 worktree 编排
   -> 按授权验收
-  -> code-review / retro 按需
+  -> $mattpocock-skills-zh:code-review / $mattpocock-skills-zh:retro 按需
 ```
 
 `ask-matt` 是显式导航器，不替代 Codex 自带路由，也不强制每个任务走完整流程。路径清楚时无需调用它；路径不清时由 Codex 先说明理由，用户确认后再进入。
 
+导航后需要进入下一阶段时，使用完整名，例如 `$mattpocock-skills-zh:wayfinder`、`$mattpocock-skills-zh:to-spec`。`wayfinder` 内部的 `research`、`prototype`、`grilling`、`domain-modeling` 通过相对路径读取，不要求这些技能被隐式选择。
+
 ## 调用策略
 
-- **自动调用**：`grill-with-docs`、`to-spec`、`grilling`、`domain-modeling`、`research`、`prototype`、`writing-for-agents`。Codex 可依据项目事实和当前歧义自行选择；用户仍可显式点名。
-- **显式调用**：`ask-matt`、`wayfinder`、`to-tickets`、`triage`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`。它们会建立共享地图、创建多文件工件、启动隔离实现或改变外部流程，不静默进入；Codex 判断适合时只提出下一步，由用户确认。
+- **自动调用**：仅 `grill-with-docs`。它对应本项目“单会话内出现会改变结果的真实歧义”这一条优先触发；`ruoyi6`、`database-design` 由 Magpie 本地指令单独触发。
+- **显式调用**：其余 15 个技能全部为 explicit-only：`ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff`、`writing-for-agents`。它们不会进入模型的隐式技能列表；需要时在 Codex 中点名完整技能名。
+
+在 Codex 中调用插件技能必须带命名空间：
+
+```text
+$mattpocock-skills-zh:wayfinder
+$mattpocock-skills-zh:to-tickets
+$mattpocock-skills-zh:code-review
+```
+
+单独写 `$wayfinder` 不会加载插件技能。`grill-with-docs` 虽然可自动匹配，也仍可用同一完整名显式调用。`grill-with-docs` 内部的 `grilling`、`domain-modeling` 通过相对路径读取，不依赖它们可被隐式选择。
 
 ## 本机适配
 

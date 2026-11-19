@@ -4,6 +4,8 @@
 - 讨论或修改持久化对象、表、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB、迁移时，先读取 `database-design` 的 `SKILL.md`，确认数据契约。
 - 单会话内存在会改变结果的真实歧义时，先读取 `grill-with-docs` 的 `SKILL.md`；目标和验收已明确则直接实现。
 
+除此之外的技能仅在用户显式点名时使用。插件技能用完整名调用，例如 `$mattpocock-skills-zh:wayfinder`、`$mattpocock-skills-zh:to-spec`；本地技能用 `$frontend-design`、`$answer-me-with-html`。
+
 ## 文档约束
 
 - `docs/project-state.md`：任务状态事实源，记录当前阶段、已完成、进行中、下一步、剩余工作、风险、阻塞和验收状态；已有状态文档则复用，只更新变化事实。

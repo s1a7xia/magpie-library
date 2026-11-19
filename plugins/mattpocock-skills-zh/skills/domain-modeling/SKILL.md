@@ -1,6 +1,7 @@
 ---
 name: domain-modeling
 description: 构建并打磨项目的领域模型。适用于讨论 codebase 术语、编写或编辑 GLOSSARY.md，或记录或编辑 ADR。
+disable-model-invocation: true
 ---
 
 # 领域建模

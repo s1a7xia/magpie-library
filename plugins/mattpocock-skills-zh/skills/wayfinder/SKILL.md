@@ -98,8 +98,8 @@ Blocking 在外部 tracker 优先使用 native dependency relationship；只有�
 
 每个 ticket 都是 **HITL**（human in the loop，与能代表自己发言的人类一起处理）或 **AFK**（agent 独立驱动）。HITL ticket 只能通过 live exchange 解决；agent 绝不能替人类回答。一旦 grilling agent 自问自答，它就已经坏了。
 
-- **Research**（AFK）：阅读 documentation、third-party APIs，或 knowledge bases 等 local resources，找出某项 decision 正在等待的事实。交给只读调查子代理调用 `research`；主会话继续推进不依赖该事实的 tickets。当需要当前 working directory 外的知识时使用。
-- **Prototype**（HITL）：通过 cheap、rough、concrete artifact 提高讨论 fidelity，例如 outline、rough take、stub，或调用 `prototype` 写 UI/logic code。Prototype 作为 asset 链接。当核心问题是 "how should it look" 或 "how should it behave" 时使用。
+- **Research**（AFK）：阅读 documentation、third-party APIs，或 knowledge bases 等 local resources，找出某项 decision 正在等待的事实。交给只读调查子代理读取 [`research`](../research/SKILL.md) 的 `SKILL.md`；需要独立调研流程时可显式调用 `$mattpocock-skills-zh:research`。主会话继续推进不依赖该事实的 tickets。当需要当前 working directory 外的知识时使用。
+- **Prototype**（HITL）：通过 cheap、rough、concrete artifact 提高讨论 fidelity，例如 outline、rough take、stub，或读取 [`prototype`](../prototype/SKILL.md) 并写 UI/logic code。Prototype 作为 asset 链接。当核心问题是 "how should it look" 或 "how should it behave" 时使用。
 - **Grilling**（HITL）：Conversation。默认类型。始终读取并遵循 [`grilling`](../grilling/SKILL.md) 和 [`domain-modeling`](../domain-modeling/SKILL.md) 两个技能的 `SKILL.md`。
 - **Task**（HITL 或 AFK）：做出 _decision_ 前必须完成、但本身没有要 decide、prototype 或 research 的 manual work。例如注册服务以评估其 API、配置访问权限、移动数据以看清 shape。这是唯一会 _do_ 而不是 decide 的类型；它凭借解锁 decision 而存在，而不是交付 destination。Agent 能独立完成时采用 AFK，否则给人类精确 checklist（HITL）。工作完成后 resolved；答案记录做了什么，以及后续 tickets 依赖的事实（credentials location、new URLs、row counts 等）。
 
@@ -139,7 +139,7 @@ Out-of-scope work 永远不会 graduate；frontier 会停在 destination。只�
    - 本地模式：每个 ticket 一个文件，使用相对路径互相引用；不要用会误解的占位符。
    - 外部 tracker：issues 需要 ids 后才能互相引用，再设置 native blocking links。
    Wiring 会把它们分成 frontier 和 blocked；现在还说不清的都留在 **Not yet specified**。
-5. **处理 research tickets。** 对刚创建的每个 research ticket 启动使用全新 context window 的只读调查子代理去调用 `research`；只读查证，不做实现。findings 写入本地 notes 文件，并从 ticket 留 context pointer。不创建 branch、不 push、不开 PR。
+5. **处理 research tickets。** 对刚创建的每个 research ticket 启动使用全新 context window 的只读调查子代理，读取 `../research/SKILL.md` 后查证；只读查证，不做实现。findings 写入本地 notes 文件，并从 ticket 留 context pointer。不创建 branch、不 push、不开 PR。
 6. 停止。Charting 是一个 session 的工作；不要在这个 session 中手动 resolve tickets。
 
 ### 沿着地图推进

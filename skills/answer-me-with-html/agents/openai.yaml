@@ -2,4 +2,4 @@ interface:
   display_name: "Answer Me with HTML"
   short_description: "Render a visual explainer only when explicitly requested"
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
