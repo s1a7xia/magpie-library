@@ -55,16 +55,19 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 ## 3. 技能分发
 
-- `sharedSkills = false`，`skillRouter = off`；19 个技能全部直接暴露，不使用 `magpie-skills` 聚合路由。
-- 19 个技能全部直接出现在 `~/.codex/skills`，都是指向资源库的 **Junction**，没有插件副本。
-- 只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 16 个由 `disable-model-invocation: true` 限制为显式调用。调用统一使用短名，例如 `$wayfinder`、`$to-spec`。
+- `sharedSkills = false`，`skillRouter = on`；19 个技能按高频直接暴露、低频经 `magpie-skills` 聚合的方式分发。
+- `~/.codex/skills` 中有 15 个直接技能 Junction，以及 1 个 `magpie-skills` 聚合入口；没有插件副本。
+- 直接技能中只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 12 个由 `disable-model-invocation: true` 限制为显式调用。
+- `triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能位于 `magpie-skills/.skills/`，由聚合入口的 `SKILL.md` 按描述选择；不依赖独立 `$技能名` 入口。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
 ```text
 Codex 技能匹配
   ├─ 隐式：ruoyi6 / database-design / grill-with-docs
-  └─ 显式：其余 16 个短名技能
-       └─ 路径不清时先建议 $ask-matt，用户确认后进入
+  ├─ 显式：其余 12 个直接技能
+  │    └─ 路径不清时先建议 $ask-matt，用户确认后进入
+  └─ 低频：triage / retro / handoff / writing-for-agents
+       └─ 经 magpie-skills 聚合入口按描述读取
 ```
 
 工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。实现始终由当前 Codex 会话直接完成，不另设实现技能。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。

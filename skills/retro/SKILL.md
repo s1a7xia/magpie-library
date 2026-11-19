@@ -1,7 +1,6 @@
 ---
 name: retro
 description: "对一次 coding session 做 retrospective。"
-disable-model-invocation: true
 ---
 
 用户要求做一次 **retrospective**。你要针对 coding agent 的 **environment** 提出改进建议，以改善未来的运行结果。

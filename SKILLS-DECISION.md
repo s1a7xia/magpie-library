@@ -5,12 +5,13 @@
 ## 当前结论
 
 - **唯一入口**：Magpie 资源库。
-- **唯一安装位置**：`~/.codex/skills`，全部为指向 Magpie 的 Junction。
+- **唯一安装位置**：`~/.codex/skills`；15 个高频技能为直接 Junction，4 个低频技能经 `magpie-skills` 聚合入口读取。
 - **技能总数**：19 个。
 - **隐式触发**：3 个，`ruoyi6`、`database-design`、`grill-with-docs`。
-- **显式调用**：16 个，只有用户点名才进入。
-- **调用方式**：统一使用短名，如 `$wayfinder`、`$to-spec`、`$code-review`。
-- **不再使用**：Codex 插件副本、`mattpocock-skills-zh` 命名空间、`magpie-skills` 聚合路由。
+- **直接显式调用**：12 个，只有用户点名才进入。
+- **低频聚合**：4 个，`triage`、`retro`、`handoff`、`writing-for-agents`，经 `magpie-skills` 读取。
+- **调用方式**：直接技能统一使用短名，如 `$wayfinder`、`$to-spec`、`$code-review`；聚合技能由 `magpie-skills` 的摘要选择后读取，不假设存在 `$triage` 等独立入口。
+- **不再使用**：Codex 插件副本、`mattpocock-skills-zh` 命名空间。
 
 技能存在不等于已经加载；规则里写了“应先读取”也不等于模型每轮必然执行。最终以本轮实际读取的 `SKILL.md` 为准。
 
@@ -77,29 +78,29 @@ JSONB 或迁移
 
 这三项是“优先读取”，不是确定性 hook，也不能替代对项目事实的核对。
 
-### 需求与决策：7 个显式技能
+### 需求与决策：7 个显式技能（6 个直接，1 个聚合）
 
 | 技能 | 作用 | 何时使用 |
 |---|---|---|
 | `$ask-matt` | 路径不清时选择最短可靠路线 | 用户明确要求导航，或方案阶段确实无法判断下一步 |
-| `$triage` | 对外部 Issue/PR 分类、补证据、形成 agent-ready brief | 已有外部需求池需要整理；不处理刚由 `$to-tickets` 产出的票 |
+| `triage` | 对外部 Issue/PR 分类、补证据、形成 agent-ready brief | 已有外部需求池需要整理；不处理刚由 `$to-tickets` 产出的票；经 `magpie-skills` 读取 |
 | `$wayfinder` | 为单个会话装不下的大型工作建立决策地图和 decision tickets | 跨会话、多未知互相阻塞；只规划路线，不直接交付功能 |
 | `$grilling` | 用设计树和 frontier 对计划、设计或想法做压力测试 | 需要深挖决策，不一定需要写文档 |
 | `$domain-modeling` | 统一领域语言、边界、生命周期，沉淀词汇表和 ADR | 术语或边界不稳定，后续规格会因此反复 |
 | `$research` | 用一手来源补齐外部事实 | API、框架版本、第三方能力、规范事实未明 |
 | `$prototype` | 用一次性样品验证 UI、状态模型或业务逻辑 | 纸面讨论无法判断效果 |
 
-### 规格、实现与交付：9 个显式技能
+### 规格、实现与交付：9 个技能（6 个直接，3 个聚合）
 
 | 技能 | 作用 | 何时使用 |
 |---|---|---|
 | `$to-spec` | 把已确认内容合成为可验收规格，不做新访谈 | 需要持久记录、交接、复杂变更或多轮实现 |
 | `$to-tickets` | 拆成带阻塞关系的纵向交付切片 | 存在多个可独立验收的切片或真实依赖 |
 | `$code-review` | Standards + Spec 双轴只读审查 | 用户明确要求审查；调用即授权两个并行只读审查子代理 |
-| `$retro` | 复盘一次会话并改进 agent 环境 | 用户明确要求复盘 |
-| `$handoff` | 生成可携带的跨会话交接文档 | 要换 harness、目录、同事或阶段中途分叉 |
+| `retro` | 复盘一次会话并改进 agent 环境 | 用户明确要求复盘；经 `magpie-skills` 读取 |
+| `handoff` | 生成可携带的跨会话交接文档 | 要换 harness、目录、同事或阶段中途分叉；经 `magpie-skills` 读取 |
 | `$setup-matt-pocock-skills` | 配置 tracker、triage labels 和领域文档布局 | 大型或多阶段项目首次进入 spec/ticket 流程前 |
-| `$writing-for-agents` | 编写技能、`AGENTS.md` 等 agent 文档 | 用户明确要求维护 agent 指令或技能 |
+| `writing-for-agents` | 编写技能、`AGENTS.md` 等 agent 文档 | 用户明确要求维护 agent 指令或技能；经 `magpie-skills` 读取 |
 | `$frontend-design` | 深度视觉设计 | 用户明确要求页面美化、整页改版或明确视觉方向 |
 | `$answer-me-with-html` | 生成视觉解释页 | 用户明确要求可视化说明 |
 
@@ -117,8 +118,8 @@ JSONB 或迁移
 | 默认实现和 RuoYi 技术规范 | 当前会话 + `ruoyi6` |
 | 数据模型不被顺手臆造 | `database-design` |
 | 明确要求时的质量审查 | `$code-review` |
-| 明确要求时的复盘、交接和文档维护 | `$retro`、`$handoff`、`$writing-for-agents` |
-| 外部需求池整理 | `$triage` |
+| 明确要求时的复盘、交接和文档维护 | `retro`、`handoff`、`writing-for-agents`（聚合） |
+| 外部需求池整理 | `triage`（聚合） |
 | 路径导航和视觉支撑 | `$ask-matt`、`$frontend-design`、`$answer-me-with-html` |
 
 ## 刻意不纳入
@@ -143,6 +144,6 @@ JSONB 或迁移
 - 修改任何技能都编辑 Magpie 资源库 `skills/<name>/`，再执行 `magpie library sync`。
 - `implement` 和 `implement-spec` 已删除，不再提供；实现由当前 Codex 会话直接完成，不增加独立实现入口、实现子代理或 worktree 编排层。
 - 公开仓库只保留同一份 `skills/`，不再镜像 Codex 插件目录。
-- 新会话统一使用短名调用，例如 `$wayfinder`，不再使用 `$mattpocock-skills-zh:wayfinder`。
+- 新会话统一使用短名调用直接技能，例如 `$wayfinder`，不再使用 `$mattpocock-skills-zh:wayfinder`；低频聚合技能经 `magpie-skills` 读取。
 - 新增或删除技能时，同时更新 `~/.config/magpie/library.json`、本文、README、脱敏快照和公开镜像。
 - 上游来源和许可见 [THIRD-PARTY.md](THIRD-PARTY.md)。

@@ -136,8 +136,8 @@ def main() -> int:
     else:
         # Skills land where the library is configured to put them: ~/.agents/skills
         # when shared, otherwise each agent's own skills directory (Codex checked here).
-        # Legacy router layouts keep routed skills under magpie-skills/.skills;
-        # current libraries install every skill directly beside the others.
+        # With the skill router on, skills not marked direct live under
+        # magpie-skills/.skills and are reached through the router's SKILL.md.
         if data.get("sharedSkills"):
             target_skills = Path.home() / ".agents" / "skills"
             target_label = "~/.agents/skills (shared)"
@@ -154,12 +154,17 @@ def main() -> int:
                 for item in data.get("skills", [])
                 if item.get("name")
             }
+            routed = {
+                name
+                for name, route in routes.items()
+                if router_on and route != "direct"
+            } if router_on else set()
             missing = 0
             changed = 0
             for source in skill_files(source_skills):
                 rel = source.relative_to(source_skills)
                 skill_name = rel.parts[0] if rel.parts else ""
-                if router_on and routes.get(skill_name) != "direct":
+                if skill_name in routed:
                     target = router_dir / rel
                 else:
                     target = target_skills / rel
@@ -173,6 +178,52 @@ def main() -> int:
                 )
             else:
                 checks.append(f"all skill copies match the library in {target_label}")
+
+            if router_on:
+                router_skill = target_skills / "magpie-skills" / "SKILL.md"
+                if not router_skill.is_file():
+                    errors.append("skillRouter is on but magpie-skills/SKILL.md is missing")
+                else:
+                    router_text = router_skill.read_text(encoding="utf-8")
+                    missing_entries = sorted(
+                        name for name in routed if f"## {name}\n" not in router_text
+                    )
+                    if missing_entries:
+                        errors.append(
+                            "magpie-skills/SKILL.md omits routed skills: "
+                            + ", ".join(missing_entries)
+                        )
+                    else:
+                        checks.append(
+                            f"magpie-skills lists all {len(routed)} routed skills"
+                        )
+                direct_exposed = {
+                    name for name, route in routes.items() if route == "direct"
+                }
+                wrong_direct = sorted(
+                    name for name in routed if (target_skills / name).exists()
+                )
+                missing_direct = sorted(
+                    name for name in direct_exposed
+                    if not (target_skills / name / "SKILL.md").is_file()
+                )
+                if wrong_direct:
+                    errors.append(
+                        "routed skills still have direct entries: "
+                        + ", ".join(wrong_direct)
+                    )
+                if missing_direct:
+                    errors.append(
+                        "direct skills are missing from the agent folder: "
+                        + ", ".join(missing_direct)
+                    )
+                if not wrong_direct and not missing_direct:
+                    checks.append(
+                        f"skill router exposes {len(direct_exposed)} direct skills "
+                        f"and {len(routed)} routed skills"
+                    )
+            elif (target_skills / "magpie-skills").exists():
+                errors.append("skillRouter is off but magpie-skills is present")
 
         skill_dirs = {
             item.name
@@ -193,22 +244,25 @@ def main() -> int:
         else:
             checks.append(f"library.json lists all {len(skill_dirs)} skills")
 
-        local_implicit = {
+        local_direct_implicit = {
             item.name
             for item in source_skills.iterdir()
             if item.is_dir()
             and (item / "SKILL.md").is_file()
+            and routes.get(item.name) == "direct"
             and invocation_policy(item) == "implicit"
         }
-        expected_local_implicit = {"ruoyi6", "database-design", "grill-with-docs"}
-        if local_implicit != expected_local_implicit:
+        expected_direct_implicit = {"ruoyi6", "database-design", "grill-with-docs"}
+        if local_direct_implicit != expected_direct_implicit:
             errors.append(
-                "local implicit skills differ from the 3-route design: "
-                f"expected={sorted(expected_local_implicit)}, actual={sorted(local_implicit)}"
+                "direct implicit skills differ from the 3-route design: "
+                f"expected={sorted(expected_direct_implicit)}, "
+                f"actual={sorted(local_direct_implicit)}"
             )
         else:
             checks.append(
-                "local implicit skills are exactly ruoyi6, database-design and grill-with-docs"
+                "direct implicit skills are exactly "
+                "ruoyi6, database-design and grill-with-docs"
             )
 
         backups = [

@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 **只推荐当前 Magpie 资源库实际安装的技能。** 如果下面的表里没有，说明当前资源库不提供，不要凭上游仓库或旧文档假装它可用。
 
-这些技能都直接从 Magpie 资源库分发到 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余技能都由用户显式点名。
+这些技能都来自 Magpie 资源库。15 个直接技能位于 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发。
 
 ## 授权门
 

@@ -5,8 +5,8 @@
 ## 总览
 
 - Magpie：CLI 实测 `0.1.4395`。
-- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=off`；Magpie 资源库有 19 个技能，全部只分发给 Codex 并直接出现在 `~/.codex/skills`。不使用 `magpie-skills` 聚合层，也不安装 Codex 插件副本。
-- 19 个技能中，`ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 16 个仅显式调用。调用统一使用短名，例如 `$wayfinder`、`$to-spec`。
+- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=on`；Magpie 资源库有 19 个技能，全部只勾选给 Codex。其中 15 个高频技能直接出现在 `~/.codex/skills`，`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取；不安装 Codex 插件副本。
+- 15 个直接技能中，`ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 12 个仅显式调用。调用直接技能使用短名，例如 `$wayfinder`、`$to-spec`。
 - MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。工具可见不等于获得写操作授权。
 - Alma 已退出本资源库的团队与分发链：其 `USER.md` 为空，技能目录没有 Magpie Junction，`mcp.json` 为空。Alma 的聊天、记忆、通知、微信、Herdr 及其自身 bundled/personal 配置由 Alma 独立维护，不由本仓库管理。
 - 自动备份：每 24 小时、保留 3 份、包含登录态；密码及备份文件不公开。没有执行备份或恢复演练，不能保证未核验的数据一定被整包覆盖。
@@ -36,9 +36,9 @@
 | magpie-our-free-model | `github:mu-zi-lee/magpie-our-free-model`，0.9.4 | CLI 显示 on；社区模型供应商入口。登录态不公开，不依赖其名称承诺长期免费或稳定 |
 | @vshulcz/magpie-deja | 本地 `~/.config/magpie/local-plugins/magpie-deja`，package 版本 0.24.0 | CLI 显示 on，async gateway `onRequest` hook；按项目召回历史会话 |
 
-## Codex 技能：19 个
+## Codex 技能：19 个（15 个直接，4 个聚合）
 
-全部技能由 Magpie 资源库直接分发，没有 Codex 插件、marketplace 或插件缓存。`codex plugin list` 中不应出现 `mattpocock-skills-zh` 或 `magpie-mattpocock-zh`。
+全部技能由 Magpie 资源库分发，没有 Codex 插件、marketplace 或插件缓存。`codex plugin list` 中不应出现 `mattpocock-skills-zh` 或 `magpie-mattpocock-zh`。
 
 | 类别 | 技能 |
 |---|---|
@@ -46,6 +46,8 @@
 | 需求与决策 | `ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype` |
 | 规格与交付 | `to-spec`、`to-tickets`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents` |
 | 视觉与展现 | `frontend-design`、`answer-me-with-html` |
+
+上表 19 个技能中，`triage`、`retro`、`handoff`、`writing-for-agents` 不直接暴露，经 `magpie-skills` 聚合入口读取；其余 15 个直接位于 `~/.codex/skills`。
 
 其中 15 个技能源自 Matt Pocock 的工程技能，经简体中文翻译和本地适配；来源与 MIT 许可见 [THIRD-PARTY.md](THIRD-PARTY.md)。
 
@@ -95,7 +97,7 @@ deja README 使用 `~/.deja` 举例，本机该目录不存在；Windows 数据�
 | 会话/记忆 | 机制、路径类型、权限与已知健康状态 | 会话、结构化记忆、召回索引及相关授权 |
 | 加密同步 | 使用 Magpie 支持的备份/同步机制 | 同步位置、密码、登录态与真实备份 |
 
-不复制原始 settings/providers/library/sync/memory JSON 到公开库。`environment.snapshot.json` 是明确白名单字段提取：包含 Magpie 的指令 Agent、19 个技能的路由、MCP 元数据和 3 条公开记忆的正文文件索引；不包含 MCP 认证头、插件或运行缓存、记忆索引或机器路径。
+不复制原始 settings/providers/library/sync/memory JSON 到公开库。`environment.snapshot.json` 是明确白名单字段提取：包含 Magpie 的指令 Agent、19 个技能的路由（15 个 direct、4 个 routed）、MCP 元数据和 3 条公开记忆的正文文件索引；不包含 MCP 认证头、插件或运行缓存、记忆索引或机器路径。
 
 ## 恢复与后续维护
 

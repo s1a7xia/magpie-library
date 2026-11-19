@@ -6,7 +6,7 @@
   ],
   "sharedSkills": false,
   "mcpHub": true,
-  "skillRouter": false,
+  "skillRouter": true,
   "skills": [
     {
       "name": "answer-me-with-html",
@@ -69,7 +69,7 @@
       "agents": [
         "codex"
       ],
-      "route": "direct"
+      "route": "routed"
     },
     {
       "name": "prototype",
@@ -90,7 +90,7 @@
       "agents": [
         "codex"
       ],
-      "route": "direct"
+      "route": "routed"
     },
     {
       "name": "ruoyi6",
@@ -125,7 +125,7 @@
       "agents": [
         "codex"
       ],
-      "route": "direct"
+      "route": "routed"
     },
     {
       "name": "wayfinder",
@@ -139,7 +139,7 @@
       "agents": [
         "codex"
       ],
-      "route": "direct"
+      "route": "routed"
     }
   ],
   "publicMemory": [

@@ -2,7 +2,6 @@
 name: handoff
 description: 把当前对话压缩成交接文档，让另一个代理接手。
 argument-hint: "下一个会话将用于什么？"
-disable-model-invocation: true
 ---
 
 编写一份 handoff document，总结当前对话，让 fresh agent 能继续工作。保存到用户操作系统的临时目录（Windows 使用 `$env:TEMP`；其他系统使用 `$TMPDIR`，没有时使用 `/tmp`），不要保存到当前 workspace。

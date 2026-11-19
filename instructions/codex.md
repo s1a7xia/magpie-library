@@ -4,7 +4,7 @@
 - 讨论或修改持久化对象、表、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB、迁移时，先读取 `database-design` 的 `SKILL.md`，确认数据契约。
 - 单会话内存在会改变结果的真实歧义时，先读取 `grill-with-docs` 的 `SKILL.md`；目标和验收已明确则直接实现。
 
-除此之外的技能仅在用户显式点名时使用。全部技能都从 `~/.codex/skills` 直接加载，统一使用短名，例如 `$wayfinder`、`$to-spec`、`$frontend-design`、`$answer-me-with-html`；不要写命名空间或插件前缀。
+除此之外的技能仅在用户显式点名时使用。15 个直接技能从 `~/.codex/skills` 加载，统一使用短名，例如 `$wayfinder`、`$to-spec`、`$frontend-design`、`$answer-me-with-html`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。不要写命名空间或插件前缀。
 
 ## 文档约束
 

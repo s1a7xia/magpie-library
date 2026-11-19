@@ -1,7 +1,6 @@
 ---
 name: triage
 description: 让 issues 和 external PRs 通过一组 triage roles 状态机，分类、验证、必要时 grilling，并写出 agent-ready briefs。
-disable-model-invocation: true
 ---
 
 # Triage
@@ -73,7 +72,7 @@ Maintainer 显式点名 `triage` 技能，并用自然语言描述想要什么�
 
 3. **Verify the claim.** 在任何 grilling 前，检查该 claim 是否成立。对 bug，从 reporter 的步骤复现。对 PR，确认 diff 做到了它所声称的：checkout 和运行 tests/commands 仅在当前任务明确授权时执行，未授权则基于可读证据报告未验证边界。报告发生了什么：已确认（附 code path）、失败，或细节不足（强烈的 `needs-info` 信号）。已确认的验证会让 agent brief 更有力。
 
-4. **Grill（如果需要）.** 如果请求需要进一步充实，读取并遵循 [`grilling`](../grilling/SKILL.md) 和 [`domain-modeling`](../domain-modeling/SKILL.md) 两个技能的 `SKILL.md`，一轮一轮地把它 grill 成形，在 decisions 落定时打磨 domain terms 并内联更新 `GLOSSARY.md`/ADRs。
+4. **Grill（如果需要）.** 如果请求需要进一步充实，读取并遵循 `grilling` 和 `domain-modeling` 两个技能的 `SKILL.md`，一轮一轮地把它 grill 成形，在 decisions 落定时打磨 domain terms 并内联更新 `GLOSSARY.md`/ADRs。
 
 5. **Apply the outcome**（只有获得对应外部写入授权才落到 tracker；否则先输出草案并停止在写操作前）：
    - `ready-for-agent`：发布 agent brief comment（[AGENT-BRIEF.md](AGENT-BRIEF.md)）。

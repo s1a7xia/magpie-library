@@ -41,7 +41,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的工作原则、授权、验证与交付边界 | 唯一源 `instructions.md` + Codex 补充 `instructions/codex.md`，由 Magpie 合并分发 |
-| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 19 个技能全部由 Magpie 直接分发到 `~/.codex/skills`；3 个可隐式触发，16 个仅显式调用 |
+| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 19 个技能由 Magpie 分发；15 个直接暴露，4 个低频技能经 `magpie-skills` 聚合 |
 | 项目事实 | 当前目标、决策、验证证据、构建/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片；页面检查使用 Codex 宿主能力 | Magpie 托管的 9 项 MCP，加上本机 CLI |
 
@@ -55,7 +55,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 ## 工程入口
 
-本项目以 Magpie 作为唯一技能入口，19 个技能全部直接安装到 `~/.codex/skills`，没有插件副本或聚合路由。Codex 每轮看到的是技能名称和 description，再由当前模型按条件选择并读取 `SKILL.md`，不是路径匹配式的确定性自动执行。当前只保留 3 条隐式触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 16 个技能全部为 explicit-only，只能由用户点名。
+本项目以 Magpie 作为唯一技能入口。`~/.codex/skills` 直接暴露 15 个高频技能，另有 `magpie-skills` 聚合入口收纳 `triage`、`retro`、`handoff`、`writing-for-agents` 4 个低频技能；没有插件副本。Codex 每轮看到的是直接技能名称、description 和聚合入口摘要，再由当前模型按条件选择并读取对应 `SKILL.md`，不是路径匹配式的确定性自动执行。直接技能中只保留 3 条隐式触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能为 explicit-only。
 
 ```text
 新项目 / 重大新模块
@@ -94,7 +94,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 `wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。实现始终由当前会话直接完成，不另设实现技能。子代理、提交、push 和外部 Issue 仍按当前任务授权。
 
-全部技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`；不需要也不应再写命名空间或插件前缀。
+15 个直接技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`；4 个低频技能通过 `$magpie-skills` 或直接说明“使用 triage/retro/handoff/writing-for-agents”进入。不需要也不应再写命名空间或插件前缀。
 
 业务规范按场景叠加：
 
@@ -102,7 +102,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 - `ruoyi6`：实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-19 个技能全部在 Magpie 资源库 `skills/` 中维护，并通过 Junction 直接出现在 `~/.codex/skills`；不使用 `magpie-skills` 聚合路由，也不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 16 个只在用户点名时进入。
+19 个技能全部在 Magpie 资源库 `skills/` 中维护。15 个高频技能通过 Junction 直接出现在 `~/.codex/skills`；`triage`、`retro`、`handoff`、`writing-for-agents` 通过 `magpie-skills` 聚合入口按描述读取，不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 12 个直接技能只在用户点名时进入。
 
 ## 环境清单
 
