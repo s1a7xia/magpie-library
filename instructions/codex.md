@@ -1,10 +1,12 @@
 ## 技能触发
 
-- 修改 RuoYi-Vue-Plus 的 `ruoyi-modules/ruoyi-*` 后端，或 `plus-ui-React/src` 对应页面、API、类型、路由、菜单、组件前，先读取 `ruoyi6` 的 `SKILL.md`。
+- RuoYi-Vue-Plus 项目在形成规格前需要核对框架/相邻模块的复用能力或技术落点时，读取 `ruoyi6` 做只读预检；修改 `ruoyi-modules/ruoyi-*` 后端，或 `plus-ui-React/src` 对应页面、API、类型、路由、菜单、组件前，必须先读取 `ruoyi6` 的 `SKILL.md`。
 - 讨论或修改持久化对象、表、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB、迁移时，先读取 `database-design` 的 `SKILL.md`，确认数据契约。
 - 单会话内存在会改变结果的真实歧义时，先读取 `grill-with-docs` 的 `SKILL.md`；目标和验收已明确则直接实现。
 
-除此之外的技能仅在用户显式点名时使用。15 个直接技能从 `~/.codex/skills` 加载，统一使用短名，例如 `$wayfinder`、`$to-spec`、`$frontend-design`、`$answer-me-with-html`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。不要写命名空间或插件前缀。
+除此之外的直接技能仅在用户显式点名时使用。15 个直接技能从 `~/.codex/skills` 加载，统一使用短名，例如 `$wayfinder`、`$to-spec`、`$frontend-design`、`$answer-me-with-html`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能只经 `magpie-skills` 聚合入口读取，由该入口按描述选择或由用户明确要求使用，不假设存在 `$triage` 等独立快捷入口。不要写命名空间或插件前缀。
+
+被触发或显式调用的技能，可按其 `SKILL.md` 读取其中明确点名的依赖技能文件；这只是执行该技能自身流程，不等于另行启用依赖技能，也不扩大其授权。
 
 ## 文档约束
 

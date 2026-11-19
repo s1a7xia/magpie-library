@@ -8,9 +8,9 @@
 - **唯一安装位置**：`~/.codex/skills`；15 个高频技能为直接 Junction，4 个低频技能经 `magpie-skills` 聚合入口读取。
 - **技能总数**：19 个。
 - **隐式触发**：3 个，`ruoyi6`、`database-design`、`grill-with-docs`。
-- **直接显式调用**：12 个，只有用户点名才进入。
+- **直接显式调用**：12 个，默认只在用户点名时进入；已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。
 - **低频聚合**：4 个，`triage`、`retro`、`handoff`、`writing-for-agents`，经 `magpie-skills` 读取。
-- **调用方式**：直接技能统一使用短名，如 `$wayfinder`、`$to-spec`、`$code-review`；聚合技能由 `magpie-skills` 的摘要选择后读取，不假设存在 `$triage` 等独立入口。
+- **调用方式**：直接技能统一使用短名，如 `$wayfinder`、`$to-spec`、`$code-review`；聚合技能由 `magpie-skills` 的摘要选择后读取，或由用户明确要求经该入口使用，不假设存在 `$triage` 等独立入口。
 - **不再使用**：Codex 插件副本、`mattpocock-skills-zh` 命名空间。
 
 技能存在不等于已经加载；规则里写了“应先读取”也不等于模型每轮必然执行。最终以本轮实际读取的 `SKILL.md` 为准。
@@ -72,13 +72,13 @@ JSONB 或迁移
 
 | 技能 | 触发条件 | 作用 |
 |---|---|---|
-| `ruoyi6` | 修改 RuoYi-Vue-Plus 的 `ruoyi-modules/ruoyi-*` 后端，或 `plus-ui-React/src` 对应页面、API、类型、路由、菜单、组件前 | 核对真实复用点、后端分层、BO/VO、前端链路、权限、字典、菜单和增量 SQL |
+| `ruoyi6` | RuoYi 项目在规格前核对复用/落点，或修改 `ruoyi-modules/ruoyi-*` 后端及 `plus-ui-React/src` 对应页面、API、类型、路由、菜单、组件前 | 规格前只读核对真实复用点和首个可交付主干；实现时承接后端分层、BO/VO、前端链路、权限、字典、菜单和增量 SQL |
 | `database-design` | 讨论或修改持久化对象、表、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB、迁移时 | 先确认数据契约，避免在规格或实现中臆造模型 |
 | `grill-with-docs` | 单会话内存在会改变结果的真实歧义时 | 持续追问并沉淀领域术语和 ADR；目标与验收明确则直接实现 |
 
 这三项是“优先读取”，不是确定性 hook，也不能替代对项目事实的核对。
 
-### 需求与决策：7 个显式技能（6 个直接，1 个聚合）
+### 需求与决策：7 个技能（6 个直接，1 个聚合）
 
 | 技能 | 作用 | 何时使用 |
 |---|---|---|
@@ -90,7 +90,7 @@ JSONB 或迁移
 | `$research` | 用一手来源补齐外部事实 | API、框架版本、第三方能力、规范事实未明 |
 | `$prototype` | 用一次性样品验证 UI、状态模型或业务逻辑 | 纸面讨论无法判断效果 |
 
-### 规格、实现与交付：9 个技能（6 个直接，3 个聚合）
+### 规格、实现与交付：7 个技能（4 个直接，3 个聚合）
 
 | 技能 | 作用 | 何时使用 |
 |---|---|---|
@@ -101,8 +101,15 @@ JSONB 或迁移
 | `handoff` | 生成可携带的跨会话交接文档 | 要换 harness、目录、同事或阶段中途分叉；经 `magpie-skills` 读取 |
 | `$setup-matt-pocock-skills` | 配置 tracker、triage labels 和领域文档布局 | 大型或多阶段项目首次进入 spec/ticket 流程前 |
 | `writing-for-agents` | 编写技能、`AGENTS.md` 等 agent 文档 | 用户明确要求维护 agent 指令或技能；经 `magpie-skills` 读取 |
+
+### 视觉展现：2 个直接技能
+
+| 技能 | 作用 | 何时使用 |
+|---|---|---|
 | `$frontend-design` | 深度视觉设计 | 用户明确要求页面美化、整页改版或明确视觉方向 |
 | `$answer-me-with-html` | 生成视觉解释页 | 用户明确要求可视化说明 |
+
+以上三类共 16 个技能（7 个需求与决策、7 个规格与交付、2 个视觉展现）；另有隐式触发且单列上文表的 3 个技能 `ruoyi6`、`database-design`、`grill-with-docs`，合计 19 个。分类不改变技能的 `direct`/`routed` 分发方式。
 
 ## 为什么保留这 19 个
 

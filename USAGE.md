@@ -44,11 +44,11 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 
 任务清楚时不需要手动指定技能。大型、跨会话或多阶段项目在首次使用 spec/ticket 流程前，先建议并确认 `$setup-matt-pocock-skills`；它配置 issue tracker、triage labels 和领域文档布局，不创建状态文档。`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合，只在对应场景下建议。小项目和小改动不强制初始化。
 
-RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时使用 `$to-spec`；存在多个可独立验收的纵向切片或真实依赖时，先建议 `$to-tickets`，用户确认后再拆。简单单次改动跳过完整 PRD 和任务拆分。进入 RuoYi 代码实现由 `ruoyi6` 承接；明确要求审查或 API/页面验收时才调用对应技能。
+RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。这一步读取 `ruoyi6` 做只读预检，不重新做需求或产品规划。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时使用 `$to-spec`；存在多个可独立验收的纵向切片或真实依赖时，先建议 `$to-tickets`，用户确认后再拆。简单单次改动跳过完整 PRD 和任务拆分。RuoYi 代码实现继续按 `ruoyi6` 落地；运行测试、API/页面验收和 `$code-review` 仍只在用户明确要求时执行。
 
 流程导航与阶段入口中，直接可点名的有 `$ask-matt`、`$wayfinder`、`grill-with-docs`、`$grilling`、`$domain-modeling`、`$research`、`$prototype`、`$to-spec`、`$to-tickets`、`$code-review`、`$setup-matt-pocock-skills`；业务规范是 `ruoyi6`、`database-design`、`$frontend-design`，展现支撑是 `$answer-me-with-html`。`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取，不假设存在独立 `$triage` 等快捷入口。未选技能（如 `tdd`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中；`implement` 和 `implement-spec` 已删除，实现由当前会话直接完成。
 
-技能可见性由技能分发方式决定，不是路径 hook。当前直接技能中只有 3 条隐式触发：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能均由 `disable-model-invocation: true` 限制为显式调用。4 个低频技能不被直接暴露，只能经 `magpie-skills` 的摘要选择后读取。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
+技能可见性由技能分发方式决定，不是路径 hook。当前直接技能中只有 3 条隐式触发：RuoYi 规格预检或代码工作读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能默认由用户点名，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。4 个低频技能不被直接暴露，由 `magpie-skills` 按描述选择后读取，或由用户明确要求经该入口使用。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
 
 直接技能统一用短名调用：`$wayfinder`、`$research`、`$to-spec`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`。低频技能通过 `$magpie-skills` 聚合入口读取：`triage`、`retro`、`handoff`、`writing-for-agents`。不需要也不应再写插件命名空间。
 

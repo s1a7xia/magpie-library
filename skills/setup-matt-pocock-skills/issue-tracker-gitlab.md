@@ -36,7 +36,7 @@
 
 ## Wayfinding 操作
 
-供 `/wayfinder` 使用。**map** 是单个 issue，以 **child** issues 作为 tickets。
+供 `wayfinder` 使用。**map** 是单个 issue，以 **child** issues 作为 tickets。
 
 - **Map**: 单个带 `wayfinder:map` label 的 issue，保存 Notes / Decisions-so-far / Fog body。`glab issue create --label wayfinder:map`。（在带 native epics 的 GitLab tier 上，也可以用 epic 保存 map；带 label 的 issue 在所有地方都可用。）
 - **Child ticket**: description 顶部带 `Part of #<map>`、链接到 map（`glab issue create --linked-issues <map> --link-type relates_to`）、labels 为 `wayfinder:<type>`（`research`/`prototype`/`grilling`/`task`）的 issue。一旦被 claim，ticket 被 assign 给 driving dev。

@@ -6,7 +6,7 @@
 
 - Magpie：CLI 实测 `0.1.4395`。
 - 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=on`；Magpie 资源库有 19 个技能，全部只勾选给 Codex。其中 15 个高频技能直接出现在 `~/.codex/skills`，`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取；不安装 Codex 插件副本。
-- 15 个直接技能中，`ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 12 个仅显式调用。调用直接技能使用短名，例如 `$wayfinder`、`$to-spec`。
+- 15 个直接技能中，`ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 12 个默认只在用户点名时启用，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。4 个聚合技能由 `magpie-skills` 按描述选择或由用户经该入口明确要求使用。调用直接技能使用短名，例如 `$wayfinder`、`$to-spec`。
 - MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。工具可见不等于获得写操作授权。
 - Alma 已退出本资源库的团队与分发链：其 `USER.md` 为空，技能目录没有 Magpie Junction，`mcp.json` 为空。Alma 的聊天、记忆、通知、微信、Herdr 及其自身 bundled/personal 配置由 Alma 独立维护，不由本仓库管理。
 - 自动备份：每 24 小时、保留 3 份、包含登录态；密码及备份文件不公开。没有执行备份或恢复演练，不能保证未核验的数据一定被整包覆盖。

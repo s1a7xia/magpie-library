@@ -57,7 +57,7 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 - `sharedSkills = false`，`skillRouter = on`；19 个技能按高频直接暴露、低频经 `magpie-skills` 聚合的方式分发。
 - `~/.codex/skills` 中有 15 个直接技能 Junction，以及 1 个 `magpie-skills` 聚合入口；没有插件副本。
-- 直接技能中只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 12 个由 `disable-model-invocation: true` 限制为显式调用。
+- 直接技能中只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 12 个默认由用户点名，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。
 - `triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能位于 `magpie-skills/.skills/`，由聚合入口的 `SKILL.md` 按描述选择；不依赖独立 `$技能名` 入口。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
@@ -70,7 +70,7 @@ Codex 技能匹配
        └─ 经 magpie-skills 聚合入口按描述读取
 ```
 
-工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。实现始终由当前 Codex 会话直接完成，不另设实现技能。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
+工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语。涉及持久化模型时，在 `$to-spec` 前先过 `database-design`；RuoYi 项目需要核对复用边界、页面/菜单/路由、API、权限、字典或首批切片时，在 `$to-spec` 前用 `ruoyi6` 做只读预检。需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。实现始终由当前 Codex 会话直接完成，不另设实现技能。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
 
 `$wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`$grilling`、`$research`、`$wayfinder` 被当前任务调用时，即按其定义授权所需子代理；`$prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
 

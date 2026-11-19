@@ -20,7 +20,7 @@
 
 ## Wayfinding 操作
 
-供 `/wayfinder` 使用。**map** 是一个文件，每个 ticket 对应一个 **child** 文件。
+供 `wayfinder` 使用。**map** 是一个文件，每个 ticket 对应一个 **child** 文件。
 
 - **Map**: `.scratch/<effort>/wayfinder.md`（Destination / Notes / Decisions-so-far / fog）。
 - **Child ticket**: `.scratch/<effort>/tickets/NN-<slug>.md`，从 `01` 开始编号，body 中是问题。`## Type` 记录 ticket 类型（`research`/`prototype`/`grilling`/`task`）；`## Status` 记录 open/in-progress/resolved。

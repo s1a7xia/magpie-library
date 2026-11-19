@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 **只推荐当前 Magpie 资源库实际安装的技能。** 如果下面的表里没有，说明当前资源库不提供，不要凭上游仓库或旧文档假装它可用。
 
-这些技能都来自 Magpie 资源库。15 个直接技能位于 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发。
+这些技能都来自 Magpie 资源库。15 个直接技能位于 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能只经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发。
 
 ## 授权门
 
@@ -28,7 +28,6 @@ disable-model-invocation: true
 
 | 阶段 | 技能 | 何时使用 |
 |---|---|---|
-| 需求入口 | `triage` | 外部 Issue、PR 或需求堆积，需要先分类、补证据、形成 agent-ready brief |
 | 跨会话决策 | `wayfinder` | 工作大到单个会话装不下，关键未知互相阻塞，当前看不清路线 |
 | 单会话收敛 | `grill-with-docs` | 有真实业务取舍、术语或边界歧义，但能在当前会话内收敛 |
 | 访谈底层 | `grilling` | 需要对计划、设计或想法做设计树式压力测试 |
@@ -42,6 +41,11 @@ disable-model-invocation: true
 | 初始化 | `setup-matt-pocock-skills` | 首次为项目配置 tracker、triage 标签和领域文档布局 |
 | 交接 | `handoff` | 确实要跨 harness、目录、同事或阶段中途分叉 |
 | 文档写作 | `writing-for-agents` | 编写或修改技能、`AGENTS.md` 或 agent 消费的文档 |
+| 数据契约 | `database-design` | 讨论持久化对象、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB 或迁移 |
+| RuoYi 落点 | `ruoyi6` | RuoYi 规格前核对复用边界和首个可交付主干，或实现/修改前后端代码 |
+| 外部需求池 | `triage` | 外部 Issue、PR 或需求堆积，需要先分类、补证据、形成 agent-ready brief |
+| 深度视觉 | `frontend-design` | 用户明确要求页面美化、整页改版或完整视觉方向 |
+| 可视化说明 | `answer-me-with-html` | 用户明确要求用 HTML 页面、图示或可交互说明表达 |
 
 ## 主流程：需求 -> 可靠交付
 
@@ -52,14 +56,16 @@ disable-model-invocation: true
 ### 1. 选择路径
 
 - **目标、验收和修改位置都清楚**：直接实现，不建流程工件。
-- **当前会话能消除歧义**：`grill-with-docs`。讨论到持久化模型时叠加 `database-design`；RuoYi 实现阶段叠加 `ruoyi6`。
+- **当前会话能消除歧义**：`grill-with-docs`。讨论到持久化模型时叠加 `database-design`；RuoYi 项目在规格前需要核对框架落点、复用边界或首个可交付主干时叠加 `ruoyi6`。
 - **需要事实**：读取 `../research/SKILL.md`，把结论带回当前决策；需要独立调研流程时显式调用 `$research`。
 - **需要看效果**：读取 `../prototype/SKILL.md`，用一次性样品回答问题，再回到决策；需要独立原型流程时显式调用 `$prototype`。
 - **大型、跨会话、关键未知互相阻塞**：先建议 `$wayfinder`，用户确认后建立决策地图。它只产出决策和路线，不直接交付功能。
 
 ### 2. 收敛为规格
 
-路线清楚后，用 `$to-spec` 把已确认内容收束成可验收 spec。spec 至少写明：目标、范围外、业务规则、数据契约、接口/页面影响、权限、失败路径、验收证据和未决项。
+路线清楚且需要持久记录、交接、复杂变更或多轮实现时，建议用户使用 `$to-spec`，把已确认内容收束成可验收 spec。spec 至少写明：目标、范围外、业务规则、数据契约、接口/页面影响、权限、失败路径、验收证据和未决项。
+
+若需求涉及持久化对象或字段语义，`$to-spec` 前已有 `database-design` 契约；若是 RuoYi 项目且需要确认复用边界、页面/菜单/路由、API、权限、字典或首个可交付主干，先用 `ruoyi6` 做只读落点核对。单一明确切片直接实现，不为了流程完整强行写 spec。
 
 只有同时存在多个可独立交付的纵向切片或真实阻塞依赖时才建议 `$to-tickets`，用户确认后再拆；单切片任务不要为了仪式感拆票。
 

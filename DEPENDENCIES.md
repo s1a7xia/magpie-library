@@ -9,7 +9,7 @@
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局工程指令 | 工作原则、授权、验证和已有改动保护 | 唯一源 `instructions.md` + `instructions/codex.md`；项目专属规则留在项目 `AGENTS.md` |
-| 19 个资源库技能 | 业务规范、需求收敛、规格、审查和展现支撑 | 在 `skills/`，直接同步到 `~/.codex/skills` |
+| 19 个资源库技能 | 业务规范、需求收敛、规格、审查和展现支撑 | 在 `skills/`；15 个直接同步到 `~/.codex/skills`，4 个经 `magpie-skills` 聚合读取 |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -73,7 +73,7 @@ Magpie 使用混合分发：15 个高频技能直接出现在 `~\.codex\skills`�
 
 `tdd`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入；`implement` 与 `implement-spec` 已删除且不再提供。不得按旧文档声称这些能力可用。
 
-Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：直接 Matt 技能中只有 `grill-with-docs` 可由 Codex 按技能描述选择，其余直接 Matt 技能由 `disable-model-invocation: true` 限制为显式调用；`triage`、`retro`、`handoff`、`writing-for-agents` 经 `magpie-skills` 聚合，不直接暴露。全部直接技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
+Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：直接 Matt 技能中只有 `grill-with-docs` 可由 Codex 按技能描述选择，其余直接 Matt 技能默认只在用户点名时启用，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外；`triage`、`retro`、`handoff`、`writing-for-agents` 经 `magpie-skills` 聚合，不直接暴露。全部直接技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
 
 全局指令当前只分发给 `codex`：
 

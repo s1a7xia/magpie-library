@@ -23,7 +23,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 1. 本文的“当前范围”“工程入口”和“目录”，先理解各层职责；
 2. [USAGE.md](USAGE.md) 看日常只说什么、Codex 如何选择技能、哪些动作需要授权；
-3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 19 个技能、3 条隐式路由及排除项；
+3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 19 个技能、3 条隐式触发及排除项；
 4. [ENVIRONMENT.md](ENVIRONMENT.md) 和 [DEPENDENCIES.md](DEPENDENCIES.md) 看 MCP、插件、记忆与换机恢复边界。
 
 只克隆仓库不会安装技能、连接 MCP 或恢复对话记忆。需要运行这套环境时，先安装 Magpie 并从其加密备份恢复，再把本仓库只读用于核对公开差异。
@@ -55,7 +55,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 ## 工程入口
 
-本项目以 Magpie 作为唯一技能入口。`~/.codex/skills` 直接暴露 15 个高频技能，另有 `magpie-skills` 聚合入口收纳 `triage`、`retro`、`handoff`、`writing-for-agents` 4 个低频技能；没有插件副本。Codex 每轮看到的是直接技能名称、description 和聚合入口摘要，再由当前模型按条件选择并读取对应 `SKILL.md`，不是路径匹配式的确定性自动执行。直接技能中只保留 3 条隐式触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能为 explicit-only。
+本项目以 Magpie 作为唯一技能入口。`~/.codex/skills` 直接暴露 15 个高频技能，另有 `magpie-skills` 聚合入口收纳 `triage`、`retro`、`handoff`、`writing-for-agents` 4 个低频技能；没有插件副本。Codex 每轮看到的是直接技能名称、description 和聚合入口摘要，再由当前模型按条件选择并读取对应 `SKILL.md`，不是路径匹配式的确定性自动执行。直接技能中只保留 3 条隐式触发路径：RuoYi 规格预检或代码工作读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能默认只在用户点名时启用，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。4 个低频技能不单独暴露，由 `magpie-skills` 按描述选择，或由用户明确要求经该入口使用。
 
 ```text
 新项目 / 重大新模块
@@ -64,9 +64,6 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 已有项目明确任务
   -> 事实基线（读规则、代码、Git、状态和授权）
-
-任何阶段涉及持久化对象 / 字段 / 关系 / 状态 / 唯一性 / 删除 / 迁移
-  -> database-design：进入 $to-spec 前确认数据契约
 
 需求收敛
   ├─ 目标、验收和修改点清楚 -> 直接实现
@@ -78,6 +75,12 @@ git clone git@github.com:s1a7xia/magpie-library.git
           ├─ grilling + domain-modeling：业务决策 / 术语
           └─ 路径仍不清：建议 $ask-matt（用户确认后导航）
 
+涉及持久化对象 / 字段 / 关系 / 状态 / 唯一性 / 删除 / 迁移
+  -> database-design：进入 $to-spec 前确认数据契约
+
+RuoYi 规格前需要核对框架落点、复用边界或首个可交付主干
+  -> ruoyi6：只读预检，不重做需求或产品规划
+
 规格与切片
   -> 大型/多阶段项目首次 spec/ticket 流程：建议 $setup-matt-pocock-skills（用户确认后配置）
   -> $to-spec：需要可验收规格、交接或复杂变更
@@ -85,7 +88,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
   -> 小改或单一明确切片：跳过规格和拆票
 
 实现 -> 授权内验证
-  -> 默认当前会话直接实现；仅 RuoYiPlus 叠加 ruoyi6
+  -> 默认当前会话直接实现；RuoYiPlus 代码改动继续按 ruoyi6 落地
   -> $code-review 仅在明确要求时
   -> 预发布、UAT、生产发布、客户验收是审批门
 ```
@@ -99,10 +102,10 @@ git clone git@github.com:s1a7xia/magpie-library.git
 业务规范按场景叠加：
 
 - `database-design`：需求/方案阶段讨论持久化对象、字段语义、身份/归属、关系、唯一性、生命周期、删除/历史、JSONB 时先加载；后续结构性变更继续使用。
-- `ruoyi6`：实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表。
+- `ruoyi6`：规格前需核对 RuoYi 框架落点、复用边界或首个可交付主干时做只读预检；实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表时必须使用。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-19 个技能全部在 Magpie 资源库 `skills/` 中维护。15 个高频技能通过 Junction 直接出现在 `~/.codex/skills`；`triage`、`retro`、`handoff`、`writing-for-agents` 通过 `magpie-skills` 聚合入口按描述读取，不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 12 个直接技能只在用户点名时进入。
+19 个技能全部在 Magpie 资源库 `skills/` 中维护。15 个高频技能通过 Junction 直接出现在 `~/.codex/skills`；`triage`、`retro`、`handoff`、`writing-for-agents` 通过 `magpie-skills` 聚合入口按描述读取，不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 12 个直接技能默认只在用户点名时启用，已启用技能按其流程读取依赖文件时除外。
 
 ## 环境清单
 

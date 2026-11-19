@@ -40,7 +40,7 @@ GitHub 在 issues 和 PRs 之间共享一个 number space，因此裸 `#42` 可�
 
 ## Wayfinding 操作
 
-供 `/wayfinder` 使用。**map** 是单个 issue，以 **child** issues 作为 tickets。
+供 `wayfinder` 使用。**map** 是单个 issue，以 **child** issues 作为 tickets。
 
 - **Map**: 单个带 `wayfinder:map` label 的 issue，保存 Notes / Decisions-so-far / Fog body。`gh issue create --label wayfinder:map`。
 - **Child ticket**: 作为 GitHub sub-issue 链接到 map 的 issue（见 **Make an issue a sub-issue of a parent**）。未启用 sub-issues 时，把 child 加入 map body 中的 task list，并在 child body 顶部写 `Part of #<map>`。Labels：`wayfinder:<type>`（`research`/`prototype`/`grilling`/`task`）。一旦被 claim，ticket 被 assign 给 driving dev。
