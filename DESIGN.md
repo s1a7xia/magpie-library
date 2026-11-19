@@ -28,7 +28,7 @@ Magpie 是唯一的工程配置源，负责把全局指令、技能、MCP 和模
 |---|---|---|---|
 | Magpie | 指令、技能、MCP、模型的工程配置源 | `~/.config/magpie/library/` + `library.json` | 用户 / 经授权的 Agent |
 | 全局指令 | 项目无关的工作原则、授权、验证与交付边界 | `instructions.md` + `instructions/codex.md` | 只在资源库改 |
-| 技能 | 业务规范与阶段方法 | `library/skills/`（19 个） | 只在资源库改，`magpie library sync` 同步到 Codex |
+| 技能 | 业务规范与阶段方法 | `library/skills/`（20 个） | 只在资源库改，`magpie library sync` 同步到 Codex |
 | 项目事实 | 技术栈、命令、端口、项目授权 | 项目内 `AGENTS.md` 与项目文档 | 项目仓库 |
 | 执行 | 搜索、数据库、Git、SSH、图片、浏览器 | Magpie 托管的 MCP + Codex 宿主工具 | Magpie / Codex |
 
@@ -55,18 +55,19 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 ## 3. 技能分发
 
-- `sharedSkills = false`，`skillRouter = on`；19 个技能按高频直接暴露、低频经 `magpie-skills` 聚合的方式分发。
-- `~/.codex/skills` 中有 15 个直接技能 Junction，以及 1 个 `magpie-skills` 聚合入口；没有插件副本。
-- 直接技能中只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 12 个默认由用户点名，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。
-- `triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能位于 `magpie-skills/.skills/`，由聚合入口的 `SKILL.md` 按描述选择；不依赖独立 `$技能名` 入口。
+- `sharedSkills = false`，`skillRouter = on`；20 个技能按高频直接暴露、低频经 `magpie-skills` 聚合的方式分发。
+- `~/.codex/skills` 中有 13 个直接技能 Junction，以及 1 个 `magpie-skills` 聚合入口；没有插件副本。
+- 直接技能中只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 10 个默认由用户点名，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。
+- `answer-me-with-html`、`diagnosing-bugs`、`triage`、`retro`、`handoff`、`setup-matt-pocock-skills`、`writing-for-agents` 这 7 个低频技能位于 `magpie-skills/.skills/`，由聚合入口的 `SKILL.md` 按描述选择；不依赖独立 `$技能名` 入口。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
 ```text
 Codex 技能匹配
   ├─ 隐式：ruoyi6 / database-design / grill-with-docs
-  ├─ 显式：其余 12 个直接技能
+  ├─ 显式：其余 10 个直接技能
   │    └─ 路径不清时先建议 $ask-matt，用户确认后进入
-  └─ 低频：triage / retro / handoff / writing-for-agents
+  └─ 低频：answer-me-with-html / diagnosing-bugs / triage / retro /
+            handoff / setup-matt-pocock-skills / writing-for-agents
        └─ 经 magpie-skills 聚合入口按描述读取
 ```
 
@@ -113,7 +114,7 @@ Magpie 网关再按当前路由组选择上游模型。当前配置以 `~/.codex
 | 机制 | 内容 | 频率 | 是否含密钥 |
 |---|---|---|---|
 | WebDAV 同步（`sync.json`） | 资源库、Agent 配置、供应商、登录态、设置 | 每 30 分钟 | 是，加密 |
-| Git 仓库 `s1a7xia/magpie-library` | 可阅读的指令、19 个技能、3 条公开工程偏好、设计和使用说明 | 手动提交 | 否 |
+| Git 仓库 `s1a7xia/magpie-library` | 可阅读的指令、20 个技能、3 条公开工程偏好、设计和使用说明 | 手动提交 | 否 |
 
 Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能力已安装；换机仍应先恢复 Magpie 加密备份。
 

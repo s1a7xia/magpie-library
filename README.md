@@ -23,7 +23,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 1. 本文的“当前范围”“工程入口”和“目录”，先理解各层职责；
 2. [USAGE.md](USAGE.md) 看日常只说什么、Codex 如何选择技能、哪些动作需要授权；
-3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 19 个技能、3 条隐式触发及排除项；
+3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 20 个技能、3 条隐式触发及排除项；
 4. [ENVIRONMENT.md](ENVIRONMENT.md) 和 [DEPENDENCIES.md](DEPENDENCIES.md) 看 MCP、插件、记忆与换机恢复边界。
 
 只克隆仓库不会安装技能、连接 MCP 或恢复对话记忆。需要运行这套环境时，先安装 Magpie 并从其加密备份恢复，再把本仓库只读用于核对公开差异。
@@ -41,7 +41,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的工作原则、授权、验证与交付边界 | 唯一源 `instructions.md` + Codex 补充 `instructions/codex.md`，由 Magpie 合并分发 |
-| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 19 个技能由 Magpie 分发；15 个直接暴露，4 个低频技能经 `magpie-skills` 聚合 |
+| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 20 个技能由 Magpie 分发；13 个直接暴露，7 个技能经 `magpie-skills` 聚合 |
 | 项目事实 | 当前目标、决策、验证证据、构建/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片；页面检查使用 Codex 宿主能力 | Magpie 托管的 9 项 MCP，加上本机 CLI |
 
@@ -55,7 +55,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 ## 工程入口
 
-本项目以 Magpie 作为唯一技能入口。`~/.codex/skills` 直接暴露 15 个高频技能，另有 `magpie-skills` 聚合入口收纳 `triage`、`retro`、`handoff`、`writing-for-agents` 4 个低频技能；没有插件副本。Codex 每轮看到的是直接技能名称、description 和聚合入口摘要，再由当前模型按条件选择并读取对应 `SKILL.md`，不是路径匹配式的确定性自动执行。直接技能中只保留 3 条隐式触发路径：RuoYi 规格预检或代码工作读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 12 个直接技能默认只在用户点名时启用，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。4 个低频技能不单独暴露，由 `magpie-skills` 按描述选择，或由用户明确要求经该入口使用。
+本项目以 Magpie 作为唯一技能入口。`~/.codex/skills` 直接暴露 13 个高频技能，另有 `magpie-skills` 聚合入口收纳 `answer-me-with-html`、`diagnosing-bugs`、`handoff`、`retro`、`setup-matt-pocock-skills`、`triage`、`writing-for-agents` 7 个低频或一次性配置技能；没有插件副本。Codex 每轮看到的是直接技能名称、description 和聚合入口摘要，再由当前模型按条件选择并读取对应 `SKILL.md`，不是路径匹配式的确定性自动执行。直接技能中只保留 3 条隐式触发路径：RuoYi 规格预检或代码工作读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`；其余 10 个直接技能默认只在用户点名时启用，已启用技能按其 `SKILL.md` 明确读取依赖技能文件时除外。7 个聚合技能不单独暴露，由 `magpie-skills` 按描述选择，或由用户明确要求经该入口使用。
 
 ```text
 新项目 / 重大新模块
@@ -82,7 +82,7 @@ RuoYi 规格前需要核对框架落点、复用边界或首个可交付主干
   -> ruoyi6：只读预检，不重做需求或产品规划
 
 规格与切片
-  -> 大型/多阶段项目首次 spec/ticket 流程：建议 $setup-matt-pocock-skills（用户确认后配置）
+  -> 大型/多阶段项目首次 spec/ticket 流程：经 magpie-skills 读取 setup-matt-pocock-skills（用户确认后配置）
   -> $to-spec：需要可验收规格、交接或复杂变更
   -> 多个纵向切片或真实依赖：建议 $to-tickets（用户确认后拆）
   -> 小改或单一明确切片：跳过规格和拆票
@@ -97,7 +97,7 @@ RuoYi 规格前需要核对框架落点、复用边界或首个可交付主干
 
 `wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。实现始终由当前会话直接完成，不另设实现技能。子代理、提交、push 和外部 Issue 仍按当前任务授权。
 
-15 个直接技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`；4 个低频技能通过 `$magpie-skills` 或直接说明“使用 triage/retro/handoff/writing-for-agents”进入。不需要也不应再写命名空间或插件前缀。
+13 个直接技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`；7 个聚合技能通过 `$magpie-skills` 或直接说明“使用 answer-me-with-html/diagnosing-bugs/triage/retro/handoff/setup-matt-pocock-skills/writing-for-agents”进入。不需要也不应再写命名空间或插件前缀。
 
 业务规范按场景叠加：
 
@@ -105,7 +105,7 @@ RuoYi 规格前需要核对框架落点、复用边界或首个可交付主干
 - `ruoyi6`：规格前需核对 RuoYi 框架落点、复用边界或首个可交付主干时做只读预检；实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表时必须使用。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-19 个技能全部在 Magpie 资源库 `skills/` 中维护。15 个高频技能通过 Junction 直接出现在 `~/.codex/skills`；`triage`、`retro`、`handoff`、`writing-for-agents` 通过 `magpie-skills` 聚合入口按描述读取，不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 12 个直接技能默认只在用户点名时启用，已启用技能按其流程读取依赖文件时除外。
+20 个技能全部在 Magpie 资源库 `skills/` 中维护。13 个高频技能通过 Junction 直接出现在 `~/.codex/skills`；`answer-me-with-html`、`diagnosing-bugs`、`handoff`、`retro`、`setup-matt-pocock-skills`、`triage`、`writing-for-agents` 通过 `magpie-skills` 聚合入口按描述读取，不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 10 个直接技能默认只在用户点名时启用，已启用技能按其流程读取依赖文件时除外。
 
 ## 环境清单
 
@@ -148,7 +148,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbx`、`gitee`�
 
 ## 公开镜像边界
 
-公开仓库镜像当前生效的全局指令、19 个 Magpie 技能、3 条公开工程偏好、说明和脱敏环境快照，供阅读、差异比较与换机参考。凭据、登录态、会话历史、模型供应商私密配置、MCP 认证头、DSN、SSH 信息、记忆索引/运行状态和同步密码不公开。它不是可直接覆盖本机运行目录的备份；换机时先用 Magpie 的加密备份恢复运行环境，再用本仓库核对公开配置与技能。
+公开仓库镜像当前生效的全局指令、20 个 Magpie 技能、3 条公开工程偏好、说明和脱敏环境快照，供阅读、差异比较与换机参考。凭据、登录态、会话历史、模型供应商私密配置、MCP 认证头、DSN、SSH 信息、记忆索引/运行状态和同步密码不公开。它不是可直接覆盖本机运行目录的备份；换机时先用 Magpie 的加密备份恢复运行环境，再用本仓库核对公开配置与技能。
 
 ## 维护和发布
 

@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 **只推荐当前 Magpie 资源库实际安装的技能。** 如果下面的表里没有，说明当前资源库不提供，不要凭上游仓库或旧文档假装它可用。
 
-这些技能都来自 Magpie 资源库。15 个直接技能位于 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`；`triage`、`retro`、`handoff`、`writing-for-agents` 这 4 个低频技能只经 `magpie-skills` 聚合入口读取，不假设存在 `$triage` 等独立快捷入口。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发。
+这些技能都来自 Magpie 资源库。13 个直接技能位于 `~/.codex/skills`，在 Codex 中用短名调用，例如 `$wayfinder`、`$to-tickets`；`answer-me-with-html`、`diagnosing-bugs`、`triage`、`retro`、`handoff`、`setup-matt-pocock-skills`、`writing-for-agents` 这 7 个技能只经 `magpie-skills` 聚合入口读取，不假设存在 `$triage`、`$answer-me-with-html` 等独立快捷入口。当前只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发。
 
 ## 授权门
 
@@ -37,6 +37,7 @@ disable-model-invocation: true
 | 规格 | `to-spec` | 决策已清楚，需要形成可验收、可交接的 spec |
 | 切片 | `to-tickets` | spec 含多个纵向交付切片或真实阻塞依赖 |
 | 审查 | `code-review` | 用户明确要求按 Standards + Spec 审查固定点以来的变更 |
+| 缺陷诊断 | `diagnosing-bugs` | 困难缺陷、偶发错误或性能回归，需要先建立可靠复现信号再定位根因 |
 | 复盘 | `retro` | 用户明确要求回看一次会话并改进 agent 环境 |
 | 初始化 | `setup-matt-pocock-skills` | 首次为项目配置 tracker、triage 标签和领域文档布局 |
 | 交接 | `handoff` | 确实要跨 harness、目录、同事或阶段中途分叉 |
@@ -90,7 +91,7 @@ disable-model-invocation: true
 ## 入口匝道
 
 - **外部需求或缺陷堆积**：`triage`。它只处理不是你刚创建的原始输入；`to-tickets` 产出的 tickets 已经 agent-ready，不再 triage。
-- **项目里出现困难缺陷**：当前资源库没有 `diagnosing-bugs`；按当前项目规则直接定位根因，必要时用 `research` 或 `prototype` 获取证据，不要假装缺失技能存在。
+- **项目里出现困难缺陷**：经 `magpie-skills` 读取 `diagnosing-bugs`，先建立能针对用户症状变红的反馈信号，再最小化、排序假设和定向取证；未获测试授权时，不新增或运行测试。
 - **巨大且模糊的项目**：`wayfinder` 建立共享决策地图。地图清楚后先 `to-spec`，再按实际需要 `to-tickets`，不要从地图直接猛冲实现。
 
 ## 阶段边界

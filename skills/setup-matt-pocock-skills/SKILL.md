@@ -1,7 +1,6 @@
 ---
 name: setup-matt-pocock-skills
 description: "为此仓库配置 engineering skills：选择 issue tracker、triage labels 与 domain docs 布局；默认本地 Markdown，外部 tracker 写入需单独授权。大型或多阶段项目首次进入 spec/ticket 流程前使用。"
-disable-model-invocation: true
 ---
 
 # 配置 Matt Pocock 的 Skills

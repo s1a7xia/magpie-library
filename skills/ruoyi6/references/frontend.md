@@ -1,8 +1,8 @@
 # React 前端开发规范
 
-## 写页面前
+## 页面实现来源
 
-先读取当前任务的 PRD/规格和已确认复用结论，只查本次涉及的页面、接口、权限和组件契约。作者 `ruoyi-demo` React 页面、`plus-ui-React` 公共组件/hooks 和生成模板是实现写法参考；目标业务页面只用于确认业务字段、权限、路由和集成约束，不作为质量范本。
+新页面按“项目契约 → `api/request`、`components/common`、`hooks`、`utils` 现有封装 → `plus-ui-React/gen/*.ftl` 骨架 → `pages/demo` 场景”实现；已有页面按“项目契约 → 当前页面风格 → 公共封装 → 生成器 / demo”增量修改。目标业务页面用于确认业务字段、权限、路由和集成约束。
 
 前端重点检查：
 
@@ -12,7 +12,7 @@
 4. 请求、鉴权、权限、字典、主题、日期和下载是否必须走 `src/api/request.ts`、`src/utils/*`。
 5. 页面需要的状态、文件和接口是否已经由后端或公共模块提供。
 
-取样顺序固定为：`src/pages/demo` 作者示例 -> `components/common` / `hooks` / `utils` -> `plus-ui-React/gen` 模板 -> 通用 React / Ant Design 习惯。目标目录页面用于读取业务约束，不作为编码模式依据。模板是标准骨架，不是最终答案。
+新页面取样顺序：`components/common` / `hooks` / `utils` 现有封装 -> `plus-ui-React/gen` 骨架 -> `src/pages/demo` 场景示例 -> 通用 React / Ant Design 习惯。已有页面先保持该页面和同模块的现有写法；生成器只补齐缺口。目标目录页面用于读取业务约束，不作为编码模式依据；模板是标准骨架，不是最终答案。
 
 ## 工程事实
 
@@ -26,11 +26,11 @@
 | 样式 | LESS，`src/assets/styles/` |
 | 包管理 | pnpm |
 
-版本和脚本从当前 `plus-ui-React/package.json` 读取：`dev`、`build:dev`、`build:prod`、`lint`、`fmt`。不用记忆中的旧前端写法覆盖当前源码。
+版本和脚本从当前 `plus-ui-React/package.json` 读取：`dev`、`build:dev`、`build:prod`、`lint`、`fmt`。
 
 ## 选择页面形态
 
-先确定用户的主要任务、信息层级和页面形态，再选组件。模板提供行为参考，不决定最终布局。页面视觉质量默认以本文件的「样式与设计」为基线；用户明确要求页面美化、深度视觉设计或整页改版时，读取 `~/.codex/skills/frontend-design/SKILL.md`。基线与设计技能可以同时生效：前者约束 RuoYi 组件、主题和行为，后者提供更完整的设计方法。
+先确定用户的主要任务、信息层级和页面形态，再选组件。模板提供行为参考，不决定最终布局。页面视觉质量默认以本文件的「样式与设计」为基线；用户明确要求页面美化、深度视觉设计或整页改版时，读取 `~/.codex/skills/frontend-design/SKILL.md`。基线与设计技能可以同时生效。
 
 | 页面用途 | 最小实现 |
 |---|---|
@@ -66,7 +66,7 @@ plus-ui-React/src/
 - `types.ts` 放 `VO`、`Form`、`Query`；`index.ts` 只放请求函数。
 - `VO`、`Form` 和 `Query` 的可空性按后端 VO/BO 契约映射，不用页面习惯强行统一。`Form` 通常继承 `BaseEntity`，`Query` 通常继承 `PageQuery`；字段名与后端 BO/VO 完全一致。前端 `BaseEntity` 不含后端才有的 `createDept`，需要该字段时在 `Form` 中显式声明。
 - 单页状态留在页面，跨页面状态才进 Zustand。
-- 同模块兄弟页面只用于读字段、路由、权限和已有集成约束；写法仍从作者 demo、公共组件/hooks 和模板取样。
+- 同模块兄弟页面用于读字段、路由、权限和已有集成约束；修改该模块时沿用其现有写法，新页面从生成器、公共组件/hooks 和 demo 场景取样。
 
 ### 动态路由门
 
@@ -97,7 +97,7 @@ PageContainer
 
 ## API 与类型
 
-- 请求统一 `import request from '@/api/request'`；导出函数返回 `Promise<R<T>>`。导出 HTTP 方法必须与对应 Controller 一致：单表示例是 POST，树表示例是 GET；不要把 `download()` 当成所有导出的通用入口。
+- 普通 JSON 请求统一 `import request from '@/api/request'`，函数返回 `Promise<R<T>>`。导出返回文件流，不走 `R<T>`；HTTP 方法必须与对应 Controller 一致（单表示例是 POST，树表示例是 GET），优先复用 `useTableExport` 或现有下载工具。
 - 分页读 `res.data.rows`、`res.data.total`；树表读 `res.data` 数组。
 - 查询用 `params`，新增/修改用 `data`；下载复用 `@/utils/download` 或 `useTableExport`。
 - `R`、`PageResult`、`PageQuery`、`BaseEntity` 来自 `@/api/types`。
@@ -260,7 +260,7 @@ export function delXxx(id: string | number | Array<string | number>) {
 - 详情优先使用 `Drawer` + `ProDescriptions` 的标签/值节奏；长字段分组或换行，表单不要和只读详情混成一张密集表。
 - 弹窗、下拉、日期选择和抽屉必须检查层级关系；交互完成后保持原有权限、字典、分页、校验和弹窗生命周期，不用视觉调整改变行为。
 - 禁止无意义侧边粗色条、渐变标题、毛玻璃堆叠、卡片套卡片。
-- 页面完成后在开发环境落实无意外横向溢出、按钮文字不折行、弹窗与下拉层级正常、深色模式文字可读和窄视口可用；无法通过源码或构建确认的视觉效果标为“未验证”，不宣称页面已通过运行验收。
+- 页面完成后检查无意外横向溢出、按钮文字不折行、弹窗与下拉层级正常、深色模式文字可读和窄视口可用。
 
 本文件负责 RuoYi 业务页面的默认视觉质量，普通页面不是“先随便做、最后再美化”：开发时就完成层级、间距、状态色、空态、对齐和基本可用性。用户显式要求美化或深度设计时，读取 `~/.codex/skills/frontend-design/SKILL.md`，在本文件之上补充视觉方向、设计方法和 studio 级页面方案。两者不是替代关系。
 
@@ -276,12 +276,10 @@ export function delXxx(id: string | number | Array<string | number>) {
 
 图表实现以当前 `plus-ui-React` 的公共封装和作者示例为准。
 
-## 构建与验收
+## 构建
 
-- 使用项目登记的 pnpm 脚本：`pnpm dev`、`pnpm build:dev`、`pnpm build:prod`、`pnpm lint`、`pnpm fmt`。
-- 当前请求授权构建时，执行项目登记的实际构建；独立类型检查不替代构建。
+- 使用当前 `plus-ui-React/package.json` 中登记的 pnpm 脚本，不假定固定脚本名或包管理器版本；独立类型检查不替代构建。
 - 修改路由、`dynamicPage.tsx`、请求封装、全局 store 或布局时检查所有受影响页面。
-- 页面可见改动需要运行验证时，使用当前任务明确授权的浏览器或人工检查；构建通过只代表代码可编译，不代表页面行为已验证。
 
 ## 常见错误
 
@@ -299,13 +297,11 @@ export function delXxx(id: string | number | Array<string | number>) {
 | 报表页硬加增删改按钮 | 与只读业务不匹配 | 按业务形态决定操作，不套完整 CRUD |
 | 删除日期范围 `params` | 后端 `betweenParams` 收不到 begin/end | 保留 `Query.params` 和 `useDateRangeQuery` |
 
-## 检查
+## 完成条件
 
 - [ ] API、类型、页面位置正确，没有绕过统一请求层。
 - [ ] `VO` / `Form` / `Query` 分开，ID 精度保留。
-- [ ] 已选择最小页面形态，并扫描现有 hooks、组件、字典、权限和页面壳。
+- [ ] 已选择最小页面形态，并复用现有 hooks、组件、字典、权限和页面壳。
 - [ ] 没有复制业务模块，也没有新增第二套请求、权限、字典、分页或上传实现。
 - [ ] 新页面已登记 `dynamicPage.tsx`，菜单 `component` 和权限字符一致。
 - [ ] 表单校验、loading、失败恢复、编辑回显、删除刷新完整。
-- [ ] 构建通过；页面未做运行验证时明确标注，不把源码或构建检查说成页面行为已通过。
-- [ ] 业务未定的交互已按当前业务推荐做法完整实现，页面可正常使用；TODO 已写明“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”，没有留空白按钮、半截功能或静默忽略错误。

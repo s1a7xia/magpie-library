@@ -1,5 +1,5 @@
 {
-  "recordedDate": "2026-11-19",
+  "recordedDate": "2026-11-20",
   "source": "local Magpie library; config registration is not connectivity verification",
   "instructionsAgents": [
     "codex"
@@ -11,9 +11,10 @@
     {
       "name": "answer-me-with-html",
       "agents": [
-        "codex"
+        "codex",
+        "alma"
       ],
-      "route": "direct"
+      "route": "routed"
     },
     {
       "name": "ask-matt",
@@ -35,6 +36,13 @@
         "codex"
       ],
       "route": "direct"
+    },
+    {
+      "name": "diagnosing-bugs",
+      "agents": [
+        "codex"
+      ],
+      "route": "routed"
     },
     {
       "name": "domain-modeling",
@@ -104,7 +112,7 @@
       "agents": [
         "codex"
       ],
-      "route": "direct"
+      "route": "routed"
     },
     {
       "name": "to-spec",

@@ -1,6 +1,6 @@
 # 第三方技能来源与许可
 
-Magpie 资源库的 19 个技能中，15 个来自 Matt Pocock 的工程技能，经简体中文翻译和本地适配后纳入；`answer-me-with-html` 来自开源项目，`frontend-design` 随附 Apache License 2.0；其余 2 个（`ruoyi6`、`database-design`）由本资源库维护。
+Magpie 资源库的 20 个技能中，16 个来自 Matt Pocock 的工程技能，经简体中文翻译和本地适配后纳入；`answer-me-with-html` 来自开源项目，`frontend-design` 随附 Apache License 2.0；其余 2 个（`ruoyi6`、`database-design`）由本资源库维护。
 
 ## Matt Pocock 技能
 
@@ -8,7 +8,7 @@ Magpie 资源库的 19 个技能中，15 个来自 Matt Pocock 的工程技能�
 - 中文来源：[vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN)
 - 引入时提交：`d97aa0788b120c9363ebddfd47b87618d9314c3e`
 - 许可证：MIT License，Copyright (c) 2026 Matt Pocock
-- 本资源库引入：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`
+- 本资源库引入：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`code-review`、`diagnosing-bugs`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`
 
 上述技能已按本机授权边界、默认本地存储和 Windows 行为做过适配，不与翻译仓库自动同步。更新时应先比对上游内容，再人工复核。
 

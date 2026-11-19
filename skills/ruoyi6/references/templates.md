@@ -1,6 +1,6 @@
 # 代码模板
 
-以下模板摘自作者自带的 `ruoyi-demo`（`TestDemo*`），是标准单表形态的骨架参考，不是所有业务的固定答案。字段、契约、权限和流程按当前需求确定；业务形态不标准时，先用 [author-patterns.md](author-patterns.md) 定位作者对应实现，再取最小充分结构。这是后端代码骨架的唯一来源，`backend.md` 只讲规则和选型。默认骨架是不启用数据权限的普通单表；数据权限按“可选片段”追加。片段省略 import，按目标模块现有风格补齐，不要机械复制无法解析的符号。
+以下模板按作者代码生成器 `ruoyi-gen/src/main/resources/fm/java/*.ftl` 整理，是新建标准单表的默认骨架；已有模块保持自身写法。当前 `ruoyi-common-*` / `ruoyi-api` 封装与生成器冲突时，以当前代码为准。字段、契约、权限和流程按当前需求确定；具体业务场景用 [author-patterns.md](author-patterns.md) 定位作者实现，再取最小充分结构。这里是后端代码骨架的唯一来源，`backend.md` 只讲规则和选型。默认骨架不启用数据权限；数据权限按“可选片段”追加。片段省略 import，按目标模块现有风格补齐。
 
 ## Controller
 
@@ -75,7 +75,7 @@ public class XxxController extends BaseController {
     @SaCheckPermission("<module>:<business>:export")
     @Log(title = "Xxx", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(@Validated(QueryGroup.class) XxxBo bo, HttpServletResponse response) {
+    public void export(@Validated XxxBo bo, HttpServletResponse response) {
         List<XxxVo> list = xxxService.queryList(bo);
         ExcelBuilder.of(list, XxxVo.class).sheetName("Xxx").toResponse(response);
     }
@@ -119,15 +119,6 @@ public class XxxServiceImpl implements IXxxService {
 
     @Override
     public PageResult<XxxVo> queryPageList(XxxBo bo, PageQuery pageQuery) {
-        // 示例为默认 10、上限 100；沿用项目已有分页约定时替换这两个值。
-        int size = pageQuery.getPageSize() == null ? 10 : pageQuery.getPageSize();
-        if (size < 1 || size > 100) {
-            throw new ServiceException("分页大小须在1到100之间");
-        }
-        pageQuery.setPageSize(size);
-        // 最小模板只按 ID 排序；需要交互排序时先校验业务列白名单。
-        pageQuery.setOrderByColumn(null);
-        pageQuery.setIsAsc(null);
         LambdaQueryWrapper<Xxx> lqw = buildQueryWrapper(bo);
         Page<XxxVo> result = xxxMapper.selectVoPage(pageQuery.build(), lqw);
         return PageResult.build(result.getRecords(), result.getTotal());
@@ -165,19 +156,13 @@ public class XxxServiceImpl implements IXxxService {
 
     private void validEntityBeforeSave(Xxx entity) {
         // 按业务补齐规则；若无额外规则可移除此方法与调用，不把空方法当作已校验。
-        // 唯一性等未定口径按本文 TODO 规则处理，不从 name 字段自动推断唯一键。
+        // 唯一性等业务口径从契约推导，不从 name 字段自动推断唯一键。
     }
 
     @Override
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
-        if (CollUtil.isEmpty(ids)) {
-            return false;
-        }
         if (isValid) {
-            List<Xxx> list = xxxMapper.selectByIds(ids);
-            if (list.size() != ids.size()) {
-                throw new ServiceException("您没有删除权限!");
-            }
+            // 可在此扩展删除前业务校验
         }
         return xxxMapper.deleteByIds(ids) > 0;
     }
@@ -333,8 +318,9 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 | 创建人翻译 | VO 同时包含来源 `createBy` 和展示 `createByName`，再配置 `@Translation(mapper = "createBy")`；确认查询/映射有来源值，前端按需声明展示字段 |
 | 逻辑删除 | DDL 删除标记、Entity `@TableLogic`、实际配置值及唯一索引重建语义 |
 
-- 这套模板来自作者 `TestDemo*`，标准单表沿用同一分层和命名；有主从、状态、导入、异步、外部接入等额外形态时，按其最小充分结构扩展，不为套模板删减业务契约。
-- 上面的 `QueryBuilder` 写法演示条件辅助方法；若目标模块已有 `Wrappers.lambdaQuery()` 风格，保持现状，不整体重写。引用时按现有 import 补齐 `QueryBuilder`、`CollUtil` 和实体类型。
+- 这套模板以作者代码生成器为准，标准单表沿用同一分层和命名；已有模块保持自身写法。主从、状态、导入、异步、外部接入等形态按业务契约扩展，不为套模板删减业务需求。
+- `TestDemo*` 用来参考具体场景下作者如何组合分页、查询、数据权限和导入；demo 字段与空方法不进入通用骨架。
+- 引用模板时补齐 `LambdaQueryWrapper`、`Page`、`QueryBuilder`、`MapstructUtils` 和实体类型。
 - 默认 Mapper 不包含 `@DataPermission`；只有存在真实归属列且需求要求隔离时，再追加“可选：数据权限片段”，并同步实体字段和列名。
 - 需要自定义分页时，在 Mapper 加方法并照 `customPageList` 的样子带 `@DataPermission`。
 - 以上是骨架；字段、字典、状态、权限前缀按实际需求替换。
@@ -346,23 +332,3 @@ public interface XxxMapper extends BaseMapperPlus<Xxx, XxxVo> {
 Service 先批量核对文件内重复、库内冲突、关联和归属，再复用普通写入的业务规则并批量持久化。全量成功模式用事务并在校验或持久化失败时抛异常；部分成功模式返回成功/失败行和原因，不能混用全量回滚语义。新增对应 Service 契约和结果 VO，Controller 返回实际导入结果；`excelResult.getAnalysis()` 只描述解析结果。
 
 写法入口见 [backend.md](backend.md#excel-选择) 和 [author-patterns.md](author-patterns.md)，实际批大小与失败策略按业务确定。
-
-## TODO 待确认记录
-
-业务口径没定时，先按当前业务推荐做法完成可运行实现，再用固定格式留下 TODO，保证功能完整、其它功能可测：
-
-```java
-// TODO(待确认): <具体业务口径>
-// 当前推荐实现: <已实现的行为及业务依据，包含相关校验、约束和页面反馈>
-// 后续调整: <业务确认后是否需要调整；需要时调整哪些行为；当前不阻断>
-// 确认人: <业务方 / 产品>
-```
-
-规则：
-
-- 占位后必须保证能编译、能启动、页面能打开、不阻断其它功能。
-- TODO 不是“暂不实现”的许可。能按当前业务判断的默认行为要先实现，再记录待确认点；不得写“先允许重复”“先不校验”“前端不提示”这类绕过业务约束的占位。
-- 推荐规则不能覆盖已确认契约。若推荐规则要求唯一性，应同时实现适当的数据库唯一约束与冲突反馈；普通索引和先查后写不能保证并发唯一性。唯一字段组合从业务语义推导，不把名称或部门当通用唯一键。编写迁移脚本与执行数据库变更的授权分开。
-- 不能用于掩盖未实现；接口没写、页面没做、数据没接不算 TODO。
-- `TODO(待确认)` 是后续业务确认项，不是 `grill` 入口，也不阻断已验证的默认实现进入 `Dev Complete` 或页面验收；若后续确认需要调整，通过 PRD 的 Change Log 和正常修改流程处理。
-- 交付时将本轮 TODO 更新到已有 PRD 或任务清单；项目状态文档只链接该清单，不重复维护。

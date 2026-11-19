@@ -1,18 +1,28 @@
 # 后端开发规范
 
-## 写业务前
+## 复用来源
 
-先读取当前任务的 PRD/规格、已确认复用结论和相关源码，只核对本次涉及的接口、字段、权限和调用链；需要新增业务能力时，按已确认方案落到现有分层。
+实现基准按以下顺序确定。
 
-1. 现有表、字典、参数、菜单是否已经覆盖数据。
-2. `ruoyi-api` 是否已有跨模块查询、消息、配置、文件或工作流接口。
-3. `ruoyi-common-*` 是否已有校验、转换、查询、分页、Excel、缓存、锁、加解密等能力。
-4. `ruoyi-system` 和 `ruoyi-demo` 是否已有同类系统能力或框架示例。
-5. 当前业务模块是否只是需要新增字段、状态或接口，而不是新增一整套模块。
+新模块：
 
-找到可复用能力后，确认方法语义、权限、事务和异常行为再使用。不要仅因为类名相似就复用，也不要为了少改现有代码而复制一份。
+1. 已确认业务契约、项目硬约束和当前数据模型。
+2. `ruoyi-common-*`、`ruoyi-api`、`ruoyi-system` 的现有公共封装和系统能力。
+3. 作者代码生成器骨架：`ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`。
+4. `ruoyi-demo` 的 `TestDemo*`、`TestTree*` 等场景示例；demo 字段和演示逻辑不作为通用骨架。
 
-实现写法以作者维护的 `ruoyi-system`、`ruoyi-demo` 和 `ruoyi-common-*` 为准，其次查 `ruoyi-api` 契约和生成模板。目标业务模块只用于确认业务字段、权限、接口兼容和集成约束，不作为实现范本；不要因为目标模块已有某种写法就照搬。模板位于 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/java/` 和 `fm/xml/`，只提供骨架。需要从业务场景定位作者实现时，先查 [author-patterns.md](author-patterns.md)。
+已有模块：
+
+1. 已确认业务契约、项目硬约束和当前数据模型。
+2. 该模块现有分层、命名、请求和页面风格。
+3. `ruoyi-common-*`、`ruoyi-api`、`ruoyi-system` 的公共封装。
+4. 生成器和 `ruoyi-demo` 只用于补齐当前模块没有的能力，不借机统一存量写法。
+
+生成器反映生成时的骨架快照；与当前公共封装或已确认实现冲突时，以当前 checkout 的实际代码为准。
+
+目标业务模块只用于确认已有字段、权限、接口兼容和集成约束。需要按场景定位作者写法时查 [author-patterns.md](author-patterns.md)。
+
+新增能力前依次核对：当前模块能否只补字段、状态或接口、现有表/字典/参数/菜单、`ruoyi-api`、`ruoyi-common-*`、`ruoyi-system`，最后才从 `ruoyi-demo` 找场景示例。复用前确认方法语义、权限、事务和异常行为，不因类名相似直接套用。
 
 ## 分层
 
@@ -60,8 +70,7 @@ XxxController
 | 缓存、队列、锁 | `ruoyi-common-redis` 的 `CacheUtils`、`RedisUtils`、`QueueUtils` |
 | Excel、文件、加解密 | `ruoyi-common-excel`、`ruoyi-common-oss`、`ruoyi-common-encrypt` |
 | 翻译、脱敏 | `ruoyi-common-translation`、`ruoyi-common-sensitive` |
-| 消息、邮件、短信、社交、MQTT | 对应 `ruoyi-common-*` 现有客户端和配置 |
-| 定时任务、工作流、AI、搜索 | 对应 `ruoyi-modules/ruoyi-*` 现有 Bean 和调用链 |
+| 邮件、短信、消息、MQTT、缓存/队列、任务、工作流、AI、搜索 | 入口、启用条件和作者示例见 [capabilities.md](capabilities.md) |
 
 需要字符串、集合、对象、JSON、日期、树、文件、IP 或 SQL 工具时，先读 [utils.md](utils.md)，再按当前源码核对方法签名；不要另写一套。
 
@@ -84,11 +93,11 @@ XxxController
 
 ### 公共基础模块改动
 
-修改 `ruoyi-common-*` 或供多个模块使用的公共 API 时，先搜索接口、实现类和全部调用点，默认保持公开方法签名、泛型、返回值和异常语义兼容。新增能力优先扩展已有入口或薄包装，确实需要改签名时同步所有调用方；当前请求授权构建时重新编译受影响模块，否则记录运行未验证；只改注释或文档时，不重排 import、不格式化整个文件、不改代码逻辑。
+修改 `ruoyi-common-*` 或供多个模块使用的公共 API 时，先搜索接口、实现类和全部调用点，默认保持公开方法签名、泛型、返回值和异常语义兼容。新增能力优先扩展已有入口或薄包装，确实需要改签名时同步所有调用方。只改注释或文档时，只改对应文本。
 
 ### 业务模块不是模板
 
-- `ruoyi-demo` 是框架示例，可复制文件结构和调用骨架。
+- `ruoyi-demo` 是场景示例，用来观察作者如何组合框架能力；标准新模块骨架以生成器模板为准。
 - `ruoyi-system` 是系统能力来源，可调用 `ruoyi-api` 暴露的接口。
 - 目标项目的其它业务模块只用于了解已有字段、权限和集成约束，不复制其分层、命名、工具类、请求封装或页面组件。
 - 如果当前业务模块已有用户选择、状态、文件或消息实现，先确认能否扩展现有接口；不能复用才补最小缺口。
@@ -113,13 +122,13 @@ plus-ui-React/src/
 └─ pages/<module>/<business>/index.tsx
 ```
 
-按业务需要贯通字段、查询和权限；导入导出按需增加。先读 `TestDemo*` 的相关实现，再按业务契约裁剪。
+按业务需要贯通字段、查询和权限；导入导出按需增加。新模块先按生成器骨架搭建，具体能力再从 `TestDemo*` 等作者示例取用法。
 
 ### 新建工程模块时
 
 在已有模块加业务沿用其装配，不重复配置。只有新建 Maven 模块时，参照现有模块核对父 POM 的 `modules`、依赖版本管理、`ruoyi-admin` 的运行依赖，以及包扫描、Mapper/XML 资源和条件配置。Java 文件编译成功不等于模块已被主应用加载。
 
-菜单 SQL、动态页面登记之外，还要确认目标角色的菜单/按钮授权入口；未执行的 SQL 或未配置的授权明确报告，不把管理员可见等同于目标角色可用。
+菜单 SQL、动态页面登记之外，还要确认目标角色的菜单/按钮授权入口；管理员可见不等于目标角色可用。
 
 ## Controller 职责
 
@@ -147,13 +156,13 @@ Controller 方法沿用 `list`、`getInfo`、`add`、`edit`、`remove`、`export
 - JSON 字段先按项目本地 JSONB 规范选择 TypeHandler；普通 `JacksonTypeHandler` 不能证明 PostgreSQL `jsonb` JDBC 绑定正确。优先复用项目已有的 JSONB-aware TypeHandler，并核对 `@TableName(autoResultMap = true)`、`@TableField`、Entity/BO/VO 类型和 Wrapper 写入链路。已有契约直接落实现；若是否采用 JSONB 尚未决定，才回到 `database-design`。
 - BO 用 `@AutoMapper(target = Xxx.class, reverseConvertGenerate = false)`；新增/修改用 `AddGroup` / `EditGroup`。
 - VO 用 `@AutoMapper(target = Xxx.class)`；导出、翻译、脱敏按需加现有注解。
-- 映射变更按下节核对；未经当前请求授权不编译。
+- 映射变更按下节核对转换方向和字段。
 
 ### 映射与验证边界
 
 BO/VO/Entity 或 `@AutoMapper` 变化先核对转换方向、目标类型、字段名/类型、忽略字段及真实调用；泛型 `MapstructUtils.convert(...)` 调用能编译，不证明对应转换已注册或运行转换正确。
 
-当前请求授权构建时，按项目真实 POM 的注解处理器配置选择受影响模块最小编译目标。正常 `compile` 即可触发 MapStruct/MapStruct Plus 生成，不强制 `test-compile`，不手改生成文件；核对生成映射与注册关系时确认产物对应当前源码，旧 `target/` 不能充当本轮证据。编译通过只证明已覆盖的编译链路，不替代实际转换行为证据；未授权编译/运行时分别记录未验证，不自动补跑。
+按项目真实 POM 的注解处理器配置选择受影响模块最小编译目标。正常 `compile` 即可触发 MapStruct/MapStruct Plus 生成，不强制 `test-compile`，不手改生成文件；核对生成映射与注册关系时确认产物对应当前源码，旧 `target/` 不能充当本轮证据。编译通过只证明编译链路，不替代实际转换行为证据。
 
 `@Translation` 是运行期翻译机制，不是 MapStruct 编译生成步骤。展示字段异常时分别追踪来源值、转换映射和运行期翻译处理，不能一概归因于“没重新编译”。
 
@@ -253,7 +262,7 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 
 - 新增或修改类、接口、BO/VO 字段、Mapper 默认方法和 Service/Controller 的公共方法时，按同包现有风格补简短 JavaDoc，说明做什么和关键参数语义；不复述显而易见的实现，不给 `void` 写 `@return`。
 - 私有方法只在业务规则、算法或字段映射不直观时加注释；覆写框架方法且语义已明确时，不强行重复注释。
-- 只补注释时不改实现、不重排 import、不格式化整个文件；公共 API 改动优先保证调用方兼容，确有签名变化时同步所有调用点；仅当前请求授权构建时编译受影响模块，否则记录未验证。
+- 只补注释时不改实现、不重排 import、不格式化整个文件；公共 API 改动优先保证调用方兼容，确有签名变化时同步所有调用点。
 
 ### 接口文档由 JavaDoc 生成
 
@@ -322,11 +331,10 @@ PUT    /updateSort           R<Void>                按同类系统模块接口�
 - 单个接口放行优先 `@SaIgnore`，不要为一个接口扩大 `security.excludes`；放行接口不能依赖登录用户上下文。
 - 前端已有 `zh_CN`、`en_US`，请求头使用 `Content-Language`；后端可用 `MessageUtils.message("code")`，校验消息可用 `{code}`。
 
-## 检查
+## 完成条件
 
 - [ ] 没有 DAO 层，Controller 不直接调 Mapper，Service 不返回 `R`。
 - [ ] Entity/BO/VO、查询、分页、空集合和映射正确。
 - [ ] 权限字符、数据范围、日志、幂等和事务按需完整。
-- [ ] 已检查 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 和框架示例，列出实际复用入口；目标业务模块仅用于核实业务事实和集成约束。
-- [ ] 鉴权、响应、转换使用现有封装；没有复制业务模块或另造第二套公共能力。
-- [ ] 业务未定项已按当前业务推荐做法完整实现，并留下“待确认什么 / 当前推荐实现 / 后续是否需要调整 / 找谁确认”的 TODO；没有把未实现当成 TODO，也没有用“先不校验”绕过业务约束。
+- [ ] 已复用 `ruoyi-api`、`ruoyi-common-*`、`ruoyi-system` 或框架示例中的现有入口。
+- [ ] 鉴权、响应、转换使用现有封装，没有另造第二套公共能力。
