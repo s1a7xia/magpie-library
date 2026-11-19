@@ -9,7 +9,7 @@
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局工程指令 | 工作原则、授权、验证和已有改动保护 | 唯一源 `instructions.md` + `instructions/codex.md`；项目专属规则留在项目 `AGENTS.md` |
-| 20 个资源库技能 | 业务规范、需求收敛、规格、实现、审查和展现支撑 | 在 `skills/`，直接同步到 `~/.codex/skills` |
+| 19 个资源库技能 | 业务规范、需求收敛、规格、审查和展现支撑 | 在 `skills/`，直接同步到 `~/.codex/skills` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -54,11 +54,11 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 - `sharedSkills = false`
 - `mcpHub = true`
 - `skillRouter = off`
-- Magpie 资源库技能数：20
+- Magpie 资源库技能数：19
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Codex 技能目录：`C:\Users\<user>\.codex\skills\`
 
-Magpie 使用直接分发：20 个技能全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由，也不安装 Codex 插件副本。恢复时只执行 `magpie library sync`。
+Magpie 使用直接分发：19 个技能全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由，也不安装 Codex 插件副本。恢复时只执行 `magpie library sync`。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -69,11 +69,11 @@ Magpie 使用直接分发：20 个技能全部直接出现在 `~\.codex\skills`�
 
 ### 3.2 当前分发
 
-当前 Magpie 的 20 个技能只勾选给 `codex`，并全部直接暴露：`answer-me-with-html`、`ask-matt`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`handoff`、`implement`、`prototype`、`research`、`retro`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`triage`、`wayfinder`、`writing-for-agents`。`ruoyi6`、`database-design`、`grill-with-docs` 由全局指令优先触发；其余 17 个只在用户点名时进入。不使用聚合路由。
+当前 Magpie 的 19 个技能只勾选给 `codex`，并全部直接暴露：`answer-me-with-html`、`ask-matt`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`handoff`、`prototype`、`research`、`retro`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`triage`、`wayfinder`、`writing-for-agents`。`ruoyi6`、`database-design`、`grill-with-docs` 由全局指令优先触发；其余 16 个只在用户点名时进入。不使用聚合路由。
 
-`tdd`、`implement-spec`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入，不得按旧文档声称可用。
+`tdd`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入；`implement` 与 `implement-spec` 已删除且不再提供。不得按旧文档声称这些能力可用。
 
-Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；其余 16 个 Matt 技能由 `disable-model-invocation: true` 限制为显式调用。全部技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
+Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；其余 14 个 Matt 技能由 `disable-model-invocation: true` 限制为显式调用。全部技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
 
 全局指令当前只分发给 `codex`：
 
@@ -202,7 +202,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 1. 在 Magpie 中创建或恢复 `library.json`；
 2. 重新登记 9 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
-4. 把 20 个技能勾选给 Codex，关闭 `skillRouter`，全部设为 `direct`；
+4. 把 19 个技能勾选给 Codex，关闭 `skillRouter`，全部设为 `direct`；
 5. 执行 `magpie library sync`；
 6. 重新建立 SSH、数据库和浏览器登录态。
 
@@ -223,7 +223,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
 - Codex 指令块存在，且与资源库正文一致；
-- 资源库与 `~/.codex/skills` 的 20 个直接技能哈希一致，且不存在 `magpie-skills` 路由目录。
+- 资源库与 `~/.codex/skills` 的 19 个直接技能哈希一致，且不存在 `magpie-skills` 路由目录。
 
 它**不验证**：
 
@@ -346,7 +346,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `verify-library.py` 零错误；
 - [ ] `~/.codex/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] 20 个技能与脱敏快照一致，均直接出现在 `~/.codex/skills`，且都是指向 Magpie 的 Junction；`magpie-skills` 路由目录不存在；
+- [ ] 19 个技能与脱敏快照一致，均直接出现在 `~/.codex/skills`，且都是指向 Magpie 的 Junction；`magpie-skills` 路由目录不存在；
 - [ ] `codex plugin list` 不显示 `mattpocock-skills-zh` 或 `magpie-mattpocock-zh`；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；

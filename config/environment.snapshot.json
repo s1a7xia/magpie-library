@@ -72,13 +72,6 @@
       "route": "direct"
     },
     {
-      "name": "implement",
-      "agents": [
-        "codex"
-      ],
-      "route": "direct"
-    },
-    {
       "name": "prototype",
       "agents": [
         "codex"

@@ -23,7 +23,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 1. 本文的“当前范围”“工程入口”和“目录”，先理解各层职责；
 2. [USAGE.md](USAGE.md) 看日常只说什么、Codex 如何选择技能、哪些动作需要授权；
-3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 20 个技能、3 条隐式路由及排除项；
+3. [SKILLS-DECISION.md](SKILLS-DECISION.md) 看当前 19 个技能、3 条隐式路由及排除项；
 4. [ENVIRONMENT.md](ENVIRONMENT.md) 和 [DEPENDENCIES.md](DEPENDENCIES.md) 看 MCP、插件、记忆与换机恢复边界。
 
 只克隆仓库不会安装技能、连接 MCP 或恢复对话记忆。需要运行这套环境时，先安装 Magpie 并从其加密备份恢复，再把本仓库只读用于核对公开差异。
@@ -41,7 +41,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的工作原则、授权、验证与交付边界 | 唯一源 `instructions.md` + Codex 补充 `instructions/codex.md`，由 Magpie 合并分发 |
-| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 20 个技能全部由 Magpie 直接分发到 `~/.codex/skills`；3 个可隐式触发，17 个仅显式调用 |
+| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 19 个技能全部由 Magpie 直接分发到 `~/.codex/skills`；3 个可隐式触发，16 个仅显式调用 |
 | 项目事实 | 当前目标、决策、验证证据、构建/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片；页面检查使用 Codex 宿主能力 | Magpie 托管的 9 项 MCP，加上本机 CLI |
 
@@ -55,7 +55,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 ## 工程入口
 
-本项目以 Magpie 作为唯一技能入口，20 个技能全部直接安装到 `~/.codex/skills`，没有插件副本或聚合路由。Codex 每轮看到的是技能名称和 description，再由当前模型按条件选择并读取 `SKILL.md`，不是路径匹配式的确定性自动执行。当前只保留 3 条隐式触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 17 个技能全部为 explicit-only，只能由用户点名。
+本项目以 Magpie 作为唯一技能入口，19 个技能全部直接安装到 `~/.codex/skills`，没有插件副本或聚合路由。Codex 每轮看到的是技能名称和 description，再由当前模型按条件选择并读取 `SKILL.md`，不是路径匹配式的确定性自动执行。当前只保留 3 条隐式触发路径：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 16 个技能全部为 explicit-only，只能由用户点名。
 
 ```text
 新项目 / 重大新模块
@@ -86,14 +86,13 @@ git clone git@github.com:s1a7xia/magpie-library.git
 
 实现 -> 授权内验证
   -> 默认当前会话直接实现；仅 RuoYiPlus 叠加 ruoyi6
-  -> 有 spec 或 tickets、希望按固定范围逐票实现时用 $implement（单会话，一次一票）
   -> $code-review 仅在明确要求时
   -> 预发布、UAT、生产发布、客户验收是审批门
 ```
 
 项目开发从原始需求和当前仓库开始：先盘点 RuoYi/相邻模块可复用能力，并把功能切片标为复用、配置/扩展或新开发；再明确最小可交付主干的页面/菜单/路由、API、字典/参数、权限、数据和验收。涉及持久化对象、字段语义、身份/归属、状态、唯一性、删除/历史、关系或 JSONB 时，在任何阶段都先过 `database-design`。
 
-`wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。`implement` 在当前会话逐票实现，不创建 worktree 或子代理。子代理、提交、push 和外部 Issue 仍按当前任务授权。
+`wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。实现始终由当前会话直接完成，不另设实现技能。子代理、提交、push 和外部 Issue 仍按当前任务授权。
 
 全部技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`；不需要也不应再写命名空间或插件前缀。
 
@@ -103,7 +102,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 - `ruoyi6`：实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-20 个技能全部在 Magpie 资源库 `skills/` 中维护，并通过 Junction 直接出现在 `~/.codex/skills`；不使用 `magpie-skills` 聚合路由，也不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 17 个只在用户点名时进入。
+19 个技能全部在 Magpie 资源库 `skills/` 中维护，并通过 Junction 直接出现在 `~/.codex/skills`；不使用 `magpie-skills` 聚合路由，也不安装同名插件副本。`ruoyi6`、`database-design` 和 `grill-with-docs` 由全局指令优先触发；其余 16 个只在用户点名时进入。
 
 ## 环境清单
 
@@ -146,7 +145,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbx`、`gitee`�
 
 ## 公开镜像边界
 
-公开仓库镜像当前生效的全局指令、20 个 Magpie 技能、3 条公开工程偏好、说明和脱敏环境快照，供阅读、差异比较与换机参考。凭据、登录态、会话历史、模型供应商私密配置、MCP 认证头、DSN、SSH 信息、记忆索引/运行状态和同步密码不公开。它不是可直接覆盖本机运行目录的备份；换机时先用 Magpie 的加密备份恢复运行环境，再用本仓库核对公开配置与技能。
+公开仓库镜像当前生效的全局指令、19 个 Magpie 技能、3 条公开工程偏好、说明和脱敏环境快照，供阅读、差异比较与换机参考。凭据、登录态、会话历史、模型供应商私密配置、MCP 认证头、DSN、SSH 信息、记忆索引/运行状态和同步密码不公开。它不是可直接覆盖本机运行目录的备份；换机时先用 Magpie 的加密备份恢复运行环境，再用本仓库核对公开配置与技能。
 
 ## 维护和发布
 

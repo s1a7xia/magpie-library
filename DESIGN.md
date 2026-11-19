@@ -28,7 +28,7 @@ Magpie 是唯一的工程配置源，负责把全局指令、技能、MCP 和模
 |---|---|---|---|
 | Magpie | 指令、技能、MCP、模型的工程配置源 | `~/.config/magpie/library/` + `library.json` | 用户 / 经授权的 Agent |
 | 全局指令 | 项目无关的工作原则、授权、验证与交付边界 | `instructions.md` + `instructions/codex.md` | 只在资源库改 |
-| 技能 | 业务规范与阶段方法 | `library/skills/`（20 个） | 只在资源库改，`magpie library sync` 同步到 Codex |
+| 技能 | 业务规范与阶段方法 | `library/skills/`（19 个） | 只在资源库改，`magpie library sync` 同步到 Codex |
 | 项目事实 | 技术栈、命令、端口、项目授权 | 项目内 `AGENTS.md` 与项目文档 | 项目仓库 |
 | 执行 | 搜索、数据库、Git、SSH、图片、浏览器 | Magpie 托管的 MCP + Codex 宿主工具 | Magpie / Codex |
 
@@ -55,21 +55,21 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 ## 3. 技能分发
 
-- `sharedSkills = false`，`skillRouter = off`；20 个技能全部直接暴露，不使用 `magpie-skills` 聚合路由。
-- 20 个技能全部直接出现在 `~/.codex/skills`，都是指向资源库的 **Junction**，没有插件副本。
-- 只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 17 个由 `disable-model-invocation: true` 限制为显式调用。调用统一使用短名，例如 `$wayfinder`、`$to-spec`。
+- `sharedSkills = false`，`skillRouter = off`；19 个技能全部直接暴露，不使用 `magpie-skills` 聚合路由。
+- 19 个技能全部直接出现在 `~/.codex/skills`，都是指向资源库的 **Junction**，没有插件副本。
+- 只有 `ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发；其余 16 个由 `disable-model-invocation: true` 限制为显式调用。调用统一使用短名，例如 `$wayfinder`、`$to-spec`。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
 ```text
 Codex 技能匹配
   ├─ 隐式：ruoyi6 / database-design / grill-with-docs
-  └─ 显式：其余 17 个短名技能
+  └─ 显式：其余 16 个短名技能
        └─ 路径不清时先建议 $ask-matt，用户确认后进入
 ```
 
-工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。Codex 默认在当前会话实现；有 spec 或 tickets 且希望按固定范围逐票推进时用 `$implement`，它不启动子代理或 worktree。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
+工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。实现始终由当前 Codex 会话直接完成，不另设实现技能。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
 
-`$wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`$grilling`、`$research`、`$wayfinder` 被当前任务调用时，即按其定义授权所需子代理；`$implement` 始终在当前会话逐票实现，`$prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
+`$wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`$grilling`、`$research`、`$wayfinder` 被当前任务调用时，即按其定义授权所需子代理；`$prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
 
 ## 4. MCP 拓扑
 
@@ -110,7 +110,7 @@ Magpie 网关再按当前路由组选择上游模型。当前配置以 `~/.codex
 | 机制 | 内容 | 频率 | 是否含密钥 |
 |---|---|---|---|
 | WebDAV 同步（`sync.json`） | 资源库、Agent 配置、供应商、登录态、设置 | 每 30 分钟 | 是，加密 |
-| Git 仓库 `s1a7xia/magpie-library` | 可阅读的指令、20 个技能、3 条公开工程偏好、设计和使用说明 | 手动提交 | 否 |
+| Git 仓库 `s1a7xia/magpie-library` | 可阅读的指令、19 个技能、3 条公开工程偏好、设计和使用说明 | 手动提交 | 否 |
 
 Git 仓库是**可读副本**，不是运行备份。只克隆仓库不等于能力已安装；换机仍应先恢复 Magpie 加密备份。
 

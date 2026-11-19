@@ -27,7 +27,7 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
 | MCP | 搜索、数据库、Git 托管、SSH、图片、浏览器等执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单 | 20 个技能全部从 `~/.codex/skills` 直接加载；3 个可隐式触发，17 个仅显式调用 |
+| Skills | 按任务加载的方法和检查清单 | 19 个技能全部从 `~/.codex/skills` 直接加载；3 个可隐式触发，16 个仅显式调用 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
 
 项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。共享指令只描述工程边界；通用工程阶段使用 Magpie 管理的技能，`$ask-matt` 只在 Codex 说明需要后由用户确认进入，不替代 Codex 自带技能匹配。大型、跨会话或多阶段项目复用一份状态记录，见 [README.md](README.md#项目状态文档)。
@@ -46,13 +46,13 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 
 RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时使用 `$to-spec`；存在多个可独立验收的纵向切片或真实依赖时，先建议 `$to-tickets`，用户确认后再拆。简单单次改动跳过完整 PRD 和任务拆分。进入 RuoYi 代码实现由 `ruoyi6` 承接；明确要求审查或 API/页面验收时才调用对应技能。
 
-流程导航与阶段入口是 `$ask-matt`、`$triage`、`$wayfinder`、`grill-with-docs`、`$grilling`、`$domain-modeling`、`$research`、`$prototype`、`$to-spec`、`$to-tickets`、`$implement`、`$code-review`、`$retro`、`$setup-matt-pocock-skills`、`$handoff` 和 `$writing-for-agents`；业务规范是 `ruoyi6`、`database-design`、`$frontend-design`，展现支撑是 `$answer-me-with-html`。这 20 个技能全部由 Magpie 直接分发，不使用 `magpie-skills` 聚合层。未选技能（如 `tdd`、`implement-spec`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中，不能把它们当作可调用能力。
+流程导航与阶段入口是 `$ask-matt`、`$triage`、`$wayfinder`、`grill-with-docs`、`$grilling`、`$domain-modeling`、`$research`、`$prototype`、`$to-spec`、`$to-tickets`、`$code-review`、`$retro`、`$setup-matt-pocock-skills`、`$handoff` 和 `$writing-for-agents`；业务规范是 `ruoyi6`、`database-design`、`$frontend-design`，展现支撑是 `$answer-me-with-html`。这 19 个技能全部由 Magpie 直接分发，不使用 `magpie-skills` 聚合层。未选技能（如 `tdd`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中；`implement` 和 `implement-spec` 已删除，实现由当前会话直接完成。以上未提供的技能都不能当作可调用能力。
 
-技能可见性由技能元数据决定，不是路径 hook。当前只有 3 条隐式触发：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 17 个技能均由 `disable-model-invocation: true` 限制为显式调用，不会出现在模型的隐式技能列表。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
+技能可见性由技能元数据决定，不是路径 hook。当前只有 3 条隐式触发：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 16 个技能均由 `disable-model-invocation: true` 限制为显式调用，不会出现在模型的隐式技能列表。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
 
 全部技能统一用短名调用：`$wayfinder`、`$research`、`$to-spec`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`。不需要也不应再写插件命名空间。
 
-`$wayfinder` 只用于大型、跨会话且决策互相依赖的工作。默认地图是 `.scratch/<effort>/wayfinder.md`，决策票据在其 `tickets/` 子目录；没有外部 tracker 授权时不会创建或修改 Issue。`$research` 使用后台调研子代理继续查证，`$prototype` 默认保留本地可丢弃产物，`$to-spec` 写 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 写 `.scratch/<feature-slug>/issues/`。`$implement` 在当前会话一次实现一个 ticket，不启动子代理、worktree 或并行会话；`$grilling`、`$research`、`$wayfinder`、`$code-review` 的子代理上限由各自 `SKILL.md` 定义；其他子代理、测试、提交、push 和发布仍需任务中的明确授权。
+`$wayfinder` 只用于大型、跨会话且决策互相依赖的工作。默认地图是 `.scratch/<effort>/wayfinder.md`，决策票据在其 `tickets/` 子目录；没有外部 tracker 授权时不会创建或修改 Issue。`$research` 使用后台调研子代理继续查证，`$prototype` 默认保留本地可丢弃产物，`$to-spec` 写 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 写 `.scratch/<feature-slug>/issues/`。实现始终由当前会话直接完成；`$grilling`、`$research`、`$wayfinder`、`$code-review` 的子代理上限由各自 `SKILL.md` 定义；其他子代理、测试、提交、push 和发布仍需任务中的明确授权。
 
 ## 3. 闭环怎么验收
 
@@ -85,9 +85,9 @@ Codex 最终按三列交付：
 ## 5. 配置和换机
 
 - 全局公共规则改 `instructions.md`，Codex 专属规则改 `instructions/codex.md`，再执行 `magpie library sync`。
-- 修改任何技能都直接改资源库 `skills/<name>/`，再执行 `magpie library sync`；20 个技能都从 `~/.codex/skills` 直接读取。
+- 修改任何技能都直接改资源库 `skills/<name>/`，再执行 `magpie library sync`；19 个技能都从 `~/.codex/skills` 直接读取。
 - Codex 自带技能匹配负责第一层选择；路径不清时先说明为何需要 `$ask-matt`，用户确认后再进入。需要某个技能时，直接读取 `~/.codex/skills/<name>/SKILL.md`。
-- 公开仓库镜像指令、20 个技能、3 条已确认可公开的工程偏好、说明和脱敏快照；凭据、登录态、会话、未公开记忆、召回索引、运行元数据和私密配置仍由 Magpie 加密备份维护。
+- 公开仓库镜像指令、19 个技能、3 条已确认可公开的工程偏好、说明和脱敏快照；凭据、登录态、会话、未公开记忆、召回索引、运行元数据和私密配置仍由 Magpie 加密备份维护。
 - 不要手改 Codex 的 Magpie 生成块。
 - 项目 `AGENTS.md` 只补充项目约定，不复制全局流程。
 - 换机恢复依赖、MCP 和凭据按 [DEPENDENCIES.md](DEPENDENCIES.md)；只拉 Git 仓库不等于能力已安装。
