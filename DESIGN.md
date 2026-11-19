@@ -67,9 +67,9 @@ Codex 技能匹配
        └─ 路径不清时先建议 $ask-matt，用户确认后进入
 ```
 
-工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。Codex 默认在当前会话实现；明确要求 `$implement-spec` 时，由该技能启动隔离 worktree 的实现编排。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
+工程阶段由 Codex 自己判断最短路径。小改动直接实现；当前会话能收敛时用 `grill-with-docs`；只有大型、跨会话且未知互相依赖时才建议 `$wayfinder`，由用户确认后建决策地图。`$research` 补外部事实，`$prototype` 解决难以文字判断的 UI/行为问题，`$grilling + $domain-modeling` 收敛业务决策和领域术语；需要持久规格时用 `$to-spec`，存在多个可交付切片或真实依赖时才建议 `$to-tickets`。路径仍不清时建议 `$ask-matt`，用户确认后导航。Codex 默认在当前会话实现；有 spec 或 tickets 且希望按固定范围逐票推进时用 `$implement`，它不启动子代理或 worktree。`$code-review` 仅在明确审查请求时调用，并由该请求授权启动两个并行只读审查子代理。
 
-`$wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`$grilling`、`$research`、`$wayfinder`、`$implement-spec` 被当前任务调用时，即按其定义授权所需子代理，`$prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
+`$wayfinder` 默认使用 `.scratch/<effort>/wayfinder.md` 和 `tickets/`，`$to-spec` 默认使用 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 默认使用 `.scratch/<feature-slug>/issues/`，只有配置了外部 tracker 且获授权时才写 Issue；`$grilling`、`$research`、`$wayfinder` 被当前任务调用时，即按其定义授权所需子代理；`$implement` 始终在当前会话逐票实现，`$prototype` 默认保留本地工件，其他委派、测试、提交和发布仍受全局授权控制。
 
 ## 4. MCP 拓扑
 

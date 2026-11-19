@@ -72,7 +72,7 @@
       "route": "direct"
     },
     {
-      "name": "implement-spec",
+      "name": "implement",
       "agents": [
         "codex"
       ],

@@ -85,15 +85,15 @@ git clone git@github.com:s1a7xia/magpie-library.git
   -> 小改或单一明确切片：跳过规格和拆票
 
 实现 -> 授权内验证
-  -> 默认当前会话实现；仅 RuoYiPlus 叠加 ruoyi6
-  -> 仅明确要求时 $implement-spec
+  -> 默认当前会话直接实现；仅 RuoYiPlus 叠加 ruoyi6
+  -> 有 spec 或 tickets、希望按固定范围逐票实现时用 $implement（单会话，一次一票）
   -> $code-review 仅在明确要求时
   -> 预发布、UAT、生产发布、客户验收是审批门
 ```
 
 项目开发从原始需求和当前仓库开始：先盘点 RuoYi/相邻模块可复用能力，并把功能切片标为复用、配置/扩展或新开发；再明确最小可交付主干的页面/菜单/路由、API、字典/参数、权限、数据和验收。涉及持久化对象、字段语义、身份/归属、状态、唯一性、删除/历史、关系或 JSONB 时，在任何阶段都先过 `database-design`。
 
-`wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。子代理、提交、push 和外部 Issue 仍按当前任务授权。
+`wayfinder` 默认把地图写在项目内 `.scratch/<effort>/wayfinder.md`，决策票据放在同目录的 `tickets/`；只有大型、跨会话且关键未知互相阻塞时才建议建立。`to-spec` 写 `.scratch/<feature-slug>/spec.md`，`to-tickets` 写 `.scratch/<feature-slug>/issues/`；未配置外部 tracker 时都使用项目内本地 Markdown。`implement` 在当前会话逐票实现，不创建 worktree 或子代理。子代理、提交、push 和外部 Issue 仍按当前任务授权。
 
 全部技能统一用短名调用，例如 `$wayfinder`、`$to-tickets`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`；不需要也不应再写命名空间或插件前缀。
 

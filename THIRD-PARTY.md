@@ -8,7 +8,7 @@ Magpie 资源库的 20 个技能中，16 个来自 Matt Pocock 的工程技能�
 - 中文来源：[vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN)
 - 引入时提交：`d97aa0788b120c9363ebddfd47b87618d9314c3e`
 - 许可证：MIT License，Copyright (c) 2026 Matt Pocock
-- 本资源库引入：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`
+- 本资源库引入：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`
 
 上述技能已按本机授权边界、默认本地存储和 Windows 行为做过适配，不与翻译仓库自动同步。更新时应先比对上游内容，再人工复核。
 

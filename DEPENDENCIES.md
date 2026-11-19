@@ -69,9 +69,9 @@ Magpie 使用直接分发：20 个技能全部直接出现在 `~\.codex\skills`�
 
 ### 3.2 当前分发
 
-当前 Magpie 的 20 个技能只勾选给 `codex`，并全部直接暴露：`answer-me-with-html`、`ask-matt`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`handoff`、`implement-spec`、`prototype`、`research`、`retro`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`triage`、`wayfinder`、`writing-for-agents`。`ruoyi6`、`database-design`、`grill-with-docs` 由全局指令优先触发；其余 17 个只在用户点名时进入。不使用聚合路由。
+当前 Magpie 的 20 个技能只勾选给 `codex`，并全部直接暴露：`answer-me-with-html`、`ask-matt`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`handoff`、`implement`、`prototype`、`research`、`retro`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`triage`、`wayfinder`、`writing-for-agents`。`ruoyi6`、`database-design`、`grill-with-docs` 由全局指令优先触发；其余 17 个只在用户点名时进入。不使用聚合路由。
 
-`tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入，不得按旧文档声称可用。
+`tdd`、`implement-spec`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入，不得按旧文档声称可用。
 
 Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；其余 16 个 Matt 技能由 `disable-model-invocation: true` 限制为显式调用。全部技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
 

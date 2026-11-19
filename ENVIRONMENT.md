@@ -44,7 +44,7 @@
 |---|---|
 | 隐式触发 | `ruoyi6`、`database-design`、`grill-with-docs` |
 | 需求与决策 | `ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype` |
-| 规格与交付 | `to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents` |
+| 规格与交付 | `to-spec`、`to-tickets`、`implement`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents` |
 | 视觉与展现 | `frontend-design`、`answer-me-with-html` |
 
 其中 16 个技能源自 Matt Pocock 的工程技能，经简体中文翻译和本地适配；来源与 MIT 许可见 [THIRD-PARTY.md](THIRD-PARTY.md)。

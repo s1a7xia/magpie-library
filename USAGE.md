@@ -46,13 +46,13 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 
 RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时使用 `$to-spec`；存在多个可独立验收的纵向切片或真实依赖时，先建议 `$to-tickets`，用户确认后再拆。简单单次改动跳过完整 PRD 和任务拆分。进入 RuoYi 代码实现由 `ruoyi6` 承接；明确要求审查或 API/页面验收时才调用对应技能。
 
-流程导航与阶段入口是 `$ask-matt`、`$triage`、`$wayfinder`、`grill-with-docs`、`$grilling`、`$domain-modeling`、`$research`、`$prototype`、`$to-spec`、`$to-tickets`、`$implement-spec`、`$code-review`、`$retro`、`$setup-matt-pocock-skills`、`$handoff` 和 `$writing-for-agents`；业务规范是 `ruoyi6`、`database-design`、`$frontend-design`，展现支撑是 `$answer-me-with-html`。这 20 个技能全部由 Magpie 直接分发，不使用 `magpie-skills` 聚合层。未选技能（如 `tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中，不能把它们当作可调用能力。
+流程导航与阶段入口是 `$ask-matt`、`$triage`、`$wayfinder`、`grill-with-docs`、`$grilling`、`$domain-modeling`、`$research`、`$prototype`、`$to-spec`、`$to-tickets`、`$implement`、`$code-review`、`$retro`、`$setup-matt-pocock-skills`、`$handoff` 和 `$writing-for-agents`；业务规范是 `ruoyi6`、`database-design`、`$frontend-design`，展现支撑是 `$answer-me-with-html`。这 20 个技能全部由 Magpie 直接分发，不使用 `magpie-skills` 聚合层。未选技能（如 `tdd`、`implement-spec`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中，不能把它们当作可调用能力。
 
 技能可见性由技能元数据决定，不是路径 hook。当前只有 3 条隐式触发：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。其余 17 个技能均由 `disable-model-invocation: true` 限制为显式调用，不会出现在模型的隐式技能列表。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
 
 全部技能统一用短名调用：`$wayfinder`、`$research`、`$to-spec`、`$ruoyi6`、`$database-design`、`$frontend-design`、`$answer-me-with-html`。不需要也不应再写插件命名空间。
 
-`$wayfinder` 只用于大型、跨会话且决策互相依赖的工作。默认地图是 `.scratch/<effort>/wayfinder.md`，决策票据在其 `tickets/` 子目录；没有外部 tracker 授权时不会创建或修改 Issue。`$research` 使用后台调研子代理继续查证，`$prototype` 默认保留本地可丢弃产物，`$to-spec` 写 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 写 `.scratch/<feature-slug>/issues/`。`$grilling`、`$research`、`$wayfinder`、`$implement-spec`、`$code-review` 的子代理上限由各自 `SKILL.md` 定义；其他子代理、测试、提交、push 和发布仍需任务中的明确授权。
+`$wayfinder` 只用于大型、跨会话且决策互相依赖的工作。默认地图是 `.scratch/<effort>/wayfinder.md`，决策票据在其 `tickets/` 子目录；没有外部 tracker 授权时不会创建或修改 Issue。`$research` 使用后台调研子代理继续查证，`$prototype` 默认保留本地可丢弃产物，`$to-spec` 写 `.scratch/<feature-slug>/spec.md`，`$to-tickets` 写 `.scratch/<feature-slug>/issues/`。`$implement` 在当前会话一次实现一个 ticket，不启动子代理、worktree 或并行会话；`$grilling`、`$research`、`$wayfinder`、`$code-review` 的子代理上限由各自 `SKILL.md` 定义；其他子代理、测试、提交、push 和发布仍需任务中的明确授权。
 
 ## 3. 闭环怎么验收
 

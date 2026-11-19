@@ -18,7 +18,7 @@ disable-model-invocation: true
 
 技能调用不等于授权。开始前落实当前任务已经授予的范围：
 
-- 默认在当前会话完成；全局不主动派子代理。`grilling`、`research`、`wayfinder` 或 `implement-spec` 获准进入后，才按各自 `SKILL.md` 的定义授权其所需子代理，无需再次确认；该授权不自动扩展到其他技能。worktree、分支、提交、push 和 PR 仍按对应技能正文和当前任务边界执行。
+- 默认在当前会话完成；全局不主动派子代理。`grilling`、`research` 或 `wayfinder` 获准进入后，才按各自 `SKILL.md` 的定义授权其所需子代理，无需再次确认；该授权不自动扩展到其他技能。`implement` 始终在当前会话逐票执行，不启动子代理或 worktree。分支、提交、push 和 PR 仍按对应技能正文和当前任务边界执行。
 - Issue/PR 的创建、评论、标签、关闭、合并，以及提交、push、发布、部署，需要明确授权。
 - 测试、TDD、构建和页面运行验收按当前任务明确要求执行；实现或修复本身不自动授予测试权限。
 - 数据库结构变更、权限扩大、不可逆写入、资金和凭证操作需要单独授权。
@@ -37,7 +37,7 @@ disable-model-invocation: true
 | 视觉/逻辑证据 | `prototype` | 纸面难以判断状态模型、业务逻辑或 UI 效果 |
 | 规格 | `to-spec` | 决策已清楚，需要形成可验收、可交接的 spec |
 | 切片 | `to-tickets` | spec 含多个纵向交付切片或真实阻塞依赖 |
-| 实现 | `implement-spec` | 已有多 ticket 的 spec/task graph，且任务明确要求编排式实现 |
+| 实现 | `implement` | 已有 spec 或 tickets，需要按固定范围逐票实现；当前会话完成 |
 | 审查 | `code-review` | 用户明确要求按 Standards + Spec 审查固定点以来的变更 |
 | 复盘 | `retro` | 用户明确要求回看一次会话并改进 agent 环境 |
 | 初始化 | `setup-matt-pocock-skills` | 首次为项目配置 tracker、triage 标签和领域文档布局 |
@@ -66,8 +66,8 @@ disable-model-invocation: true
 
 ### 3. 实现
 
-- **默认**：当前 Codex 会话按 task graph 顺序实现，遵循项目规范，复用现有能力。
-- **编排式实现**：用户明确要求用 `$implement-spec` 实现已拆票的 spec 时，即授权它按 `SKILL.md` 启动隔离 worktree 的实现者子代理；提交、push、PR、Issue 写入、测试和发布仍按当前任务另行授权。
+- **默认**：当前 Codex 会话直接实现，遵循项目规范，复用现有能力。
+- **按 spec/tickets 实现**：用户点名 `$implement` 时，在当前会话一次处理一个 ticket 或最小充分切片；不启动子代理、不创建 worktree，也不自动测试、审查或提交。
 - **测试**：只有用户明确要求测试、TDD 或运行验证时才执行对应测试；当前资源库未提供 `tdd` 技能，不声称调用它。未授权时不要自行新增或运行测试。
 - 每完成一个切片，核对行为、受影响的调用链、文档和持久化结果；不把“代码写完”当成“已验收”。
 
@@ -77,7 +77,7 @@ disable-model-invocation: true
 
 仅在用户明确要求 `$code-review` 时执行规范与规格双轴审查。显式调用即授权启动两个并行的只读 Standards/Spec 审查子代理，无需再次确认；若当前环境无法并行，则在当前会话串行完成两轴并明确标记为降级执行。该授权不包含修改、测试、提交、部署或扩大任务范围。
 
-`grilling`、`research`、`wayfinder`、`implement-spec` 同理：技能自身定义的子代理由显式调用该技能授权，但只限其正文明示的只读调查或隔离实现范围；不得借此启动其他后台代理或扩大 Git、测试、外部写入授权。
+`grilling`、`research`、`wayfinder` 同理：技能自身定义的子代理由显式调用该技能授权，但只限其正文明示的只读调查范围；不得借此启动其他后台代理或扩大 Git、测试、外部写入授权。`implement` 不定义子代理，始终在当前会话执行。
 
 ### 5. 复盘
 

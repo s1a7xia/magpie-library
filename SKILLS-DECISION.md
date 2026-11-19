@@ -52,8 +52,10 @@ JSONB 或迁移
   -> $to-tickets
 
 实现
-  ├─ 默认：当前 Codex 会话按 ruoyi6 实现
-  └─ 仅明确要求时：$implement-spec 在隔离 worktree 按 task graph 编排
+  ├─ 默认：当前 Codex 会话直接实现
+  ├─ 有 spec/tickets 且需要按固定范围逐票推进：$implement
+  │    （一次一个 ticket；当前会话；不启动子代理或 worktree）
+  └─ 涉及 RuoYi 代码时叠加 ruoyi6
 
 验证与交付
   -> 按当前任务授权执行最小验证并记录证据
@@ -95,7 +97,7 @@ JSONB 或迁移
 |---|---|---|
 | `$to-spec` | 把已确认内容合成为可验收规格，不做新访谈 | 需要持久记录、交接、复杂变更或多轮实现 |
 | `$to-tickets` | 拆成带阻塞关系的纵向交付切片 | 存在多个可独立验收的切片或真实依赖 |
-| `$implement-spec` | 按 spec 和 task graph 编排实现 | 用户明确要求编排式实现，而不是默认当前会话实现 |
+| `$implement` | 按 spec 或 tickets 在当前会话逐票实现 | 工作已确认，希望按固定范围实现；一次一个 ticket，不重开方案 |
 | `$code-review` | Standards + Spec 双轴只读审查 | 用户明确要求审查；调用即授权两个并行只读审查子代理 |
 | `$retro` | 复盘一次会话并改进 agent 环境 | 用户明确要求复盘 |
 | `$handoff` | 生成可携带的跨会话交接文档 | 要换 harness、目录、同事或阶段中途分叉 |
@@ -115,20 +117,20 @@ JSONB 或迁移
 | 从讨论进入可验收规格 | `$to-spec` |
 | 从规格进入可独立验收的交付顺序 | `$to-tickets` |
 | 项目第一次建立规格/票务和领域文档约定 | `$setup-matt-pocock-skills` |
-| 默认实现和 RuoYi 技术规范 | 当前会话 + `ruoyi6` |
+| 默认实现和 RuoYi 技术规范 | 当前会话 + `$implement` + `ruoyi6` |
 | 数据模型不被顺手臆造 | `database-design` |
 | 明确要求时的质量审查 | `$code-review` |
 | 明确要求时的复盘、交接和文档维护 | `$retro`、`$handoff`、`$writing-for-agents` |
 | 外部需求池整理 | `$triage` |
 | 路径导航和视觉支撑 | `$ask-matt`、`$frontend-design`、`$answer-me-with-html` |
-| 编排式实现 | `$implement-spec` |
+| 单会话逐票实现 | `$implement` |
 
 ## 刻意不纳入
 
 | 能力 | 不纳入原因 |
 |---|---|
 | `tdd` | 当前工作流不默认授权测试；需要 TDD 时按项目测试规范直接执行，不常驻技能。 |
-| `implement` | 默认串联测试、审查和提交，与当前授权边界冲突；默认实现由 Codex 当前会话完成。 |
+| `implement-spec` | 依赖隔离 worktree 和实现者子代理；改为单会话 `$implement`，不启动子代理。 |
 | `diagnosing-bugs` | 困难缺陷按项目规则定位根因，必要时用 `$research` 或 `$prototype` 获取证据。 |
 | `codebase-design` | 当前任务按通用设计原则和项目现有架构处理。 |
 | `improve-codebase-architecture` | 不把架构巡检设为日常前置步骤。 |
