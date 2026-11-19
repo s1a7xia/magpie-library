@@ -118,8 +118,8 @@ def main() -> int:
     else:
         # Skills land where the library is configured to put them: ~/.agents/skills
         # when shared, otherwise each agent's own skills directory (Codex checked here).
-        # With the skill router on, routed skills live under magpie-skills/.skills
-        # instead of being copied beside the direct skills.
+        # Legacy router layouts keep routed skills under magpie-skills/.skills;
+        # current libraries install every skill directly beside the others.
         if data.get("sharedSkills"):
             target_skills = Path.home() / ".agents" / "skills"
             target_label = "~/.agents/skills (shared)"

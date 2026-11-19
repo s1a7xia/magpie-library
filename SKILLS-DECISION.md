@@ -39,7 +39,7 @@
 ## 载体
 
 - **Codex 插件**：`mattpocock-skills-zh`，来源为中文翻译仓库 `vinvcn/mattpocock-skills-zh-CN`。运行安装在 Codex 插件缓存；公开镜像位于 `plugins/mattpocock-skills-zh/`。
-- **Magpie 混合分发**：`ruoyi6`、`database-design` 直接暴露；`frontend-design`、`answer-me-with-html` 进入 `magpie-skills` 聚合层，按需读取。
+- **Magpie 直接分发**：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接暴露在 `~/.codex/skills`，按需手动读取；不使用 `magpie-skills` 聚合路由。
 - **Matt 中文插件**：16 个流程技能独立加载，不与 Magpie 本地技能重复；常规决策、证据和规格技能可按条件选用，`wayfinder`、`to-tickets`、`ask-matt` 等由 Codex 建议后经用户确认。
 
 ## 中文插件：16 个
@@ -84,7 +84,7 @@
 | `frontend-design` | 用户明确要求深度视觉设计时叠加 |
 | `answer-me-with-html` | 用户明确要求视觉解释页时使用 |
 
-这 4 个技能仍在 Magpie 资源库中维护；16 个 Matt 中文技能的运行载体仍是 Codex 插件，公开仓库只保留一份只读镜像，避免在 Magpie 形成同名双份。`ruoyi6`、`database-design` 直接暴露，`frontend-design`、`answer-me-with-html` 通过 `magpie-skills` 聚合入口读取。API 回归的执行约束已收敛到全局 `instructions.md` 与 Codex 补充 `instructions/codex.md`，不再单独维护技能。
+这 4 个技能仍在 Magpie 资源库中维护；16 个 Matt 中文技能的运行载体仍是 Codex 插件，公开仓库只保留一份只读镜像，避免在 Magpie 形成同名双份。4 个本地技能全部直接暴露在 `~/.codex/skills`，由模型按任务需要手动读取；不使用 `magpie-skills` 聚合入口。API 回归的执行约束已收敛到全局 `instructions.md` 与 Codex 补充 `instructions/codex.md`，不再单独维护技能。
 
 ## 刻意不纳入
 

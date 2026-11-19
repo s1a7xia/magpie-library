@@ -27,7 +27,7 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 | Magpie | 全局指令、模型、MCP、Skills 的配置源 | `~/.config/magpie/library/` |
 | 项目 `AGENTS.md` | 该项目技术栈、真实命令、项目授权和特殊边界 | 项目根目录 |
 | MCP | 搜索、数据库、Git 托管、SSH、图片、浏览器等执行能力 | Magpie 托管，Codex 通过 Magpie Hub 使用；宿主内置工具另算 |
-| Skills | 按任务加载的方法和检查清单 | `ruoyi6`、`database-design` 直接暴露；2 个本地技能经 `magpie-skills` 路由；16 个 Matt 中文技能由 Codex 插件提供 |
+| Skills | 按任务加载的方法和检查清单 | 4 个本地技能全部直接暴露，按需手动读取；16 个 Matt 中文技能由 Codex 插件提供 |
 | Codex | 唯一默认开发者、文档写入者和 Git 收尾者 | 当前项目会话 |
 
 项目事实、PRD、决策和验证证据留在项目内，不复制到全局规则，也不另建跨项目控制台账。共享指令只描述工程边界；通用工程阶段使用 Matt Pocock 的中文插件技能，`ask-matt` 只在 Codex 说明需要后由用户确认进入，不替代 Codex 自带技能匹配。大型、跨会话或多阶段项目复用一份状态记录，见 [README.md](README.md#项目状态文档)。
@@ -46,7 +46,7 @@ Codex 会先读代码、写出简短的需求摘要与验收项；只有会改�
 
 RuoYi 项目从原始需求进入时，先以当前仓库为事实基线盘点作者框架和相邻模块的复用能力，将功能切片区分为复用、配置/扩展、新开发；同时明确首个可交付主干的功能结构、页面/菜单/路由、API、字典/参数、权限、数据及验收。需求或方案未收敛时按需用计划模式和 `grill-with-docs`；讨论到持久化对象、字段、一行语义、归属、状态、关系、唯一性、删除/历史或 JSONB 时，需求阶段就加载 `database-design`，在规格进入实现前确认数据契约。方案定稿且需要持久记录时用 `to-spec`；存在多个可独立验收的纵向切片或真实依赖时，先建议 `to-tickets`，用户确认后再拆。简单单次改动跳过完整 PRD 和任务拆分。进入 RuoYi 代码实现由 `ruoyi6` 承接；明确要求审查或 API/页面验收时才调用对应技能。
 
-流程导航与阶段入口是插件提供的 `ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff` 和 `writing-for-agents`；业务规范是本地的 `ruoyi6`、`database-design`、`frontend-design`，展现支撑是 `answer-me-with-html`。其中 `ruoyi6`、`database-design` 直接暴露，`frontend-design`、`answer-me-with-html` 通过 `magpie-skills` 聚合层按需读取。未选技能（如 `tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中，不能把它们当作可调用能力。
+流程导航与阶段入口是插件提供的 `ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff` 和 `writing-for-agents`；业务规范是本地的 `ruoyi6`、`database-design`、`frontend-design`，展现支撑是 `answer-me-with-html`。这 4 个本地技能全部直接暴露，由模型按任务需要手动读取对应 `SKILL.md`；不使用 `magpie-skills` 聚合层。未选技能（如 `tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`pr`）不在当前集合中，不能把它们当作可调用能力。
 
 技能可见性由插件/本地技能元数据决定，不是路径 hook。当前 Codex 专属指令只补充 3 条优先触发：RuoYi 代码读取 `ruoyi6`、持久化模型讨论读取 `database-design`、单会话真实歧义读取 `grill-with-docs`。`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`writing-for-agents` 仍可由模型按 description 选择；`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由元数据限制为显式调用。写在规则里不等于执行时必然加载，最终以本轮实际读取的 `SKILL.md` 为准。
 
@@ -83,8 +83,8 @@ Codex 最终按三列交付：
 ## 5. 配置和换机
 
 - 全局公共规则改 `instructions.md`，Codex 专属规则改 `instructions/codex.md`，再执行 `magpie library sync`。
-- 本地技能修改直接改资源库 `skills/<name>/`；`ruoyi6`、`database-design` 从 `~/.codex/skills` 直接读取，另外 2 个从 `~/.codex/skills/magpie-skills/.skills` 按需读取。Matt 中文技能修改插件源目录后，提升插件版本并重新安装。
-- Codex 自带技能匹配负责第一层选择；路径不清时先说明为何需要 `ask-matt`，用户确认后再进入。需要非核心本地能力时，先读 `magpie-skills` 的 `SKILL.md`，再按其路径加载对应技能。
+- 本地技能修改直接改资源库 `skills/<name>/`；4 个本地技能都从 `~/.codex/skills` 直接读取，按任务需要手动打开对应 `SKILL.md`。Matt 中文技能修改插件源目录后，提升插件版本并重新安装。
+- Codex 自带技能匹配负责第一层选择；路径不清时先说明为何需要 `ask-matt`，用户确认后再进入。需要某个本地技能时，直接读取 `~/.codex/skills/<name>/SKILL.md`。
 - 公开仓库镜像指令、4 个本地技能、16 个 Codex 插件技能、3 条已确认可公开的工程偏好、说明和脱敏快照；凭据、登录态、会话、未公开记忆、召回索引、运行元数据和私密配置仍由 Magpie 加密备份维护。
 - 不要手改 Codex 的 Magpie 生成块。
 - 项目 `AGENTS.md` 只补充项目约定，不复制全局流程。

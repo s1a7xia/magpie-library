@@ -55,15 +55,14 @@ Alma 的 `USER.md` 不再包含 Magpie 生成块；Alma 的指令、记忆与人
 
 ## 3. 技能分发
 
-- `sharedSkills = false`，`skillRouter = true`；使用混合分发，避免把高频核心入口藏在路由后面。
-- Magpie 资源库只剩 4 个本地技能：`ruoyi6`、`database-design` 直接暴露；`frontend-design`、`answer-me-with-html` 经 `~/.codex/skills/magpie-skills/.skills` 按需读取。它们都是指向资源库的 **Junction**。
+- `sharedSkills = false`，`skillRouter = off`；4 个本地技能全部直接暴露，不使用 `magpie-skills` 聚合路由。
+- Magpie 资源库只剩 4 个本地技能，全部直接出现在 `~/.codex/skills`：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。它们都是指向资源库的 **Junction**，由模型按任务需要手动读取对应 `SKILL.md`。
 - Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，与 Magpie 直接技能互不重复。`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`writing-for-agents` 可由模型按 description 选择；`ask-matt`、`triage`、`wayfinder`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff` 由元数据限制为显式调用，必须由用户确认后进入。当前 Codex 专属指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径。
 - `~/.agents/skills/` 不再承载共享技能；Alma 的个人技能目录也不包含 Magpie Junction。
 
 ```text
 Codex 自带技能匹配
-  ├─ ruoyi6 / database-design（直接）
-  ├─ magpie-skills（frontend-design / answer-me-with-html）
+  ├─ ruoyi6 / database-design / frontend-design / answer-me-with-html（直接）
   └─ 16 个 Matt 中文插件技能
        └─ 路径不清时建议 ask-matt，用户确认后进入
 ```

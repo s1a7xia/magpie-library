@@ -76,7 +76,7 @@ Codex 自带技能匹配 + 可选 ask-matt 导航
 从包含 `.agents` 的 marketplace 根目录安装：
 
 ```powershell
-codex plugin marketplace add "<本仓库目录>\plugins\mattpocock-skills-zh"
+codex plugin marketplace add "<本仓库目录>"  # 仓库根含 .agents/plugins/marketplace.json
 codex plugin add "mattpocock-skills-zh@magpie-mattpocock-zh"
 codex plugin list
 ```

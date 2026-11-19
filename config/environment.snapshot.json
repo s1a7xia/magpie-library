@@ -6,14 +6,14 @@
   ],
   "sharedSkills": false,
   "mcpHub": true,
-  "skillRouter": true,
+  "skillRouter": false,
   "skills": [
     {
       "name": "answer-me-with-html",
       "agents": [
         "codex"
       ],
-      "route": "routed"
+      "route": "direct"
     },
     {
       "name": "database-design",
@@ -27,7 +27,7 @@
       "agents": [
         "codex"
       ],
-      "route": "routed"
+      "route": "direct"
     },
     {
       "name": "ruoyi6",
@@ -67,21 +67,21 @@
     {
       "file": "m_c0e6bf94134e.md",
       "kind": "preference",
-      "scope": "agent:codex",
+      "scope": "global",
       "status": "active",
       "tags": "[ruoyi-vue-plus, 业务模块, 复用优先, 编码规范, 风格统一]"
     },
     {
       "file": "m_e0827147ced5.md",
       "kind": "preference",
-      "scope": "agent:codex",
+      "scope": "global",
       "status": "active",
       "tags": "[数据库设计, 单表优先, 避免过度设计]"
     },
     {
       "file": "m_e6a950c6126c.md",
       "kind": "preference",
-      "scope": "agent:codex",
+      "scope": "global",
       "status": "active",
       "tags": "[功能闭环, 迭代, 状态文档, git, 大型项目, 任务追踪]"
     }

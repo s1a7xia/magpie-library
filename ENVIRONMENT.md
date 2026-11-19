@@ -5,7 +5,7 @@
 ## 总览
 
 - Magpie：CLI 实测 `0.1.4395`。
-- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=true`；Magpie 资源库只剩 4 个本地技能，全部只分发给 Codex。`ruoyi6`、`database-design` 直接暴露，`frontend-design`、`answer-me-with-html` 进入 `magpie-skills` 聚合层。Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，不再复制到 Magpie 或 `~/.codex/skills`。
+- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=off`；Magpie 资源库只剩 4 个本地技能，全部只分发给 Codex 并直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。不使用 `magpie-skills` 聚合层。Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，不再复制到 Magpie 或 `~/.codex/skills`。
 - MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。工具可见不等于获得写操作授权。
 - Alma 已退出本资源库的团队与分发链：其 `USER.md` 为空，技能目录没有 Magpie Junction，`mcp.json` 为空。Alma 的聊天、记忆、通知、微信、Herdr 及其自身 bundled/personal 配置由 Alma 独立维护，不由本仓库管理。
 - 自动备份：每 24 小时、保留 3 份、包含登录态；密码及备份文件不公开。没有执行备份或恢复演练，不能保证未核验的数据一定被整包覆盖。

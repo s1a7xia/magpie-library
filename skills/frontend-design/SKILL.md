@@ -6,7 +6,7 @@ license: Complete terms in LICENSE.txt
 
 # Frontend Design
 
-这是**显式调用的深度设计技能**。普通 RuoYi 业务页面的默认视觉质量由 [RuoYi 前端基线](../ruoyi6/references/frontend.md#样式与设计) 负责；用户明确要求页面美化、整页改版或完整视觉方向时，可以在这里继续叠加设计方法，也可以由 `ruoyi6` 路由进入。它不是 `ruoyi6` 的替代品，RuoYi 的组件、主题、权限和行为边界仍然生效。文件扩展名本身不触发本技能。
+这是**显式调用的深度设计技能**。普通 RuoYi 业务页面的默认视觉质量由 `ruoyi6` 技能的 `references/frontend.md`「样式与设计」 负责；用户明确要求页面美化、整页改版或完整视觉方向时，可以在这里继续叠加设计方法，也可以由 `ruoyi6` 路由进入。它不是 `ruoyi6` 的替代品，RuoYi 的组件、主题、权限和行为边界仍然生效。文件扩展名本身不触发本技能。
 
 先判断页面属于哪一种模式，再开始设计。模式判断错误，比缺少装饰更伤页面。
 
@@ -19,7 +19,7 @@ license: Complete terms in LICENSE.txt
 
 业务页不要套用独立站的“工作室视觉”。那会把表格、表单和弹窗装饰化，破坏用户已经熟悉的行为。独立展示页也不要被 Ant Design 组件限制，可以按完整视觉方向设计。
 
-如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 6.x + React 项目读 [前端规范和样式边界](../ruoyi6/references/frontend.md#样式与设计)，本技能负责设计方法，项目规范负责收敛边界。
+如果项目有自己的 UI 规范，先读项目规范；RuoYi-Vue-Plus 6.x + React 项目读 `ruoyi6` 技能的 `references/frontend.md`「样式与设计」，本技能负责设计方法，项目规范负责收敛边界。
 
 ## Enhance mode
 

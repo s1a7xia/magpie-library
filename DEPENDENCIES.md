@@ -54,12 +54,12 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 
 - `sharedSkills = false`
 - `mcpHub = true`
-- `skillRouter = true`
+- `skillRouter = off`
 - Magpie 资源库技能数：4
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Codex 技能目录：`C:\Users\<user>\.codex\skills\`
 
-Magpie 使用混合分发：`ruoyi6`、`database-design` 直接出现在 `~\.codex\skills`；`frontend-design`、`answer-me-with-html` 位于 `~\.codex\skills\magpie-skills\.skills`，由聚合入口按需读取。它们都是指向资源库的 Junction。Matt 的 16 个简体中文技能由 Codex 插件提供，不复制到 Magpie。
+Magpie 使用直接分发：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由，由模型按任务需要手动读取对应 `SKILL.md`。Matt 的 16 个简体中文技能由 Codex 插件提供，不复制到 Magpie。
 
 插件配置：
 
@@ -75,7 +75,7 @@ commit: d97aa0788b120c9363ebddfd47b87618d9314c3e
 恢复时执行：
 
 ```powershell
-codex plugin marketplace add "<本仓库目录>\plugins\mattpocock-skills-zh"
+codex plugin marketplace add "<本仓库目录>"  # 仓库根含 .agents/plugins/marketplace.json
 codex plugin add "mattpocock-skills-zh@magpie-mattpocock-zh"
 codex plugin list
 ```
@@ -89,7 +89,7 @@ codex plugin list
 
 ### 3.2 当前分发
 
-当前 Magpie 的 4 个技能只勾选给 `codex`：`ruoyi6`、`database-design` 直接暴露；`frontend-design`、`answer-me-with-html` 进入 `magpie-skills` 聚合层。这样实现和数据设计入口始终可见，低频辅助能力按需加载。
+当前 Magpie 的 4 个技能只勾选给 `codex`，并全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。它们都按任务需要手动读取，不使用聚合路由。
 
 Matt 中文插件包含 16 个技能：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`。`tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture` 和 `pr` 未纳入，不得按旧文档声称可用。
 
@@ -207,7 +207,7 @@ magpie backup --sign-ins C:\path\to\magpie-full.magpie-backup
 5. 补装不属于 Magpie 整包的 CLI：Node.js、Python、Git、`gh` / `glab`、RTK，按实际项目需要选择。
 6. 在 Chrome 中加载 `C:\Users\<user>\Magpie Browser Extension`，确认 Magpie Browser 状态为 `connected: true`。
 7. 打开新的 Codex 会话，实际调用技能和一个只读 MCP，确认不是“配置存在但会话未挂载”。
-8. 对照 `SKILLS-DECISION.md` 核对直接/路由技能分布和刻意排除项；本地适配技能不应重新挂回上游自动更新来源。
+8. 对照 `SKILLS-DECISION.md` 核对全部直接暴露的本地技能和刻意排除项；本地适配技能不应重新挂回上游自动更新来源。
 
 ### 方案 B：只有 Git 仓库
 
@@ -222,8 +222,8 @@ git clone git@github.com:s1a7xia/magpie-library.git
 1. 在 Magpie 中创建或恢复 `library.json`；
 2. 重新登记 9 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
-4. 把 4 个本地技能勾选给 Codex，设置 `skillRouter=true`；`ruoyi6`、`database-design` 设为 `direct`，其余 2 个进入默认路由；
-5. 从本仓库的 `plugins/mattpocock-skills-zh/` 添加并安装 Matt 中文插件；
+4. 把 4 个本地技能勾选给 Codex，关闭 `skillRouter`，4 个技能全部设为 `direct`；
+5. 从本仓库根目录添加 marketplace，并安装其中的 Matt 中文插件；
 6. 执行 `magpie library sync`；
 7. 重新建立 SSH、数据库和浏览器登录态。
 
@@ -244,7 +244,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
 - Codex 指令块存在，且与资源库正文一致；
-- 资源库与 `~/.codex/skills` 的 2 个直接技能及 `magpie-skills/.skills` 的 2 个路由技能哈希一致。
+- 资源库与 `~/.codex/skills` 的 4 个直接技能哈希一致，且不存在 `magpie-skills` 路由目录。
 
 它**不验证**：
 
@@ -367,7 +367,7 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `verify-library.py` 零错误；
 - [ ] `~/.codex/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] 4 个本地技能与脱敏快照一致；2 个直接技能可见，2 个可通过 `magpie-skills` 读取；
+- [ ] 4 个本地技能与脱敏快照一致，均直接出现在 `~/.codex/skills`；`magpie-skills` 路由目录不存在；
 - [ ] `codex plugin list` 显示 `mattpocock-skills-zh@magpie-mattpocock-zh` 为 `installed, enabled`，缓存中有 16 个技能；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；

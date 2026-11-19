@@ -41,7 +41,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 | 层 | 作用 | 当前载体 |
 |---|---|---|
 | 全局规则 | 项目无关的工作原则、授权、验证与交付边界 | 唯一源 `instructions.md` + Codex 补充 `instructions/codex.md`，由 Magpie 合并分发 |
-| 技能 | 工程阶段方法、业务规范和可选支撑能力 | `ruoyi6`、`database-design` 直接暴露；2 个本地技能经 `magpie-skills` 路由；16 个 Matt 中文技能由 Codex 插件提供 |
+| 技能 | 工程阶段方法、业务规范和可选支撑能力 | 4 个本地技能全部直接暴露，按需手动读取；16 个 Matt 中文技能由 Codex 插件提供 |
 | 项目事实 | 当前目标、决策、验证证据、构建/启动命令与端口 | 项目现有文档；缺少专用目录不阻塞开发 |
 | 工具 | 搜索、文档、代码托管、数据库、SSH、图片；页面检查使用 Codex 宿主能力 | Magpie 托管的 9 项 MCP，加上本机 CLI |
 
@@ -101,7 +101,7 @@ git clone git@github.com:s1a7xia/magpie-library.git
 - `ruoyi6`：实际修改 RuoYi-Vue-Plus 6.x + plus-ui-React 的代码、接口、权限、菜单、字段链路或已批准的数据落表。
 - `frontend-design`：用户明确要求深度视觉设计或整页改版。
 
-Matt 中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 承载；Magpie 维护 4 个本地技能，其中 `ruoyi6`、`database-design` 直接暴露，`frontend-design`、`answer-me-with-html` 通过 `magpie-skills` 路由读取。插件与本地技能不要重复安装同名副本。
+Matt 中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 承载；Magpie 维护 4 个本地技能，全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`；不使用 `magpie-skills` 聚合路由，由模型按任务需要手动读取。插件与本地技能不要重复安装同名副本。
 
 ## 环境清单
 
@@ -129,6 +129,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbx`、`gitee`�
 | `instructions.md` | 全局工程指令的公共正文源；项目规则不写回这里 |
 | `instructions/codex.md` | Codex 专属补充规则；与公共正文合并后写入 Codex |
 | `skills/` | Magpie 技能及其引用、模板和脚本 |
+| `.agents/plugins/marketplace.json` | 公开仓库作为 Codex marketplace 根目录的清单；安装时指向本仓库根 |
 | `plugins/mattpocock-skills-zh/` | Codex 插件提供的 16 个 Matt 中文工程技能，按插件原样镜像 |
 | `memory/` | 3 条已确认可公开的 Codex 工程偏好正文；不是 Magpie 运行记忆目录 |
 | `scripts/verify-library.py` | 资源库结构、链接、同步和凭证提示检查 |
