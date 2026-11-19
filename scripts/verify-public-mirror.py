@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 from pathlib import Path
 
 
@@ -46,21 +45,6 @@ def main() -> int:
     args = parser.parse_args()
     mirror = args.mirror.resolve()
     library = (Path.home() / ".config" / "magpie" / "library").resolve()
-    plugin_manifest = mirror / "plugins" / "mattpocock-skills-zh" / ".codex-plugin" / "plugin.json"
-    try:
-        plugin_version = json.loads(plugin_manifest.read_text(encoding="utf-8"))["version"]
-    except (OSError, ValueError, KeyError) as exc:
-        print(f"ERROR cannot read mirrored plugin version: {exc}")
-        return 1
-    plugin = (
-        Path.home()
-        / ".codex"
-        / "plugins"
-        / "cache"
-        / "magpie-mattpocock-zh"
-        / "mattpocock-skills-zh"
-        / plugin_version
-    )
     problems = []
     for name in (
         "skills",
@@ -70,13 +54,6 @@ def main() -> int:
         "instructions",
     ):
         problems.extend(compare(name, library / name, mirror / name))
-    problems.extend(
-        compare(
-            "plugins/mattpocock-skills-zh",
-            plugin,
-            mirror / "plugins" / "mattpocock-skills-zh",
-        )
-    )
     for name in (
         "README.md",
         "USAGE.md",
@@ -84,6 +61,7 @@ def main() -> int:
         "DESIGN.md",
         "DEPENDENCIES.md",
         "ENVIRONMENT.md",
+        "THIRD-PARTY.md",
         "instructions.md",
     ):
         source = library / name

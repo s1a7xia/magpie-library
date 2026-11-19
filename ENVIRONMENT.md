@@ -1,11 +1,12 @@
-# Magpie 当前环境、插件与记忆清单
+# Magpie 当前环境、技能与记忆清单
 
 核对日期：2026-11-19。本文件记录实际本机配置，不把“已登记”“已启用”当作“已连通/已生效”。用于公开溯源与换机配置，不是含凭据的全量运行备份。
 
 ## 总览
 
 - Magpie：CLI 实测 `0.1.4395`。
-- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=off`；Magpie 资源库只剩 4 个本地技能，全部只分发给 Codex 并直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。不使用 `magpie-skills` 聚合层。Matt Pocock 的 16 个简体中文技能由 Codex 插件 `mattpocock-skills-zh@magpie-mattpocock-zh` 提供，不再复制到 Magpie 或 `~/.codex/skills`。
+- 技能清单以当前 Magpie 资源库和 [脱敏快照](config/environment.snapshot.json) 为准。`sharedSkills=false`、`mcpHub=true`、`skillRouter=off`；Magpie 资源库有 20 个技能，全部只分发给 Codex 并直接出现在 `~/.codex/skills`。不使用 `magpie-skills` 聚合层，也不安装 Codex 插件副本。
+- 20 个技能中，`ruoyi6`、`database-design`、`grill-with-docs` 可隐式触发，其余 17 个仅显式调用。调用统一使用短名，例如 `$wayfinder`、`$to-spec`。
 - MCP 配置以当前 `library.json` 和脱敏快照为准；内置插件 13 个启用、budget 关闭。工具可见不等于获得写操作授权。
 - Alma 已退出本资源库的团队与分发链：其 `USER.md` 为空，技能目录没有 Magpie Junction，`mcp.json` 为空。Alma 的聊天、记忆、通知、微信、Herdr 及其自身 bundled/personal 配置由 Alma 独立维护，不由本仓库管理。
 - 自动备份：每 24 小时、保留 3 份、包含登录态；密码及备份文件不公开。没有执行备份或恢复演练，不能保证未核验的数据一定被整包覆盖。
@@ -35,13 +36,18 @@
 | magpie-our-free-model | `github:mu-zi-lee/magpie-our-free-model`，0.9.4 | CLI 显示 on；社区模型供应商入口。登录态不公开，不依赖其名称承诺长期免费或稳定 |
 | @vshulcz/magpie-deja | 本地 `~/.config/magpie/local-plugins/magpie-deja`，package 版本 0.24.0 | CLI 显示 on，async gateway `onRequest` hook；按项目召回历史会话 |
 
-## Codex 技能插件：1 个
+## Codex 技能：20 个
 
-| 插件 | 当前来源/版本 | 状态与作用 |
-|---|---|---|
-| `mattpocock-skills-zh` | 本地 marketplace `magpie-mattpocock-zh`，1.0.10；内容来自 [vinvcn/mattpocock-skills-zh-CN](https://github.com/vinvcn/mattpocock-skills-zh-CN) commit `d97aa0788b120c9363ebddfd47b87618d9314c3e` | Codex CLI 显示 `installed, enabled`；提供 16 个按用户选择裁剪并适配 Codex 执行与授权边界的简体中文工程技能；仅 `grill-with-docs` 可隐式选择，其余 15 个必须显式调用 |
+全部技能由 Magpie 资源库直接分发，没有 Codex 插件、marketplace 或插件缓存。`codex plugin list` 中不应出现 `mattpocock-skills-zh` 或 `magpie-mattpocock-zh`。
 
-运行插件源是本机 Codex marketplace `magpie-mattpocock-zh`，公开只读镜像在 `plugins\mattpocock-skills-zh\`。安装缓存由 Codex 管理，不手工编辑；更新顺序是修改插件源、提升版本、先执行 `codex plugin remove "mattpocock-skills-zh@magpie-mattpocock-zh"`，再执行 `codex plugin add "mattpocock-skills-zh@magpie-mattpocock-zh"`，最后核对 `codex plugin list` 与缓存版本。
+| 类别 | 技能 |
+|---|---|
+| 隐式触发 | `ruoyi6`、`database-design`、`grill-with-docs` |
+| 需求与决策 | `ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype` |
+| 规格与交付 | `to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents` |
+| 视觉与展现 | `frontend-design`、`answer-me-with-html` |
+
+其中 16 个技能源自 Matt Pocock 的工程技能，经简体中文翻译和本地适配；来源与 MIT 许可见 [THIRD-PARTY.md](THIRD-PARTY.md)。
 
 来源：[our-free-model](https://github.com/mu-zi-lee/magpie-our-free-model)、[deja-vu Magpie 扩展](https://github.com/vshulcz/deja-vu/tree/main/extensions/magpie)。本轮未比较 deja 本地插件和上游字节，不能保证直接 npm 安装就复现本机本地包。
 
@@ -89,12 +95,12 @@ deja README 使用 `~/.deja` 举例，本机该目录不存在；Windows 数据�
 | 会话/记忆 | 机制、路径类型、权限与已知健康状态 | 会话、结构化记忆、召回索引及相关授权 |
 | 加密同步 | 使用 Magpie 支持的备份/同步机制 | 同步位置、密码、登录态与真实备份 |
 
-不复制原始 settings/providers/plugins/library/sync/memory JSON 到公开库。`environment.snapshot.json` 是明确白名单字段提取：除 Magpie 的指令 Agent、本地技能和 MCP 元数据外，还包括 Codex 插件版本、16 个插件技能名和 3 条公开记忆的正文文件索引；不包含 MCP 认证头、插件运行缓存、记忆索引或机器路径。
+不复制原始 settings/providers/library/sync/memory JSON 到公开库。`environment.snapshot.json` 是明确白名单字段提取：包含 Magpie 的指令 Agent、20 个技能的路由、MCP 元数据和 3 条公开记忆的正文文件索引；不包含 MCP 认证头、插件或运行缓存、记忆索引或机器路径。
 
 ## 恢复与后续维护
 
 1. 按 [DEPENDENCIES.md](DEPENDENCIES.md) 安装 Magpie、必要 CLI，恢复授权的加密备份；备份包含范围以该版本帮助与恢复演练为准。
-2. 用本仓库恢复规则与技能；按快照登记 MCP/插件/分发开关；凭据从私有安全渠道配置。
+2. 用本仓库恢复规则与技能；按快照登记 MCP 和技能分发开关；凭据从私有安全渠道配置。
 3. deja 的本地包/索引、Magpie 结构化记忆分别确认是否已恢复，不能假设 Magpie 备份覆盖第三方索引。
 4. 执行必要的只读配置核对；实际连接、模型调用、索引/蒸馏、备份恢复等动作按当前授权进行。
 5. 修改 MCP、插件、记忆机制或分发时，同时更新本文、脱敏快照和依赖说明，核对差异/敏感字段后按授权推送。

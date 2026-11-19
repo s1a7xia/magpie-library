@@ -14,9 +14,6 @@ from pathlib import Path
 MAGPIE_HOME = Path.home() / ".config" / "magpie"
 LIBRARY = MAGPIE_HOME / "library"
 OUT = LIBRARY / "config" / "environment.snapshot.json"
-CODEX_PLUGIN_CACHE = (
-    Path.home() / ".codex" / "plugins" / "cache" / "magpie-mattpocock-zh"
-)
 
 
 def public_memory() -> list[dict]:
@@ -32,34 +29,6 @@ def public_memory() -> list[dict]:
                     fields[key.strip()] = value.strip()
         items.append({"file": path.name, **fields})
     return items
-
-
-def plugin_skills() -> list[dict]:
-    """Return installed Codex plugin skills without copying plugin cache state."""
-    plugins = []
-    if not CODEX_PLUGIN_CACHE.is_dir():
-        return plugins
-    manifests = sorted(CODEX_PLUGIN_CACHE.rglob(".codex-plugin/plugin.json"))
-    for manifest in manifests:
-        root = manifest.parent.parent
-        skills_dir = root / "skills"
-        if not manifest.is_file() or not skills_dir.is_dir():
-            continue
-        metadata = json.loads(manifest.read_text(encoding="utf-8"))
-        plugins.append(
-            {
-                "name": metadata.get("name"),
-                "version": metadata.get("version"),
-                "repository": metadata.get("repository"),
-                "license": metadata.get("license"),
-                "skills": sorted(
-                    item.name
-                    for item in skills_dir.iterdir()
-                    if item.is_dir() and (item / "SKILL.md").is_file()
-                ),
-            }
-        )
-    return plugins
 
 
 def main() -> int:
@@ -105,7 +74,6 @@ def main() -> int:
             }
             for item in data.get("skills", [])
         ],
-        "pluginSkills": plugin_skills(),
         "publicMemory": public_memory(),
         "mcp": mcp,
     }

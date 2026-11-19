@@ -16,7 +16,28 @@
       "route": "direct"
     },
     {
+      "name": "ask-matt",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "code-review",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
       "name": "database-design",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "domain-modeling",
       "agents": [
         "codex"
       ],
@@ -30,37 +51,102 @@
       "route": "direct"
     },
     {
+      "name": "grill-with-docs",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "grilling",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "handoff",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "implement-spec",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "prototype",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "research",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "retro",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
       "name": "ruoyi6",
       "agents": [
         "codex"
       ],
       "route": "direct"
-    }
-  ],
-  "pluginSkills": [
+    },
     {
-      "name": "mattpocock-skills-zh",
-      "version": "1.0.10",
-      "repository": "https://github.com/vinvcn/mattpocock-skills-zh-CN",
-      "license": "MIT",
-      "skills": [
-        "ask-matt",
-        "code-review",
-        "domain-modeling",
-        "grill-with-docs",
-        "grilling",
-        "handoff",
-        "implement-spec",
-        "prototype",
-        "research",
-        "retro",
-        "setup-matt-pocock-skills",
-        "to-spec",
-        "to-tickets",
-        "triage",
-        "wayfinder",
-        "writing-for-agents"
-      ]
+      "name": "setup-matt-pocock-skills",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "to-spec",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "to-tickets",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "triage",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "wayfinder",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
+    },
+    {
+      "name": "writing-for-agents",
+      "agents": [
+        "codex"
+      ],
+      "route": "direct"
     }
   ],
   "publicMemory": [

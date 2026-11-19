@@ -2,15 +2,14 @@
 
 本文记录这套组合在本机的实际依赖，以及换电脑后怎样恢复成同一套工作环境。
 
-核对日期：2026-11-19。MCP、插件和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
+核对日期：2026-11-19。技能、MCP 和记忆的最新清单见 [ENVIRONMENT.md](ENVIRONMENT.md)，白名单快照见 [config/environment.snapshot.json](config/environment.snapshot.json)。版本和路径会变化，恢复后以实际命令输出为准。
 
 ## 1. 什么必须一致
 
 | 类别 | 作用 | 是否在本仓库 |
 |---|---|---|
 | 全局工程指令 | 工作原则、授权、验证和已有改动保护 | 唯一源 `instructions.md` + `instructions/codex.md`；项目专属规则留在项目 `AGENTS.md` |
-| 4 个资源库本地技能 | 业务规范、视觉和展现支撑 | 在 `skills/` |
-| Matt 中文技能插件 | 16 个需求、规格、实现和审查方法 | 本地 Codex marketplace |
+| 20 个资源库技能 | 业务规范、需求收敛、规格、实现、审查和展现支撑 | 在 `skills/`，直接同步到 `~/.codex/skills` |
 | `library.json` | 哪些技能和 MCP 分发给哪些 Agent | 不在本仓库，属于机器状态 |
 | MCP 与 CLI | 搜索、文档、代码托管、数据库、SSH、浏览器等执行能力 | 配置不在本仓库，程序需另行安装 |
 | 凭据和登录态 | 模型供应商、代码托管、数据库、SSH、浏览器会话 | **永不入库** |
@@ -55,30 +54,11 @@ Java、Maven、pnpm 等属于具体项目的构建依赖，不属于这套通用
 - `sharedSkills = false`
 - `mcpHub = true`
 - `skillRouter = off`
-- Magpie 资源库技能数：4
+- Magpie 资源库技能数：20
 - 资源库源：`C:\Users\<user>\.config\magpie\library\skills\`
 - Codex 技能目录：`C:\Users\<user>\.codex\skills\`
 
-Magpie 使用直接分发：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由。前两个由全局指令优先触发，后两个只在用户点名时进入。Matt 的 16 个简体中文技能由 Codex 插件提供，不复制到 Magpie。
-
-插件配置：
-
-```text
-marketplace: magpie-mattpocock-zh
-plugin: mattpocock-skills-zh@magpie-mattpocock-zh
-version: 1.0.10
-source: 本机 Codex marketplace `magpie-mattpocock-zh`；公开仓库镜像在 `plugins\mattpocock-skills-zh\`
-upstream: https://github.com/vinvcn/mattpocock-skills-zh-CN
-commit: d97aa0788b120c9363ebddfd47b87618d9314c3e
-```
-
-恢复时执行：
-
-```powershell
-codex plugin marketplace add "<本仓库目录>"  # 仓库根含 .agents/plugins/marketplace.json
-codex plugin add "mattpocock-skills-zh@magpie-mattpocock-zh"
-codex plugin list
-```
+Magpie 使用直接分发：20 个技能全部直接出现在 `~\.codex\skills`，都是指向资源库的 Junction；不使用 `magpie-skills` 聚合路由，也不安装 Codex 插件副本。恢复时只执行 `magpie library sync`。
 
 `sharedSkills` 和逐 Agent 勾选是两个独立控制：
 
@@ -89,11 +69,11 @@ codex plugin list
 
 ### 3.2 当前分发
 
-当前 Magpie 的 4 个技能只勾选给 `codex`，并全部直接暴露：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html`。`ruoyi6`、`database-design` 由全局指令优先触发；`frontend-design`、`answer-me-with-html` 只在用户点名时进入。不使用聚合路由。
+当前 Magpie 的 20 个技能只勾选给 `codex`，并全部直接暴露：`answer-me-with-html`、`ask-matt`、`code-review`、`database-design`、`domain-modeling`、`frontend-design`、`grill-with-docs`、`grilling`、`handoff`、`implement-spec`、`prototype`、`research`、`retro`、`ruoyi6`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`triage`、`wayfinder`、`writing-for-agents`。`ruoyi6`、`database-design`、`grill-with-docs` 由全局指令优先触发；其余 17 个只在用户点名时进入。不使用聚合路由。
 
-Matt 中文插件包含 16 个技能：`ask-matt`、`triage`、`wayfinder`、`grill-with-docs`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`implement-spec`、`code-review`、`retro`、`setup-matt-pocock-skills`、`handoff`、`writing-for-agents`。`tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture` 和 `pr` 未纳入，不得按旧文档声称可用。
+`tdd`、`implement`、`diagnosing-bugs`、`codebase-design`、`improve-codebase-architecture`、`pr` 和 `api-regression` 未纳入，不得按旧文档声称可用。
 
-Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；`ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff`、`writing-for-agents` 全部由 `allow_implicit_invocation: false` 限制为显式调用。插件技能在 Codex 中的完整调用名是 `$mattpocock-skills-zh:<skill>`；只写 `$wayfinder` 不会加载插件技能。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
+Matt 技能已按本机授权边界做过本地适配，因此不与翻译仓库自动同步。更新时必须先比对上游中文内容，再人工复核授权门、默认本地存储和 Windows 行为。当前调用策略：只有 `grill-with-docs` 可由 Codex 按技能描述选择；其余 16 个 Matt 技能由 `disable-model-invocation: true` 限制为显式调用。全部技能在 Codex 中统一使用短名，例如 `$wayfinder`、`$to-spec`；不再使用插件命名空间。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；这不是路径 hook，实际以本轮读取的 `SKILL.md` 为准。
 
 全局指令当前只分发给 `codex`：
 
@@ -222,10 +202,9 @@ git clone git@github.com:s1a7xia/magpie-library.git
 1. 在 Magpie 中创建或恢复 `library.json`；
 2. 重新登记 9 个资源库 MCP 和认证信息；
 3. 重新配置模型供应商；
-4. 把 4 个本地技能勾选给 Codex，关闭 `skillRouter`，4 个技能全部设为 `direct`；
-5. 从本仓库根目录添加 marketplace，并安装其中的 Matt 中文插件；
-6. 执行 `magpie library sync`；
-7. 重新建立 SSH、数据库和浏览器登录态。
+4. 把 20 个技能勾选给 Codex，关闭 `skillRouter`，全部设为 `direct`；
+5. 执行 `magpie library sync`；
+6. 重新建立 SSH、数据库和浏览器登录态。
 
 不要把仓库直接当成完整的 Magpie 配置目录：本仓库没有 `library.json`，也不保存密钥和机器状态。
 
@@ -244,7 +223,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 - `library.json` 可解析；
 - 技能和 MCP 列表非空；
 - Codex 指令块存在，且与资源库正文一致；
-- 资源库与 `~/.codex/skills` 的 4 个直接技能哈希一致，且不存在 `magpie-skills` 路由目录。
+- 资源库与 `~/.codex/skills` 的 20 个直接技能哈希一致，且不存在 `magpie-skills` 路由目录。
 
 它**不验证**：
 
@@ -257,7 +236,7 @@ python "$env:USERPROFILE\.config\magpie\library\scripts\verify-library.py"
 
 ```powershell
 magpie ls
-Get-ChildItem "$env:USERPROFILE\.agents\skills" | Select-Object Name,LinkType,Target
+Get-ChildItem "$env:USERPROFILE\.codex\skills" | Select-Object Name,LinkType,Target
 Get-Content "$env:USERPROFILE\.codex\AGENTS.md" -TotalCount 20
 ```
 
@@ -367,8 +346,8 @@ magpie model output our-free-model/raccoon/sn-deepseek-v4-1-flash-1017
 - [ ] `verify-library.py` 零错误；
 - [ ] `~/.codex/skills` 的链接与当前 Magpie 技能清单一致；
 - [ ] Codex 新会话能读取全局规则；
-- [ ] 4 个本地技能与脱敏快照一致，均直接出现在 `~/.codex/skills`；`magpie-skills` 路由目录不存在；
-- [ ] `codex plugin list` 显示 `mattpocock-skills-zh@magpie-mattpocock-zh` 为 `installed, enabled`，缓存中有 16 个技能；
+- [ ] 20 个技能与脱敏快照一致，均直接出现在 `~/.codex/skills`，且都是指向 Magpie 的 Junction；`magpie-skills` 路由目录不存在；
+- [ ] `codex plugin list` 不显示 `mattpocock-skills-zh` 或 `magpie-mattpocock-zh`；
 - [ ] 至少一个搜索 MCP 和一个代码托管 MCP 完成只读调用；
 - [ ] 已记录目标项目真实构建命令；只有当前请求授权时运行受影响侧构建，否则记未验证；
 - [ ] 未把任何密钥、DSN、认证头或登录态提交到 Git。

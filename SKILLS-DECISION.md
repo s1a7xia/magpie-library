@@ -1,113 +1,150 @@
 # 技能选型与交付闭环
 
-更新日期：2026-11-19。本文记录当前技能集合的取舍依据，不代替项目授权。
+更新日期：2026-11-19。本文记录当前 20 个技能的取舍依据和最短交付路线，不代替项目授权。
 
-## 当前结构
+## 当前结论
+
+- **唯一入口**：Magpie 资源库。
+- **唯一安装位置**：`~/.codex/skills`，全部为指向 Magpie 的 Junction。
+- **技能总数**：20 个。
+- **隐式触发**：3 个，`ruoyi6`、`database-design`、`grill-with-docs`。
+- **显式调用**：17 个，只有用户点名才进入。
+- **调用方式**：统一使用短名，如 `$wayfinder`、`$to-spec`、`$code-review`。
+- **不再使用**：Codex 插件副本、`mattpocock-skills-zh` 命名空间、`magpie-skills` 聚合路由。
+
+技能存在不等于已经加载；规则里写了“应先读取”也不等于模型每轮必然执行。最终以本轮实际读取的 `SKILL.md` 为准。
+
+## 从需求到产品交付
 
 ```text
-新项目 / 重大新模块
-  -> 产品发现（Default；Plan 可选）
-  -> 事实基线
-已有项目明确任务
-  -> 事实基线
+新项目 / 新模块
+  -> 读项目 AGENTS.md、仓库、调用链、Git、状态文档和已有术语/ADR
+  -> Default 模式澄清目标、角色、核心流程、数据对象、复用能力、
+     非目标、验收人、明确授权
+  -> Plan 模式收敛模块边界、页面/菜单/路由、API、权限、状态、
+     数据对象、验收标准、首批切片
 
-任何阶段涉及持久化对象 / 字段 / 关系 / 状态 / 唯一性 / 删除 / 迁移
-  -> database-design：进入 $mattpocock-skills-zh:to-spec 前确认数据契约
+已有项目的明确任务
+  -> 读项目事实和当前授权
 
-需求收敛
-  ├─ 小而明确：直接实现
-  ├─ 会话内真实歧义：grill-with-docs
-  └─ 大型、跨会话、未知互相阻塞：建议 $mattpocock-skills-zh:wayfinder
-       ├─ 外部事实未明：research
-       ├─ 设计需要看效果：prototype
-       └─ 业务决策/术语：grilling + domain-modeling
+按复杂度选择最短路径
+  ├─ 目标、验收、修改点清楚
+  │    -> 直接实现，不强制创建 PRD、spec 或 tickets
+  ├─ 单会话内存在会改变结果的真实歧义
+  │    -> grill-with-docs
+  └─ 大型、跨会话、关键未知互相阻塞
+       -> $wayfinder 建决策地图
+            ├─ 外部事实不明：$research
+            ├─ 必须看 UI/行为效果：$prototype
+            └─ 业务决策/术语未定：$grilling + $domain-modeling
 
-规格与切片
-  -> 大型/多阶段项目首次 spec/ticket 流程：建议 $mattpocock-skills-zh:setup-matt-pocock-skills（用户确认后配置）
-  -> $mattpocock-skills-zh:to-spec：需要可验收规格、交接或复杂变更
-  -> 多个纵向切片或真实依赖：建议 $mattpocock-skills-zh:to-tickets（用户确认后）
-  -> 小改 / 单切片：跳过规格和拆票
+涉及持久化对象、字段、关系、状态、唯一性、生命周期、删除/历史、
+JSONB 或迁移
+  -> database-design 先形成数据契约
 
-实现 -> 按授权验收
-  -> 默认当前会话实现；仅 RuoYiPlus 叠加 ruoyi6
-  -> 仅明确要求时 $mattpocock-skills-zh:implement-spec
-  -> $mattpocock-skills-zh:code-review / $mattpocock-skills-zh:retro：用户明确要求时
+需要核对框架落点和复用边界
+  -> ruoyi6 对照仓库确认真实实现位置
+
+方案已收敛，需要持久记录
+  -> $to-spec 固化可验收规格
+
+存在多个可独立验收的纵向切片或真实阻塞依赖
+  -> $to-tickets
+
+实现
+  ├─ 默认：当前 Codex 会话按 ruoyi6 实现
+  └─ 仅明确要求时：$implement-spec 在隔离 worktree 按 task graph 编排
+
+验证与交付
+  -> 按当前任务授权执行最小验证并记录证据
+  -> 仅明确要求时 $code-review
+  -> 预发布、UAT、生产发布、客户验收是独立审批门
 ```
 
-不是每个任务都必须走完整流程。只有 `grill-with-docs` 可由模型按技能 description 隐式选择；`ask-matt`、`triage`、`wayfinder`、`grilling`、`domain-modeling`、`research`、`prototype`、`to-spec`、`to-tickets`、`setup-matt-pocock-skills`、`implement-spec`、`code-review`、`retro`、`handoff`、`writing-for-agents` 全部由元数据限制为显式调用，必须由用户点名完整技能名后进入。当前全局指令只补充 `ruoyi6`、`database-design`、`grill-with-docs` 三条优先触发路径；它们不是确定性 hook，实际以本轮读取的 `SKILL.md` 为准。
+这张图的重点不是“每个任务都走完全程”，而是每一跳都只在有实际需要时发生。简单改动直接实现；大型工作才需要决策地图、规格和拆票。
 
-插件技能必须带命名空间，例如 `$mattpocock-skills-zh:wayfinder`、`$mattpocock-skills-zh:to-tickets`；只写 `$wayfinder` 不会加载插件技能。`grill-with-docs` 虽可自动匹配，也支持 `$mattpocock-skills-zh:grill-with-docs` 显式调用；它内部通过相对路径读取 `grilling` 与 `domain-modeling`，不依赖这两个技能被隐式选中。
+## 技能分层
 
-## 载体
+### 隐式触发：3 个
 
-- **Codex 插件**：`mattpocock-skills-zh`，来源为中文翻译仓库 `vinvcn/mattpocock-skills-zh-CN`。运行安装在 Codex 插件缓存；公开镜像位于 `plugins/mattpocock-skills-zh/`。
-- **Magpie 直接分发**：`ruoyi6`、`database-design`、`frontend-design`、`answer-me-with-html` 全部直接暴露在 `~/.codex/skills`；`ruoyi6` 和 `database-design` 按场景优先触发，`frontend-design` 和 `answer-me-with-html` 仅在用户点名时进入；不使用 `magpie-skills` 聚合路由。
-- **Matt 中文插件**：16 个流程技能独立加载，不与 Magpie 本地技能重复；只有 `grill-with-docs` 可隐式选择，其余 15 个必须由用户显式点名。
+这三项由 `instructions/codex.md` 明确要求，模型在当前场景应先读取对应 `SKILL.md`：
 
-## 中文插件：16 个
-
-### 需求与决策
-
-| 技能 | 作用 | 默认边界 |
+| 技能 | 触发条件 | 作用 |
 |---|---|---|
-| `ask-matt` | 路径不清时选择最短可靠路线 | 显式导航；不替代 Codex 自带路由 |
-| `triage` | 外部 Issue/PR 的分类、证据核验和 brief | 未授权时只读分析并输出本地草案 |
-| `wayfinder` | 大型跨会话工作的决策地图与 decision tickets | 默认本地 `.scratch/<effort>/`；research ticket 可启只读调查子代理；外部 tracker 另授权 |
-| `grill-with-docs` | 单会话内持续追问，沉淀术语和 ADR | 需要用户真实参与；不替代事实研究 |
-| `grilling` | 设计树、frontier 和逐轮追问方法 | 由上层流程读取，也可独立使用 |
-| `domain-modeling` | 统一领域语言、边界、生命周期和 ADR | 领域文档写入受当前任务授权约束 |
+| `ruoyi6` | 修改 RuoYi-Vue-Plus 的 `ruoyi-modules/ruoyi-*` 后端，或 `plus-ui-React/src` 对应页面、API、类型、路由、菜单、组件前 | 核对真实复用点、后端分层、BO/VO、前端链路、权限、字典、菜单和增量 SQL |
+| `database-design` | 讨论或修改持久化对象、表、字段语义、归属、关系、状态、唯一性、生命周期、删除/历史、JSONB、迁移时 | 先确认数据契约，避免在规格或实现中臆造模型 |
+| `grill-with-docs` | 单会话内存在会改变结果的真实歧义时 | 持续追问并沉淀领域术语和 ADR；目标与验收明确则直接实现 |
 
-### 证据与规格
+这三项是“优先读取”，不是确定性 hook，也不能替代对项目事实的核对。
 
-| 技能 | 作用 | 默认边界 |
+### 需求与决策：7 个显式技能
+
+| 技能 | 作用 | 何时使用 |
 |---|---|---|
-| `research` | 用一手来源补齐决策事实 | 调用即启后台调研子代理，主会话继续推进 |
-| `prototype` | 用一次性样品回答 UI/状态/逻辑问题 | 默认保留本地工件；不自动提交或 push |
-| `to-spec` | 把已确认内容合成为可验收 spec | 默认项目内 Markdown；外部发布另授权 |
-| `to-tickets` | 拆成带 blocking edges 的纵向切片 | 默认本地每票一个文件；远端另授权 |
-| `setup-matt-pocock-skills` | 配置 issue tracker、triage labels 和领域文档布局 | 默认 Local markdown，不创建状态文档，不擅自改 remote/label |
+| `$ask-matt` | 路径不清时选择最短可靠路线 | 用户明确要求导航，或方案阶段确实无法判断下一步 |
+| `$triage` | 对外部 Issue/PR 分类、补证据、形成 agent-ready brief | 已有外部需求池需要整理；不处理刚由 `$to-tickets` 产出的票 |
+| `$wayfinder` | 为单个会话装不下的大型工作建立决策地图和 decision tickets | 跨会话、多未知互相阻塞；只规划路线，不直接交付功能 |
+| `$grilling` | 用设计树和 frontier 对计划、设计或想法做压力测试 | 需要深挖决策，不一定需要写文档 |
+| `$domain-modeling` | 统一领域语言、边界、生命周期，沉淀词汇表和 ADR | 术语或边界不稳定，后续规格会因此反复 |
+| `$research` | 用一手来源补齐外部事实 | API、框架版本、第三方能力、规范事实未明 |
+| `$prototype` | 用一次性样品验证 UI、状态模型或业务逻辑 | 纸面讨论无法判断效果 |
 
-### 实现、审查与交付
+### 规格、实现与交付：10 个显式技能
 
-| 技能 | 作用 | 默认边界 |
+| 技能 | 作用 | 何时使用 |
 |---|---|---|
-| `implement-spec` | 按 spec 和 task graph 实现 | 调用即授权隔离 worktree 的实现/合并子代理及任务分支本地提交；push、PR、测试另授权 |
-| `code-review` | Standards + Spec 双轴审查 | 显式技能；调用即授权两个并行只读审查子代理，不能并行时串行降级 |
-| `retro` | 复盘一次会话并改进 agent 环境 | 只提改进候选，不擅自扩大改动 |
-| `handoff` | 生成跨会话/跨目录交接文档 | 只在确需可携带交接时使用 |
-| `writing-for-agents` | 编写技能、AGENTS.md 等 agent 文档 | 不替代项目规则 |
+| `$to-spec` | 把已确认内容合成为可验收规格，不做新访谈 | 需要持久记录、交接、复杂变更或多轮实现 |
+| `$to-tickets` | 拆成带阻塞关系的纵向交付切片 | 存在多个可独立验收的切片或真实依赖 |
+| `$implement-spec` | 按 spec 和 task graph 编排实现 | 用户明确要求编排式实现，而不是默认当前会话实现 |
+| `$code-review` | Standards + Spec 双轴只读审查 | 用户明确要求审查；调用即授权两个并行只读审查子代理 |
+| `$retro` | 复盘一次会话并改进 agent 环境 | 用户明确要求复盘 |
+| `$handoff` | 生成可携带的跨会话交接文档 | 要换 harness、目录、同事或阶段中途分叉 |
+| `$setup-matt-pocock-skills` | 配置 tracker、triage labels 和领域文档布局 | 大型或多阶段项目首次进入 spec/ticket 流程前 |
+| `$writing-for-agents` | 编写技能、`AGENTS.md` 等 agent 文档 | 用户明确要求维护 agent 指令或技能 |
+| `$frontend-design` | 深度视觉设计 | 用户明确要求页面美化、整页改版或明确视觉方向 |
+| `$answer-me-with-html` | 生成视觉解释页 | 用户明确要求可视化说明 |
 
-## Magpie 本地技能：4 个
+## 为什么保留这 20 个
 
-| 技能 | 作用 |
+| 目标 | 保留能力 |
 |---|---|
-| `ruoyi6` | RuoYi-Vue-Plus 6.x + plus-ui-React 的实现规范 |
-| `database-design` | 持久化模型准入、约束、生命周期和迁移契约 |
-| `frontend-design` | 用户明确要求深度视觉设计时叠加 |
-| `answer-me-with-html` | 用户明确要求视觉解释页时使用 |
-
-这 4 个技能仍在 Magpie 资源库中维护；16 个 Matt 中文技能的运行载体仍是 Codex 插件，公开仓库只保留一份只读镜像，避免在 Magpie 形成同名双份。4 个本地技能全部直接暴露在 `~/.codex/skills`；`ruoyi6`、`database-design` 由全局指令优先触发，`frontend-design`、`answer-me-with-html` 只在用户点名时进入。不使用 `magpie-skills` 聚合入口。API 回归的执行约束已收敛到全局 `instructions.md` 与 Codex 补充 `instructions/codex.md`，不再单独维护技能。
+| 需求不清楚，但一个会话能问清 | `grill-with-docs` + `$grilling` + `$domain-modeling` |
+| 工作跨会话，关键未知互相阻塞 | `$wayfinder` |
+| 外部事实不明确 | `$research` |
+| 必须看效果才能决策 | `$prototype` |
+| 从讨论进入可验收规格 | `$to-spec` |
+| 从规格进入可独立验收的交付顺序 | `$to-tickets` |
+| 项目第一次建立规格/票务和领域文档约定 | `$setup-matt-pocock-skills` |
+| 默认实现和 RuoYi 技术规范 | 当前会话 + `ruoyi6` |
+| 数据模型不被顺手臆造 | `database-design` |
+| 明确要求时的质量审查 | `$code-review` |
+| 明确要求时的复盘、交接和文档维护 | `$retro`、`$handoff`、`$writing-for-agents` |
+| 外部需求池整理 | `$triage` |
+| 路径导航和视觉支撑 | `$ask-matt`、`$frontend-design`、`$answer-me-with-html` |
+| 编排式实现 | `$implement-spec` |
 
 ## 刻意不纳入
 
 | 能力 | 不纳入原因 |
 |---|---|
-| `tdd` | 当前工作流不默认授权测试；需要 TDD 时按项目测试规范手工执行，不额外常驻技能。 |
-| `implement` | 默认串联测试、审查和提交，与当前授权边界冲突；默认实现由 Codex 直接完成。 |
-| `diagnosing-bugs` | 不使用未选技能；困难缺陷按项目规则定位根因，必要时用 `research` 或 `prototype` 获取证据。 |
-| `codebase-design` | 未选；需要深模块词汇时在当前任务中按通用设计原则分析。 |
-| `improve-codebase-architecture` | 未选；不把架构巡检设为日常前置步骤。 |
-| `pr` | 未选；PR 正文按项目现有模板直接编写，不增加额外技能。 |
-| `grill-me` | 与 `grilling` / `grill-with-docs` 重叠，避免多个入口误路由。 |
+| `tdd` | 当前工作流不默认授权测试；需要 TDD 时按项目测试规范直接执行，不常驻技能。 |
+| `implement` | 默认串联测试、审查和提交，与当前授权边界冲突；默认实现由 Codex 当前会话完成。 |
+| `diagnosing-bugs` | 困难缺陷按项目规则定位根因，必要时用 `$research` 或 `$prototype` 获取证据。 |
+| `codebase-design` | 当前任务按通用设计原则和项目现有架构处理。 |
+| `improve-codebase-architecture` | 不把架构巡检设为日常前置步骤。 |
+| `pr` | PR 正文按项目现有模板直接编写。 |
+| `grill-me` | 与 `$grilling`、`grill-with-docs` 重叠，避免多个入口误路由。 |
 | `wizard` | 生成 bash 向导，不符合当前 Windows/PowerShell 主环境。 |
 | `teach`、`wait-what`、`to-questionnaire` | 非默认工程交付链路，低频需求直接处理。 |
 | `claude-handoff`、`loop-me` | 与当前 Codex 连续交付模型不匹配或属于未完成能力。 |
 | `in-progress/*` | 作者明确标为未完成，不能作为可靠交付基础设施。 |
-| `misc/*` | 面向特定编辑器/项目脚手架，不构成通用工程闭环。 |
+| `misc/*` | 面向特定编辑器或项目脚手架，不构成通用闭环。 |
+| `api-regression` | 登录方式属于项目/agent 事实，不再单独维护技能；接口验证按当前任务授权直接执行。 |
 
 ## 维护
 
-- Matt 中文技能只维护在插件源目录；更新翻译仓库后，提升插件版本并重新安装。
-- 修改本地技能时编辑 Magpie 资源库 `skills/<name>/`，再执行 `magpie library sync`。
-- 公开仓库 `skills/` 保留当前 4 个 Magpie 本地技能，`plugins/mattpocock-skills-zh/` 保留 16 个插件技能的只读镜像；运行安装仍以 Codex 插件缓存为准，不能直接编辑公开镜像来生效。
-- 技能存在不等于当前会话已加载；插件已启用也不等于业务、MCP 或外部系统已验收。
+- 修改任何技能都编辑 Magpie 资源库 `skills/<name>/`，再执行 `magpie library sync`。
+- 公开仓库只保留同一份 `skills/`，不再镜像 Codex 插件目录。
+- 新会话统一使用短名调用，例如 `$wayfinder`，不再使用 `$mattpocock-skills-zh:wayfinder`。
+- 新增或删除技能时，同时更新 `~/.config/magpie/library.json`、本文、README、脱敏快照和公开镜像。
+- 上游来源和许可见 [THIRD-PARTY.md](THIRD-PARTY.md)。

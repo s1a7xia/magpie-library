@@ -38,7 +38,7 @@ Issue tracker 若未配置，提示用户显式运行 `setup-matt-pocock-skills`
 1. 阅读 spec 和 tickets，确认依赖图、共享接口和合并顺序。
 2. 可选地启动 exploration subagent，把相关代码或外部文档的 Markdown notes 存到所有实现者都能访问的 repo 外目录；不要让它直接改产品代码。
 3. 每个 implementer subagent 使用独立 worktree 和 branch；启动前确认基点是 integration branch，结束时把 integration branch 的最新提交合并进自己的分支。
-4. 每个 implementer 只实现一个 ticket，按项目规范和当前已授权范围实现；本插件未提供 `tdd`，若任务要求 TDD，应按项目既有测试规范手工采用 red-green-refactor，不声称调用不存在的技能。
+4. 每个 implementer 只实现一个 ticket，按项目规范和当前已授权范围实现；当前资源库未提供 `tdd`，若任务要求 TDD，应按项目既有测试规范手工采用 red-green-refactor，不声称调用不存在的技能。
 5. 使用 merger subagent 依次把完成项合并到 integration branch；每次合并后重新计算 frontier，只对有独立可领取 ticket 的工作启动更多实现者。
 6. 所有 tickets 完成后，仅在用户明确要求审查时，在 integration branch 上调用 `code-review`。审查发现只在当前实现授权范围内修复。
 7. 清理本任务创建且已确认归属的 worktree；不触碰其他 worktree、分支或用户改动。

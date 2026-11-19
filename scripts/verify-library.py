@@ -200,14 +200,16 @@ def main() -> int:
             and (item / "SKILL.md").is_file()
             and invocation_policy(item) == "implicit"
         }
-        expected_local_implicit = {"ruoyi6", "database-design"}
+        expected_local_implicit = {"ruoyi6", "database-design", "grill-with-docs"}
         if local_implicit != expected_local_implicit:
             errors.append(
                 "local implicit skills differ from the 3-route design: "
                 f"expected={sorted(expected_local_implicit)}, actual={sorted(local_implicit)}"
             )
         else:
-            checks.append("local implicit skills are exactly ruoyi6 and database-design")
+            checks.append(
+                "local implicit skills are exactly ruoyi6, database-design and grill-with-docs"
+            )
 
         backups = [
             item for item in source_skills.rglob("*") if item.is_file() and is_backup(item)
@@ -293,48 +295,6 @@ def main() -> int:
             warnings.append(
                 "MCP headers contain inline credentials (move to Magpie placeholders): "
                 + ", ".join(sorted(set(inline_credentials)))
-            )
-
-    plugin_root = (
-        CODEX_HOME
-        / "plugins"
-        / "cache"
-        / "magpie-mattpocock-zh"
-        / "mattpocock-skills-zh"
-    )
-    versions = []
-    if plugin_root.is_dir():
-        for item in plugin_root.iterdir():
-            if item.is_dir() and re.fullmatch(r"\d+\.\d+\.\d+", item.name):
-                versions.append((tuple(int(part) for part in item.name.split(".")), item))
-    if not versions:
-        warnings.append("installed Matt plugin cache was not found; plugin policy not checked")
-    else:
-        plugin_dir = max(versions)[1]
-        plugin_skills = plugin_dir / "skills"
-        plugin_skill_dirs = {
-            item.name: item
-            for item in plugin_skills.iterdir()
-            if item.is_dir() and (item / "SKILL.md").is_file()
-        }
-        expected_plugin_implicit = {"grill-with-docs"}
-        plugin_implicit = {
-            name
-            for name, item in plugin_skill_dirs.items()
-            if invocation_policy(item) == "implicit"
-        }
-        if len(plugin_skill_dirs) != 16:
-            errors.append(
-                f"installed Matt plugin has {len(plugin_skill_dirs)} skills; expected 16"
-            )
-        if plugin_implicit != expected_plugin_implicit:
-            errors.append(
-                "Matt plugin implicit skills differ from the 3-route design: "
-                f"expected={sorted(expected_plugin_implicit)}, actual={sorted(plugin_implicit)}"
-            )
-        if len(plugin_skill_dirs) == 16 and plugin_implicit == expected_plugin_implicit:
-            checks.append(
-                f"Matt plugin {plugin_dir.name}: only grill-with-docs is implicit"
             )
 
     print("Magpie library health check")
