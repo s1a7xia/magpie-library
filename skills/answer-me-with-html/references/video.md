@@ -1,13 +1,11 @@
 # Explainer videos (am video, 3Blue1Brown style)
 
-Read this when SKILL.md section 7 sends you here. `am` means the full `node "<skill-dir>\scripts\am.mjs"` command from SKILL.md section 2. On this Windows host, write the absolute PowerShell path out in full.
+Read this when SKILL.md section 7 sends you here. `am` means the full `node ".../scripts/am.mjs"` command from SKILL.md section 2; write the path out in full, because `${CLAUDE_SKILL_DIR}` is not replaced in this file.
 
 A video draft has the same format as a page draft, with one extra rule: lines starting with `>` are narration, one beat per line.
 
-Write the video draft to a temporary Markdown file, then run:
-
-````powershell
-node "<skill-dir>\scripts\am.mjs" video "<video-draft.md>" --no-open
+````bash
+am video - --no-open <<'AM_EOF'
 ---
 title: The TCP three-way handshake
 subtitle: Why three
@@ -23,6 +21,7 @@ Client -> Server: ACK
 > First the client sends SYN to ask for a connection.
 > [Server] answers with SYN-ACK.
 > The client replies with ACK, and the connection is open.
+AM_EOF
 ````
 
 - One `## ` is one scene. Put one component (or one table, one list) in a scene as the picture, and write 2–5 narration lines below it.

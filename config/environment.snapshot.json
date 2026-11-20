@@ -1,5 +1,5 @@
 {
-  "recordedDate": "2026-11-20",
+  "recordedDate": "2026-11-21",
   "source": "local Magpie library; config registration is not connectivity verification",
   "instructionsAgents": [
     "codex"
@@ -262,6 +262,19 @@
       "args": [
         "mcp",
         "search"
+      ]
+    },
+    {
+      "name": "playwright",
+      "transport": "stdio",
+      "agents": [
+        "codex"
+      ],
+      "command": "node.exe",
+      "args": [
+        "chrome",
+        "200",
+        "1800000"
       ]
     },
     {

@@ -53,7 +53,10 @@ def main() -> int:
             safe_args = [
                 arg
                 for arg in args
-                if isinstance(arg, str) and not arg.startswith(("-", "/", "\\"))
+                if isinstance(arg, str)
+                and not arg.startswith(("-", "/", "\\"))
+                and not Path(arg).is_absolute()
+                and not arg.startswith(("C:", "c:"))
             ]
             if safe_args:
                 item["args"] = safe_args
