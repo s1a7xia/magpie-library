@@ -138,6 +138,7 @@ MCP 由 Magpie 统一托管，当前登记 9 项：`context7`、`dbx`、`gitee`�
 | `scripts/export_public_snapshot.py` | 从当前 `library.json` 和公开记忆生成不含凭据的环境快照 |
 | `scripts/export_public_memory.py` | 从运行记忆生成不含路径、索引和运行状态的公开正文镜像 |
 | `scripts/scan-staged-secrets.py` | 扫描暂存区中的凭据、DSN 和认证头 |
+| `docs/collaboration/sidebar-main-workflow.md` | 侧边栏与主线程的协作闭环及一页版 HTML |
 | `README.md` | 组合介绍与入口 |
 | `SKILLS-DECISION.md` | 当前技能选型、纳入/排除理由与需求到交付闭环 |
 | `USAGE.md` | 当前机制、调用示例、权限边界与更新方法 |
